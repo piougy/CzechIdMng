@@ -195,9 +195,9 @@ class SystemDetail extends Basic.AbstractContent {
 
   wizardNext() {
     if (!this.isWizard()) {
-      return null;
+      return;
     }
-    this.save( 'WIZARD_NEXT');
+    this.save('WIZARD_NEXT');
   }
 
   render() {

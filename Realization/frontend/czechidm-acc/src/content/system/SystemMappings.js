@@ -41,7 +41,7 @@ class SystemMappings extends Advanced.AbstractTableContent {
     if (add) {
       // When we add new object class, then we need use "new" url
       const uuidId = uuid.v1();
-      if ( this.isWizard() ) {
+      if (this.isWizard()) {
         const activeStep = this.context.wizardContext.activeStep;
         if (activeStep) {
           activeStep.id = '/system/:entityId/mappings/:mappingId/new';
@@ -50,17 +50,15 @@ class SystemMappings extends Advanced.AbstractTableContent {
       } else {
         this.context.history.push(`/system/${systemId}/mappings/${uuidId}/new?new=1`);
       }
-    } else {
-      if ( this.isWizard() ) {
-        const activeStep = this.context.wizardContext.activeStep;
-        if (activeStep) {
-          activeStep.id = '/system/:entityId/mappings/:mappingId/detail';
-          activeStep.mapping = entity;
-          this.context.wizardContext.wizardForceUpdate();
-        }
-      } else {
-        this.context.history.push(`/system/${systemId}/mappings/${entity.id}/detail`);
+    } else if (this.isWizard()) {
+      const activeStep = this.context.wizardContext.activeStep;
+      if (activeStep) {
+        activeStep.id = '/system/:entityId/mappings/:mappingId/detail';
+        activeStep.mapping = entity;
+        this.context.wizardContext.wizardForceUpdate();
       }
+    } else {
+      this.context.history.push(`/system/${systemId}/mappings/${entity.id}/detail`);
     }
   }
 

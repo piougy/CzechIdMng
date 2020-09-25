@@ -5,12 +5,12 @@ import { connect } from 'react-redux';
 import Joi from 'joi';
 //
 import { Advanced, Basic, Domain, Enums, Managers, Utils } from 'czechidm-core';
+import MappingContextCompleters from 'czechidm-core/src/content/script/completers/MappingContextCompleters';
 import { AttributeControlledValueManager, SchemaAttributeManager, SystemAttributeMappingManager, SystemMappingManager } from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import AttributeControlledValueTable from './AttributeControlledValueTable';
 import { RoleSystemAttributeTable } from '../role/RoleSystemAttributeTable';
-import MappingContextCompleters from 'czechidm-core/src/content/script/completers/MappingContextCompleters';
 
 const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
@@ -45,6 +45,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.attributeMappingDetail';
   }
 
+  // eslint-disable-next-line camelcase
   UNSAFE_componentWillReceiveProps(nextProps) {
     const {_attribute} = nextProps;
 
@@ -72,7 +73,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   /**
    * Method for init component from didMount method and from willReceiveProps method
-   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   * @param  props - properties of component - props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
     const { attributeId} = props.match.params;
@@ -120,7 +121,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
       // Go to parent wizard component.
-      if ( this.isWizard() ) {
+      if (this.isWizard()) {
         this.goBack();
       } else {
         this.context.history.goBack();
@@ -132,7 +133,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   }
 
   goBack() {
-    if ( this.isWizard() ) {
+    if (this.isWizard()) {
       // If is component in the wizard, then set new ID (master component)
       // to the active action and render wizard.
       const activeStep = this.context.wizardContext.activeStep;
@@ -158,7 +159,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   _checkboxChanged(key, uncheckKey, event) {
     const checked = event.currentTarget.checked;
-    this.setState({[key]: checked}, ()=>{
+    this.setState({[key]: checked}, () => {
       if (checked && uncheckKey !== null) {
         this.setState({[uncheckKey]: false});
         this.refs[uncheckKey].setState({value: false}, () => {
@@ -265,23 +266,25 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   }
 
   renderButtons(_showLoading) {
-    return <span>
-      <Basic.Button
-        type="button"
-        level="link"
-        onClick={this.goBack.bind(this)}
-        showLoading={_showLoading}>
-        {this.i18n('button.back')}
-      </Basic.Button>
-      <Basic.Button
-        level="success"
-        type={this.isWizard() ? 'button' : 'submit'}
-        onClick={this.isWizard() ? this.save.bind(this) : null}
-        showLoading={_showLoading}
-        rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
-        {this.i18n('button.save')}
-      </Basic.Button>
-    </span>;
+    return (
+      <span>
+        <Basic.Button
+          type="button"
+          level="link"
+          onClick={this.goBack.bind(this)}
+          showLoading={_showLoading}>
+          {this.i18n('button.back')}
+        </Basic.Button>
+        <Basic.Button
+          level="success"
+          type={this.isWizard() ? 'button' : 'submit'}
+          onClick={this.isWizard() ? this.save.bind(this) : null}
+          showLoading={_showLoading}
+          rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+          {this.i18n('button.save')}
+        </Basic.Button>
+      </span>
+    );
   }
 
   render() {
@@ -314,8 +317,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
         )
       ) : '';
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled && !passwordAttribute;
-    const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
-    const strategyTypeTemp = strategyType ? strategyType : attribute.strategyType;
+    const isSynchronization = !!(_systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION');
+    const strategyTypeTemp = strategyType || attribute.strategyType;
     const isMerge = strategyTypeTemp === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE);
     const showPasswordFilter = passwordAttribute && !isSynchronization && _systemMapping && _systemMapping.entityType === 'IDENTITY';
 

@@ -81,7 +81,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     const objectClassId = this.props._mapping.objectClass.id;
     if (add) {
       // If is in the wizard, then active step will be change to this attribute.
-      if ( this.isWizard() ) {
+      if (this.isWizard()) {
         const activeStep = this.context.wizardContext.activeStep;
         if (activeStep) {
           activeStep.id = 'mappingAttributeNew';
@@ -93,18 +93,16 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
         const uuidId = uuid.v1();
         this.context.history.push(`/system/${systemId}/attribute-mappings/${uuidId}/new?new=1&mappingId=${mappingId}&objectClassId=${objectClassId}`);
       }
-    } else {
+    } else if (this.isWizard()) {
       // If is in the wizard, then active step will be change to this attribute.
-      if ( this.isWizard() ) {
-        const activeStep = this.context.wizardContext.activeStep;
-        if (activeStep) {
-          activeStep.id = 'mappingAttribute';
-          activeStep.attribute = entity;
-          this.context.wizardContext.wizardForceUpdate();
-        }
-      } else {
-        this.context.history.push(`/system/${systemId}/attribute-mappings/${entity.id}/detail`);
+      const activeStep = this.context.wizardContext.activeStep;
+      if (activeStep) {
+        activeStep.id = 'mappingAttribute';
+        activeStep.attribute = entity;
+        this.context.wizardContext.wizardForceUpdate();
       }
+    } else {
+      this.context.history.push(`/system/${systemId}/attribute-mappings/${entity.id}/detail`);
     }
   }
 
@@ -123,7 +121,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
 
   /**
    * Method for init component from didMount method and from willReceiveProps method
-   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   * @param props properties of component - props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
     const { entityId, mappingId } = props.match.params;
@@ -209,10 +207,10 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       const { entityId } = this.props.match.params;
       // Complete wizard step.
       // Set new entity to the wizard context and go to next step.
-      if ( this.isWizard() ) {
+      if (this.isWizard()) {
         const wizardContext = this.context.wizardContext;
         wizardContext.mapping = entity;
-        if ( wizardContext.callBackNext ) {
+        if (wizardContext.callBackNext) {
           wizardContext.callBackNext();
         }
       } else {
@@ -225,7 +223,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
   }
 
   goBack() {
-    if ( this.isWizard() ) {
+    if (this.isWizard()) {
       // If is component in the wizard, then set new ID (master component)
       // to the active action and render wizard.
       const activeStep = this.context.wizardContext.activeStep;
@@ -243,11 +241,11 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
    */
   wizardNext() {
     if (!this.isWizard()) {
-      return null;
+      return;
     }
     if (this.props.showOnlyAttributes) {
       const wizardContext = this.context.wizardContext;
-      if ( wizardContext.callBackNext ) {
+      if (wizardContext.callBackNext) {
         wizardContext.callBackNext();
       }
     } else {
@@ -295,113 +293,114 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
   }
 
   renderAttributesTable(showOnlyMapping, mapping, isNew, forceSearchParameters, systemId) {
-    return <span>
-      <Basic.ContentHeader rendered={!showOnlyMapping && mapping && !isNew} style={{marginBottom: 0, paddingLeft: 15}}>
-        <Basic.Icon value="list-alt"/>
-        {' '}
-        <span dangerouslySetInnerHTML={{__html: this.i18n('systemAttributesMappingHeader')}}/>
-      </Basic.ContentHeader>
-      <Basic.Panel rendered={!showOnlyMapping && mapping && !isNew} className="no-border">
-        <Advanced.Table
-          ref="table"
-          uiKey={uiKeyAttributes}
-          manager={systemAttributeMappingManager}
-          forceSearchParameters={forceSearchParameters}
-          showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
-          rowClass={({rowIndex, data}) => {
-            return data[rowIndex].disabledAttribute ? 'disabled' : '';
-          }}
-          actions={
+    return (
+      <span>
+        <Basic.ContentHeader rendered={!showOnlyMapping && mapping && !isNew} style={{marginBottom: 0, paddingLeft: 15}}>
+          <Basic.Icon value="list-alt"/>
+          {' '}
+          <span dangerouslySetInnerHTML={{__html: this.i18n('systemAttributesMappingHeader')}}/>
+        </Basic.ContentHeader>
+        <Basic.Panel rendered={!showOnlyMapping && mapping && !isNew} className="no-border">
+          <Advanced.Table
+            ref="table"
+            uiKey={uiKeyAttributes}
+            manager={systemAttributeMappingManager}
+            forceSearchParameters={forceSearchParameters}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+            rowClass={({rowIndex, data}) => {
+              return data[rowIndex].disabledAttribute ? 'disabled' : '';
+            }}
+            actions={
             Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
               ?
               [{value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false}]
               :
               null
-          }
-          buttons={
-            [
-              <Basic.Button
-                level="success"
-                key="add_button"
-                className="btn-xs"
-                onClick={this.showDetail.bind(this, {}, true)}
-                rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
-              </Basic.Button>
-            ]
-          }
-          filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm">
-                <Basic.Row className="last">
-                  <div className="col-lg-6">
-                    <Advanced.Filter.TextField
-                      ref="idmPropertyName"
-                      placeholder={this.i18n('filter.idmPropertyName.placeholder')}/>
-                  </div>
-                  <div className="col-lg-2"/>
-                  <div className="col-lg-4 text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
-                </Basic.Row>
-              </Basic.AbstractForm>
-            </Advanced.Filter>
-          }>
-          <Advanced.Column
-            property=""
-            header=""
-            className="detail-button"
-            cell={
-              ({rowIndex, data}) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                );
-              }
-            }/>
-          <Advanced.ColumnLink
-            to={`/system/${systemId}/attribute-mappings/:id/detail`}
-            property="name"
-            header={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
-            sort/>
-          <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
-          <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
-          <Advanced.Column
-            property="entityAttribute"
-            face="boolean"
-            header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
-            sort/>
-          <Advanced.Column
-            property="extendedAttribute"
-            face="boolean"
-            header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
-            sort/>
-          <Advanced.Column
-            property="transformationFromResource"
-            rendered={!this.isWizard()}
-            face="boolean"
-            header={this.i18n('acc:entity.SystemAttributeMapping.transformationFromResource')}
-            cell={
-              ({rowIndex, data}) => {
-                return this._getBoolColumn(data[rowIndex].transformFromResourceScript);
-              }
-            }/>
-          <Advanced.Column
-            property="transformationToResource"
-            rendered={!this.isWizard()}
-            face="boolean"
-            header={this.i18n('acc:entity.SystemAttributeMapping.transformationToResource')}
-            cell={
-              ({rowIndex, data}) => {
-                return this._getBoolColumn(data[rowIndex].transformToResourceScript);
-              }
-            }/>
-        </Advanced.Table>
-      </Basic.Panel>
-    </span>;
+            }
+            buttons={
+              [
+                <Basic.Button
+                  level="success"
+                  key="add_button"
+                  className="btn-xs"
+                  onClick={this.showDetail.bind(this, {}, true)}
+                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+                  <Basic.Icon type="fa" icon="plus"/>
+                  {' '}
+                  {this.i18n('button.add')}
+                </Basic.Button>
+              ]
+            }
+            filter={
+              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                <Basic.AbstractForm ref="filterForm">
+                  <Basic.Row className="last">
+                    <div className="col-lg-6">
+                      <Advanced.Filter.TextField
+                        ref="idmPropertyName"
+                        placeholder={this.i18n('filter.idmPropertyName.placeholder')}/>
+                    </div>
+                    <div className="col-lg-2"/>
+                    <div className="col-lg-4 text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+                </Basic.AbstractForm>
+              </Advanced.Filter>
+            }>
+            <Advanced.Column
+              property=""
+              header=""
+              className="detail-button"
+              cell={
+                ({rowIndex, data}) => {
+                  return (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
+                  );
+                }
+              }/>
+            <Advanced.ColumnLink
+              to={`/system/${systemId}/attribute-mappings/:id/detail`}
+              property="name"
+              header={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
+              sort/>
+            <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
+            <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
+            <Advanced.Column
+              property="entityAttribute"
+              face="boolean"
+              header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
+              sort/>
+            <Advanced.Column
+              property="extendedAttribute"
+              face="boolean"
+              header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
+              sort/>
+            <Advanced.Column
+              property="transformationFromResource"
+              rendered={!this.isWizard()}
+              face="boolean"
+              header={this.i18n('acc:entity.SystemAttributeMapping.transformationFromResource')}
+              cell={
+                ({rowIndex, data}) => {
+                  return this._getBoolColumn(data[rowIndex].transformFromResourceScript);
+                }
+              }/>
+            <Advanced.Column
+              property="transformationToResource"
+              rendered={!this.isWizard()}
+              face="boolean"
+              header={this.i18n('acc:entity.SystemAttributeMapping.transformationToResource')}
+              cell={
+                ({rowIndex, data}) => {
+                  return this._getBoolColumn(data[rowIndex].transformToResourceScript);
+                }
+              }/>
+          </Advanced.Table>
+        </Basic.Panel>
+      </span>);
   }
 
   render() {

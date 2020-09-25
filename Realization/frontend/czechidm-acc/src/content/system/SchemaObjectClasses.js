@@ -33,7 +33,7 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
     const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.match.params.entityId;
     if (add) {
       const uuidId = uuid.v1();
-      if ( this.isWizard() ) {
+      if (this.isWizard()) {
         const activeStep = this.context.wizardContext.activeStep;
         if (activeStep) {
           activeStep.id = 'schemaNew';
@@ -42,19 +42,18 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
       } else {
         this.context.history.push(`/system/${system}/object-classes/${uuidId}/new?new=1&systemId=${system}`);
       }
-    } else {
-      if ( this.isWizard() ) {
-        const activeStep = this.context.wizardContext.activeStep;
-        if (activeStep) {
-          activeStep.id = 'schema';
-          activeStep.objectClass = entity;
-          this.context.wizardContext.wizardForceUpdate();
-        }
-      } else {
-        this.context.history.push(`/system/${system}/object-classes/${entity.id}/detail`);
+    } else if (this.isWizard()) {
+      const activeStep = this.context.wizardContext.activeStep;
+      if (activeStep) {
+        activeStep.id = 'schema';
+        activeStep.objectClass = entity;
+        this.context.wizardContext.wizardForceUpdate();
       }
+    } else {
+      this.context.history.push(`/system/${system}/object-classes/${entity.id}/detail`);
     }
   }
+
   save(entity, event) {
     const formEntity = this.refs.form.getData();
     //
@@ -71,11 +70,11 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
   }
 
   wizardNext() {
-    if ( !this.isWizard() ) {
-      return null;
+    if (!this.isWizard()) {
+      return;
     }
     const wizardContext = this.context.wizardContext;
-    if ( this.props._schemas.total < 1 ) {
+    if (this.props._schemas.total < 1) {
       this.addMessage({
         title: this.i18n('acc:wizard.create-system.steps.schemas.validation.missingSchema.title'),
         message: this.i18n('acc:wizard.create-system.steps.schemas.validation.missingSchema.text'),
@@ -83,7 +82,7 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
       });
       return;
     }
-    if ( wizardContext.callBackNext ) {
+    if (wizardContext.callBackNext) {
       wizardContext.callBackNext();
     }
   }
@@ -179,18 +178,19 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
               null
             }
             buttons={
-              [<span>
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { }, true)}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              </span>
+              [
+                <span>
+                  <Basic.Button
+                    level="success"
+                    key="add_button"
+                    className="btn-xs"
+                    onClick={this.showDetail.bind(this, { }, true)}
+                    rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+                    <Basic.Icon type="fa" icon="plus"/>
+                    {' '}
+                    {this.i18n('button.add')}
+                  </Basic.Button>
+                </span>
               ]
             }
             filter={

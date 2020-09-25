@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -82,7 +83,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
-	private AccIdentityAccountService identityAccoutnService;
+	private AccIdentityAccountService identityAccountService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
@@ -200,7 +201,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 		EntityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 		identityAccountFilter.setAccountId(account.getId());
-		List<AccIdentityAccountDto> identityAccounts = identityAccoutnService
+		List<AccIdentityAccountDto> identityAccounts = identityAccountService
 				.find((AccIdentityAccountFilter) identityAccountFilter, null).getContent();
 		if (identityAccounts.isEmpty()) {
 			addToItemLog(logItem, "Warning! - Identity account relation was not found!");
@@ -213,7 +214,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		identityAccounts.stream().forEach(identityAccount -> {
 			// We will remove identity account, but without delete connected
 			// account
-			identityAccoutnService.delete(identityAccount, false);
+			identityAccountService.delete(identityAccount, false);
 			addToItemLog(logItem, MessageFormat.format(
 					"Identity-account relation deleted (without calling the delete provisioning operation) (username: [{0}], id: [{1}])",
 					identityAccount.getIdentity(), identityAccount.getId()));
@@ -305,14 +306,21 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		properties.put(ProvisioningService.SKIP_PROVISIONING, Boolean.TRUE);
 		IdmRoleRequestDto roleRequest = roleRequestService.executeConceptsImmediate(entity.getId(), concepts, properties);
 
-		// Load concept (can be only one)
+		// Load concepts  and try to find duplicate identity account
+		AccIdentityAccountDto duplicate = null;
 		IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
 		conceptFilter.setRoleRequestId(roleRequest.getId());
-		UUID identityRoleId = conceptRoleRequestService.find(conceptFilter, null).getContent().get(0).getIdentityRole();
-		Assert.notNull(identityRoleId, "Identity role relation had to been created!");
+		for (IdmConceptRoleRequestDto concept : conceptRoleRequestService.find(conceptFilter, null)) {
+			UUID identityRoleId = concept.getIdentityRole();
+			Assert.notNull(identityRoleId, "Identity role relation had to been created!");
+			identityAccount.setIdentityRole(identityRoleId);
+			
+			duplicate = this.findDuplicate(identityAccount);
+			if (duplicate != null) {
+				break;
+			}
+		}
 
-		identityAccount.setIdentityRole(identityRoleId);
-		AccIdentityAccountDto duplicate = this.findDuplicate(identityAccount);
 		if (duplicate != null) {
 			// This IdentityAccount is new and duplicated, we do not want create duplicated
 			// relation.
@@ -340,7 +348,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	protected EntityAccountService<EntityAccountDto, EntityAccountFilter> getEntityAccountService() {
-		return (EntityAccountService) identityAccoutnService;
+		return (EntityAccountService) identityAccountService;
 	}
 
 	@Override
@@ -460,7 +468,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		filter.setIdentityRoleId(identityAccount.getIdentityRole());
 		filter.setRoleSystemId(identityAccount.getRoleSystem());
 
-		List<AccIdentityAccountDto> entityAccounts = identityAccoutnService.find(filter, null).getContent();
+		List<AccIdentityAccountDto> entityAccounts = identityAccountService
+				.find(filter, PageRequest.of(0, 1))
+				.getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		}

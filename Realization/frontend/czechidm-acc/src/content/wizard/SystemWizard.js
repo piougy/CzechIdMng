@@ -100,7 +100,12 @@ export default class SystemWizard extends Basic.AbstractContextComponent {
           getComponent: (wizardContext) => {
             const buildProps = this._buildStepProps(stepId, wizardContext);
             buildProps.match.params.configId = wizardContext.syncConfig.id;
-            return route.props.render(buildProps);
+
+            return (
+              <Basic.Div style={{paddingTop: 5}}>
+                {route.props.render(buildProps)}
+              </Basic.Div>
+            );
           }
         };
       })[0];
@@ -116,11 +121,15 @@ export default class SystemWizard extends Basic.AbstractContextComponent {
           label: this.i18n('acc:wizard.create-system.steps.sync.name'),
           help: this.i18n('acc:wizard.create-system.steps.sync.help'),
           getComponent: (wizardContext) => {
-            return (route.props.render({
-              match: {params: {entityId: wizardContext.entity.id}},
-              location: {query: {new: true, systemId: wizardContext.entity.id}},
-              wizardStepId: stepId
-            }));
+            return (
+              <Basic.Div style={{paddingTop: 5}}>
+                {route.props.render({
+                  match: {params: {entityId: wizardContext.entity.id}},
+                  location: {query: {new: true, systemId: wizardContext.entity.id}},
+                  wizardStepId: stepId
+                })}
+                </Basic.Div>
+            );
           }
         };
       })[0];
@@ -130,7 +139,7 @@ export default class SystemWizard extends Basic.AbstractContextComponent {
       id: 'summary',
       getComponent: (wizardContext) => {
         return (
-          <Basic.Div>
+          <Basic.Div style={{marginTop: 15}}>
             <Basic.Row>
               <Basic.Col lg={2} md={2}/>
               <Basic.Col lg={8} md={8}>

@@ -2346,7 +2346,7 @@
         },
         "summary": {
           "name": "Summary",
-          "text": "<h2>Congratulations,</h2> <h3>Your new system <strong>{{systemName}}</strong> has been successfully created.</h3><br/><br/>When wizard done, you will be redirected to the detail of the new system."
+          "text": "<h2>Congratulations,</h2> <h3>Your new system <strong>{{systemName}}</strong> has been successfully created.</h3><h3>When wizard done, you will be redirected to the detail of the new system.</h3>"
         }
       }
     }

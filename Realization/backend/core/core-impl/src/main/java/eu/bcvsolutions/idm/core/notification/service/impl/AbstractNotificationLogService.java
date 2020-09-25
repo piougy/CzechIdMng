@@ -65,7 +65,8 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
     @Transactional
     public void deleteInternal(DTO dto) {
     	Assert.notNull(dto, "Notification is required.");
-    	Assert.notNull(dto.getId(), "Notification identifier is required.");
+    	UUID notificationId = dto.getId();
+    	Assert.notNull(notificationId, "Notification identifier is required.");
     	//
 		try {
 			//
@@ -73,6 +74,7 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 			//
 			// delete notification attachments
 			IdmNotificationAttachmentFilter notificationAttachmentFilter = new IdmNotificationAttachmentFilter();
+			notificationAttachmentFilter.setNotification(notificationId);
 			notificationAttachmentService
 				.find(notificationAttachmentFilter, null)
 				.forEach(notificationAttachmentService::delete);
@@ -82,7 +84,7 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 	    	//
 	    	// delete child notifications ... 
 			F filter = getFilterClass().getDeclaredConstructor().newInstance();
-			filter.setParent(dto.getId());
+			filter.setParent(notificationId);
 	    	find(filter, null).getContent().forEach(this::delete);
 	    	//
 	    	super.deleteInternal(dto);

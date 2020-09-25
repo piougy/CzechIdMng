@@ -1,6 +1,6 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
-import LocalizationService from './LocalizationService';
+import { i18n } from './LocalizationService';
 
 /**
  * Code list items endpoint
@@ -26,9 +26,9 @@ export default class CodeListItemService extends AbstractService {
       code = entity.code;
     }
     if (!code) {
-      return LocalizationService.i18n(entity.name);
+      return i18n(entity.name);
     }
-    return `${LocalizationService.i18n(entity.name)} (${code})`;
+    return `${ i18n(entity.name) } (${ code })`;
   }
 
   supportsAuthorization() {

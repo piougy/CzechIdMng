@@ -5753,7 +5753,7 @@
     "attributes": {
       "core-topic-report-generate-success": {
         "label": "Notifikace",
-        "help": "Odeslat report po úspěšném dokončení na zadaný topic dle konfigurace notifikací. Ve výchozím nastavení je report zaslán uživateli, který report vytvořil. Pokud je report nakonfigurovaný jako naplánovaná úloha, je třeba nakonfigurovat příjemce v kongiraci notifikací dle topicu (report je z plánovače tvořen pod systémovým uživatelem)."
+        "help": "Odeslat report po úspěšném dokončení na zadaný topic dle konfigurace notifikací. Ve výchozím nastavení je report zaslán uživateli, který report vytvořil. Pokud je report nakonfigurovaný jako naplánovaná úloha, je třeba nakonfigurovat příjemce v konfiguraci notifikací dle topicu (report je z plánovače tvořen pod systémovým uživatelem)."
       }
     },
     "bulk-action": {

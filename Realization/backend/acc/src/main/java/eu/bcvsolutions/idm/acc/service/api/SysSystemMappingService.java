@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
  */
 public interface SysSystemMappingService extends EventableDtoService<SysSystemMappingDto, SysSystemMappingFilter>, CloneableService<SysSystemMappingDto> {
 
-	String ENABLE_AUTOMATIC_CREATION_OF_MAPPING = "enable_automatic_creation_of_mapping";
+	String ENABLE_AUTOMATIC_CREATION_OF_MAPPING = "acc:enable_automatic_creation_of_mapping";
 
 	/**
 	 * Find system mapping by given attributes

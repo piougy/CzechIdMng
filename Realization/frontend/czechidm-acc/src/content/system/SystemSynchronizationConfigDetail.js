@@ -199,9 +199,12 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       }
       if (this.isWizard()) {
         // Set sync to the wizard context.
-        this.context.wizardContext.syncConfig = entity;
-        if (this.context.wizardContext.callBackNext) {
-          this.context.wizardContext.callBackNext();
+        const wizardContext = this.context.wizardContext;
+        wizardContext.syncConfig = entity;
+        if (wizardContext.callBackNext) {
+          wizardContext.callBackNext();
+        } else if (wizardContext.onClickNext) {
+          wizardContext.onClickNext(false, true);
         }
       } else {
         this.context.history.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, {configId: entity.id});

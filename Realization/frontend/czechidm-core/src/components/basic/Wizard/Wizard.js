@@ -26,6 +26,7 @@ export default class Wizard extends AbstractContextComponent {
     };
     if (context && context.wizardContext) {
       context.wizardContext.wizardForceUpdate = this.wizardForceUpdate.bind(this);
+      context.wizardContext.onClickNext = this.onClickNext.bind(this);
     }
   }
 
@@ -140,8 +141,10 @@ export default class Wizard extends AbstractContextComponent {
 
   /**
    * Action executing on click next button.
+   * @param onlyGoNext - Move wizard next without calling save on the component.
+   * @param skip - Skip this step. Move wizard next without calling save on the component. Step will be marked as undone.
    */
-  onClickNext(skip = false) {
+  onClickNext(skip = false, onlyGoNext = false) {
     const {steps} = this.state;
     const wizardContext = this.context.wizardContext;
 
@@ -159,11 +162,13 @@ export default class Wizard extends AbstractContextComponent {
       }
       step.isActive = false;
       step.isDone = !skip;
+      // Clear callback for a next operation.
+      wizardContext.callBackNext = null;
       this.setShowLoading(false);
       this.forceUpdate();
     };
 
-    if (!skip && (step.component || step.getComponent)) {
+    if (!onlyGoNext && !skip && (step.component || step.getComponent)) {
       if (wizardContext.componentCallBackNext) {
         wizardContext.callBackNext = wizardNext;
         wizardContext.setShowLoading = this.setShowLoading.bind(this);
@@ -313,14 +318,14 @@ export default class Wizard extends AbstractContextComponent {
           level="warning"
           style={{marginRight: 5}}
           showLoading={_showLoading}
-          onClick={this.onClickNext.bind(this, true)}>
+          onClick={this.onClickNext.bind(this, true, false)}>
           {this.i18n('component.basic.Wizard.button.skip')}
         </Button>
         <Button
           rendered={!isLast}
           level="success"
           showLoading={_showLoading}
-          onClick={this.onClickNext.bind(this, false)}
+          onClick={this.onClickNext.bind(this, false, false)}
           showLoadingIcon>
           {this.i18n('component.basic.Wizard.button.next')}
         </Button>

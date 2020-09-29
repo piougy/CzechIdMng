@@ -86,6 +86,9 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(schemaObjectClassManager.fetchEntity(objectClassId));
     }
+    if (this.refs.objectClassName) {
+      this.refs.objectClassName.focus();
+    }
   }
 
   /**

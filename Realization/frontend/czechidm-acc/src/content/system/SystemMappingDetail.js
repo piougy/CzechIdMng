@@ -144,6 +144,9 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     if (!this._getIsNew(props)) {
       this._showValidateSystemMessage(mappingId);
     }
+    if (this.refs.name) {
+      this.refs.name.focus();
+    }
   }
 
   /**
@@ -212,6 +215,8 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
         wizardContext.mapping = entity;
         if (wizardContext.callBackNext) {
           wizardContext.callBackNext();
+        } else if (wizardContext.onClickNext) {
+          wizardContext.onClickNext(false, true);
         }
       } else {
         this.context.history.replace(`/system/${entityId}/mappings/${entity.id}/detail`, {mappingId: entity.id});

@@ -54,6 +54,9 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
+    if (this.refs.name) {
+      this.refs.name.focus();
+    }
   }
 
   _getIsNew(nextProps) {

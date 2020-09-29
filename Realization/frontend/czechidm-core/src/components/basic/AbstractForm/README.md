@@ -8,6 +8,7 @@ Basic component for every form components. Contains basic methods for cloning ch
 | readOnly     | bool    | When readOnly is true, then are all components read only  | false       |
 | disabled     | bool    | When disabled is true, then are all components disabled   | false       |
 | rendered     | bool    | When rendered is false, then form will be not rendered    | true        |
+| onSubmit     | func    | This func will be called, if the inner form will be submitted. Typically on enter event. (can be null)    | - |
 
 ## Usage
 ```javascript

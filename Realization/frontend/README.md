@@ -93,14 +93,27 @@ First, we create the symlink to the "czechidm-ext" module:
 
 `cd projects/CzechIdM/Realization/frontend/czechidm-app/czechidm-modules`
 
+For Linux:
+
 `ln -s ../../../../../ExternalModule/Realization/frontend/czechidm-ext`
+
+For Windows (PowerShell):
+
+`new-item -itemtype symboliclink -Path . -name czechidm-ext -value ../../../../../ExternalModule/Realization/frontend/czechidm-ext`
 
 Then we create a symlink from the external module to the product "node_modules". This prevents the problem with multiple copies of React (https://facebook.github.io/react/warnings/refs-must-have-owner.html).
 The goal is to have only one node_modules directory (for all modules) with React.
 
 `cd ../../../../../ExternalModule/Realization/frontend/czechidm-ext`
 
+For Linux:
+
 `ln -s ../../../../CzechIdM/Realization/frontend/czechidm-app/node_modules`
+
+For Windows (PowerShell):
+
+`new-item -itemtype symboliclink -Path . -name node_modules -value ../../../../CzechIdM/Realization/frontend/czechidm-app/node_modules`
+
 
 ## Make all modules together
 After when we have installed all required modules, we have to copy them together. Its means create symlinks from czechidm-modules to app node_modules.

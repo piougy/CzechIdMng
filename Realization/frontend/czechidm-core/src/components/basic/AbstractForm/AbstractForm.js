@@ -377,13 +377,18 @@ class AbstractForm extends AbstractContextComponent {
     if (!rendered) {
       return null;
     }
+
+    const submitForm = onSubmit ? (
+      <form onSubmit={onSubmit}>
+        {children}
+        <input type="submit" className="hidden"/>
+      </form>
+    ) : children;
+
     return (
       <Loading showLoading={showLoading || this.state.showLoading}>
         <div className={ classnames('abstract-form', 'clearfix', className) } style={ style }>
-          <form onSubmit={onSubmit || null}>
-            {children}
-            <input type="submit" className="hidden"/>
-          </form>
+          {submitForm}
         </div>
         {this.getFooter()}
       </Loading>

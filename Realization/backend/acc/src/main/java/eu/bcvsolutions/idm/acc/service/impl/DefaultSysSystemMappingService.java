@@ -1,5 +1,13 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,7 +111,7 @@ public class DefaultSysSystemMappingService
 	private IdmIdentityContractService identityContractService;
 	@Lazy
 	@Autowired
-	private AccAccountService accountService;
+	private IdmTreeTypeService treeTypeService;
 	@Lazy
 	@Autowired
 	private AccIdentityAccountService identityAccountService;
@@ -242,8 +250,23 @@ public class DefaultSysSystemMappingService
 	}
 
 	@Override
+	protected SysSystemMappingDto internalExport(UUID id) {
+		// For searching tree-type by code, have to be tree-type DTO embedded.
+		SysSystemMappingDto dto = this.get(id);
+		if (dto != null && dto.getTreeType() != null) {
+			BaseDto roleDto = dto.getEmbedded().get(SysSystemMapping_.treeType.getName());
+			dto.getEmbedded().clear();
+			dto.getEmbedded().put(SysSystemMapping_.treeType.getName(), roleDto);
+		}
+		return dto;
+	}
+
+	@Override
 	public void export(UUID id, IdmExportImportDto batch) {
 		super.export(id, batch);
+		// Tree-type will be searching by code (advanced paring by treeType field)
+		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, this.getDtoClass());
+		descriptorDto.getAdvancedParingFields().add(SysSystemMapping_.treeType.getName());
 
 		// Export mapped attributes
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();

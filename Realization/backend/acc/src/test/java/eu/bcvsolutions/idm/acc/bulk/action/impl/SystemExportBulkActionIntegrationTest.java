@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.bulk.action.impl;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import java.util.List;
 import java.util.Map;
 
@@ -93,6 +95,8 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 	private TestHelper helper;
 	@Autowired
 	private ImportManager importManager;
+	@Autowired
+	private IdmTreeTypeService treeTypeService;
 
 	@Before
 	public void login() {
@@ -362,6 +366,55 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 		Assert.assertEquals(1, mappings.size());
 		mapping = mappings.get(0);
 		Assert.assertEquals(originalMapping.getId(), mapping.getId());
+	}
+
+	@Test
+	public void testExportAndImportMappingWithTreeType() {
+		SysSystemDto system = createSystem();
+		IdmTreeTypeDto treeType = helper.createTreeType();
+
+		// Load configurations
+		List<SysSystemMappingDto> mappings = findMappings(system);
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMappingDto originalMapping = mappings.get(0);
+		originalMapping.setTreeType(treeType.getId());
+		originalMapping = systemMappingService.save(originalMapping);
+
+		// Make export, upload, delete system and import
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
+
+		system = systemService.get(system.getId());
+		Assert.assertNotNull(system);
+
+		mappings = findMappings(system);
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMappingDto mapping = mappings.get(0);
+		Assert.assertEquals(originalMapping.getId(), mapping.getId());
+
+		SysSchemaObjectClassDto objectClassDto = new SysSchemaObjectClassDto();
+		objectClassDto.setId(mapping.getObjectClass());
+		helper.createMappingSystem(SystemEntityType.ROLE, objectClassDto);
+		mappings = findMappings(system);
+		Assert.assertEquals(2, mappings.size());
+
+		// Remove original tree-type. And create new with same code (simulate a different IdM ... same tree-type with different IDs).
+		originalMapping.setTreeType(null);
+		originalMapping = systemMappingService.save(originalMapping);
+		treeTypeService.delete(treeType);
+		IdmTreeTypeDto newTreeType = helper.createTreeType(treeType.getCode());
+
+		// Execute import (check authoritative mode)
+		importBatch = importManager.executeImport(importBatch, false);
+		Assert.assertNotNull(importBatch);
+		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
+		Assert.assertEquals(OperationState.EXECUTED, importBatch.getResult().getState());
+
+		// Second mapping had to be deleted!
+		mappings = findMappings(system);
+		Assert.assertEquals(1, mappings.size());
+		mapping = mappings.get(0);
+		Assert.assertEquals(originalMapping.getId(), mapping.getId());
+		Assert.assertEquals(newTreeType.getId(), mapping.getTreeType());
 	}
 
 	@Test

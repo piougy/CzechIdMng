@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdentifiableFilter {
+public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdentifiableFilter, CorrelationFilter {
 	
 	/**
 	 * Parent catalogue item identifier 

@@ -48,7 +48,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
-import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
@@ -64,7 +63,6 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -222,31 +220,31 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 	protected void doCreateEntity(SystemEntityType entityType, List<SysSystemAttributeMappingDto> mappedAttributes,
 			SysSyncItemLogDto logItem, String uid, List<IcAttribute> icAttributes, AccAccountDto account,
 			SynchronizationContext context) {
-		// We will create new TreeNode
+		// We will create new Role catalogue
 		addToItemLog(logItem, "Missing entity action is CREATE_ENTITY, we will create a new entity.");
-		IdmRoleCatalogueDto treeNode = new IdmRoleCatalogueDto();
+		IdmRoleCatalogueDto roleCatalogue = new IdmRoleCatalogueDto();
 		// Fill entity by mapped attribute
-		treeNode = fillEntity(mappedAttributes, uid, icAttributes, treeNode, true, context);
+		roleCatalogue = fillEntity(mappedAttributes, uid, icAttributes, roleCatalogue, true, context);
 		
 		// Create new Entity
-		treeNode = this.save(treeNode, true, context);
+		roleCatalogue = this.save(roleCatalogue, true, context);
 
 		// Create new Entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccountDto();
 		entityAccount.setAccount(account.getId());
-		entityAccount.setEntity(treeNode.getId());
+		entityAccount.setEntity(roleCatalogue.getId());
 		entityAccount.setOwnership(true);
 		this.getEntityAccountService().save(entityAccount);
 
 		if (this.isProvisioningImplemented(entityType, logItem)) {
 			// Call provisioning for this entity
-			callProvisioningForEntity(treeNode, entityType, logItem);
+			callProvisioningForEntity(roleCatalogue, entityType, logItem);
 		}
 
 		// Entity Created
-		addToItemLog(logItem, MessageFormat.format("Role catalogue with id {0} was created", treeNode.getId()));
+		addToItemLog(logItem, MessageFormat.format("Role catalogue with id {0} was created", roleCatalogue.getId()));
 		if (logItem != null) {
-			logItem.setDisplayName(treeNode.getName());
+			logItem.setDisplayName(roleCatalogue.getName());
 		}
 	}
 
@@ -270,28 +268,28 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 		AccAccountDto account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
 		UUID entityId = getEntityByAccount(account.getId());
-		IdmRoleCatalogueDto treeNode = null;
+		IdmRoleCatalogueDto roleCatalogue = null;
 
 		if (entityId != null) {
-			treeNode = catalogueService.get(entityId);
+			roleCatalogue = catalogueService.get(entityId);
 		}
-		if (treeNode != null) {
+		if (roleCatalogue != null) {
 			// Update entity
-			treeNode = fillEntity(mappedAttributes, uid, icAttributes, treeNode, false, context);
+			roleCatalogue = fillEntity(mappedAttributes, uid, icAttributes, roleCatalogue, false, context);
 			if (context.isEntityDifferent()) {
-				treeNode = this.save(treeNode, true, context);
+				roleCatalogue = this.save(roleCatalogue, true, context);
 			}
 
-			// TreeNode Updated
-			addToItemLog(logItem, MessageFormat.format("Role catalogue with id {0} was updated", treeNode.getId()));
+			// Role catalogue Updated
+			addToItemLog(logItem, MessageFormat.format("Role catalogue with id {0} was updated", roleCatalogue.getId()));
 			if (logItem != null) {
-				logItem.setDisplayName(treeNode.getName());
+				logItem.setDisplayName(roleCatalogue.getName());
 			}
 
 			SystemEntityType entityType = context.getEntityType();
 			if ( context.isEntityDifferent() && this.isProvisioningImplemented(entityType, logItem)) {
 				// Call provisioning for this entity
-				callProvisioningForEntity(treeNode, entityType, logItem);
+				callProvisioningForEntity(roleCatalogue, entityType, logItem);
 			}
 
 			return;
@@ -316,25 +314,25 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 	protected void doUnlink(AccAccountDto account, boolean removeIdentityRole, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
 
-		AccRoleCatalogueAccountFilter treeAccountFilter = new AccRoleCatalogueAccountFilter();
-		treeAccountFilter.setAccountId(account.getId());
-		List<AccRoleCatalogueAccountDto> treeAccounts = catalogueAccountService.find(treeAccountFilter, null).getContent();
-		if (treeAccounts.isEmpty()) {
+		AccRoleCatalogueAccountFilter catalogueAccountFilter = new AccRoleCatalogueAccountFilter();
+		catalogueAccountFilter.setAccountId(account.getId());
+		List<AccRoleCatalogueAccountDto> catalogueAccounts = catalogueAccountService.find(catalogueAccountFilter, null).getContent();
+		if (catalogueAccounts.isEmpty()) {
 			addToItemLog(logItem, "Warning! - catalogue account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
-		addToItemLog(logItem, MessageFormat.format("Catalogue-account relations to delete {0}", treeAccounts));
+		addToItemLog(logItem, MessageFormat.format("Catalogue-account relations to delete {0}", catalogueAccounts));
 
-		treeAccounts.stream().forEach(treeAccount -> {
-			// We will remove tree account, but without delete connected
+		catalogueAccounts.stream().forEach(catalogueAccount -> {
+			// We will remove catalogue account, but without delete connected
 			// account
-			catalogueAccountService.delete(treeAccount, false);
+			catalogueAccountService.delete(catalogueAccount, false);
 			addToItemLog(logItem,
 					MessageFormat.format(
 							"Catalogue-account relation deleted (without call delete provisioning) (roleCatalogue: {0}, id: {1})",
-							treeAccount.getRoleCatalogue(), treeAccount.getId()));
+							catalogueAccount.getRoleCatalogue(), catalogueAccount.getId()));
 
 		});
 		return;
@@ -352,17 +350,17 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 	@Override
 	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		IdmRoleCatalogueDto treeNode =  this.getDtoByAccount(null, account);
-		if (treeNode == null) {
+		IdmRoleCatalogueDto roleCatalogue =  this.getDtoByAccount(null, account);
+		if (roleCatalogue == null) {
 			addToItemLog(logItem, "Warning! - Role catalogue was not found and cannot be deleted (maybe was deleted  within deleting of parent catalogue).");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
 
-		logItem.setDisplayName(treeNode.getName());
+		logItem.setDisplayName(roleCatalogue.getName());
 		// Delete entity (recursively)
-		deleteChildrenRecursively(treeNode, logItem);
+		deleteChildrenRecursively(roleCatalogue, logItem);
 	}
 
 	@Override
@@ -386,7 +384,7 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 					return parentNode.getId();
 				}
 			} catch (IllegalArgumentException ex) {
-				// OK this is not UUID of tree node
+				// OK this is not UUID of role catalogue
 				addToItemLog(context.getLogItem(),
 						MessageFormat.format("Parent value [{0}] is not UUID of a role catalogue.", parentUid));
 			}
@@ -400,15 +398,15 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 			List<AccAccountDto> parentAccounts = accountService.find(accountFilter, null).getContent();
 			if (!parentAccounts.isEmpty()) {
 				UUID parentAccount = parentAccounts.get(0).getId();
-				// Find relation between tree and account
+				// Find relation between catalogue and account
 				
 				AccRoleCatalogueAccountFilter catalogueAccountFilter = new AccRoleCatalogueAccountFilter();
 				catalogueAccountFilter.setAccountId(parentAccount);
-				List<AccRoleCatalogueAccountDto> treeAccounts = catalogueAccountService.find(catalogueAccountFilter, null).getContent();
-				if (!treeAccounts.isEmpty()) {
+				List<AccRoleCatalogueAccountDto> catalogueAccounts = catalogueAccountService.find(catalogueAccountFilter, null).getContent();
+				if (!catalogueAccounts.isEmpty()) {
 					// Find parent role catalogue by ID
-					// TODO: resolve more treeAccounts situations
-					transformedValue = treeAccounts.get(0).getRoleCatalogue(); // parent uuid - we are working with dtos
+					// TODO: resolve more catalogueAccounts situations
+					transformedValue = catalogueAccounts.get(0).getRoleCatalogue(); // parent uuid - we are working with dtos
 				} else {
 					LOG.warn(
 							"For parent UID: [{}] on system ID [{}] and acc account: [{}], were not found catalogue accounts! Return null value in parent!!",
@@ -447,26 +445,6 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 	@Override
 	protected IdmRoleCatalogueService getService() {
 		return catalogueService;
-	}
-
-	public static class TreeResultsHandler implements IcResultsHandler {
-
-		// List of all accounts
-		private Map<String, IcConnectorObject> accountsMap = new HashMap<>();
-
-		public TreeResultsHandler(Map<String, IcConnectorObject> accountsMap) {
-			this.accountsMap = accountsMap;
-		}
-
-		@Override
-		public boolean handle(IcConnectorObject connectorObject) {
-			Assert.notNull(connectorObject, "Connector object is required.");
-			Assert.notNull(connectorObject.getUidValue(), "Connector object uid is required.");
-			String uid = connectorObject.getUidValue();
-			accountsMap.put(uid, connectorObject);
-			return true;
-
-		}
 	}
 
 	/**
@@ -540,20 +518,20 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 		}
 	}
 
-	private void deleteChildrenRecursively(IdmRoleCatalogueDto treeNode, SysSyncItemLogDto logItem) {
-		List<IdmRoleCatalogueDto> children = catalogueService.findChildrenByParent(treeNode.getId(), null).getContent();
+	private void deleteChildrenRecursively(IdmRoleCatalogueDto roleCatalogue, SysSyncItemLogDto logItem) {
+		List<IdmRoleCatalogueDto> children = catalogueService.findChildrenByParent(roleCatalogue.getId(), null).getContent();
 		if (children.isEmpty()) {
-			catalogueService.delete(treeNode);
-			addToItemLog(logItem, MessageFormat.format("Role catalogue [{0}] was deleted.", treeNode.getName()));
+			catalogueService.delete(roleCatalogue);
+			addToItemLog(logItem, MessageFormat.format("Role catalogue [{0}] was deleted.", roleCatalogue.getName()));
 		} else {
 			addToItemLog(logItem,
 					MessageFormat.format("Role catalogue [{0}] has children [count={1}]. We have to delete them first.",
-							treeNode.getName(), children.size()));
+							roleCatalogue.getName(), children.size()));
 			children.forEach(child -> {
 				deleteChildrenRecursively(child, logItem);
 			});
-			catalogueService.delete(treeNode);
-			addToItemLog(logItem, MessageFormat.format("Role catalogue [{0}] was deleted.", treeNode.getName()));
+			catalogueService.delete(roleCatalogue);
+			addToItemLog(logItem, MessageFormat.format("Role catalogue [{0}] was deleted.", roleCatalogue.getName()));
 		}
 	}
 

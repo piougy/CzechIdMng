@@ -539,6 +539,78 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 	}
 
 	@Test
+	public void testExportAndImportSyncExcludedToken() {
+		SysSystemDto system = createSystem();
+		List<SysSystemMappingDto> mappings = findMappings(system);
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMappingDto originalMapping = mappings.get(0);
+		List<SysSystemAttributeMappingDto> originalAttributes = findAttributeMappings(system);
+		SysSystemAttributeMappingDto originalAttribute = originalAttributes.get(0);
+
+		SysSyncConfigDto originalSync = new SysSyncConfigDto();
+		originalSync.setSystemMapping(originalMapping.getId());
+		originalSync.setName(getHelper().createName());
+		originalSync.setCorrelationAttribute(originalAttribute.getId());
+		originalSync.setToken(helper.createName());
+		originalSync = (SysSyncConfigDto) synchronizationConfigService.save(originalSync);
+
+		// Make export, upload, delete system and import
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
+
+		system = systemService.get(system.getId());
+		Assert.assertNotNull(system);
+		// New token
+		originalSync.setToken(helper.createName());
+		originalSync = (SysSyncConfigDto) synchronizationConfigService.save(originalSync);
+
+		// Execute import (check excluded token)
+		importBatch = importManager.executeImport(importBatch, false);
+		Assert.assertNotNull(importBatch);
+		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
+		Assert.assertEquals(OperationState.EXECUTED, importBatch.getResult().getState());
+
+		SysSyncConfigDto currentSync = (SysSyncConfigDto) synchronizationConfigService.get(originalSync.getId());
+		// Token was excluded. Value in current sync was not changed.
+		Assert.assertEquals(originalSync.getToken(), currentSync.getToken());
+	}
+
+	@Test
+	public void testExportAndImportNewSyncExcludedToken() {
+		SysSystemDto system = createSystem();
+		List<SysSystemMappingDto> mappings = findMappings(system);
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMappingDto originalMapping = mappings.get(0);
+		List<SysSystemAttributeMappingDto> originalAttributes = findAttributeMappings(system);
+		SysSystemAttributeMappingDto originalAttribute = originalAttributes.get(0);
+
+		SysSyncConfigDto originalSync = new SysSyncConfigDto();
+		originalSync.setSystemMapping(originalMapping.getId());
+		originalSync.setName(getHelper().createName());
+		originalSync.setCorrelationAttribute(originalAttribute.getId());
+		originalSync.setToken(helper.createName());
+		originalSync = (SysSyncConfigDto) synchronizationConfigService.save(originalSync);
+
+		// Make export, upload, delete system and import
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
+
+		system = systemService.get(system.getId());
+		Assert.assertNotNull(system);
+		systemService.delete(system);
+		system = systemService.get(system.getId());
+		Assert.assertNull(system);
+
+		// Execute import (check excluded token)
+		importBatch = importManager.executeImport(importBatch, false);
+		Assert.assertNotNull(importBatch);
+		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
+		Assert.assertEquals(OperationState.EXECUTED, importBatch.getResult().getState());
+
+		SysSyncConfigDto currentSync = (SysSyncConfigDto) synchronizationConfigService.get(originalSync.getId());
+		// Token was excluded. Value in current sync was not changed.
+		Assert.assertEquals(null, currentSync.getToken());
+	}
+
+	@Test
 	public void testExportAndImportBreak() {
 		SysSystemDto system = createSystem();
 		SysProvisioningBreakConfigDto originalBreak = new SysProvisioningBreakConfigDto();

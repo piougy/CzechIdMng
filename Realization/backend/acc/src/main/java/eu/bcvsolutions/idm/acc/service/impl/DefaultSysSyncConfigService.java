@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import java.util.List;
 import java.util.UUID;
 
@@ -238,4 +242,18 @@ public class DefaultSysSyncConfigService
 		return repository.countByCorrelationAttribute_Id(mapping.getId());
 	}
 
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		super.export(id, batch);
+		AbstractSysSyncConfigDto dto = this.get(id);
+		if ( dto == null) {
+			return;
+		}
+		// Token will be excluded for the export. It means a token on the target IdM will be not changed.
+		// Or will be sets to the null, if sync does not exist yet.
+		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, dto.getClass());
+		if (descriptorDto != null) {
+			descriptorDto.getExcludedFields().add(SysSyncConfig_.token.getName());
+		}
+	}
 }

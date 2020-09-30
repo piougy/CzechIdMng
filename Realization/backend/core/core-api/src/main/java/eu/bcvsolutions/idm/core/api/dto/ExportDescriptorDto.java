@@ -56,6 +56,14 @@ public class ExportDescriptorDto implements Serializable {
 	 * use DTO from embedded map and try to find DTO by code.
 	 */
 	private Set<String> advancedParingFields = Sets.newHashSet();
+	/**
+	 * Defines fields in DTO, which will be excluded during the import. It means this
+	 * fields will be not changed on target IdM. If entity will not exists,then that
+	 * fields will set to null.
+	 *
+	 * For example, the token in sync definition is excluded.
+	 */
+	private Set<String> excludedFields = Sets.newHashSet();
 
 	/**
 	 * If is true and will cannot be persisted (some relation not was not found),
@@ -108,6 +116,14 @@ public class ExportDescriptorDto implements Serializable {
 
 	public void setAdvancedParingFields(Set<String> advancedParingFields) {
 		this.advancedParingFields = advancedParingFields;
+	}
+
+	public Set<String> getExcludedFields() {
+		return excludedFields;
+	}
+
+	public void setExcludedFields(Set<String> excludedFields) {
+		this.excludedFields = excludedFields;
 	}
 
 	public boolean isOptional() {

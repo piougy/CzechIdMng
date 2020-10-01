@@ -358,10 +358,9 @@ class Configurations extends Advanced.AbstractTableContent {
                       key="addMore_button"
                       className="btn-xs"
                       onClick={ this.showAddMore.bind(this, { public: true }) }
-                      rendered={ manager.canSave() }>
-                      <Basic.Icon type="fa" icon="plus"/>
-                      {' '}
-                      {this.i18n('button.addMore')}
+                      rendered={ manager.canSave() }
+                      icon="fa:plus">
+                      { this.i18n('button.addMore') }
                     </Basic.Button>
                   </span>
                 </span>

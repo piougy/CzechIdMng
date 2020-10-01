@@ -105,7 +105,9 @@ import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -159,6 +161,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private FilterManager filterManager;
 	@Autowired private IdmScriptAuthorityService scriptAuthorityService;
 	@Autowired private IdmScriptService scriptService;
+	@Autowired private LongRunningTaskManager taskManager;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -362,7 +365,24 @@ public class DefaultTestHelper implements TestHelper {
 		roleComposition.setSuperior(superior.getId());
 		roleComposition.setSub(sub.getId());
 		//
-		return roleCompositionService.save(roleComposition);
+		roleComposition = roleCompositionService.save(roleComposition);
+		// wait for role composition is processed
+		if (entityEventManager.isAsynchronous()) {
+			waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setOperationState(OperationState.CREATED);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			}, 500, 10);
+			waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setOperationState(OperationState.RUNNING);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			}, 500, 10);
+		}
+		//
+		return roleComposition;
 	}
 	
 	@Override
@@ -435,7 +455,24 @@ public class DefaultTestHelper implements TestHelper {
 		if (skipLongRunningTask) {
 			return roleTreeNodeService.saveInternal(roleTreeNode);
 		}
-		return roleTreeNodeService.save(roleTreeNode);
+		roleTreeNode = roleTreeNodeService.save(roleTreeNode);
+		// wait for automatic role is processed.
+		if (entityEventManager.isAsynchronous()) {
+			waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setOperationState(OperationState.CREATED);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			}, 500, 10);
+			waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setOperationState(OperationState.RUNNING);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			}, 500, 10);
+		}
+		//
+		return roleTreeNode;
 	}
 
 	@Override

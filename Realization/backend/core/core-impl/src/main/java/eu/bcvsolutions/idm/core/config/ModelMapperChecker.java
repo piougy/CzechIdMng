@@ -95,12 +95,12 @@ public class ModelMapperChecker {
 			} catch (MappingException ex) {
 				throw new ModelMapperServiceInitException(AutowireHelper.getTargetType(service), ex);
 			} catch (EntityNotFoundException ex) {
-				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ex.getMessage()), ex);
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", String.valueOf(ex.getMessage())), ex);
 			} catch (ResultCodeException ex) {
 				throw ex;
 			} catch (Exception ex) {
 				if (ex.getCause() instanceof EntityNotFoundException) {
-					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ex.getMessage()), ex);
+					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", String.valueOf(ex.getMessage())), ex);
 				}
 				LOG.error("Service [{}] cannot be checked. Find method cannot be called.", service.getClass(), ex);
 			}

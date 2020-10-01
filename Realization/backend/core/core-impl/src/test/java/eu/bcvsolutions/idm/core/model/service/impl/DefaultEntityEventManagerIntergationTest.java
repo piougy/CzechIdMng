@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -75,7 +74,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-@Ignore // FIXME: test on mssql profile
 public class DefaultEntityEventManagerIntergationTest extends AbstractIntegrationTest {
 
 	@Autowired private ApplicationContext context;
@@ -313,8 +311,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			filter.setStates(Lists.newArrayList(OperationState.EXECUTED));
 			Assert.assertEquals(count, entityEventService.find(filter, PageRequest.of(0, 1)).getTotalElements());			
 		} finally {
-			events.forEach(e -> entityEventService.delete(e));
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			events.forEach(e -> entityEventService.delete(e));
 		}
 	}
 	
@@ -633,8 +631,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			// just for sure
 			Assert.assertFalse(manager.isRunningOwner(identity.getId()));
 		} finally {
-			manager.deleteAllEvents();
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			manager.deleteAllEvents();
 		}
 	}
 	
@@ -715,8 +713,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			Assert.assertEquals(identity.getId(), roles.get(0).getCreatorId());
 		} finally {
 			logout();
-			manager.deleteAllEvents();
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			manager.deleteAllEvents();
 		}
 	}
 	
@@ -753,8 +751,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			List<IdmIdentityRoleDto> roles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
 			Assert.assertEquals(1, roles.size());
 		} finally {
-			manager.deleteAllEvents();
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			manager.deleteAllEvents();
 		}
 	}
 }

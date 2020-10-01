@@ -7064,6 +7064,10 @@
       "title": "Role is already assigned",
       "message": "Role [{{role}}] was already assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
     },
+    "AUTOMATIC_ROLE_ALREADY_ASSIGNED_TO_CONTRACT": {
+      "title": "Role is already assigned",
+      "message": "Role [{{role}}] was already assigned by automatic role [{{roleTreeNode}}] for contract [{{contract}}] and position [{{position}}]."
+    },
     "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED": {
       "title": "Role is assigned",
       "message": "Role [{{role}}] is assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."

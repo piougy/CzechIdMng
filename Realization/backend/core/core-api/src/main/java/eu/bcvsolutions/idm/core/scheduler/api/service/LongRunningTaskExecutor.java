@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -53,6 +54,14 @@ public interface LongRunningTaskExecutor<V> extends Callable<V>, Configurable {
 	V process();
 	
 	/**
+	 * When task publish and execute some events asynchronously, then this method will be called,
+	 * after all asynchronous events are processed => task end is delayed, till all events are processed.
+	 * 
+	 * @since 10.6.0
+	 */
+	void notifyEnd();
+	
+	/**
 	 * Executors description
 	 * 
 	 * @return
@@ -84,6 +93,14 @@ public interface LongRunningTaskExecutor<V> extends Callable<V>, Configurable {
 	 * 
 	 */
 	void setCounter(Long counter);
+	
+	/**
+	 * Get long running task result, after task ends.
+	 * 
+	 * @return result value. {@code null} => task is running
+	 * @since 10.6.0
+	 */
+	Optional<V> getResult();
 	
 	/**
 	 * Increase counter by 1 and return it.

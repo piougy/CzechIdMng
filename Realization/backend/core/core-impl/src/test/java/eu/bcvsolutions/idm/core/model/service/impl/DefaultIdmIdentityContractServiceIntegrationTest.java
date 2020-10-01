@@ -71,6 +71,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
@@ -341,6 +342,12 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findAllByContract(contract.getId()).isEmpty();
 			}, 500, Integer.MAX_VALUE);
+			getHelper().waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setRunning(Boolean.TRUE);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			});
 			//
 			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
 			Assert.assertEquals(3, identityRoles.size());
@@ -488,9 +495,16 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			//
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getTotalElements() != 3;
+			}, 300, 30);
+			getHelper().waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setRunning(Boolean.TRUE);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
 			});
 			//
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getContent();
+			Assert.assertEquals(3, assignedRoles.size());
 			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractOne.getId())));
 			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractTwo.getId())));
 			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractThree.getId())));
@@ -1391,6 +1405,12 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			getHelper().waitForResult(res -> {
 				return !identityRoleService.findAllByContract(contractId).isEmpty();
 			}, 300, Integer.MAX_VALUE);
+			getHelper().waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setRunning(Boolean.TRUE);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			});
 			//
 			identityRoles = identityRoleService.findAllByContract(contract.getId());
 			Assert.assertTrue(identityRoles.isEmpty());

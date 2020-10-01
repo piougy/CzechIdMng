@@ -28,10 +28,8 @@ public class ModelMapperCheckerTaskExecutorIntegrationTest extends AbstractInteg
 	
 	@Test
 	public void testVerify() throws InterruptedException, ExecutionException {
-		ModelMapperCheckerTaskExecutor executor = new ModelMapperCheckerTaskExecutor();
-		AutowireHelper.autowire(executor);
-		//
-		Assert.assertTrue(longRunningTaskManager.executeSync(executor));		
+		Assert.assertNotNull(longRunningTaskManager);
+		Assert.assertTrue(longRunningTaskManager.executeSync(new ModelMapperCheckerTaskExecutor()));		
 	}
 	
 	@Test

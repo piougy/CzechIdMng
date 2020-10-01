@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.config.cache;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.config.cache.DistributedIdMCacheConfiguratio
 import eu.bcvsolutions.idm.core.api.config.cache.IdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.config.cache.LocalIdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.eav.api.domain.FormDefinitionCache;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -139,6 +141,22 @@ public class CoreCacheConfiguration {
 			.withName(IdmRoleCompositionService.ALL_SUB_ROLES_CACHE_NAME)
 				.withKeyType(UUID.class) // superior role
 				.withValueType(ArrayList.class) // all sub roles
+				.build();
+	}
+	
+	/**
+	 * Transaction events by transaction id.
+	 *
+	 * @return unprocessed events by transaction id
+	 * @since 10.6.0
+	 */
+	@Bean
+	@SuppressWarnings("rawtypes")
+	public IdMCacheConfiguration transactionEventCacheConfiguration() {
+		return DistributedIdMCacheConfiguration.<UUID, HashSet> builder()
+			.withName(EntityEventManager.TRANSACTION_EVENT_CACHE_NAME)
+				.withKeyType(UUID.class) // user transaction id
+				.withValueType(HashSet.class) // unprocessed events
 				.build();
 	}
 }

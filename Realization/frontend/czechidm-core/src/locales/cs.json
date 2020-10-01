@@ -7116,6 +7116,10 @@
       "title": "Role byla již přiřazena",
       "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}]."
     },
+    "AUTOMATIC_ROLE_ALREADY_ASSIGNED_TO_CONTRACT": {
+      "title": "Role byla již přiřazena",
+      "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro kontrakt [{{contract}}] a pozici [{{position}}]."
+    },
     "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED": {
       "title": "Role je přiřazena",
       "message": "Role [{{role}}] je přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}]."

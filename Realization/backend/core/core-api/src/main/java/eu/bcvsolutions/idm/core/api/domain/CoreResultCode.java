@@ -197,6 +197,7 @@ public enum CoreResultCode implements ResultCode {
 	AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED(HttpStatus.OK, "Role [%s] by automatic role [%s] for identity [%s] is assigned."),
 	AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_REMOVED(HttpStatus.OK, "Role [%s] by automatic role [%s] for identity [%s] is removed."),
 	AUTOMATIC_ROLE_ALREADY_ASSIGNED(HttpStatus.OK, "Role [%s] by automatic role [%s] for identity [%s] is assigned."),
+	AUTOMATIC_ROLE_ALREADY_ASSIGNED_TO_CONTRACT(HttpStatus.CONFLICT, "Role [%s] by automatic role [%s] for contract [%s] and position [%s] is already assigned."),
 	AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] for identity [%s] was not assigned, contract is not valid (skip)."),
 	AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not removed for identity [%s]."),
 	AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Automatic role [%s] is removed in concurent task [%s]"),

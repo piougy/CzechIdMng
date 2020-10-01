@@ -138,10 +138,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			ResultModel resultModel = new DefaultResultModel(
 					CoreResultCode.EVENT_CANCELED_BY_RESTART, 
 					ImmutableMap.of(
-							"eventId", event.getId(), 
+							"eventId", event.getId(),
 							"eventType", event.getEventType(),
 							"ownerId", String.valueOf(event.getOwnerId()),
-							"instanceId", event.getInstanceId()));		
+							"instanceId", event.getInstanceId()));
 			OperationResultDto result = new OperationResultDto.Builder(OperationState.CANCELED).setModel(resultModel).build();
 			event.setResult(result);
 			entityEventService.saveInternal(event);
@@ -254,10 +254,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			if (!lrts.containsKey(transactionId)) {
 				notifiedLrts.remove(executor.getLongRunningTaskId());
 				cacheManager.evictValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
-				//
-				lrts.put(transactionId, new ArrayList<>());
 			}
-			lrts.get(transactionId).add(executor);
+			lrts.putIfAbsent(transactionId, new ArrayList<>()).add(executor);
 			//
 			return true;
 		} finally {
@@ -267,9 +265,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public boolean deregisterAsynchronousTask(LongRunningTaskExecutor<?> executor) {
-		if (!isAsynchronous()) {
-			return true;
-		}
 		if (notifiedLrts.containsKey(executor.getLongRunningTaskId())) {
 			notifiedLrts.remove(executor.getLongRunningTaskId());
 			return false;

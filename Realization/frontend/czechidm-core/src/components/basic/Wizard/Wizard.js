@@ -368,7 +368,8 @@ export default class Wizard extends AbstractContextComponent {
             show={show}
             bsSize="large"
             onHide={onCloseWizard ? onCloseWizard.bind(null, false, this.context.wizardContext) : null}
-            backdrop="static">
+            backdrop="static"
+            keyboard={ false }>
             <Modal.Header closeButton text={wizardName || this.i18n('component.basic.Wizard.defaultHeader')}/>
             <Modal.Body>
               {this.renderBody()}

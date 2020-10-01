@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import com.google.common.reflect.Reflection;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -25,7 +24,6 @@ import javax.persistence.EntityManager;
 
 import org.apache.logging.log4j.util.Strings;
 import org.hibernate.Session;
-import org.hibernate.annotations.common.reflection.ReflectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,7 +83,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExe
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ImportTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Import manager

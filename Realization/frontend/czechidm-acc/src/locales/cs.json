@@ -2348,7 +2348,7 @@
         },
         "summary": {
           "name":  "Shrnutí",
-          "text": "<h2>Gratulejeme,</h2><h3>Váš nový systém <strong>{{systemName}}</strong> byl úspěšně vytvořen.</h3><h3>Po dokončení budete přesměrování na detail nového systému.</h3>"
+          "text": "<h2 style=\"margin-top: 0\">Gratulejeme,</h2><h3>Váš nový systém <strong>{{systemName}}</strong> byl úspěšně vytvořen.</h3><h3>Po dokončení budete přesměrování na detail nového systému.</h3>"
         }
       }
     }

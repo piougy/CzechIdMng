@@ -97,7 +97,6 @@ export class SystemTable extends Advanced.AbstractTableContent {
         <Basic.Button
           level="success"
           key="add_button"
-          style={{marginRight: 5}}
           className="btn-xs"
           onClick={ this.props.showWizardDetail }
           rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }

@@ -77,8 +77,8 @@ class Alert extends AbstractComponent {
             ||
             <div className="alert-title">{ title }</div>
           }
-          {showHtmlText ? <span dangerouslySetInnerHTML={{ __html: text}}/> : text}
-          {children}
+          { showHtmlText ? <span dangerouslySetInnerHTML={{ __html: text}}/> : text }
+          { children }
           {
             (!buttons || buttons.length === 0)
             ||

@@ -252,9 +252,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			//
 			UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
 			if (!lrts.containsKey(transactionId)) {
-				lrts.put(transactionId, new ArrayList<>());
 				notifiedLrts.remove(executor.getLongRunningTaskId());
 				cacheManager.evictValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
+				//
+				lrts.put(transactionId, new ArrayList<>());
 			}
 			lrts.get(transactionId).add(executor);
 			//
@@ -269,7 +270,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		if (!isAsynchronous()) {
 			return true;
 		}
-		if (notifiedLrts.contains(executor.getLongRunningTaskId())) {
+		if (notifiedLrts.containsKey(executor.getLongRunningTaskId())) {
 			notifiedLrts.remove(executor.getLongRunningTaskId());
 			return false;
 		}

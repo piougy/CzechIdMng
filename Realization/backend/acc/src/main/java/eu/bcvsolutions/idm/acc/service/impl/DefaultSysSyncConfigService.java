@@ -1,9 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
-import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +40,8 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;

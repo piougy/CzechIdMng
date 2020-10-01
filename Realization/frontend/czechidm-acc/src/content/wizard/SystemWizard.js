@@ -128,7 +128,7 @@ export default class SystemWizard extends Basic.AbstractContextComponent {
                   location: {query: {new: true, systemId: wizardContext.entity.id}},
                   wizardStepId: stepId
                 })}
-                </Basic.Div>
+              </Basic.Div>
             );
           }
         };
@@ -145,10 +145,9 @@ export default class SystemWizard extends Basic.AbstractContextComponent {
               <Basic.Col lg={8} md={8}>
                 <Basic.Alert
                   level="success"
-                  showHtmlText
                   icon="ok"
                   className="alert-icon-large"
-                  text={this.i18n('acc:wizard.create-system.steps.summary.text', {systemName: wizardContext.entity.name})}
+                  text={this.i18n('acc:wizard.create-system.steps.summary.text', { systemName: wizardContext.entity.name, escape: false })}
                   buttons={[
                     <Basic.Button
                       level="success"

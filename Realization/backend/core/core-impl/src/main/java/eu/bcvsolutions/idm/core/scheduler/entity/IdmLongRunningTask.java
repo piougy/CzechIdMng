@@ -81,6 +81,10 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 	@Audited
 	@Column(name = "task_started")
 	private ZonedDateTime taskStarted;
+	
+	@Audited
+	@Column(name = "task_ended")
+	private ZonedDateTime taskEnded;
 
 	// @Audited
 	@NotNull
@@ -253,5 +257,25 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 	 */
 	public void setRecoverable(boolean recoverable) {
 		this.recoverable = recoverable;
+	}
+	
+	/**
+	 * Task ended datetime.
+	 * 
+	 * @return task end datetime
+	 * @since 10.6.0
+	 */
+	public ZonedDateTime getTaskEnded() {
+		return taskEnded;
+	}
+	
+	/**
+	 * Task ended datetime.
+	 * 
+	 * @param taskEnded task end datetime
+	 * @since 10.6.0
+	 */
+	public void setTaskEnded(ZonedDateTime taskEnded) {
+		this.taskEnded = taskEnded;
 	}
 }

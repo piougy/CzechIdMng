@@ -87,7 +87,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                     !entity.taskStarted
                     ||
                     <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.duration') }>
-                      <Basic.TimeDuration start={ entity.taskStarted } end={ entity.modified } humanForm/>
+                      <Basic.TimeDuration start={ entity.taskStarted } end={ entity.taskEnded || entity.modified } humanForm/>
                     </Basic.LabelWrapper>
                   }
                 </Basic.Col>

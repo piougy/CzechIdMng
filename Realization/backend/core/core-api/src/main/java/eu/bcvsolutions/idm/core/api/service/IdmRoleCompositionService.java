@@ -21,8 +21,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @since 9.0.0
  */
 public interface IdmRoleCompositionService extends
-	EventableDtoService<IdmRoleCompositionDto, IdmRoleCompositionFilter>,
-	AuthorizableService<IdmRoleCompositionDto> {
+		EventableDtoService<IdmRoleCompositionDto, IdmRoleCompositionFilter>,
+		AuthorizableService<IdmRoleCompositionDto> {
 	
 	/**
 	 * Sub roles cache.

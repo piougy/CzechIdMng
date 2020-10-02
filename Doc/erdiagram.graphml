@@ -2341,7 +2341,7 @@ PolicyGenerateType]]></x0:EntityRelationshipModel.title>
 		<node id="n47">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-1229.8710718420598" Y="-1133.2436283940829" Width="210.25186064516123" Height="249.37416877419355"/>
+				<y:RectD X="-1229.8710718420598" Y="-1188.7436283940829" Width="210.25186064516123" Height="293.62416877419355"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
@@ -2373,6 +2373,8 @@ PolicyGenerateType]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[+ resultModel]]></sys:String>
 									<sys:String><![CDATA[+ resultCause]]></sys:String>
 									<sys:String><![CDATA[+ recoverable]]></sys:String>
+									<sys:String><![CDATA[+ tastStarted]]></sys:String>
+									<sys:String><![CDATA[+ taskEnded]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>

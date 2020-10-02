@@ -585,7 +585,10 @@ export class ReportTable extends Advanced.AbstractTableContent {
                             !longRunningTask.taskStarted
                             ||
                             <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.duration') }>
-                              <Basic.TimeDuration start={ longRunningTask.taskStarted } end={ longRunningTask.modified } humanForm/>
+                              <Basic.TimeDuration
+                                start={ longRunningTask.taskStarted }
+                                end={ longRunningTask.taskEnded || longRunningTask.modified }
+                                humanForm/>
                             </Basic.LabelWrapper>
                           }
                         </Basic.Col>

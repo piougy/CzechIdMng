@@ -318,6 +318,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AbstractTaskTrigger runTask(String taskId) {
 		return runTask(taskId, false);
 	}

@@ -271,6 +271,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public boolean deregisterAsynchronousTask(LongRunningTaskExecutor<?> executor) {
+		if (!isAsynchronous()) {
+			return true;
+		}
+		//
 		if (notifiedLrts.containsKey(executor.getLongRunningTaskId())) {
 			notifiedLrts.remove(executor.getLongRunningTaskId());
 			return false;

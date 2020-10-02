@@ -272,7 +272,7 @@ public class ProjectManager {
 			//
 			// create new idm.war
 			LOG.info("Build backend application with frontend included ...");
-			prepareBackendMavenProject(installedJarModules, targetFolder);
+			prepareBackendMavenProject(productVersion, installedJarModules, targetFolder);
 			mavenManager.command(
 					targetFolder, 
 					"clean", 
@@ -347,7 +347,7 @@ public class ProjectManager {
 				new File(targetFolder, "pom.xml"));
 	}
 	
-	private void prepareBackendMavenProject(List<File> installedJarModules, File targetFolder) throws Exception {
+	private void prepareBackendMavenProject(String productVersion, List<File> installedJarModules, File targetFolder) throws Exception {
 		File projectDescriptor = new File(targetFolder, "pom.xml");
 		//
 		FileUtils.copyInputStreamToFile(
@@ -371,6 +371,13 @@ public class ProjectManager {
 		MavenXpp3Reader reader = new MavenXpp3Reader();
 		//
 		ObjectNode buildPom = (ObjectNode) xmlMapper.readTree(projectDescriptor);
+		//
+		// set parent to include CzechIdM dependencies
+		ObjectNode parentWrapper = xmlMapper.createObjectNode();
+		parentWrapper.put("groupId", ReleaseManager.MAVEN_GROUP_ID);
+		parentWrapper.put("artifactId", "idm-parent");
+		parentWrapper.put("version", productVersion);
+		buildPom.set("parent", parentWrapper);
 		//
 		// find pom.xml modules in jar
 		Map<String, String> resolvedModules = new HashMap<>();

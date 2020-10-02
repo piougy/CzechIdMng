@@ -225,6 +225,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 				this.result = Optional.ofNullable(result);
 				// notify end will or was called instead already
 				if (!entityEventManager.deregisterAsynchronousTask(this)) {
+					// TODO: set different state to show on UI
+					//
 					return null;
 				}
 			} finally {

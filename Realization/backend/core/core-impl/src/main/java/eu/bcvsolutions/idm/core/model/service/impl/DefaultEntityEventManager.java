@@ -210,35 +210,41 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		// persist event if needed
 		// event is persisted automatically, when parent event is persisted
-		if (content instanceof BaseDto && event.getId() == null && event.getParentId() != null) {
-			BaseDto dto = (BaseDto) content;
-			if (dto.getId() == null) {
-				// prepare id for new content - event is persisted before entity is persisted.
-				dto.setId(UUID.randomUUID());
+		try {
+			if (content instanceof BaseDto && event.getId() == null && event.getParentId() != null) {
+				BaseDto dto = (BaseDto) content;
+				if (dto.getId() == null) {
+					// prepare id for new content - event is persisted before entity is persisted.
+					dto.setId(UUID.randomUUID());
+				}
+				//
+				IdmEntityEventDto preparedEvent = toDto(dto, (EntityEvent<AbstractDto>) event);
+				preparedEvent.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build()); // RUNNING => prevent to start by async task
+				preparedEvent.setRootId(event.getRootId() == null ? event.getParentId() : event.getRootId());
+				preparedEvent = entityEventService.save(preparedEvent);
+				event.setId(preparedEvent.getId());
+				//
+				// prepared event is be executed
+				CoreEvent<IdmEntityEventDto> executeEvent = new CoreEvent<>(EntityEventType.EXECUTE, preparedEvent);
+				publisher.publishEvent(executeEvent);
+				//
+				// fill original event result
+				E processedContent = (E) preparedEvent.getContent();
+				if (processedContent != null) {
+					event.setContent(processedContent);
+				}
+				event.getContext().addResult(new DefaultEventResult<E>(event, new EmptyEntityEventProcessor<E>()));
+				//
+				return completeEvent(event);
+			} else {
+				publisher.publishEvent(event); 
+				//
+				return completeEvent(event);
 			}
+		} catch (Exception ex) {
+			completeEvent(event);
 			//
-			IdmEntityEventDto preparedEvent = toDto(dto, (EntityEvent<AbstractDto>) event);
-			preparedEvent.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build()); // RUNNING => prevent to start by async task
-			preparedEvent.setRootId(event.getRootId() == null ? event.getParentId() : event.getRootId());
-			preparedEvent = entityEventService.save(preparedEvent);
-			event.setId(preparedEvent.getId());
-			//
-			// prepared event is be executed
-			CoreEvent<IdmEntityEventDto> executeEvent = new CoreEvent<>(EntityEventType.EXECUTE, preparedEvent);
-			publisher.publishEvent(executeEvent);
-			//
-			// fill original event result
-			E processedContent = (E) preparedEvent.getContent();
-			if (processedContent != null) {
-				event.setContent(processedContent);
-			}
-			event.getContext().addResult(new DefaultEventResult<E>(event, new EmptyEntityEventProcessor<E>()));
-			//
-			return completeEvent(event);
-		} else {
-			publisher.publishEvent(event); 
-			//
-			return completeEvent(event);
+			throw ex;
 		}
 	}
 	
@@ -251,11 +257,11 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			}
 			//
 			UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
-			if (!lrts.containsKey(transactionId)) {
+			if (lrts.putIfAbsent(transactionId, new ArrayList<>()) == null) {
 				notifiedLrts.remove(executor.getLongRunningTaskId());
 				cacheManager.evictValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
 			}
-			lrts.putIfAbsent(transactionId, new ArrayList<>()).add(executor);
+			lrts.get(transactionId).add(executor);
 			//
 			return true;
 		} finally {

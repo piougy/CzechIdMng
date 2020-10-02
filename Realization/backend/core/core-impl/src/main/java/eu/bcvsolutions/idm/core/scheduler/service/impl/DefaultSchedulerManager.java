@@ -34,6 +34,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -322,12 +323,14 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AbstractTaskTrigger runTask(String taskId, boolean dryRun) {
  		// run job - add simple trigger
  		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
  		trigger.setTaskId(taskId);
  		trigger.setDescription("run manually");
  		trigger.setFireTime(ZonedDateTime.now());
+ 		//
 		return createTrigger(taskId, trigger, dryRun);
 	}
 	

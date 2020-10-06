@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 //
-import { Basic, Services } from 'czechidm-core';
+import { Basic } from 'czechidm-core';
 
 /**
  * Statistic for given synchronization log

@@ -3866,6 +3866,10 @@
           "placeholder": "$t(entity.EntityEvent.parent.label) (uuid)"
         }
       },
+      "counter": {
+        "info": "Count of unprocessed events",
+        "error": "Count of events with exception"
+      },
       "event": {
         "header": "Entity events",
         "detail": {
@@ -5287,7 +5291,16 @@
     "EntityEvent": {
       "_type": "Event",
       "created": {
-        "label": "Event date"
+        "label": "$t(entity.created)"
+      },
+      "eventStarted": {
+        "label": "Started"
+      },
+      "eventEnded": {
+        "label": "Ended"
+      },
+      "duration": {
+        "label": "Event duration"
       },
       "superOwnerId": {
         "label": "Super owner"

@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import moment from 'moment';
 import Immutable from 'immutable';
 //
-import { Basic, Advanced, Utils, Managers, Services, Domain, Enums } from 'czechidm-core';
+import { Basic, Advanced, Utils, Managers, Domain, Enums } from 'czechidm-core';
 import { ReportManager } from '../../redux';
 
 const manager = new ReportManager();
@@ -588,7 +587,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
                               <Basic.TimeDuration
                                 start={ longRunningTask.taskStarted }
                                 end={ longRunningTask.taskEnded || longRunningTask.modified }
-                                humanForm/>
+                                humanized/>
                             </Basic.LabelWrapper>
                           }
                         </Basic.Col>

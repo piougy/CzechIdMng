@@ -6,7 +6,7 @@ import SearchParameters from '../../domain/SearchParameters';
 import RoleTable from '../role/RoleTable';
 
 /**
- * Identity is guarantee for roles
+ * Identity is guarantee for roles.
  *
  * @author Radek Tomiška
  */
@@ -37,10 +37,11 @@ export default class IdentityGarantedRoles extends Basic.AbstractContent {
 
         <RoleTable
           uiKey="identity-garanted-role-table"
-          roleManager={this.getManager()}
-          filterOpened={false}
-          showCatalogue={false}
-          forceSearchParameters={forceSearchParameters}
+          roleManager={ this.getManager() }
+          filterOpened={ false }
+          showCatalogue={ false }
+          forceSearchParameters={ forceSearchParameters }
+          prohibitedActions={[ 'role-delete-bulk-action' ]}
           className="no-margin"
           showAddButton={ false }/>
       </Basic.Div>

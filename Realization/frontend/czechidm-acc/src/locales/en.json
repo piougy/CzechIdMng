@@ -136,7 +136,8 @@
         "situationActionWf": "Workflow",
         "customFilterInfo": "Custom filter can be defined by selection of attribute (Filter by attribute) by which we want to find relevant operations (Filtering operations). More complicated criteria can be defined in section below.",
         "customFilterWithReconciliation": "Custom filter will not be used during reconciliation.",
-        "treeInfo": "Synchronization of Tree is always execute as reconciliation.",
+        "treeInfo": "Synchronization of Tree is always executed as reconciliation.",
+        "roleCatalogueInfo": "Synchronization of Role catalogue structure is always executed as reconciliation.",
         "edit": {
           "header": "Synchronization configuration details "
         },
@@ -2695,6 +2696,14 @@
     "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
       "title": "Account not found",
       "message": "No parent account for parent UID: [{{parentUid}}] on system [{{systemId}}] was found."
+    },
+    "SYNCHRONIZATION_ROLE_CATALOGUE_TREE_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "No role catalogue account was found for parent UID: [{{parentUid}}] on system [{{systemId}}] with acc account: [{{parentAccount}}]."
+    },
+    "SYNCHRONIZATION_ROLE_CATALOGUE_ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "No parent account was found for parent UID: [{{parentUid}}] on system [{{systemId}}]."
     },
     "PROVISIONING_BREAK_RECIPIENT_CONFLICT": {
       "title": "More attributes for recipient",

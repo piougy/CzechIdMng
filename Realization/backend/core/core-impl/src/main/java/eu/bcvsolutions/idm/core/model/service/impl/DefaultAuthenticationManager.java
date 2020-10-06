@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.AuthenticationResponseEnum;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
@@ -93,7 +94,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 							"unsuccessfulAttempts", passwordDto.getUnsuccessfulAttempts()));
 		}
 		//
-		for(Authenticator authenticator : getEnabledAuthenticators()) {
+		for (Authenticator authenticator : getEnabledAuthenticators()) {
 			LOG.debug("AuthenticationManager call authenticate by [{}].", authenticator.getName());
 			try {
 				LoginDto result = authenticator.authenticate(cloneLoginDto(loginDto));
@@ -102,11 +103,17 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 					continue;
 				}
 				if (authenticator.getExceptedResult() == AuthenticationResponseEnum.SUFFICIENT) {
+					// check if user must change password, skip this check if loginDto contains flag
+					if (passwordDto.isMustChange() && !loginDto.isSkipMustChange()) {
+						throw new MustChangePasswordException(loginDto.getUsername());
+					}
 					passwordDto = passwordService.setLastSuccessfulLogin(passwordDto);
 					return result;
 				}
 				// if otherwise add result too list and continue
 				resultsList.add(result);
+			} catch (MustChangePasswordException ex) {
+				throw ex;
 			} catch (RuntimeException e) {
 				// if excepted response is REQUISITE exit immediately with error
 				if (authenticator.getExceptedResult() == AuthenticationResponseEnum.REQUISITE) {

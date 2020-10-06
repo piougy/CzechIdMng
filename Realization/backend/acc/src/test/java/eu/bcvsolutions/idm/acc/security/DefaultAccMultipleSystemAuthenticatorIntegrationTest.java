@@ -30,13 +30,16 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -62,7 +65,8 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 	private SysSystemService systemService;
 	@Autowired
 	private SysSystemAttributeMappingService systemAttributeMappingService;
-	
+	@Autowired 
+	private IdmPasswordService passwordService;
 
 	@After
 	public void after() {
@@ -97,6 +101,32 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 		// System two
 		// Bas password
 		login(identity, passwordSystemTwo + 1, true, null);
+	}
+	
+	@Test(expected = MustChangePasswordException.class)
+	public void testMustChangePasswordException() {
+		String passwordSystem = getHelper().createName();
+		String passwordIdm = getHelper().createName();
+
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString(passwordIdm));
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		password.setMustChange(true);
+		passwordService.save(password);
+
+		SysSystemDto systemOne = createSystem(null);
+
+		addSystemToIdentity(identity, systemOne);
+
+		changePassword(identity, passwordSystem, getAccountIdForSystem(identity, systemOne));
+
+		setupAuthentication(systemOne);
+
+		// System One
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(identity.getUsername());
+		loginDto.setPassword(new GuardedString(passwordSystem));
+
+		authenticationManager.authenticate(loginDto);
 	}
 
 	@Test

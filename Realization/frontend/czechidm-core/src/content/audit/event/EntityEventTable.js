@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import moment from 'moment';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -16,7 +17,7 @@ const manager = new EntityEventManager();
 const auditManager = new AuditManager();
 
 /**
- * Table of persisted entity events
+ * Table of persisted entity events.
  *
  * @author Radek Tomiška
  */
@@ -97,9 +98,10 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
         } else {
           message = this.flashMessagesManager.convertFromError(error);
         }
+        const { detail } = this.state;
         this.setState({
           detail: {
-            ...this.state.detail,
+            ...detail,
             message
           }
         }, () => {
@@ -275,7 +277,12 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
               }
             }
             rendered={_.includes(columns, 'result')}/>
-          <Advanced.Column property="created" sort face="datetime" rendered={ _.includes(columns, 'created') } width={ 175 }/>
+          <Advanced.Column
+            property="created"
+            sort
+            face="datetime"
+            rendered={ _.includes(columns, 'created') }
+            width={ 175 }/>
           <Advanced.Column
             property="superOwnerId"
             header={ this.i18n('entity.EntityEvent.superOwnerId.label') }
@@ -300,7 +307,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                   </span>
                 );
               }}
-            />
+          />
           <Advanced.Column
             property="ownerId"
             header={ this.i18n('entity.EntityEvent.owner.label') }
@@ -350,10 +357,10 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                 if (_showRoot) {
                   // TODO: info card
                   content.push(
-                    <div>
+                    <Basic.Div>
                       <span>{ this.i18n('entity.EntityEvent.rootId.label') }:</span>
                       <Advanced.UuidInfo value={ root }/>
-                    </div>
+                    </Basic.Div>
                   );
                 }
                 // parent event
@@ -361,18 +368,18 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                   if (parent) {
                     // TODO: info card
                     content.push(
-                      <div>
+                      <Basic.Div>
                         {
                           !_showRoot
                           ||
                           <span>{ this.i18n('entity.EntityEvent.parent.label') }:</span>
                         }
                         <Advanced.UuidInfo value={ parent }/>
-                      </div>
+                      </Basic.Div>
                     );
                   } else {
                     content.push(
-                      <div>{ data[rowIndex].parentEventType }</div>
+                      <Basic.Div>{ data[rowIndex].parentEventType }</Basic.Div>
                     );
                   }
                 }
@@ -395,9 +402,6 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper label={ this.i18n('entity.created') }>
                     <Advanced.DateValue value={ detail.entity.created } format={ this.i18n('format.datetimemilis') }/>
-                  </Basic.LabelWrapper>
-                  <Basic.LabelWrapper label={ this.i18n('entity.modified.label') }>
-                    <Advanced.DateValue value={ detail.entity.modified } format={ this.i18n('format.datetimemilis') }/>
                   </Basic.LabelWrapper>
                   <Basic.LabelWrapper
                     label={ this.i18n('entity.EntityEvent.executeDate.label') }
@@ -447,6 +451,22 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper label={ this.i18n('entity.EntityEvent.priority.label') }>
                     <Basic.EnumValue value={ detail.entity.priority } enum={ PriorityTypeEnum }/>
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+              </Basic.Row>
+
+              <Basic.Row rendered={ detail.entity.eventStarted !== null }>
+                <Basic.Col lg={ 6 }>
+                  <Basic.LabelWrapper label={ this.i18n('entity.EntityEvent.eventStarted.label') }>
+                    <Advanced.DateValue value={ detail.entity.eventStarted } format={ this.i18n('format.datetimemilis') }/>
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.LabelWrapper label={ this.i18n('entity.EntityEvent.eventEnded.label') } rendered={ false }>
+                    <Advanced.DateValue value={ detail.entity.eventEnded } format={ this.i18n('format.datetimemilis') }/>
+                  </Basic.LabelWrapper>
+                  <Basic.LabelWrapper label={ this.i18n('entity.EntityEvent.duration.label') }>
+                    <Basic.TimeDuration start={ detail.entity.eventStarted } end={ detail.entity.eventEnded || moment() } humanized/>
                   </Basic.LabelWrapper>
                 </Basic.Col>
               </Basic.Row>

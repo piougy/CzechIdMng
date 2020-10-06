@@ -109,14 +109,15 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 		// owner decorator
 		String ownerId = getParameterConverter().toString(parameters, IdmEntityEventFilter.PARAMETER_OWNER_ID);
 		UUID ownerUuid = null;
-		if (StringUtils.isNotEmpty(filter.getOwnerType()) && StringUtils.isNotEmpty(ownerId)) {
+		String ownerType = filter.getOwnerType();
+		if (StringUtils.isNotEmpty(ownerType) && StringUtils.isNotEmpty(ownerId)) {
 			// try to find entity owner by Codeable identifier
-			AbstractDto owner = manager.findOwner(filter.getOwnerType(), ownerId);
+			AbstractDto owner = manager.findOwner(ownerType, ownerId);
 			if (owner != null) {
 				ownerUuid = owner.getId();
 			} else {
 				LOG.debug("Entity type [{}] with identifier [{}] does not found, raw ownerId will be used as uuid.", 
-						filter.getOwnerType(), ownerId);
+						ownerType, ownerId);
 				// Better exception for FE.
 				try {
 					DtoUtils.toUuid(ownerId);
@@ -126,9 +127,34 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 			}
 		}
 		if (ownerUuid == null) {
-			ownerUuid = getParameterConverter().toUuid(parameters, "ownerId");
+			ownerUuid = getParameterConverter().toUuid(parameters, IdmEntityEventFilter.PARAMETER_OWNER_ID);
 		}
 		filter.setOwnerId(ownerUuid);
+		//
+		// super owner decorator
+		String superOwnerId = getParameterConverter().toString(parameters, IdmEntityEventFilter.PARAMETER_SUPER_OWNER_ID);
+		UUID superOwnerUuid = null;
+		String superOwnerType = getParameterConverter().toString(parameters, IdmEntityEventFilter.PARAMETER_SUPER_OWNER_TYPE);
+		if (StringUtils.isNotEmpty(superOwnerType) && StringUtils.isNotEmpty(superOwnerId)) {
+			// try to find entity owner by Codeable identifier
+			AbstractDto owner = manager.findOwner(superOwnerType, superOwnerId);
+			if (owner != null) {
+				superOwnerUuid = owner.getId();
+			} else {
+				LOG.debug("Entity type [{}] with identifier [{}] does not found, raw ownerId will be used as uuid.", 
+						superOwnerType, superOwnerId);
+				// Better exception for FE.
+				try {
+					DtoUtils.toUuid(ownerId);
+				} catch (ClassCastException ex) {
+					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ownerId), ex);
+				}
+			}
+		}
+		if (superOwnerUuid == null) {
+			superOwnerUuid = getParameterConverter().toUuid(parameters, IdmEntityEventFilter.PARAMETER_SUPER_OWNER_ID);
+		}
+		filter.setSuperOwnerId(superOwnerUuid);
 		//
 		return filter;
 	}

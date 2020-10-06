@@ -10,7 +10,7 @@ Otherwise only portion without days is displayed - 01:22:33.
 | --- | :--- | :--- | :--- |
 | start  | string   | Initial timestamp in ISO-8601 format |  |
 | stop  | string   | Terminal timestamp in ISO-8601 format|  |
-| humanForm | bool | Verbal form of duration is the main and numeric as the hint | false
+| humanized | bool | Verbal form of duration is the main and numeric as the hint | false
 
 ## Usage
 
@@ -18,6 +18,6 @@ Otherwise only portion without days is displayed - 01:22:33.
 <TimeDuration
   start="2016-05-02T00:00:00"
   end="2016-05-02T00:00:00"
-  humanForm
+  humanized
 />
 ```

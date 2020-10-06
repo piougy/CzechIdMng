@@ -1,11 +1,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { LocalizationService } from '../../services';
 
 /**
  * Table with long running task items and detail of LRT
@@ -87,7 +85,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                     !entity.taskStarted
                     ||
                     <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.duration') }>
-                      <Basic.TimeDuration start={ entity.taskStarted } end={ entity.taskEnded || entity.modified } humanForm/>
+                      <Basic.TimeDuration start={ entity.taskStarted } end={ entity.taskEnded || entity.modified } humanized/>
                     </Basic.LabelWrapper>
                   }
                 </Basic.Col>

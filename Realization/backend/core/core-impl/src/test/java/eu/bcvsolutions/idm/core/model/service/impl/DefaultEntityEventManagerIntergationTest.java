@@ -734,11 +734,12 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			Assert.assertEquals(transactionId, role.getTransactionId());
 			IdmRoleRequestDto request = getHelper().createRoleRequest(getHelper().getPrimeContract(identity), role);
 			Assert.assertEquals(transactionId, request.getTransactionId());
-			getHelper().executeRequest(request, false, false);
+			getHelper().executeRequest(request, true, false);
 			
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findValidRoles(identity.getId(), null).getContent().isEmpty();
 			}, 500, 20);
+			Assert.assertEquals(1L, identityRoleService.findValidRoles(identity.getId(), null).getTotalElements());
 			//
 			// created events for the request
 			IdmEntityEventFilter filter = new IdmEntityEventFilter();

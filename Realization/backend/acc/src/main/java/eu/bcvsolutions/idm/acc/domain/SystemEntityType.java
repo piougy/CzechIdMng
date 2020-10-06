@@ -21,7 +21,7 @@ public enum SystemEntityType {
 	IDENTITY(IdmIdentityDto.class, true, true),
 	ROLE(IdmRoleDto.class,true, true),
 	TREE(IdmTreeNodeDto.class, true, true),
-	ROLE_CATALOGUE(IdmRoleCatalogueDto.class, true, false),
+	ROLE_CATALOGUE(IdmRoleCatalogueDto.class, true, true),
 	CONTRACT(IdmIdentityContractDto.class, false, true),
 	CONTRACT_SLICE(IdmContractSliceDto.class, false, true),
 	IDENTITY_ROLE(IdmIdentityRoleDto.class, false, true);

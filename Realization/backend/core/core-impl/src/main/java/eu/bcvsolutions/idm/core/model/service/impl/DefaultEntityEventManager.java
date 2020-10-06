@@ -670,6 +670,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		Assert.notNull(entityEvent, "Event DTO has to be persisted before result is persisted.");
 		//
 		entityEvent.setResult(result);
+		//
 		return entityEventService.save(entityEvent);
 	}
 	

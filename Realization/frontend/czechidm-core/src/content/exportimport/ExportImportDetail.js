@@ -1,8 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 //
-import { Basic, Advanced, Utils, Managers, Services, Domain } from 'czechidm-core';
+import { Basic, Advanced, Utils, Managers, Domain } from 'czechidm-core';
 import { ExportImportManager, ImportLogManager } from '../../redux';
 import ExportImportTypeEnum from '../../enums/ExportImportTypeEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
@@ -126,7 +125,10 @@ export class ExportImportDetail extends Advanced.AbstractTableContent {
                     <Basic.Col lg={ 6 }>
                       <Basic.Div rendered={longRunningTask && longRunningTask.taskStarted}>
                         <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                          <Basic.TimeDuration start={longRunningTask ? longRunningTask.taskStarted : null} end= {longRunningTask ? longRunningTask.modified : null} humanForm/>
+                          <Basic.TimeDuration
+                            start={longRunningTask ? longRunningTask.taskStarted : null}
+                            end={longRunningTask ? longRunningTask.modified : null}
+                            humanized/>
                         </Basic.LabelWrapper>
                       </Basic.Div>
                     </Basic.Col>

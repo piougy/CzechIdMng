@@ -40,6 +40,8 @@ public class IdmEntityEventDto extends AbstractDto {
 	private boolean closed;
 	private boolean suspended;
 	private ZonedDateTime executeDate;
+	private ZonedDateTime eventStarted;
+	private ZonedDateTime eventEnded;
 	private PriorityType priority;
 	@Embedded(dtoClass = IdmEntityEventDto.class)
 	private UUID parent;
@@ -193,5 +195,44 @@ public class IdmEntityEventDto extends AbstractDto {
 	
 	public void setRootId(UUID rootId) {
 		this.rootId = rootId;
+	}
+	
+	/**
+	 * Event processing started.
+	 * 
+	 * @return start or {@code null} - not started 
+	 * @since 10.6.0
+	 */
+	public ZonedDateTime getEventStarted() {
+		return eventStarted;
+	}
+	
+	/**
+	 * Event processing started.
+	 * 
+	 * @param eventStarted start or {@code null} - not started 
+	 * @since 10.6.0
+	 */
+	public void setEventStarted(ZonedDateTime eventStarted) {
+		this.eventStarted = eventStarted;
+	}
+	
+	/**
+	 * Event processing ended.
+	 * 
+	 * @return end or {@code null} - not ended 
+	 * @since 10.6.0
+	 */
+	public ZonedDateTime getEventEnded() {
+		return eventEnded;
+	}
+	
+	/**
+	 * Event processing ended.
+	 * @param eventEnded end or {@code null} - not ended 
+	 * @since 10.6.0
+	 */
+	public void setEventEnded(ZonedDateTime eventEnded) {
+		this.eventEnded = eventEnded;
 	}
 }

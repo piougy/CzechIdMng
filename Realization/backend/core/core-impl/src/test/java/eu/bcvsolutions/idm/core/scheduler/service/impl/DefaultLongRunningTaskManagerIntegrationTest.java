@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDeleteBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
@@ -325,10 +326,11 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 	
 	@Test
 	public void testProcessCreatedLrtUnderNewTransactionId() {
-		TestTaskExecutor executorOne = new TestTaskExecutor();
+		TestRegistrableSchedulableTask executorOne = new TestRegistrableSchedulableTask();
 		executorOne.setDescription(getHelper().createName());
 		executorOne.setCount(1L);
 		//
+		executorOne.setLongRunningTaskId(null);
 		manager.resolveLongRunningTask(executorOne, null, null);
 		executorOne.setLongRunningTaskId(null);
 		manager.resolveLongRunningTask(executorOne, null, OperationState.CREATED);
@@ -338,7 +340,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 		manager.processCreated();
 		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		filter.setTaskType(TestTaskExecutor.class.getCanonicalName());
+		filter.setTaskType(AutowireHelper.getTargetType(executorOne));
 		filter.setText(executorOne.getDescription());
 		filter.setOperationState(OperationState.EXECUTED);
 		getHelper().waitForResult(res -> {

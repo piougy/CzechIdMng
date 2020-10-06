@@ -6,7 +6,7 @@
 
 ALTER TABLE idm_long_running_task ADD task_ended datetime2(6);
 ALTER TABLE idm_long_running_task_a ADD task_ended datetime2(6);
-ALTER TABLE idm_long_running_task_a ADD task_ended_m bit;
-
+ALTER TABLE idm_long_running_task_a ADD task_ended_m bit
+GO
 UPDATE idm_long_running_task SET task_ended = modified WHERE result_state <> 'CREATED' AND result_state <> 'RUNNING';
 

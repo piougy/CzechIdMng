@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
@@ -39,8 +40,6 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 /**
  * CRUD for entity changes.
  * 
- * TODO: add support for save confidential properties.
- * 
  * @author Radek Tomiška
  * @since 8.0.0
  */
@@ -51,7 +50,6 @@ public class DefaultIdmEntityEventService
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmEntityEventService.class);
 	private final IdmEntityEventRepository repository;
 	//
-	// @Autowired private ConfidentialStorage confidentialStorage;
 	@Autowired private IdmEntityStateService entityStateService;
 	@Autowired private IdmEntityStateRepository entityStateRepository;
 	@Autowired private SecurityService securityService;
@@ -91,13 +89,21 @@ public class DefaultIdmEntityEventService
 	@Override
 	@Transactional
 	public IdmEntityEventDto saveInternal(IdmEntityEventDto dto) {
-//		ConfigurationMap eventProperties = dto.getEventProperties();
+		Assert.notNull(dto, "DTO is required for save.");
+		// preset super owner as owner by default (simplify filtering)
+		if (dto.getSuperOwnerId() == null) {
+			dto.setSuperOwnerId(dto.getOwnerId());
+		}
+		// start event
+		OperationResultDto result = dto.getResult();
+		if (result != null 
+				&& result.getState() == OperationState.RUNNING 
+				&& dto.getEventStarted() == null) {
+			dto.setEventStarted(ZonedDateTime.now());
+		}
+		//
 		dto = super.saveInternal(dto);
-		// TODO ...
-//		if (eventProperties.isEmpty()) {
-//			confidentialStorage.save(dto.getId(), getEntityClass(), "core:properties", password.asString());
-//		}
-		//		
+		//
 		return dto;
 	}
 	
@@ -118,8 +124,6 @@ public class DefaultIdmEntityEventService
 			entityStateService.delete(state);
 		});
 		//
-		// TODO: delete confidential properties
-		//
 		super.deleteInternal(dto);
 	}
 	
@@ -131,7 +135,6 @@ public class DefaultIdmEntityEventService
 	public ConfigurationMap getEventProperties(IdmEntityEventDto event) {
 		Assert.notNull(event, "Event is required to get properties");
 		//
-		// TODO: return confidentialStorage.getGuardedString(requestId, getEntityClass(), PROPERTY_PASSWORD);
 		return event.getProperties();
 	}
 	
@@ -142,7 +145,7 @@ public class DefaultIdmEntityEventService
 		//
 		entityStateRepository.deleteByEventIsNotNull();
 		repository.deleteAll();
-		
+		//
 		LOG.warn("Entity events were truncated by identity [{}].", securityService.getCurrentId());
 	}
 	

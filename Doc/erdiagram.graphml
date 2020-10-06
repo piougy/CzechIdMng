@@ -4076,7 +4076,7 @@ Type]]></x0:EntityRelationshipModel.title>
 		<node id="n90">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-1189.3015979156332" Y="495.2152339839114" Width="175.8694204163121" Height="333.36268710186255"/>
+				<y:RectD X="-1182.2669360928082" Y="464.8402339839114" Width="175.8694204163121" Height="394.11268710186255"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
@@ -4114,6 +4114,8 @@ Type]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[+ resultCause]]></sys:String>
 									<sys:String><![CDATA[+ rootId]]></sys:String>
 									<sys:String><![CDATA[+ superOwnerId]]></sys:String>
+									<sys:String><![CDATA[+ eventStarted]]></sys:String>
+									<sys:String><![CDATA[+ eventEnded]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>
@@ -8624,7 +8626,7 @@ pravidla]]></y:Label.Text>
 			</data>
 			<data key="d12">
 				<x:List>
-					<y:Bend Location="-1283.3234622347893,497.62210140777836"/>
+					<y:Bend Location="-1283.3234622347893,508.87210140777836"/>
 				</x:List>
 			</data>
 			<data key="d13">

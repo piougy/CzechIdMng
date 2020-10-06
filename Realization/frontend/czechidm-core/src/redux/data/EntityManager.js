@@ -292,10 +292,7 @@ export default class EntityManager {
       this.getService()
         .count(searchParameters)
         .then(count => {
-          this.dataManager.receiveData(uiKey, count, cb);
-          if (cb) {
-            cb(count, null, uiKey);
-          }
+          dispatch(this.dataManager.receiveData(uiKey, count, cb));
         })
         .catch(error => {
           dispatch(this.receiveError({}, uiKey, error, cb));

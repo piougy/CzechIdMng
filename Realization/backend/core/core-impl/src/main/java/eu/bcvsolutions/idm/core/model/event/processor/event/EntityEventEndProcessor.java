@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor.event;
 
+import java.time.ZonedDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -38,6 +40,7 @@ public class EntityEventEndProcessor extends CoreEventProcessor<IdmEntityEventDt
 	@Override
 	public EventResult<IdmEntityEventDto> process(EntityEvent<IdmEntityEventDto> event) {
 		IdmEntityEventDto entityEvent = event.getContent();
+		entityEvent.setEventEnded(ZonedDateTime.now());
 		entityEvent = service.save(entityEvent);
 		event.setContent(entityEvent);
 		//

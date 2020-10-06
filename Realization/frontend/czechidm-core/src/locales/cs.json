@@ -3917,6 +3917,10 @@
           "placeholder": "$t(entity.EntityEvent.parent.label) (uuid)"
         }
       },
+      "counter": {
+        "info": "Počet nezpracovaných událostí",
+        "error": "Počet událostí s výjimkou"
+      },
       "event": {
         "header": "Události na entitách",
         "detail": {
@@ -5337,7 +5341,16 @@
     "EntityEvent": {
       "_type": "Event",
       "created": {
-        "label": "Datum"
+        "label": "$t(entity.created)"
+      },
+      "eventStarted": {
+        "label": "Spuštěno"
+      },
+      "eventEnded": {
+        "label": "Ukončeno"
+      },
+      "duration": {
+        "label": "Trvání události"
       },
       "superOwnerId": {
         "label": "Hlavní vlastník"

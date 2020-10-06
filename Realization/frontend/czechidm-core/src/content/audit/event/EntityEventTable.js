@@ -466,7 +466,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                     <Advanced.DateValue value={ detail.entity.eventEnded } format={ this.i18n('format.datetimemilis') }/>
                   </Basic.LabelWrapper>
                   <Basic.LabelWrapper label={ this.i18n('entity.EntityEvent.duration.label') }>
-                    <Basic.TimeDuration start={ detail.entity.eventStarted } end={ detail.entity.eventEnded || moment() } humanForm/>
+                    <Basic.TimeDuration start={ detail.entity.eventStarted } end={ detail.entity.eventEnded || moment() } humanized/>
                   </Basic.LabelWrapper>
                 </Basic.Col>
               </Basic.Row>

@@ -22,7 +22,7 @@ class TimeDuration extends AbstractContextComponent {
    */
   _formatDuration(start, end) {
     const dayInMs = 24 * 3600 * 1000;
-    const _end = end ? end : moment().utc().valueOf();
+    const _end = end || moment().utc().valueOf();
     const timeDuration = moment.duration(moment(_end).diff(moment(start)));
     const humanized = timeDuration
       .locale(LocalizationService.getCurrentLanguage())
@@ -37,7 +37,7 @@ class TimeDuration extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, start, end, level, style, humanForm } = this.props;
+    const { rendered, start, end, level, style, humanized } = this.props;
     if (!rendered || !start) {
       return null;
     }
@@ -45,7 +45,7 @@ class TimeDuration extends AbstractContextComponent {
     const formattedValues = this._formatDuration(start, end);
     let mainVal = formattedValues.timeInfo;
     let hintVal = formattedValues.humanized;
-    if (humanForm) {
+    if (humanized) {
       mainVal = formattedValues.humanized;
       hintVal = formattedValues.timeInfo;
     }
@@ -83,11 +83,11 @@ TimeDuration.PropTypes = {
   /* Human form is a verbal form
    * of approximate time e.g. 18 minutes, a day
    */
-  humanForm: PropTypes.bool
+  humanized: PropTypes.bool
 };
 
 TimeDuration.defaultProps = {
   rendered: true,
-  humanForm: false
+  humanized: false
 };
 export default TimeDuration;

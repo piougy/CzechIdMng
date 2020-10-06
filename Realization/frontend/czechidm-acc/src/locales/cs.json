@@ -137,6 +137,7 @@
         "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu), podle kterého chceme hledat příslušné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
         "customFilterWithReconciliation": "Vlastní filtr nebude použit během rekonciliace.",
         "treeInfo": "Synchronizace stromu je vždy spouštěna jako rekonciliace.",
+        "roleCatalogueInfo": "Synchronizace struktury katalogu rolí je vždy spouštěna jako rekonciliace.",
         "edit": {
           "header": "Detail konfigurace synchronizace"
         },
@@ -2695,6 +2696,14 @@
       "message": "Pro nadřazené UID: [{{parentUid}}] na systému [{{systemId}}] a účtu [{{parentAccount}}] nebyl nalezen účet stromové struktury."
     },
     "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Nebyl nalezen účet",
+      "message": "Pro nadřazené UID: [{{parentUid}}] na systému [{{systemId}}] nebyl nalezen rodičovský účet."
+    },
+    "SYNCHRONIZATION_ROLE_CATALOGUE_TREE_ACCOUNT_NOT_FOUND": {
+      "title": "Nebyl nalezen účet",
+      "message": "Pro nadřazené UID: [{{parentUid}}] na systému [{{systemId}}] a účtu [{{parentAccount}}] nebyl nalezen účet katalogu rolí."
+    },
+    "SYNCHRONIZATION_ROLE_CATALOGUE_ACCOUNT_NOT_FOUND": {
       "title": "Nebyl nalezen účet",
       "message": "Pro nadřazené UID: [{{parentUid}}] na systému [{{systemId}}] nebyl nalezen rodičovský účet."
     },

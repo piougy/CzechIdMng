@@ -275,7 +275,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   _onChangeSystemMapping(systemMapping) {
     const systemMappingId = systemMapping ? systemMapping.id : null;
     const entityType = systemMapping ? systemMapping.entityType : null;
-    const isSelectedTree = entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE);
+    const isSelectedTree = (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE) ||
+      entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.ROLE_CATALOGUE));
     this.setState({
       systemMappingId,
       entityType
@@ -377,6 +378,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     synchronizationConfig,
     innerShowLoading,
     isSelectedTree,
+    isRoleCatalogue,
     customFilterUsed,
     reconciliationEnabled,
     forceSearchMappingAttributes,
@@ -398,7 +400,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               onChange={this._onChangeEnabled.bind(this)}/>
             <Basic.Checkbox
               ref="reconciliation"
-              readOnly={isSelectedTree}
+              readOnly={isSelectedTree || isRoleCatalogue}
               label={this.i18n('acc:entity.SynchronizationConfig.reconciliation.label')}
               helpBlock={this.i18n('acc:entity.SynchronizationConfig.reconciliation.help')}
               onChange={this._onChangeReconciliation.bind(this)}/>
@@ -415,14 +417,14 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               label={this.i18n('acc:entity.SynchronizationConfig.differentialSync.label')}
               helpBlock={this.i18n('acc:entity.SynchronizationConfig.differentialSync.help')}/>
             <Basic.LabelWrapper
-              hidden={!isSelectedTree}
+              hidden={!isSelectedTree && !isRoleCatalogue}
               label=" ">
               <Basic.Alert
                 key="treeInfo"
                 level="warning"
                 icon="exclamation-sign"
                 className="no-margin"
-                text={this.i18n('treeInfo')}/>
+                text={isRoleCatalogue ? this.i18n('roleCatalogueInfo') : this.i18n('treeInfo')}/>
             </Basic.LabelWrapper>
             <Basic.TextField
               ref="name"
@@ -438,7 +440,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
             <Basic.ScriptArea
               ref="rootsFilterScript"
               height="20em"
-              hidden={!isSelectedTree}
+              hidden={!isSelectedTree && !isRoleCatalogue}
               helpBlock={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.help')}
               label={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.label')}/>
             <Basic.SelectBox
@@ -580,11 +582,15 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     }
 
     let isSelectedTree = false;
+    let isRoleCatalogue = false;
     let specificConfiguration = null;
     const finalEntityType = this._getEntityType(synchronizationConfig, entityType);
     if (finalEntityType) {
       if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
         isSelectedTree = true;
+      }
+      if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.ROLE_CATALOGUE)) {
+        isRoleCatalogue = true;
       }
     }
     if (finalEntityType) {
@@ -636,6 +642,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               synchronizationConfig,
               innerShowLoading,
               isSelectedTree,
+              isRoleCatalogue,
               customFilterUsed,
               reconciliationEnabled,
               forceSearchMappingAttributes,

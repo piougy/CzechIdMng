@@ -1084,7 +1084,9 @@
       "CHANGEEMAIL": "Change email",
       "CHANGEEXTERNALCODE": "Change personal number",
       "CHANGEDESCRIPTION": "Change note",
-      "SWITCHUSER": "Login as user (switch user)"
+      "SWITCHUSER": "Login as user (switch user)",
+      "DELEGATOR": "Delegator",
+      "DELEGATE": "Delegate"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",

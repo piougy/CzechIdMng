@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.test.api;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -996,6 +997,12 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmProfileDto createProfile(IdmIdentityDto identity);
+
+	/**
+	 * Create or get delegation.
+	 *
+	 */
+	IdmDelegationDefinitionDto createDelegation(IdmIdentityDto delegate, IdmIdentityDto delegator, BasePermission... permissions);
 
 	/**
 	 * Method recalculate automatic role for given ID.

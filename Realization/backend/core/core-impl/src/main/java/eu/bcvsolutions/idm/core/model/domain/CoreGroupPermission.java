@@ -46,7 +46,9 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdentityBasePermission.CHANGEEMAIL,
 			IdentityBasePermission.CHANGEEXTERNALCODE,
 			IdentityBasePermission.CHANGEDESCRIPTION,
-			IdentityBasePermission.SWITCHUSER),	
+			IdentityBasePermission.SWITCHUSER,
+			IdentityBasePermission.DELEGATOR,
+			IdentityBasePermission.DELEGATE),
 	PROFILE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 

@@ -19,8 +19,10 @@ public enum IdentityBasePermission implements BasePermission {
 	CHANGEEMAIL, // @since 10.3.0 change email
 	CHANGEEXTERNALCODE, // @since 10.3.0 change personal number
 	CHANGEDESCRIPTION, // @since 10.3.0 change description
-	SWITCHUSER; // @since 10.5.0 - logged user can login as selected user (switch user).
-	
+	SWITCHUSER, // @since 10.5.0 - logged user can login as selected user (switch user).
+	DELEGATOR, // @since 10.6.0 - Defines list of delegators.
+	DELEGATE; // @since 10.6.0 - Defines list of delegates.
+
 	@Override
 	public String getName() {
 		return name();

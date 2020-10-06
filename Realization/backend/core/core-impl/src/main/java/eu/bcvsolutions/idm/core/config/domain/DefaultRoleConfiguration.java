@@ -46,7 +46,7 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 			return null;
 		}
 		// lookup - uuid or code could be given
-		IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		IdmRoleDto role = lookupService.lookupDto(IdmRoleDto.class, roleCode);
 		if (role == null) {
 			LOG.warn("Default role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_DEFAULT_ROLE);
 			return null;
@@ -78,7 +78,7 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 			return null;
 		}
 		// lookup - uuid or code could be given
-		IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		IdmRoleDto role = lookupService.lookupDto(IdmRoleDto.class, roleCode);
 		if (role == null) {
 			LOG.warn("Admin role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_ADMIN_ROLE);
 			return null;
@@ -104,7 +104,7 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 			return null;
 		}
 		// lookup - uuid or code could be given
-		IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		IdmRoleDto role = lookupService.lookupDto(IdmRoleDto.class, roleCode);
 		if (role == null) {
 			LOG.warn("Helpdesk role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_HELPDESK_ROLE);
 			return null;
@@ -122,7 +122,33 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 		//
 		return roleCode;
 	}
-	
+
+	@Override
+	public String getDelegationRoleCode() {
+		String roleCode = getConfigurationService().getValue(PROPERTY_DELEGATION_ROLE, DEFAULT_DELEGATION_ROLE);
+		if (StringUtils.isBlank(roleCode)) {
+			LOG.debug("User manager role is not configured, returning null. Change configuration [{}]", PROPERTY_DELEGATION_ROLE);
+			return null;
+		}
+		//
+		return roleCode;
+	}
+
+	@Override
+	public IdmRoleDto getDelegationRole() {
+		String roleCode = getDelegationRoleCode();
+		if (roleCode == null) {
+			return null;
+		}
+		// lookup - uuid or code could be given
+		IdmRoleDto role = lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		if (role == null) {
+			LOG.warn("Delegation role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_DELEGATION_ROLE);
+			return null;
+		}
+		return role;
+	}
+
 	@Override
 	public IdmRoleDto getUserManagerRole() {
 		String roleCode = getUserManagerRoleCode();
@@ -130,7 +156,7 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 			return null;
 		}
 		// lookup - uuid or code could be given
-		IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		IdmRoleDto role = lookupService.lookupDto(IdmRoleDto.class, roleCode);
 		if (role == null) {
 			LOG.warn("User manager role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_USER_MANAGER_ROLE);
 			return null;
@@ -156,7 +182,7 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 			return null;
 		}
 		// lookup - uuid or code could be given
-		IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		IdmRoleDto role = lookupService.lookupDto(IdmRoleDto.class, roleCode);
 		if (role == null) {
 			LOG.warn("Role manager role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_ROLE_MANAGER_ROLE);
 			return null;
@@ -172,7 +198,7 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 			return null;
 		}
 		// lookup - uuid or code could be given
-		IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		IdmRoleDto role = lookupService.lookupDto(IdmRoleDto.class, roleCode);
 		if (role == null) {
 			LOG.warn("Role for approve change of role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_APPROVE_ROLE_CHANGE_ROLE);
 			return null;

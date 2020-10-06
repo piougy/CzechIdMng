@@ -1117,7 +1117,9 @@
       "CHANGEEMAIL": "Změna emailu",
       "CHANGEEXTERNALCODE": "Změna osobního čísla",
       "CHANGEDESCRIPTION": "Změna popisu",
-      "SWITCHUSER": "Přihlásit se za uživatele"
+      "SWITCHUSER": "Přihlásit se za uživatele",
+      "DELEGATOR": "Delegující",
+      "DELEGATE": "Delegovaný"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",

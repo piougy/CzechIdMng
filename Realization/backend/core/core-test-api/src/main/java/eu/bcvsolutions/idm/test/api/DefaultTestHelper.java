@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.test.api;
 
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -7,17 +8,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-
 import javax.sql.DataSource;
-
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-
-import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayMigrationStrategy;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
@@ -38,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -75,6 +73,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
+import eu.bcvsolutions.idm.core.api.service.IdmDelegationDefinitionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -114,6 +113,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
+import java.time.LocalDate;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Creates common test entities
@@ -124,7 +127,8 @@ import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 @Component("testHelper")
 public class DefaultTestHelper implements TestHelper {
 
-	@Autowired private ApplicationContext context;
+	@Autowired
+	private ApplicationContext context;
 	@Autowired private DataSource dataSource;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmTreeNodeService treeNodeService;
@@ -162,7 +166,8 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmScriptAuthorityService scriptAuthorityService;
 	@Autowired private IdmScriptService scriptService;
 	@Autowired private LongRunningTaskManager taskManager;
-	
+	@Autowired private IdmDelegationDefinitionService delegationDefinitionService;
+
 	@Override
 	public LoginDto loginAdmin() {
 		return loginService.login(new LoginDto(TestHelper.ADMIN_USERNAME, new GuardedString(TestHelper.ADMIN_PASSWORD)));
@@ -1036,7 +1041,17 @@ public class DefaultTestHelper implements TestHelper {
 	public IdmProfileDto createProfile(IdmIdentityDto identity) {
 		return profileService.findOrCreateByIdentity(identity.getId());
 	}
-	
+
+	@Override
+	public IdmDelegationDefinitionDto createDelegation(IdmIdentityDto delegate, IdmIdentityDto delegator, BasePermission... permissions) {
+		IdmDelegationDefinitionDto definition = new IdmDelegationDefinitionDto();
+		definition.setType("default-delegation-type");
+		definition.setDelegator(delegator.getId());
+		definition.setDelegate(delegate.getId());
+
+		return delegationDefinitionService.save(definition, permissions);
+	}
+
 	@Override
 	public void recalculateAutomaticRoleByAttribute(UUID automaticRoleId) {
 		automaticRoleAttributeService.recalculate(automaticRoleId);

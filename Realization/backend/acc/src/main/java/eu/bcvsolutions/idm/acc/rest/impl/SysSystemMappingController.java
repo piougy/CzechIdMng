@@ -158,7 +158,7 @@ public class SysSystemMappingController extends AbstractReadWriteDtoController<S
 				new SystemMappingEvent(
 						isNew ? SystemMappingEvent.SystemMappingEventType.CREATE : SystemMappingEvent.SystemMappingEventType.UPDATE,
 						dto,
-						ImmutableMap.of(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING, true)),
+						ImmutableMap.of(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING, Boolean.TRUE)),
 				isNew ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE)
 				.getContent();
 	}

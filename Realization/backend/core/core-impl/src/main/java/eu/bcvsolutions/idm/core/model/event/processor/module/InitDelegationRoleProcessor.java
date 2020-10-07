@@ -98,8 +98,6 @@ public class InitDelegationRoleProcessor extends AbstractInitApplicationProcesso
 			return null;
 		}
 
-		// Delegation role policies (by https://wiki.czechidm.com/devel/documentation/security/dev/authorization#manager_and_subordinates).
-
 		// Find already configured role policies.
 		List<IdmAuthorizationPolicyDto> configuredPolicies = findConfiguredPolicies(delegationRole);
 

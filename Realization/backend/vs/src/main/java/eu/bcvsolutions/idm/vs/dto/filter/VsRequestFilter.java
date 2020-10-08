@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.vs.dto.filter;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -17,6 +18,7 @@ import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
  * Filter for vs request
  * 
  * @author Svanda
+ * @author Ondrej Husnik
  *
  */
 public class VsRequestFilter extends DataFilter implements ExternalIdentifiableFilter {
@@ -33,6 +35,7 @@ public class VsRequestFilter extends DataFilter implements ExternalIdentifiableF
 	private ZonedDateTime modifiedAfter; // TODO: modifiedFrom alias
 	private ZonedDateTime modifiedBefore; // TODO: modifiedTill alias
 	private boolean includeOwner; // Context property - if true, then entity owns this request will be load and setts to a request DTO.
+	private List<UUID> implementers;
 	
 	public VsRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -140,5 +143,19 @@ public class VsRequestFilter extends DataFilter implements ExternalIdentifiableF
 
 	public void setIncludeOwner(boolean includeOwner) {
 		this.includeOwner = includeOwner;
+	}
+
+	/**
+	 * @since 10.6
+	 */
+	public List<UUID> getImplementers() {
+		return implementers;
+	}
+
+	/**
+	 * @since 10.6
+	 */
+	public void setImplementers(List<UUID> implementers) {
+		this.implementers = implementers;
 	}
 }

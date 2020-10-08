@@ -113,6 +113,9 @@
       "filter": {
         "text": {
           "placeholder": "UID (account identifier)"
+        },
+        "implementers": {
+          "placeholder": "System implementers"
         }
       },
       "cancel-reason": {

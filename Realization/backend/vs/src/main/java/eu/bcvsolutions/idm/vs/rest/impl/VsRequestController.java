@@ -57,6 +57,7 @@ import io.swagger.annotations.AuthorizationScope;
  * Rest methods for virtual system request
  * 
  * @author Svanda
+ * @author Ondrej Husnik
  *
  */
 @RestController
@@ -334,6 +335,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		filter.setModifiedAfter(getParameterConverter().toDateTime(parameters, "modifiedAfter"));
 		filter.setModifiedBefore(getParameterConverter().toDateTime(parameters, "modifiedBefore"));
 		filter.setOnlyArchived(getParameterConverter().toBoolean(parameters, "onlyArchived"));
+		filter.setImplementers(getParameterConverter().toUuids(parameters, "implementers"));
 		// Context property for load and set owner to the request dto.
 		filter.setIncludeOwner(true);
 

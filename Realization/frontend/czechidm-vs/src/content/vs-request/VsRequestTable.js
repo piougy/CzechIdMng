@@ -11,9 +11,11 @@ import VsOperationType from '../../enums/VsOperationType';
 import VsRequestState from '../../enums/VsRequestState';
 
 const accManagers = require('czechidm-acc').Managers;
+const coreManagers = require('czechidm-core').Managers;
 
 const manager = new VsRequestManager();
 const systemManager = new accManagers.SystemManager();
+const identityManager = new coreManagers.IdentityManager();
 
 /**
 * Table of virtula system requests
@@ -270,6 +272,13 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                         .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
                         .setFilter('virtual', true)}
                       manager={systemManager}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.SelectBox
+                      ref="implementers"
+                      placeholder={this.i18n('filter.implementers.placeholder')}
+                      multiSelect
+                      manager={identityManager}/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>

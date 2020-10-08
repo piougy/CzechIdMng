@@ -29,15 +29,11 @@ import org.springframework.stereotype.Component;
  *
  * @author Vít Švanda
  */
-
 @Component("accSystemMappingIdentityAutoAttributesProcessor")
 @Description("Processor for automatic creation of identity mapped attributes by common schema attributes.")
-public class SystemMappingIdentityAutoAttributesProcessor extends CoreEventProcessor<SysSystemMappingDto> {
+public class SystemMappingIdentityAutoAttributesProcessor extends AbstractSystemMappingAutoAttributesProcessor {
 
 	private static final String PROCESSOR_NAME = "system-mapping-auto-attributes-processor";
-
-	@Autowired
-	private SysSystemAttributeMappingService systemAttributeMappingService;
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
 
@@ -54,10 +50,7 @@ public class SystemMappingIdentityAutoAttributesProcessor extends CoreEventProce
 			return new DefaultEventResult<>(event, this);
 		}
 
-		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
-		schemaAttributeFilter.setObjectClassId(schemaId);
-
-		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null).getContent();
+		List<SysSchemaAttributeDto> schemaAttributes = getSchemaAttributes(schemaId);
 
 		// UID attribute
 		SysSchemaAttributeDto primarySchemaAttribute = getSchemaAttributeByCatalogue(schemaAttributes, this.getPrimaryKeyCatalogue());
@@ -113,35 +106,6 @@ public class SystemMappingIdentityAutoAttributesProcessor extends CoreEventProce
 			return super.conditional(event);
 		}
 		return false;
-	}
-
-	/**
-	 * Search for an schema attribute by given catalogue (and by order in the catalogue).
-	 */
-	private SysSchemaAttributeDto getSchemaAttributeByCatalogue(List<SysSchemaAttributeDto> schemaAttributes, Set<String> catalogue) {
-		// First search for all schema attribute for all catalog.
-		List<SysSchemaAttributeDto> attributes = schemaAttributes
-				.stream()
-				.filter(attribute -> catalogue
-						.stream()
-						.anyMatch(
-								key -> attribute.getClassType().equals(String.class.getCanonicalName())
-										&& attribute.getName().trim().equalsIgnoreCase(key)
-						))
-				.collect(Collectors.toList());
-		// Find first by order in catalogue.
-		SysSchemaAttributeDto resultAttribute = null;
-		for (String key : catalogue) {
-			resultAttribute = attributes
-					.stream()
-					.filter(attribute -> attribute.getName().trim().equalsIgnoreCase(key))
-					.findFirst()
-					.orElse(null);
-			if (resultAttribute != null) {
-				break;
-			}
-		}
-		return resultAttribute;
 	}
 
 	/**
@@ -233,22 +197,6 @@ public class SystemMappingIdentityAutoAttributesProcessor extends CoreEventProce
 		catalogue.add("mobile_phone");
 
 		return catalogue;
-	}
-
-	/**
-	 * Create and save mapped attribute by schema attribute.
-	 */
-	private void createAttributeMappingBySchemaAttribute(SysSystemMappingDto dto, SysSchemaAttributeDto schemaAttribute, String propertyName, boolean isUID) {
-		SysSystemAttributeMappingDto mappingAttribute = new SysSystemAttributeMappingDto();
-		mappingAttribute.setIdmPropertyName(propertyName);
-		mappingAttribute.setSchemaAttribute(schemaAttribute.getId());
-		mappingAttribute.setUid(isUID);
-		mappingAttribute.setSystemMapping(dto.getId());
-		mappingAttribute.setCached(true);
-		mappingAttribute.setEntityAttribute(true);
-		mappingAttribute.setName(schemaAttribute.getName().trim());
-
-		systemAttributeMappingService.save(mappingAttribute);
 	}
 
 	@Override

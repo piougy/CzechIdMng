@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -326,6 +329,142 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		assertNotNull(emailAttribute);
 		assertFalse(emailAttribute.isUid());
 		assertEquals(IdmIdentity_.email.getName(), emailAttribute.getIdmPropertyName());
+	}
+
+	@Test
+	public void testAutomaticGenerateOfMappedAttributesTree() {
+		SysSystemDto system = testHelper.createSystem(testHelper.createName());
+		SysSchemaObjectClassDto schema = this.createObjectClass(system);
+
+		createSchemaAttribute("__NAME__", schema);
+		createSchemaAttribute("parent", schema);
+		createSchemaAttribute("name", schema);
+		createSchemaAttribute("code", schema); // redundant to __NAME__
+		createSchemaAttribute("description", schema);
+		createSchemaAttribute("not_exist", schema);
+
+		SysSystemMappingDto mappingDto = new SysSystemMappingDto();
+		mappingDto.setName(testHelper.createName());
+		mappingDto.setEntityType(SystemEntityType.TREE);
+		mappingDto.setObjectClass(schema.getId());
+		mappingDto.setOperationType(SystemOperationType.PROVISIONING);
+
+		mappingDto = mappingService.publish(
+				new SystemMappingEvent(
+						SystemMappingEvent.SystemMappingEventType.CREATE,
+						mappingDto,
+						ImmutableMap.of(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING, true)))
+				.getContent();
+
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mappingDto.getId());
+
+		List<SysSystemAttributeMappingDto> mappingAttributes = mappingAttributeService.find(attributeMappingFilter, null).getContent();
+		// Automatic attribute generating is enabled.
+		assertEquals(3, mappingAttributes.size());
+
+		SysSystemAttributeMappingDto primaryAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("__NAME__"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(primaryAttribute);
+		assertTrue(primaryAttribute.isUid());
+		assertEquals(IdmTreeNode_.code.getName(), primaryAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto nameAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("name"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(nameAttribute);
+		assertFalse(nameAttribute.isUid());
+		assertEquals(IdmTreeNode_.name.getName(), nameAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto parentAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("parent"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(parentAttribute);
+		assertFalse(parentAttribute.isUid());
+		assertEquals(IdmTreeNode_.parent.getName(), parentAttribute.getIdmPropertyName());
+	}
+
+	@Test
+	public void testAutomaticGenerateOfMappedAttributesRoleCatalogue() {
+		SysSystemDto system = testHelper.createSystem(testHelper.createName());
+		SysSchemaObjectClassDto schema = this.createObjectClass(system);
+
+		createSchemaAttribute("__NAME__", schema);
+		createSchemaAttribute("parent", schema);
+		createSchemaAttribute("name", schema);
+		createSchemaAttribute("code", schema); // redundant to __NAME__
+		createSchemaAttribute("description", schema);
+		createSchemaAttribute("not_exist", schema);
+
+		SysSystemMappingDto mappingDto = new SysSystemMappingDto();
+		mappingDto.setName(testHelper.createName());
+		mappingDto.setEntityType(SystemEntityType.ROLE_CATALOGUE);
+		mappingDto.setObjectClass(schema.getId());
+		mappingDto.setOperationType(SystemOperationType.PROVISIONING);
+
+		mappingDto = mappingService.publish(
+				new SystemMappingEvent(
+						SystemMappingEvent.SystemMappingEventType.CREATE,
+						mappingDto,
+						ImmutableMap.of(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING, true)))
+				.getContent();
+
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mappingDto.getId());
+
+		List<SysSystemAttributeMappingDto> mappingAttributes = mappingAttributeService.find(attributeMappingFilter, null).getContent();
+		// Automatic attribute generating is enabled.
+		assertEquals(4, mappingAttributes.size());
+
+		SysSystemAttributeMappingDto primaryAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("__NAME__"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(primaryAttribute);
+		assertTrue(primaryAttribute.isUid());
+		assertEquals(IdmRoleCatalogue_.code.getName(), primaryAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto nameAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("name"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(nameAttribute);
+		assertFalse(nameAttribute.isUid());
+		assertEquals(IdmRoleCatalogue_.name.getName(), nameAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto parentAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("parent"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(parentAttribute);
+		assertFalse(parentAttribute.isUid());
+		assertEquals(IdmRoleCatalogue_.parent.getName(), parentAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto descriptionAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("description"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(descriptionAttribute);
+		assertFalse(descriptionAttribute.isUid());
+		assertEquals(IdmRoleCatalogue_.description.getName(), descriptionAttribute.getIdmPropertyName());
 	}
 
 	private SysSchemaAttributeDto createSchemaAttribute(String name, SysSchemaObjectClassDto schema) {

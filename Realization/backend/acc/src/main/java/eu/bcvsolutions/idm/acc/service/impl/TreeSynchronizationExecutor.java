@@ -185,13 +185,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	 * @param entityType
 	 * @param logItem
 	 */
-	/**
-	 * Call provisioning for given account
-	 * 
-	 * @param entity
-	 * @param entityType
-	 * @param logItem
-	 */
 	@Override
 	protected void callProvisioningForEntity(IdmTreeNodeDto entity, SystemEntityType entityType,
 			SysSyncItemLogDto logItem) {

@@ -178,13 +178,6 @@ public class RoleCatalogueSynchronizationExecutor extends AbstractSynchronizatio
 	 * @param entityType
 	 * @param logItem
 	 */
-	/**
-	 * Call provisioning for given account
-	 * 
-	 * @param entity
-	 * @param entityType
-	 * @param logItem
-	 */
 	@Override
 	protected void callProvisioningForEntity(IdmRoleCatalogueDto entity, SystemEntityType entityType,
 			SysSyncItemLogDto logItem) {

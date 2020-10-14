@@ -1,5 +1,13 @@
 package eu.bcvsolutions.idm.core.delegation;
 
+import java.util.List;
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
 import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -7,15 +15,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmDelegationDefinitionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmDelegationDefinition;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.evaluator.delegation.SelfDelegationDefinitionByDelegateEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.delegation.SelfDelegationDefinitionByDelegatorEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
-import java.util.List;
-import java.util.Set;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Permission to delegation definition.

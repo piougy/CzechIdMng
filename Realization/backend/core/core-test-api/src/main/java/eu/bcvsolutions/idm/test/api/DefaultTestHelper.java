@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.test.api;
 
-import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -8,13 +7,17 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+
 import javax.sql.DataSource;
+
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayMigrationStrategy;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
@@ -113,10 +116,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
-import java.time.LocalDate;
-import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Creates common test entities

@@ -1,28 +1,25 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Component;
+
 import com.google.common.collect.Sets;
+
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent.SystemMappingEventType;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
-import org.springframework.stereotype.Component;
 
 /**
  * Processor for automatic creation of identity mapped attributes by common schema attributes.
@@ -34,8 +31,6 @@ import org.springframework.stereotype.Component;
 public class SystemMappingIdentityAutoAttributesProcessor extends AbstractSystemMappingAutoAttributesProcessor {
 
 	private static final String PROCESSOR_NAME = "system-mapping-auto-attributes-processor";
-	@Autowired
-	private SysSchemaAttributeService schemaAttributeService;
 
 	@Autowired
 	public SystemMappingIdentityAutoAttributesProcessor() {

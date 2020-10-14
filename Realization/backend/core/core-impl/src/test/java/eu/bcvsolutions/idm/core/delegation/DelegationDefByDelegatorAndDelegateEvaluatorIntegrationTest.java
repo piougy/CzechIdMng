@@ -1,10 +1,11 @@
 package eu.bcvsolutions.idm.core.delegation;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
+import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
+
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
-import eu.bcvsolutions.idm.core.api.service.IdmDelegationDefinitionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmDelegationDefinition;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -15,12 +16,6 @@ import eu.bcvsolutions.idm.core.security.evaluator.delegation.DelegationDefByDel
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SubordinatesEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
-import java.util.List;
-import java.util.Set;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Permission to delegation definition.
@@ -29,9 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 public class DelegationDefByDelegatorAndDelegateEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
-
-	@Autowired
-	private IdmDelegationDefinitionService service;
 
 	@Test(expected = ForbiddenEntityException.class)
 	public void testCreateDelegationNoPolicy() {

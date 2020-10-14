@@ -30,14 +30,7 @@ class Login extends Basic.AbstractContent {
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.userContext !== this.props.userContext) {
       if (nextProps.userContext.isAuthenticated) {
-        // Redirection to requested page before login.
-        const { location } = this.props;
-        // If current url is login, then redirect to main page.
-        if (location.pathname === '/login') {
-          this.context.history.replace('/');
-        } else {
-          this.context.history.replace(location.pathname);
-        }
+        this._redirectLoggedUser();
       }
     }
   }
@@ -51,6 +44,20 @@ class Login extends Basic.AbstractContent {
     const { userContext } = this.props;
     if (!SecurityManager.isAuthenticated(userContext)) {
       this.context.store.dispatch(securityManager.remoteLogin());
+    } else {
+      // identity is logged => redirect to dashboard (#UNSAFE_componentWillReceiveProps is not called on the start)
+      this._redirectLoggedUser();
+    }
+  }
+
+  _redirectLoggedUser() {
+    // Redirection to requested page before login.
+    const { location } = this.props;
+    // If current url is login, then redirect to main page.
+    if (location.pathname === '/login') {
+      this.context.history.replace('/');
+    } else {
+      this.context.history.replace(location.pathname);
     }
   }
 

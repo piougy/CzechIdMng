@@ -132,7 +132,8 @@ public class DefaultSysSystemMappingService
 	}
 
 	@Override
-	public SysSystemMappingDto save(SysSystemMappingDto dto, BasePermission... permission) {
+	@Transactional
+	public SysSystemMappingDto saveInternal(SysSystemMappingDto dto) {
 		SystemEntityType entityType = dto.getEntityType();
 		if (SystemOperationType.PROVISIONING == dto.getOperationType() && !entityType.isSupportsProvisioning()) {
 			throw new ResultCodeException(AccResultCode.PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE, ImmutableMap.of("entityType", entityType));
@@ -143,7 +144,7 @@ public class DefaultSysSystemMappingService
 				.findBySystemMapping(dto).forEach(attribute -> {
 					getAttributeMappingService().validate(attribute, dto);
 				});
-		return super.save(dto, permission);
+		return super.saveInternal(dto);
 	}
 
 	@Override

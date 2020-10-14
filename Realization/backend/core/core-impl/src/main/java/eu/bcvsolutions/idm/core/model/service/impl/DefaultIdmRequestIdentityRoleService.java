@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,8 +154,9 @@ public class DefaultIdmRequestIdentityRoleService extends
 			IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRole,
 					IdmIdentityRole_.identityContract.getName(), IdmIdentityContractDto.class);
 			UUID requestId = dto.getRoleRequest();
+			IdmRoleRequestDto request = null;
 			if(requestId == null) {
-				IdmRoleRequestDto request = this.createRequest(identityContractDto.getIdentity());
+				request = this.createRequest(identityContractDto.getIdentity());
 				requestId = request.getId();
 			}
 			IdmConceptRoleRequestDto conceptRoleRequest = createConcept(identityRole, identityContractDto, requestId,
@@ -165,6 +167,10 @@ public class DefaultIdmRequestIdentityRoleService extends
 			conceptRoleRequest.setEavs(dto.getEavs());
 			// Create concept with EAVs
 			conceptRoleRequest = conceptRoleService.save(conceptRoleRequest, permission);
+			if (request != null) {
+				// Add request to concept. Will be used on the FE (prevent loading of request).
+				conceptRoleRequest.getEmbedded().put(IdmConceptRoleRequest_.roleRequest.getName(), request);
+			}
 			
 			return this.conceptToRequestIdentityRole(conceptRoleRequest, null);
 		} else if(dto.getId() == null && dto.getIdentityRole() == null) {
@@ -184,19 +190,25 @@ public class DefaultIdmRequestIdentityRoleService extends
 			IdmIdentityContractDto identityContractDto = identityContractService.get(dto.getIdentityContract());
 			
 			UUID requestId = dto.getRoleRequest();
+			IdmRoleRequestDto request = null;
 			if(requestId == null) {
-				IdmRoleRequestDto request = this.createRequest(identityContractDto.getIdentity());
+				request = this.createRequest(identityContractDto.getIdentity());
 				requestId = request.getId();
 			}
 			List<IdmConceptRoleRequestDto> concepts = Lists.newArrayList();
 			
 			UUID finalRequestId = requestId;
+			IdmRoleRequestDto finalRequest = request;
 			roles.forEach(role -> {
 				IdmConceptRoleRequestDto conceptRoleRequest = createConcept(null, identityContractDto, finalRequestId,
 						role, dto.getValidFrom(), dto.getValidTill(), ConceptRoleRequestOperation.ADD);
 				conceptRoleRequest.setEavs(dto.getEavs());
 				// Create concept with EAVs
 				conceptRoleRequest = conceptRoleService.save(conceptRoleRequest);
+				if (finalRequest != null) {
+					// Add request to concept. Will be used on the FE (prevent loading of request).
+					conceptRoleRequest.getEmbedded().put(IdmConceptRoleRequest_.roleRequest.getName(), finalRequest);
+				}
 				concepts.add(conceptRoleRequest);
 			});
 			// Beware more then one concepts could be created, but only first will be returned!
@@ -235,14 +247,19 @@ public class DefaultIdmRequestIdentityRoleService extends
 			UUID requestId = dto.getRoleRequest();
 			IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRoleDto,
 					IdmIdentityRole_.identityContract.getName(), IdmIdentityContractDto.class);
+			IdmRoleRequestDto request = null;
 			if(requestId == null) {
-				IdmRoleRequestDto request = this.createRequest(identityContractDto.getIdentity());
+				request = this.createRequest(identityContractDto.getIdentity());
 				requestId = request.getId();
 			}
 			IdmRoleRequestDto mockRequest = new IdmRoleRequestDto();
 			mockRequest.setId(requestId);
 			IdmConceptRoleRequestDto concept = roleRequestService.createConcept(mockRequest, identityContractDto, identityRoleDto.getId(), identityRoleDto.getRole(),
 					ConceptRoleRequestOperation.REMOVE);
+			if (request != null) {
+				// Add request to concept. Will be used on the FE (prevent loading of request).
+				concept.getEmbedded().put(IdmConceptRoleRequest_.roleRequest.getName(), request);
+			}
 			
 			return this.conceptToRequestIdentityRole(concept, null);
 			

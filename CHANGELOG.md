@@ -14,6 +14,10 @@ All notable changes to this project will be documented in this file.
 - [#1981](https://redmine.czechidm.com/issues/1981) - Configuration property ``idm.pub.core.identity.delete`` is deprecated now - action can be disabled by bulk action configurable api - **use ``idm.sec.core.bulk-action.identity-delete-bulk-action.enabled=false``** instead.
 - [#2074](https://redmine.czechidm.com/issues/2074) - Report executor (``ReportExecutor``) extends schedulable long running task (``SchedulableTaskExecutor``) now. Report can be scheduled from long running task agenda and result can be sent as notification by topic setting.
 - [#2074](https://redmine.czechidm.com/issues/2074) - **Report parameters can be localized from custom module now**.
+- [#1636](https://redmine.czechidm.com/issues/1636) - Business role assignment was redesigned from the scratch - business roles are assigned by the standard role request now. **Prevent to assign identity role directly without role request - business roles will be assigned for compatibility reason (is deprecated and will be removed in future version) but full account manager occurs in this way**. Prevent to use deprecated methods ``IdmRoleCompositionService#assignSubRoles``, ``IdmRoleCompositionService#updateSubRoles``, ``IdmRoleCompositionService#removeSubRoles`` in your modules and use role request only.
+- [#2413](https://redmine.czechidm.com/issues/2413) - New caches were registered:
+  - ``core:all-sub-roles`` - cache for business role sub roles. Cache is cleared automatically, when business role definition is changed. **Memory usage is 25KB per business role with 10 sub roles**.
+
 
 ## [10.5.0]
 

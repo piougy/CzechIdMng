@@ -197,7 +197,19 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
             }
             sort={ false }/>
           <Advanced.Column property="code" sort/>
-          <Advanced.Column property="name" sort/>
+          <Advanced.Column
+            property="name"
+            sort
+            cell={
+              ({ rowIndex, data, property }) => {
+                const name = data[rowIndex][property];
+                return (
+                  <span>
+                    { this.i18n(name) }
+                  </span>
+                );
+              }
+            }/>
         </Advanced.Table>
 
 

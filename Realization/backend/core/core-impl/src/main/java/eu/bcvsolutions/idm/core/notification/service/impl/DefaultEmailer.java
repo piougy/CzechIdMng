@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,7 +18,6 @@ import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.support.SynchronizationAdapter;
 import org.apache.commons.lang3.StringUtils;
-import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,12 +26,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
@@ -39,8 +35,10 @@ import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.notification.api.domain.SendOperation;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationAttachmentDto;
 import eu.bcvsolutions.idm.core.notification.api.service.Emailer;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationAttachmentService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 
 /**
@@ -59,6 +57,7 @@ public class DefaultEmailer implements Emailer {
 	@Autowired private ProducerTemplate producerTemplate;
 	@Autowired private EmailerConfiguration configuration;
 	@Autowired private IdmNotificationTemplateService notificationTemplateService;
+	@Autowired private IdmNotificationAttachmentService notificationAttachmentService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private AttachmentManager attachmentManager;
@@ -66,10 +65,11 @@ public class DefaultEmailer implements Emailer {
 	@Transactional
 	public boolean send(IdmEmailLogDto emailLog) {
 		LOG.debug("Sending email [{}]", emailLog);
-		
+		//
+		UUID notificationId = emailLog.getId();
 		if (ObjectUtils.isEmpty(emailLog.getRecipients())) {
 			LOG.info("Email recipiets is empty. Email [{}] is logged only.", emailLog);
-			emailLogService.setEmailSentLog(emailLog.getId(), "Email recipients is empty. Email was logged only.");
+			emailLogService.setEmailSentLog(notificationId, "Email recipients is empty. Email was logged only.");
 			return false;
 		}
 		try {
@@ -89,32 +89,23 @@ public class DefaultEmailer implements Emailer {
 			}
 			in.setBody(message);
 			
-			for(IdmAttachmentDto attachment : emailLog.getAttachments()) {
-				//
+			for (IdmAttachmentDto attachment : emailLog.getAttachments()) {
 				// charset is required for the 'text/*' mime types - TODO: append encoding only there.
+				UUID attachmentId = attachment.getId();
+				String attachmentName = attachment.getName();
 				String mimeTypeWithCharset = String.format("%s; charset=%s", attachment.getMimetype(), attachment.getEncoding());
+				InputStream attachmentData = attachmentManager.getAttachmentData(attachmentId);
+				DataSource dataSource = new javax.mail.util.ByteArrayDataSource(attachmentData, mimeTypeWithCharset);
+				// TODO: check attachment with same names?
+				LOG.info("Sending attachment [{}] for email [{}]", attachment.getName(), notificationId);
 				//
-				// input stream can be initialized in attachment, or persisted attachment can be given
-				DataSource dataSource = null;
-				if (attachment.getInputData() != null) {
-					dataSource = new javax.mail.util.ByteArrayDataSource(attachment.getInputData(), mimeTypeWithCharset);
-				} else {
-					InputStream attachmentData = attachmentManager.getAttachmentData(attachment.getId());
-					if (attachmentData != null) {
-						dataSource = new javax.mail.util.ByteArrayDataSource(attachmentManager.getAttachmentData(attachment.getId()), mimeTypeWithCharset);
-					}
-				}
-				if (dataSource == null) {
-					throw new ResultCodeException(CoreResultCode.ATTACHMENT_DATA_NOT_FOUND, ImmutableMap.of(
-							"attachmentId", attachment.getId(),
-							"attachmentName", attachment.getName(),
-							"contentPath", attachment.getContentPath()));
-				} else {
-					// TODO: check attachment with same names?
-					LOG.warn("Sending attachment [{}] for email [{}]", attachment.getName(), emailLog.getId());
-					//
-					in.addAttachment(attachment.getName(), new DataHandler(dataSource));
-				}
+				in.addAttachment(attachment.getName(), new DataHandler(dataSource));
+				//
+				IdmNotificationAttachmentDto notificationAttachment = new IdmNotificationAttachmentDto();
+				notificationAttachment.setNotification(notificationId);
+				notificationAttachment.setName(attachmentName);
+				notificationAttachment.setAttachment(attachment.getId());
+				notificationAttachmentService.save(notificationAttachment);
 			}
 			//
 			entityEventManager.publishEvent(new DefaultSendOperation(emailLog, endpoint, exchange));

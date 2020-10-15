@@ -407,6 +407,15 @@
             "title": "Hide password"
           }
         }
+      },
+      "Wizard": {
+        "defaultHeader": "Wizard",
+        "button": {
+          "next": "Next",
+          "previous": "Previous",
+          "finish": "Finish",
+          "skip": "Skip"
+        }
       }
     },
     "advanced": {
@@ -1075,7 +1084,9 @@
       "CHANGEEMAIL": "Change email",
       "CHANGEEXTERNALCODE": "Change personal number",
       "CHANGEDESCRIPTION": "Change note",
-      "SWITCHUSER": "Login as user (switch user)"
+      "SWITCHUSER": "Login as user (switch user)",
+      "DELEGATOR": "Delegator",
+      "DELEGATE": "Delegate"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -3590,6 +3601,9 @@
       },
       "sent": {
         "success": "Notifications were successfully sent"
+      },
+      "attachments": {
+        "header": "Attachments"
       }
     },
     "notificationTemplate": {
@@ -3851,6 +3865,10 @@
         "parent": {
           "placeholder": "$t(entity.EntityEvent.parent.label) (uuid)"
         }
+      },
+      "counter": {
+        "info": "Count of unprocessed events",
+        "error": "Count of events with exception"
       },
       "event": {
         "header": "Entity events",
@@ -5273,7 +5291,16 @@
     "EntityEvent": {
       "_type": "Event",
       "created": {
-        "label": "Event date"
+        "label": "$t(entity.created)"
+      },
+      "eventStarted": {
+        "label": "Started"
+      },
+      "eventEnded": {
+        "label": "Ended"
+      },
+      "duration": {
+        "label": "Event duration"
       },
       "superOwnerId": {
         "label": "Super owner"
@@ -7052,6 +7079,10 @@
       "title": "Role is already assigned",
       "message": "Role [{{role}}] was already assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
     },
+    "AUTOMATIC_ROLE_ALREADY_ASSIGNED_TO_CONTRACT": {
+      "title": "Role is already assigned",
+      "message": "Role [{{role}}] was already assigned by automatic role [{{roleTreeNode}}] for contract [{{contract}}] and position [{{position}}]."
+    },
     "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED": {
       "title": "Role is assigned",
       "message": "Role [{{role}}] is assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
@@ -7682,6 +7713,9 @@
     },
     "token-cache": {
       "description": "Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used."
+    },
+    "all-sub-roles": {
+      "description": "Cache for business role sub roles. Cache is cleared automatically, when business role definition is changed."
     }
   }
 }

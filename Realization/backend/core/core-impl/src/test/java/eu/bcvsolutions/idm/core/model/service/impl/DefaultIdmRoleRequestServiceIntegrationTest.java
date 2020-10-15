@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -107,39 +108,6 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
 		super.logout();
 	}
-
-//	private void prepareIdentityAndRoles() {
-//		// create roles
-//		roleA = getHelper().createRole();
-//		roleA.setPriority(100);
-//		roleService.save(roleA);
-//
-//		
-//
-//		// prepare identity and contract
-//		preapareContractAndIdentity(USER_TEST_A);
-//		preapareContractAndIdentity(USER_TEST_B);
-//	}
-//
-//	private void preapareContractAndIdentity(String username) {
-//		IdmIdentityDto identity = createIdentity(username);
-//		IdmIdentityContractDto contract = new IdmIdentityContractDto();
-//		contract.setIdentity(identity.getId());
-//		contract.setValidFrom(LocalDate.now().minusDays(1));
-//		contract.setValidTill(LocalDate.now().plusMonths(1));
-//		contract.setMain(true);
-//		contract.setDescription(username);
-//		identityContractService.save(contract);
-//	}
-
-//	private IdmIdentityDto createIdentity() {
-//		IdmIdentityDto identity = new IdmIdentityDto();
-//		identity.setUsername(getHelper().createName());
-//		identity.setFirstName("Test");
-//		identity.setLastName("Identity");
-//		identity = identityService.save(identity);
-//		return identity;
-//	}
 
 	@Test
 	@Transactional
@@ -726,7 +694,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		//
 		IdmRoleRequestDto request = getHelper().assignRoles(getHelper().getPrimeContract(identity), false, superior);
 		//
-		Assert.assertEquals(1, request.getConceptRoles().size());
+		Assert.assertEquals(subRolesCount + 1, request.getConceptRoles().size());
 		Assert.assertEquals(subRolesCount + 1, identityRoleService.findAllByIdentity(identity.getId()).size());
 	}
 	
@@ -770,6 +738,135 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		// One of requests ends with exception, but can be read => referential integrity is ok
 		Assert.assertTrue(executedRequestOne.getState().isTerminatedState());
 		Assert.assertTrue(executedRequestTwo.getState().isTerminatedState());
+	}
+	
+	@Test
+	@Transactional
+	public void testUpdateSubRoleByRequest() {
+		IdmRoleDto superior = getHelper().createRole();
+		IdmRoleDto sub = getHelper().createRole();
+		getHelper().createRoleComposition(superior, sub);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		//
+		IdmRoleRequestDto request = getHelper().assignRoles(getHelper().getPrimeContract(identity), false, superior);
+		//
+		Assert.assertEquals(2, request.getConceptRoles().size());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().allMatch(ir -> ir.getValidTill() == null));
+		IdmIdentityRoleDto directlyAssignedRole = assignedRoles.stream().filter(ir -> ir.getDirectRole() == null).findFirst().get();
+		Assert.assertEquals(superior.getId(), directlyAssignedRole.getRole());
+		//
+		// change superior role validity by concept
+		request = new IdmRoleRequestDto();
+		request.setApplicant(identity.getId());
+		request.setExecuteImmediately(true);
+		request.setRequestedByType(RoleRequestedByType.MANUALLY);
+		request.setState(RoleRequestState.EXECUTED);
+		request = roleRequestService.save(request);
+		Assert.assertEquals(RoleRequestState.CONCEPT, request.getState());
+		LocalDate validTill = LocalDate.now().plusMonths(1);
+		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+		concept.setRoleRequest(request.getId());
+		concept.setState(RoleRequestState.EXECUTED);
+		concept.setOperation(ConceptRoleRequestOperation.UPDATE);
+		concept.setRole(superior.getId());
+		concept.setIdentityRole(directlyAssignedRole.getId());
+		concept.setValidTill(validTill);
+		concept.setIdentityContract(directlyAssignedRole.getIdentityContract());
+		concept = conceptRoleRequestService.save(concept);
+
+		Assert.assertEquals(RoleRequestState.CONCEPT, concept.getState());
+
+		roleRequestService.startRequestInternal(request.getId(), true, true);
+		request = roleRequestService.get(request.getId());
+
+		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().allMatch(ir -> ir.getValidTill().equals(validTill)));
+		//
+		// and remove
+		request = new IdmRoleRequestDto();
+		request.setApplicant(identity.getId());
+		request.setExecuteImmediately(true);
+		request.setRequestedByType(RoleRequestedByType.MANUALLY);
+		request.setState(RoleRequestState.EXECUTED);
+		request = roleRequestService.save(request);
+		Assert.assertEquals(RoleRequestState.CONCEPT, request.getState());
+		concept = new IdmConceptRoleRequestDto();
+		concept.setRoleRequest(request.getId());
+		concept.setState(RoleRequestState.EXECUTED);
+		concept.setOperation(ConceptRoleRequestOperation.REMOVE);
+		concept.setRole(superior.getId());
+		concept.setIdentityRole(directlyAssignedRole.getId());
+		concept.setIdentityContract(directlyAssignedRole.getIdentityContract());
+		concept = conceptRoleRequestService.save(concept);
+
+		Assert.assertEquals(RoleRequestState.CONCEPT, concept.getState());
+
+		roleRequestService.startRequestInternal(request.getId(), true, true);
+		request = roleRequestService.get(request.getId());
+
+		Assert.assertEquals(RoleRequestState.EXECUTED, request.getState());
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+	}
+	
+	@Test
+	public void testExecuteRequestForSameAutomaticRole() {
+		IdmRoleDto role = getHelper().createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
+		//
+		// create two requests
+		IdmRoleRequestDto requestOne = new IdmRoleRequestDto();
+		requestOne.setApplicant(identity.getId());
+		requestOne.setExecuteImmediately(true);
+		requestOne.setRequestedByType(RoleRequestedByType.MANUALLY);
+		requestOne.setState(RoleRequestState.EXECUTED);
+		requestOne = roleRequestService.save(requestOne);
+		Assert.assertEquals(RoleRequestState.CONCEPT, requestOne.getState());
+		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+		concept.setRoleRequest(requestOne.getId());
+		concept.setState(RoleRequestState.EXECUTED);
+		concept.setOperation(ConceptRoleRequestOperation.ADD);
+		concept.setRole(role.getId());
+		concept.setAutomaticRole(automaticRole.getId());
+		concept.setIdentityContract(primeContract.getId());
+		concept = conceptRoleRequestService.save(concept);
+		Assert.assertEquals(RoleRequestState.CONCEPT, concept.getState());
+		//
+		// create two requests
+		IdmRoleRequestDto requestTwo = new IdmRoleRequestDto();
+		requestTwo.setApplicant(identity.getId());
+		requestTwo.setExecuteImmediately(true);
+		requestTwo.setRequestedByType(RoleRequestedByType.MANUALLY);
+		requestTwo.setState(RoleRequestState.EXECUTED);
+		requestTwo = roleRequestService.save(requestTwo);
+		Assert.assertEquals(RoleRequestState.CONCEPT, requestTwo.getState());
+		concept = new IdmConceptRoleRequestDto();
+		concept.setRoleRequest(requestTwo.getId());
+		concept.setState(RoleRequestState.EXECUTED);
+		concept.setOperation(ConceptRoleRequestOperation.ADD);
+		concept.setRole(role.getId());
+		concept.setAutomaticRole(automaticRole.getId());
+		concept.setIdentityContract(primeContract.getId());
+		concept = conceptRoleRequestService.save(concept);
+		Assert.assertEquals(RoleRequestState.CONCEPT, concept.getState());
+		
+		roleRequestService.startRequestInternal(requestOne.getId(), true, true);
+		requestOne = roleRequestService.get(requestOne.getId());
+		Assert.assertEquals(RoleRequestState.EXECUTED, requestOne.getState());
+		roleRequestService.startRequestInternal(requestTwo.getId(), true, true);
+		requestTwo = roleRequestService.get(requestTwo.getId());
+		Assert.assertEquals(RoleRequestState.EXECUTED, requestTwo.getState());
+		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().allMatch(ir -> ir.getAutomaticRole().equals(automaticRole.getId())));
 	}
 
 	private IdmAttachmentDto prepareAttachment(String content) {

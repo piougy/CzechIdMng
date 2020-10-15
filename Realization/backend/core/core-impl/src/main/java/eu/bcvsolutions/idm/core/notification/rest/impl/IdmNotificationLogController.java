@@ -32,12 +32,15 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationRecipientFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationRecipientService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import io.swagger.annotations.Api;
@@ -47,7 +50,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Read and send notifications
+ * Read and send notification.
  * 
  * @author Radek Tomiška
  *
@@ -66,8 +69,9 @@ public class IdmNotificationLogController
 	protected static final String TAG = "Notification logs - all";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmNotificationLogController.class);
 	private final NotificationManager notificationManager;
-	private final IdmNotificationLogService notificationLogService;
 	private final IdmNotificationConfigurationService notificationConfigurationService;
+	//
+	@Autowired private IdmNotificationRecipientService notificationRecipientService;
 
 	@Autowired
 	public IdmNotificationLogController(
@@ -80,7 +84,6 @@ public class IdmNotificationLogController
 		Assert.notNull(notificationConfigurationService, "Service is required.");
 		//
 		this.notificationManager = notificationManager;
-		this.notificationLogService = notificationLogService;
 		this.notificationConfigurationService = notificationConfigurationService;
 	}
 
@@ -236,6 +239,9 @@ public class IdmNotificationLogController
 		return super.getPermissions(backendId);
 	}
 
+	/**
+	 * FIXME: Add response wrapper => raw list is returned now => all remove method at all => recipient controller should e used.
+	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	@RequestMapping(value = "/{backendId}/recipients", method = RequestMethod.GET)
@@ -250,7 +256,10 @@ public class IdmNotificationLogController
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "") })
 				})
 	public List<IdmNotificationRecipientDto> getRecipients(@PathVariable @NotNull String backendId) {
-		return notificationLogService.getRecipientsForNotification(backendId);
+		IdmNotificationRecipientFilter filter = new IdmNotificationRecipientFilter();
+		filter.setNotification(DtoUtils.toUuid(backendId));
+		//
+		return notificationRecipientService.find(filter, null).getContent();
 	}
 	
 	@Override

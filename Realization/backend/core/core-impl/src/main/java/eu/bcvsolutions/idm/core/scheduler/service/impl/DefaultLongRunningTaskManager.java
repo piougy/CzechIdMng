@@ -141,7 +141,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 */
 	@Override
 	@Transactional
-	public List<LongRunningFutureTask<?>> processCreated() {
+	public synchronized List<LongRunningFutureTask<?>> processCreated() {
 		String instanceId = configurationService.getInstanceId();
 		LOG.debug("Processing created tasks from long running task queue on instance id [{}]", instanceId);
 		// run as system if it's called from scheduler internally

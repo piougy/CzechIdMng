@@ -68,8 +68,10 @@ import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
@@ -340,6 +342,12 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findAllByContract(contract.getId()).isEmpty();
 			}, 500, Integer.MAX_VALUE);
+			getHelper().waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setRunning(Boolean.TRUE);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			});
 			//
 			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
 			Assert.assertEquals(3, identityRoles.size());
@@ -448,6 +456,62 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
 			return roleD.getId().equals(ir.getRole());
 		}));
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleToExistIdentitySync() {
+		IdmIdentityDto identityOne = getHelper().createIdentityOnly();
+		IdmIdentityDto identityTwo = getHelper().createIdentityOnly();
+		IdmIdentityDto identityThree = getHelper().createIdentityOnly();
+		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
+		IdmIdentityContractDto contractOne = getHelper().createContract(identityOne, treeNode);
+		IdmIdentityContractDto contractTwo = getHelper().createContract(identityTwo, treeNode);
+		IdmIdentityContractDto contractThree = getHelper().createContract(identityThree, treeNode);
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createAutomaticRole(role, treeNode);
+		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getContent();
+		Assert.assertEquals(3, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractTwo.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractThree.getId())));
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleToExistIdentityAsync() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+			//
+			IdmIdentityDto identityOne = getHelper().createIdentityOnly();
+			IdmIdentityDto identityTwo = getHelper().createIdentityOnly();
+			IdmIdentityDto identityThree = getHelper().createIdentityOnly();
+			IdmTreeNodeDto treeNode = getHelper().createTreeNode();
+			IdmIdentityContractDto contractOne = getHelper().createContract(identityOne, treeNode);
+			IdmIdentityContractDto contractTwo = getHelper().createContract(identityTwo, treeNode);
+			IdmIdentityContractDto contractThree = getHelper().createContract(identityThree, treeNode);
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleTreeNodeDto automaticRole = getHelper().createAutomaticRole(role, treeNode);
+			//
+			getHelper().waitForResult(res -> {
+				return identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getTotalElements() != 3;
+			}, 300, 30);
+			getHelper().waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setRunning(Boolean.TRUE);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			});
+			//
+			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getContent();
+			Assert.assertEquals(3, assignedRoles.size());
+			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractOne.getId())));
+			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractTwo.getId())));
+			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractThree.getId())));
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 	
 	@Test
@@ -1341,6 +1405,12 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			getHelper().waitForResult(res -> {
 				return !identityRoleService.findAllByContract(contractId).isEmpty();
 			}, 300, Integer.MAX_VALUE);
+			getHelper().waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setRunning(Boolean.TRUE);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			});
 			//
 			identityRoles = identityRoleService.findAllByContract(contract.getId());
 			Assert.assertTrue(identityRoles.isEmpty());
@@ -1485,8 +1555,10 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			taskExecutor.setAutomaticRoleId(automaticRole.getId());
 			//
 			longRunningTaskManager.execute(taskExecutor);
-			longRunningTaskManager.getLongRunningTask(taskExecutor);
 		} finally {
+			lrt.setRunning(false);
+			lrt = longRunningTaskService.save(lrt);
+			//
 			longRunningTaskService.delete(lrt);
 		}
 	}

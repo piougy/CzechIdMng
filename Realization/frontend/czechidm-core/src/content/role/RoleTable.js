@@ -257,7 +257,8 @@ class RoleTable extends Advanced.AbstractTableContent {
       className,
       showAddButton,
       showEnvironment,
-      showBaseCode
+      showBaseCode,
+      prohibitedActions
     } = this.props;
     const { filterOpened, showLoading } = this.state;
     const _showTree = showCatalogue && SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
@@ -309,6 +310,7 @@ class RoleTable extends Advanced.AbstractTableContent {
             forceSearchParameters={ forceSearchParameters }
             showRowSelection
             showLoading={ showLoading }
+            prohibitedActions={ prohibitedActions }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">

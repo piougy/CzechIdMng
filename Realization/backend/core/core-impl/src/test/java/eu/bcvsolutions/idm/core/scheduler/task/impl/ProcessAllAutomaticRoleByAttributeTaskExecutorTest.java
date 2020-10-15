@@ -44,6 +44,9 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutorTest extends Abstract
 
 	@Test
 	public void testAssignRoles() {
+		ProcessAllAutomaticRoleByAttributeTaskExecutor autoRolecalculation = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
+		longRunningTaskManager.executeSync(autoRolecalculation);
+		//
 		String automaticRoleValue = this.getHelper().createName();
 		IdmAutomaticRoleAttributeDto automaticRole = this.getHelper().createAutomaticRole(this.getHelper().createRole().getId());
 		this.getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS, AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, automaticRoleValue);
@@ -59,7 +62,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutorTest extends Abstract
 			checkIdentityRoles(identity, 0, null);
 		}
 
-		ProcessAllAutomaticRoleByAttributeTaskExecutor autoRolecalculation = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
+		autoRolecalculation = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
 		longRunningTaskManager.executeSync(autoRolecalculation);
 
 		for (IdmIdentityDto identity : identities) {
@@ -69,6 +72,9 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutorTest extends Abstract
 
 	@Test
 	public void testRemoveRoles() {
+		ProcessAllAutomaticRoleByAttributeTaskExecutor autoRolecalculation = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
+		longRunningTaskManager.executeSync(autoRolecalculation);
+		//
 		String automaticRoleValue = this.getHelper().createName();
 		IdmAutomaticRoleAttributeDto automaticRole = this.getHelper().createAutomaticRole(this.getHelper().createRole().getId());
 		this.getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS, AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, automaticRoleValue);
@@ -91,7 +97,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutorTest extends Abstract
 			checkIdentityRoles(identity, 1, automaticRole.getId());
 		}
 
-		ProcessAllAutomaticRoleByAttributeTaskExecutor autoRolecalculation = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
+		autoRolecalculation = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
 		longRunningTaskManager.executeSync(autoRolecalculation);
 
 		for (IdmIdentityDto identity : identities) {

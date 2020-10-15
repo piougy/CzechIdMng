@@ -57,7 +57,7 @@ public class DeleteExecutedEventTaskExecutorIntegrationTest extends AbstractInte
 		AutowireHelper.autowire(taskExecutor);
 		taskExecutor.init(properties);
 		//
-		longRunningTaskManager.execute(taskExecutor);
+		longRunningTaskManager.executeSync(taskExecutor);
 		//
 		events = service.find(filter, null).getContent();
 		Assert.assertEquals(5, events.size());

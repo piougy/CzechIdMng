@@ -144,9 +144,9 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
       const { formableManager } = this.props;
       const formData = new FormData();
       const file = this.refs.dropzone.getFile();
-      formData.append( 'fileName', file.name);
+      formData.append('fileName', file.name);
       // TODO: mimetype
-      formData.append( 'data', file );
+      formData.append('data', file);
       attachmentService
         .upload(formData)
         .then((uploadedAttachment) => {

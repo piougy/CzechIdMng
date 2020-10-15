@@ -10,9 +10,10 @@ import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from './NotificationSentState';
 import NotificationLevelEnum from '../../enums/NotificationLevelEnum';
 import SearchParameters from '../../domain/SearchParameters';
+import NotificationAttachmentTable from './NotificationAttachmentTable';
 
 /**
- * Notification detail content
+ * Notification detail content.
  *
  * @author Radek Tomiška
  */
@@ -105,6 +106,28 @@ class NotificationDetail extends Basic.AbstractContent {
     }
   }
 
+  renderRecipients(notification, isNew, identityOnly) {
+    if ( !notification.recipients ) {
+      return null;
+    }
+
+    const recipients = notification.recipients.map(recipient => {
+      return (
+        <NotificationRecipient recipient={recipient} identityOnly={identityOnly}/>
+      );
+    });
+
+    return (
+      <Basic.LabelWrapper
+        hidden={isNew}
+        label={this.i18n('entity.Notification.recipients')}>
+        <Basic.Div style={{margin: '7px 0'}}>
+          {recipients}
+        </Basic.Div>
+      </Basic.LabelWrapper>
+    );
+  }
+
   render() {
     const { notification, identityOnly, isNew, userContext, showTopic } = this.props;
     const { showLoading } = this.state;
@@ -113,7 +136,8 @@ class NotificationDetail extends Basic.AbstractContent {
       return null;
     }
     const forceSearchParameters = new SearchParameters().setFilter('parent', notification.id);
-
+    const attachmentForceSearchParameters = new SearchParameters().setFilter('notification', notification.id);
+    //
     let formData;
     if (isNew) {
       notification.identitySender = userContext.id;
@@ -136,7 +160,7 @@ class NotificationDetail extends Basic.AbstractContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.AbstractForm ref="form" data={formData} style={{ padding: 15 }}>
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
 
@@ -168,13 +192,13 @@ class NotificationDetail extends Basic.AbstractContent {
           <Basic.LabelWrapper
             hidden={isNew || !notification.message.level}
             label={this.i18n('entity.Notification.message.level')}>
-            <div style={{ margin: '7px 0' }}>
+            <Basic.Div style={{ margin: '7px 0' }}>
               {
                 !notification.message
                 ||
                 <Basic.EnumValue value={notification.message.level} enum={NotificationLevelEnum} />
               }
-            </div>
+            </Basic.Div>
           </Basic.LabelWrapper>
 
           <Basic.SelectBox
@@ -186,35 +210,15 @@ class NotificationDetail extends Basic.AbstractContent {
           <Basic.LabelWrapper
             hidden={isNew || !notification._embedded || !notification._embedded.identitySender}
             label={this.i18n('entity.Notification.sender')}>
-            <div style={{ margin: '7px 0' }}>
+            <Basic.Div style={{ margin: '7px 0' }}>
               {
                 !notification._embedded
                 ||
                 this.identityManager.getNiceLabel(notification._embedded.identitySender)
               }
-            </div>
+            </Basic.Div>
           </Basic.LabelWrapper>
-
-          <Basic.LabelWrapper
-            hidden={isNew}
-            label={this.i18n('entity.Notification.recipients')}>
-            {
-              notification.recipients
-              ?
-              <div style={{ margin: '7px 0' }}>
-                {
-                  [...notification.recipients.map(recipient => {
-                    return (
-                      <NotificationRecipient recipient={recipient} identityOnly={identityOnly}/>
-                    );
-                  }).values]
-                }
-              </div>
-              :
-              null
-            }
-          </Basic.LabelWrapper>
-
+          {this.renderRecipients(notification, isNew, identityOnly)}
           <Basic.SelectBox
             hidden={!isNew}
             ref="recipients"
@@ -248,9 +252,9 @@ class NotificationDetail extends Basic.AbstractContent {
               title={ this.i18n('entity.Notification.message.renderedHtmlMessage') }
               className="bordered"
               rendered={ !isNew }>
-              <div style={{ padding: '10px' }}>
+              <Basic.Div style={{ padding: '10px' }}>
                 <span dangerouslySetInnerHTML={{ __html: formData.htmlMessage || '' }}/>
-              </div>
+              </Basic.Div>
             </Basic.Tab>
           </Basic.Tabs>
           <Basic.LabelWrapper
@@ -268,11 +272,15 @@ class NotificationDetail extends Basic.AbstractContent {
 
           <Basic.TextArea
             ref="sentLog"
-            label={this.i18n('entity.Notification.sentLog')}
+            label={ this.i18n('entity.Notification.sentLog') }
             readOnly
-            hidden={isNew || !notification.sentLog}
-            max={2000} />
+            hidden={ isNew || !notification.sentLog }
+            max={ 2000 } />
         </Basic.AbstractForm>
+        <NotificationAttachmentTable
+          uiKey={ `notification-attachment-table-${ formData.id }` }
+          forceSearchParameters={ attachmentForceSearchParameters }
+          rendered={ !isNew }/>
         {
           notification.type !== 'notification'
           ||
@@ -334,7 +342,7 @@ class NotificationDetail extends Basic.AbstractContent {
             { this.i18n('button.send') }
           </Basic.Button>
         </Basic.PanelFooter>
-      </div>
+      </Basic.Div>
     );
   }
 }

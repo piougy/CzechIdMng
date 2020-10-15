@@ -3,8 +3,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { Link } from 'react-router-dom';
-//
+
 import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
@@ -35,8 +34,12 @@ class SystemConnectorContent extends Basic.AbstractContent {
     return 'acc:content.system.connector';
   }
 
+  getNavigationKey() {
+    return 'system-connector';
+  }
+
   componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-connector']);
+    super.componentDidMount();
     // load definition and values
     const { entityId } = this.props.match.params;
     this.context.store.dispatch(manager.fetchAvailableFrameworks());
@@ -129,7 +132,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
       showLoading: true,
       error: null
     }, () => {
-      let connector = null;
+      let connector;
       if (entity.remote) {
         connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
       } else {
@@ -157,6 +160,10 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
       // we dont must check is new, on this component will be always old entity
       this.context.store.dispatch(manager.updateEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+        if (this.isWizard()) {
+          // System was updated (connector infos), we need put new one to the wizard context.
+          this.context.wizardContext.entity = patchedEntity;
+        }
         this.reloadConnectorConfiguration(patchedEntity.id);
         this._afterSave(patchedEntity, newError);
       }));
@@ -175,11 +182,24 @@ class SystemConnectorContent extends Basic.AbstractContent {
     });
   }
 
+  wizardNext() {
+    if (!this.isWizard()) {
+      return;
+    }
+    if (!this.refs.eav) {
+      // Connector is not selected -> nothing to save.
+      if (this.context.wizardContext.callBackNext) {
+        this.context.wizardContext.callBackNext();
+      }
+    }
+    this.save(false);
+  }
+
   save(check = false, event) {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.eav.isValid()) {
+    if (!this.refs.eav || !this.refs.eav.isValid()) {
       return;
     }
     //
@@ -194,8 +214,14 @@ class SystemConnectorContent extends Basic.AbstractContent {
         const system = manager.getEntity(this.context.store.getState(), entityId);
         if (!check) {
           this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
+          this.getLogger().debug(`[EavForm]: Form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}] saved`);
+          // Complete wizard step
+          if (this.isWizard()) {
+            if (this.context.wizardContext.callBackNext) {
+              this.context.wizardContext.callBackNext();
+            }
+          }
         }
-        this.getLogger().debug(`[EavForm]: Form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}] saved`);
 
         // We will call check connector
         if (check) {
@@ -344,7 +370,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 formInstance={ formInstance }
                 readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
                 useDefaultValue/>
-              <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } className="marginable">
+              <Basic.PanelFooter rendered={ !this.isWizard() && Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } className="marginable">
                 <Basic.Button
                   type="submit"
                   level="success"
@@ -390,6 +416,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                   ||
                   <Basic.Button
                     level="link"
+                    rendered={!this.isWizard()}
                     onClick={ () => {
                       this.context.history.push(`/form-definitions/${ encodeURIComponent(optionsFormInstance.definition.id) }/attributes`);
                     }}

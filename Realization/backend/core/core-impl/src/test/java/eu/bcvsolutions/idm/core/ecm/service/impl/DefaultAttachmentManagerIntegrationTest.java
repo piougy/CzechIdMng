@@ -330,16 +330,23 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 	}
 
 	public static IdmAttachmentDto prepareDto() {
-		IdmAttachmentDto dto = new IdmAttachmentDto();
-		dto.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);
-		dto.setName("name-" + UUID.randomUUID());
+		IdmAttachmentDto dto = prepareDtoWithoutContent();
 		dto.setMimetype(AttachableEntity.DEFAULT_MIMETYPE);
 		dto.setVersionNumber(1);
 		dto.setVersionLabel("1.0");
 		dto.setContentId(UUID.randomUUID());
 		dto.setContentPath("mock");
-		dto.setEncoding(AttachableEntity.DEFAULT_ENCODING);
 		dto.setFilesize(1L);
+		//
+		return dto;
+	}
+	
+	public static IdmAttachmentDto prepareDtoWithoutContent() {
+		IdmAttachmentDto dto = new IdmAttachmentDto();
+		dto.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);
+		dto.setName("name-" + UUID.randomUUID());
+		dto.setMimetype(AttachableEntity.DEFAULT_MIMETYPE);
+		dto.setEncoding(AttachableEntity.DEFAULT_ENCODING);
 		//
 		return dto;
 	}

@@ -18,9 +18,12 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -31,8 +34,11 @@ import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -54,6 +60,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	//
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmRoleRequestService roleRequestService;
 	//
 	private UUID roleCompositionId = null;
 	
@@ -244,8 +251,15 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 					});
 			});
 		//
-		// remove superior at last
-		identityRoleService.delete(identityRole);
+		// remove superior at last by role request
+		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+		conceptRoleRequest.setIdentityRole(identityRole.getId());
+		conceptRoleRequest.setRole(identityRole.getRole());
+		conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+		conceptRoleRequest.setIdentityContract(identityRole.getIdentityContract());
+		IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract);
+		//
+		roleRequestService.executeConceptsImmediate(contract.getIdentity(), Lists.newArrayList(conceptRoleRequest));
 	}
 	
 	private void saveResult(ResultModel resultModel, OperationState state, Exception ex) {

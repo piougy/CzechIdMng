@@ -170,7 +170,16 @@ class SystemDetail extends Basic.AbstractContent {
 
       this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       //
-      if (afterAction === 'CLOSE') {
+      if (this.isWizard()) {
+        // Set system to the wizard context.
+        const wizardContext = this.context.wizardContext;
+        wizardContext.entity = entity;
+        if (wizardContext.callBackNext) {
+          wizardContext.callBackNext();
+        } else if (wizardContext.onClickNext) {
+          wizardContext.onClickNext(false, true);
+        }
+      } else if (afterAction === 'CLOSE') {
         // reload options with remote connectors
 
         this.context.history.replace(`/systems`);
@@ -181,6 +190,13 @@ class SystemDetail extends Basic.AbstractContent {
         this.context.history.replace(`/system/${entity.id}/detail`);
       }
     });
+  }
+
+  wizardNext() {
+    if (!this.isWizard()) {
+      return;
+    }
+    this.save();
   }
 
   render() {
@@ -203,156 +219,161 @@ class SystemDetail extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
-        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
-            <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
-
-            <Basic.PanelBody
-              style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }
-              showLoading={ _showLoading } >
-              <Basic.AbstractForm
-                ref="form"
-                uiKey={ uiKey}
-                readOnly={
+        <Basic.Panel className={Utils.Entity.isNew(entity) && !this.isWizard() ? '' : 'no-border last'}>
+          <Basic.PanelHeader rendered={!this.isWizard()} text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
+          <Basic.PanelBody
+            style={ Utils.Entity.isNew(entity) && !this.isWizard() ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }
+            showLoading={ _showLoading } >
+            <Basic.AbstractForm
+              ref="form"
+              uiKey={ uiKey}
+              onSubmit={(event) => {
+                this.save(this.isWizard() ? null : 'CONTINUE', event);
+              }}
+              readOnly={
                   Utils.Entity.isNew(entity)
                   ?
                   !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE')
                   :
                   !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
-                <Basic.Alert
-                  level="warning"
-                  icon="exclamation-sign"
-                  rendered={ blockedOperationLabels.length > 0 }
-                  text={ this.i18n('blockedOperationInfo', { operations: blockedOperationLabels.join(', ') }) }
-                  className="no-margin"/>
+              <Basic.Alert
+                level="warning"
+                icon="exclamation-sign"
+                rendered={ blockedOperationLabels.length > 0 }
+                text={ this.i18n('blockedOperationInfo', { operations: blockedOperationLabels.join(', ') }) }
+                className="no-margin"/>
 
-                <Basic.TextField
-                  ref="name"
-                  label={this.i18n('acc:entity.System.name')}
-                  required
-                  max={255}/>
-                <Basic.Checkbox
-                  ref="remote"
-                  onChange={this._setRemoteServer.bind(this)}
-                  label={this.i18n('acc:entity.System.remoteConnector.label')}
-                  helpBlock={this.i18n('acc:entity.System.remoteConnector.help')}/>
-                {/* definition for remote connector server */}
-                <Basic.TextField
-                  ref="host"
-                  label={this.i18n('acc:entity.ConnectorServer.host')}
-                  hidden={!showConfigurationRemoteServer}
-                  required={showConfigurationRemoteServer}
-                  max={255}/>
-                <Basic.Checkbox
-                  ref="useSsl"
-                  label={this.i18n('acc:entity.ConnectorServer.useSsl')}
-                  hidden={!showConfigurationRemoteServer}/>
-                <Basic.TextField
-                  ref="port"
-                  label={this.i18n('acc:entity.ConnectorServer.port')}
-                  hidden={!showConfigurationRemoteServer}/>
-                <Basic.TextField
-                  ref="password"
-                  type="password"
-                  confidential
-                  label={this.i18n('acc:entity.ConnectorServer.password')}
-                  hidden={!showConfigurationRemoteServer}/>
-                <Basic.TextField
-                  ref="timeout"
-                  label={this.i18n('acc:entity.ConnectorServer.timeout')}
-                  hidden={!showConfigurationRemoteServer}/>
-                {/* end for connector server definition */}
-                <Basic.SelectBox
-                  ref="passwordPolicyValidate"
-                  label={this.i18n('acc:entity.System.passwordPolicyValidate')}
-                  placeholder={this.i18n('acc:entity.System.passwordPolicyValidate')}
-                  manager={this.passwordPolicyManager}
-                  forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
-                    .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.VALIDATE))}/>
-                <Basic.SelectBox
-                  ref="passwordPolicyGenerate"
-                  label={this.i18n('acc:entity.System.passwordPolicyGenerate')}
-                  placeholder={this.i18n('acc:entity.System.passwordPolicyGenerate')}
-                  manager={this.passwordPolicyManager}
-                  forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
-                    .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.GENERATE))}/>
-                <Basic.TextArea
-                  ref="description"
-                  label={this.i18n('acc:entity.System.description')}
-                  max={255}/>
-                <Basic.EnumSelectBox
-                  ref="stateEnum"
-                  label={ this.i18n('acc:entity.System.state.label', { escape: false }) }
-                  placeholder={ this.i18n('acc:entity.System.state.placeholder') }
-                  helpBlock={ this.i18n('acc:entity.System.state.help') }
-                  emptyOptionLabel={ this.i18n('acc:entity.System.state.active.label', { escape: false }) }
-                  options={[
-                    {
-                      value: 'readonly',
-                      niceLabel: this.i18n('acc:entity.System.readonly.label', { escape: false }),
-                      description: this.i18n('acc:entity.System.readonly.help', { escape: false })
-                    },
-                    {
-                      value: 'readonlyDisabledProvisioning',
-                      niceLabel: this.i18n('acc:entity.System.readonlyDisabledProvisioning.label', { escape: false }),
-                      description: this.i18n('acc:entity.System.readonlyDisabledProvisioning.help', { escape: false })
-                    },
-                    {
-                      value: 'disabled',
-                      niceLabel: this.i18n('acc:entity.System.disabled.label', { escape: false }),
-                      description: this.i18n('acc:entity.System.disabled.help', { escape: false })
-                    },
-                    {
-                      value: 'disabledProvisioning',
-                      niceLabel: this.i18n('acc:entity.System.disabledProvisioning.label', { escape: false }),
-                      description: this.i18n('acc:entity.System.disabledProvisioning.help', { escape: false })
-                    },
-                  ]}/>
-                <Basic.Checkbox
-                  ref="queue"
-                  label={this.i18n('acc:entity.System.queue.label')}
-                  helpBlock={this.i18n('acc:entity.System.queue.help')}/>
-                <Basic.Checkbox
-                  ref="createOperation"
-                  label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
-                  helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
-                <Basic.Checkbox
-                  ref="updateOperation"
-                  label={ this.i18n('acc:entity.BlockedOperation.updateOperation.label') }
-                  helpBlock={ this.i18n('acc:entity.BlockedOperation.updateOperation.help') }/>
-                <Basic.Checkbox
-                  ref="deleteOperation"
-                  label={ this.i18n('acc:entity.BlockedOperation.deleteOperation.label') }
-                  helpBlock={ this.i18n('acc:entity.BlockedOperation.deleteOperation.help') }/>
-              </Basic.AbstractForm>
-            </Basic.PanelBody>
+              <Basic.TextField
+                ref="name"
+                label={this.i18n('acc:entity.System.name')}
+                required
+                max={255}/>
+              <Basic.Checkbox
+                ref="remote"
+                onChange={this._setRemoteServer.bind(this)}
+                label={this.i18n('acc:entity.System.remoteConnector.label')}
+                helpBlock={this.i18n('acc:entity.System.remoteConnector.help')}/>
+              {/* definition for remote connector server */}
+              <Basic.TextField
+                ref="host"
+                label={this.i18n('acc:entity.ConnectorServer.host')}
+                hidden={!showConfigurationRemoteServer}
+                required={showConfigurationRemoteServer}
+                max={255}/>
+              <Basic.Checkbox
+                ref="useSsl"
+                label={this.i18n('acc:entity.ConnectorServer.useSsl')}
+                hidden={!showConfigurationRemoteServer}/>
+              <Basic.TextField
+                ref="port"
+                label={this.i18n('acc:entity.ConnectorServer.port')}
+                hidden={!showConfigurationRemoteServer}/>
+              <Basic.TextField
+                ref="password"
+                type="password"
+                confidential
+                label={this.i18n('acc:entity.ConnectorServer.password')}
+                hidden={!showConfigurationRemoteServer}/>
+              <Basic.TextField
+                ref="timeout"
+                label={this.i18n('acc:entity.ConnectorServer.timeout')}
+                hidden={!showConfigurationRemoteServer}/>
+              {/* end for connector server definition */}
+              <Basic.SelectBox
+                ref="passwordPolicyValidate"
+                label={this.i18n('acc:entity.System.passwordPolicyValidate')}
+                placeholder={this.i18n('acc:entity.System.passwordPolicyValidate')}
+                hidden={this.isWizard()}
+                manager={this.passwordPolicyManager}
+                forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
+                  .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.VALIDATE))}/>
+              <Basic.SelectBox
+                ref="passwordPolicyGenerate"
+                label={this.i18n('acc:entity.System.passwordPolicyGenerate')}
+                placeholder={this.i18n('acc:entity.System.passwordPolicyGenerate')}
+                hidden={this.isWizard()}
+                manager={this.passwordPolicyManager}
+                forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
+                  .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.GENERATE))}/>
+              <Basic.TextArea
+                ref="description"
+                label={this.i18n('acc:entity.System.description')}
+                max={255}/>
+              <Basic.EnumSelectBox
+                ref="stateEnum"
+                label={ this.i18n('acc:entity.System.state.label', { escape: false }) }
+                placeholder={ this.i18n('acc:entity.System.state.placeholder') }
+                helpBlock={ this.i18n('acc:entity.System.state.help') }
+                emptyOptionLabel={ this.i18n('acc:entity.System.state.active.label', { escape: false }) }
+                options={[
+                  {
+                    value: 'readonly',
+                    niceLabel: this.i18n('acc:entity.System.readonly.label', { escape: false }),
+                    description: this.i18n('acc:entity.System.readonly.help', { escape: false })
+                  },
+                  {
+                    value: 'readonlyDisabledProvisioning',
+                    niceLabel: this.i18n('acc:entity.System.readonlyDisabledProvisioning.label', { escape: false }),
+                    description: this.i18n('acc:entity.System.readonlyDisabledProvisioning.help', { escape: false })
+                  },
+                  {
+                    value: 'disabled',
+                    niceLabel: this.i18n('acc:entity.System.disabled.label', { escape: false }),
+                    description: this.i18n('acc:entity.System.disabled.help', { escape: false })
+                  },
+                  {
+                    value: 'disabledProvisioning',
+                    niceLabel: this.i18n('acc:entity.System.disabledProvisioning.label', { escape: false }),
+                    description: this.i18n('acc:entity.System.disabledProvisioning.help', { escape: false })
+                  },
+                ]}/>
+              <Basic.Checkbox
+                ref="queue"
+                label={this.i18n('acc:entity.System.queue.label')}
+                hidden={this.isWizard()}
+                helpBlock={this.i18n('acc:entity.System.queue.help')}/>
+              <Basic.Checkbox
+                ref="createOperation"
+                label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
+                hidden={this.isWizard()}
+                helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
+              <Basic.Checkbox
+                ref="updateOperation"
+                label={ this.i18n('acc:entity.BlockedOperation.updateOperation.label') }
+                hidden={this.isWizard()}
+                helpBlock={ this.i18n('acc:entity.BlockedOperation.updateOperation.help') }/>
+              <Basic.Checkbox
+                ref="deleteOperation"
+                label={ this.i18n('acc:entity.BlockedOperation.deleteOperation.label') }
+                hidden={this.isWizard()}
+                helpBlock={ this.i18n('acc:entity.BlockedOperation.deleteOperation.help') }/>
+            </Basic.AbstractForm>
+          </Basic.PanelBody>
 
-            <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
+          <Basic.PanelFooter rendered={!this.isWizard()}>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
 
-              <Basic.SplitButton
-                level="success"
-                title={this.i18n('button.saveAndContinue')}
-                onClick={this.save.bind(this, 'CONTINUE')}
-                showLoading={_showLoading}
-                showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={
+            <Basic.SplitButton
+              level="success"
+              title={this.i18n('button.saveAndContinue')}
+              onClick={this.save.bind(this, 'CONTINUE')}
+              showLoading={_showLoading}
+              showLoadingIcon
+              showLoadingText={this.i18n('button.saving')}
+              rendered={
                   Utils.Entity.isNew(entity)
                   ?
                   Managers.SecurityManager.hasAuthority('SYSTEM_CREATE')
                   :
                   Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')
-                }
-                pullRight
-                dropup>
-                <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
-              </Basic.SplitButton>
-            </Basic.PanelFooter>
-          </Basic.Panel>
-          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-          <input type="submit" className="hidden"/>
-        </form>
+              }
+              pullRight
+              dropup>
+              <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+            </Basic.SplitButton>
+          </Basic.PanelFooter>
+        </Basic.Panel>
+
       </div>
     );
   }
@@ -376,4 +397,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SystemDetail);
+export default connect(select, null, null, { forwardRef: true})(SystemDetail);

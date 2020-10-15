@@ -21,6 +21,84 @@ class AbstractContextComponent extends AbstractComponent {
     super(props, context);
     this._parseUrlQuery(this.props.location);
     this.flashMessagesManager = new FlashMessagesManager();
+    this._initWizardComponent(props, context);
+  }
+
+  componentDidUpdate() {
+    this._initWizardLoading();
+  }
+
+  /**
+   * We need to register call back method for next and previous wizard action to the wizard context.
+   * Method on the component cannot be called directly (redux component ...).
+   */
+  _initWizardComponent(props, context) {
+    if (context
+      && context.wizardContext
+      && context.wizardContext.activeStep
+      && context.wizardContext.activeStep.id && props.wizardStepId
+    ) {
+      const wizardContext = context.wizardContext;
+      if (this.wizardNext) {
+        wizardContext.componentCallBackNext = this.wizardNext.bind(this);
+      }
+      if (this.wizardAddButtons) {
+        wizardContext.activeStep.wizardAddButtons = this.wizardAddButtons.bind(this);
+        // Component inner a step is rendered after wizard. Wizard have to be updated by force.
+        wizardContext.wizardForceUpdate();
+      } else if (wizardContext.activeStep.wizardAddButtons) {
+        wizardContext.activeStep.wizardAddButtons = null;
+        // Component inner a step is rendered after wizard. Wizard have to be updated by force.
+        wizardContext.wizardForceUpdate();
+      }
+    }
+  }
+
+  /**
+   * This method is call from the wizard if next action was executed.
+   * Good place for validation.
+   */
+  wizardNext() {
+    const wizardContext = this.context.wizardContext;
+
+    if (!wizardContext) {
+      return;
+    }
+
+    if (wizardContext.callBackNext) {
+      wizardContext.callBackNext();
+    }
+  }
+
+  /**
+   * Returns true, if is this component currently in a wizard.
+   */
+  isWizard() {
+    return !!(this.context
+      && this.context.wizardContext);
+  }
+
+  /**
+   * Set showLoading to the wizard (for a buttons).
+   * Prevents to need to add callback of wizard showLoading to every situations changing a showLoading  (save, isValid, error).
+   */
+  _initWizardLoading() {
+    const context = this.context;
+    if (context
+      && context.wizardContext
+      && context.wizardContext.activeStep
+      && context.wizardContext.activeStep.id && this.props.wizardStepId) {
+      const wizardContext = this.context.wizardContext;
+      if (this.state && wizardContext.setShowLoading) {
+        const { _showLoading, showLoading } = this.state;
+        wizardContext.setShowLoading(
+          _showLoading
+          || showLoading
+          || this.props.showLoading
+          || this.props._showLoading
+        );
+      }
+    }
   }
 
   /**
@@ -55,7 +133,7 @@ class AbstractContextComponent extends AbstractComponent {
   /**
    * Add flash message, see more in FlashMessages component
    *
-   * @param {Message} message
+   * @param {message} message
    * @param {Event} event
    */
   addMessage(message, event) {
@@ -241,8 +319,7 @@ class AbstractContextComponent extends AbstractComponent {
   /**
    * Found route definitions for children (items from routes.js for this component).
    */
-  _getRouteDefinitions() {
-    const {match} = this.props;
+  _getRouteDefinitions(match) {
     const routes = this.context.routes;
 
 
@@ -340,15 +417,13 @@ class AbstractContextComponent extends AbstractComponent {
   /**
    * Creates react-router Routes components for this component (url).
    */
-  generateRouteComponents() {
-    const {match, location} = this.props;
+  generateRouteComponents(match = this.props.match, location = this.props.location) {
 
     // Found children routes definitions (items from routes.js for this component).
-    const childRoutes = this._getRouteDefinitions();
+    const childRoutes = this._getRouteDefinitions(match);
     if (!childRoutes) {
       return null;
     }
-
     const childRoutesWithComponent = [];
     childRoutes.forEach(route => {
       if (!route.component) {
@@ -427,7 +502,6 @@ class AbstractContextComponent extends AbstractComponent {
    */
   getRoutes() {
     const routes = this.generateRouteComponents();
-
     return (
       <Switch>
         {routes}

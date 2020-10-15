@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 
 /**
- * Notification log service
+ * Notification log service.
  * 
  * @author Radek Tomiška
  *
@@ -16,6 +16,10 @@ import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilte
 public interface IdmNotificationLogService extends 
 		ReadWriteDtoService<IdmNotificationLogDto, IdmNotificationFilter> {
 
-    List<IdmNotificationRecipientDto> getRecipientsForNotification(String backendId);
+	/**
+	 * @deprecated @since 10.6.0 use filter instead. Deprecated because - misleading string parameter.
+	 */
+	@Deprecated
+    List<IdmNotificationRecipientDto> getRecipientsForNotification(String notificationId);
 
 }

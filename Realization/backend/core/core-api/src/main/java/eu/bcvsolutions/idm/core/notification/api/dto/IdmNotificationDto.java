@@ -15,9 +15,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 
 /**
- * Generic log message dto
+ * Generic log message dto.
  *
  * @author Peter Sourek
+ * @author Radek Tomiška
  */
 @Relation(collectionRelation = "notifications")
 public class IdmNotificationDto extends AbstractDto implements BaseNotification {
@@ -40,7 +41,8 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     private UUID identitySender;
     // notification type
     private String type;
-    private List<IdmAttachmentDto> attachments;
+    // Notification attachments - for send only. Load attachments by IdmNotificationAttachmentService.
+    private transient List<IdmAttachmentDto> attachments;
 
     public IdmNotificationDto() {
     }
@@ -135,6 +137,8 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     }
     
     /**
+     * Notification attachments - for send only. Load attachments by IdmNotificationAttachmentService.
+     * 
      * @since 9.3.0
      * @return
      */
@@ -146,6 +150,8 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
 	}
     
     /**
+     * Notification attachments - for send only. Load attachments by IdmNotificationAttachmentService.
+     * 
      * @since 9.3.0
      * @param attachments
      */

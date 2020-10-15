@@ -1,7 +1,8 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
-import org.apache.camel.ProducerTemplate;
 import java.time.ZonedDateTime;
+
+import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 
 /**
- * Sends notifications
+ * Sends notifications.
  * 
  * @author Radek Tomiška
  *
@@ -87,8 +88,8 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 			notification.setSent(ZonedDateTime.now());
 			IdmNotificationLogDto notificationLog = notificationLogService.save((IdmNotificationLogDto) notification);
 			notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
-			// TODO: remove after attachment will be persisted
-			notificationLog.setAttachments(notification.getAttachments());
+			notificationLog.setAttachments(saveNotificationAttachments(notificationLog, notification.getAttachments()));
+			//
 			return notificationLog;
 		}
 		// we need to clone notification
@@ -98,14 +99,15 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 		// clone message
 		notificationLog.setMessage(cloneMessage(notification));
 		// clone recipients
-		for(IdmNotificationRecipientDto recipient : notification.getRecipients()) {
+		for (IdmNotificationRecipientDto recipient : notification.getRecipients()) {
 			notificationLog.getRecipients()
 					.add(cloneRecipient(notificationLog, recipient, recipient.getRealRecipient()));
 		}
 		notificationLog.setIdentitySender(notification.getIdentitySender());
 		notificationLog = notificationLogService.save(notificationLog);
 		notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
-		notificationLog.setAttachments(notification.getAttachments());
+		notificationLog.setAttachments(saveNotificationAttachments(notificationLog, notification.getAttachments()));
+		//
 		return notificationLog;
 	}
 

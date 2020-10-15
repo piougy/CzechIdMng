@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
  * Long running task DTO.
  * 
  * @author Jan Helbich
+ * @author Radek Tomiška
  */
 @Relation(collectionRelation = "longRunningTasks")
 public class IdmLongRunningTaskDto extends AbstractDto {
@@ -40,6 +41,7 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	private boolean stateful;
 	private boolean recoverable;
 	private ZonedDateTime taskStarted;
+	private ZonedDateTime taskEnded;
 	private boolean dryRun;
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long successItemCount;
@@ -47,14 +49,6 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	private Long failedItemCount;
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long warningItemCount;
-
-	public void setTaskStarted(ZonedDateTime date){
-		taskStarted = date;
-	}
-
-	public ZonedDateTime getTaskStarted(){
-		return taskStarted;
-	}
 
 	public IdmLongRunningTaskDto() {
 	}
@@ -221,6 +215,34 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 		this.recoverable = recoverable;
 	}
 	
+	public void setTaskStarted(ZonedDateTime date){
+		taskStarted = date;
+	}
+
+	public ZonedDateTime getTaskStarted(){
+		return taskStarted;
+	}
+	
+	/**
+	 * Task ended datetime.
+	 * 
+	 * @return task end datetime
+	 * @since 10.6.0
+	 */
+	public ZonedDateTime getTaskEnded() {
+		return taskEnded;
+	}
+	
+	/**
+	 * Task ended datetime.
+	 * 
+	 * @param taskEnded task end datetime
+	 * @since 10.6.0
+	 */
+	public void setTaskEnded(ZonedDateTime taskEnded) {
+		this.taskEnded = taskEnded;
+	}
+	
 	/**
 	 * Clear fields persist run state.
 	 * 
@@ -233,6 +255,7 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 		setSuccessItemCount(null);
 		setFailedItemCount(null);
 		setTaskStarted(null);
+		setTaskEnded(null);
 		setResult(null);
 		setThreadId(0);
 		setThreadName(null);

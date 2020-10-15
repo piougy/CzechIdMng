@@ -47,15 +47,15 @@ export class RoleConceptDetail extends Basic.AbstractContent {
   }
 
   // @Deprecated - since V10 ... replaced by dynamic key in Route
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   if (nextProps && (
-  //     JSON.stringify(nextProps.entity) !== JSON.stringify(this.props.entity) ||
-  //     nextProps.isEdit !== this.props.isEdit ||
-  //     nextProps.multiAdd !== this.props.multiAdd
-  //   )) {
-  //     this._initComponent(nextProps);
-  //   }
-  // }
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (nextProps && (
+      JSON.stringify(nextProps.entity) !== JSON.stringify(this.props.entity) ||
+      nextProps.isEdit !== this.props.isEdit ||
+      nextProps.multiAdd !== this.props.multiAdd
+    )) {
+      this._initComponent(nextProps);
+    }
+  }
 
   getEavForm() {
     return this.refs.eavForm;

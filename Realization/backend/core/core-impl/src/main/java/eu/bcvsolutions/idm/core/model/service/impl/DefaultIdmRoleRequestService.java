@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -394,7 +395,7 @@ public class DefaultIdmRoleRequestService
 			request.getConceptRoles().stream().filter(concept -> {
 				return RoleRequestState.IN_PROGRESS == concept.getState();
 			}).forEach(concept -> {
-				if (!cancelInvalidConcept(concept, request)) {
+				if (!cancelInvalidConcept(null, concept, request)) {
 					concept.setState(RoleRequestState.APPROVED);
 					conceptRoleRequestService.save(concept);
 				} else {
@@ -479,9 +480,13 @@ public class DefaultIdmRoleRequestService
 		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, Sets.newHashSet());
 		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, Sets.newHashSet());
 		requestEvent.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, Sets.newHashSet());
-
-		// Create new identity role
-		concepts.stream().filter(concept -> {
+		
+		// Add concepts for business roles.
+		List<IdmIdentityRoleDto> allAssignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		List<IdmConceptRoleRequestDto> allConcepts = appendBusinessRoleConcepts(concepts, allAssignedRoles);
+		
+		// Create new identity role.
+		allConcepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.ADD == concept.getOperation();
 		}).filter(concept -> {
 			// Only approved concepts can be executed
@@ -489,16 +494,16 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			if (!cancelInvalidConcept(concept, request)) {
+			if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
 				// assign new role
-				createAssignedRole(concept, request, requestEvent);
+				createAssignedRole(allConcepts, concept, request, requestEvent);
 			}
 
 			flushHibernateSession();
 		});
 
 		// Update identity role
-		concepts.stream().filter(concept -> {
+		allConcepts.stream().filter(concept -> {
 			return ConceptRoleRequestOperation.UPDATE == concept.getOperation();
 		}).filter(concept -> {
 			// Only approved concepts can be executed
@@ -506,28 +511,50 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			if (!cancelInvalidConcept(concept, request)) {
-				updateAssignedRole(concept, request, requestEvent);
+			if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
+				updateAssignedRole(allConcepts, concept, request, requestEvent);
 			}
 
 			flushHibernateSession();
 		});
+		
+		// Delete identity sub roles at first (prevent to delete sub roles by referential integrity)
+		allConcepts
+			.stream()
+			.filter(concept -> ConceptRoleRequestOperation.REMOVE == concept.getOperation())
+			.filter(concept -> concept.getDirectConcept() != null)
+			.filter(concept -> {
+				// Only approved concepts can be executed
+				// Concepts in concept state will be executed too (for situation, when will be
+				// approval event disabled)
+				return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
+			})
+			.forEach(concept -> {
+				if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
+					removeAssignedRole(concept, request, requestEvent);
+				}
+	
+				flushHibernateSession();
+			});
 
-		// Delete identity role
-		concepts.stream().filter(concept -> {
-			return ConceptRoleRequestOperation.REMOVE == concept.getOperation();
-		}).filter(concept -> {
-			// Only approved concepts can be executed
-			// Concepts in concept state will be executed too (for situation, when will be
-			// approval event disabled)
-			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-		}).forEach(concept -> {
-			if (!cancelInvalidConcept(concept, request)) {
-				removeAssignedRole(concept, request, requestEvent);
-			}
-
-			flushHibernateSession();
-		});
+		// Delete direct identity role
+		allConcepts
+			.stream()
+			.filter(concept -> ConceptRoleRequestOperation.REMOVE == concept.getOperation())
+			.filter(concept -> concept.getDirectConcept() == null)
+			.filter(concept -> {
+				// Only approved concepts can be executed
+				// Concepts in concept state will be executed too (for situation, when will be
+				// approval event disabled)
+				return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
+			})
+			.forEach(concept -> {
+				if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
+					removeAssignedRole(concept, request, requestEvent);
+				}
+	
+				flushHibernateSession();
+			});
 
 		return this.save(request);
 
@@ -1141,11 +1168,22 @@ public class DefaultIdmRoleRequestService
 	 * @param request
 	 * @param requestEvent
 	 */
-	private void updateAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
+	private void updateAssignedRole(
+			List<IdmConceptRoleRequestDto> allConcepts,
+			IdmConceptRoleRequestDto concept, 
+			IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-		identityRole = convertConceptRoleToIdentityRole(concept, identityRole);
-		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.UPDATE, identityRole, ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
+		identityRole = convertConceptRoleToIdentityRole(allConcepts, concept, identityRole);
+		@SuppressWarnings("deprecation")
+		IdentityRoleEvent event = new IdentityRoleEvent(
+				IdentityRoleEventType.UPDATE, 
+				identityRole, 
+				ImmutableMap.of(
+						IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE, // ~ skip provisioning
+						EntityEventManager.EVENT_PROPERTY_SKIP_SUB_ROLES, Boolean.TRUE // sub roles are assigned by this request
+				)
+		);
 		event.setPriority(PriorityType.IMMEDIATE);
 
 		// propagate event
@@ -1178,17 +1216,26 @@ public class DefaultIdmRoleRequestService
 	 * @param request
 	 * @param requestEvent
 	 */
-	private void createAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request, EntityEvent<IdmRoleRequestDto> requestEvent) {
+	private void createAssignedRole(
+			List<IdmConceptRoleRequestDto> allConcepts,
+			IdmConceptRoleRequestDto concept,
+			IdmRoleRequestDto request,
+			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole = convertConceptRoleToIdentityRole(concept, identityRole);
-		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole,
-				ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE)); // I can't use the NOTIFY skip, because I
-																				// don't want skip recalculation of
-																				// business roles now.
+		identityRole = convertConceptRoleToIdentityRole(allConcepts, concept, identityRole);
+		@SuppressWarnings("deprecation")
+		IdentityRoleEvent event = new IdentityRoleEvent(
+				IdentityRoleEventType.CREATE,
+				identityRole,
+				ImmutableMap.of(
+						IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE, // ~ skip provisioning
+						EntityEventManager.EVENT_PROPERTY_SKIP_SUB_ROLES, Boolean.TRUE // sub roles are assigned by this request
+				) 
+		);
 		event.setPriority(PriorityType.IMMEDIATE);
 
 		// propagate event
-		identityRole = identityRoleService.publish(event).getContent();
+		identityRole = identityRoleService.publish(event, requestEvent).getContent();
 
 		// New assigned roles by business roles
 		Set<IdmIdentityRoleDto> subNewIdentityRoles = event
@@ -1235,7 +1282,9 @@ public class DefaultIdmRoleRequestService
 		}
 	}
 
-	private IdmIdentityRoleDto convertConceptRoleToIdentityRole(IdmConceptRoleRequestDto conceptRole,
+	private IdmIdentityRoleDto convertConceptRoleToIdentityRole(
+			List<IdmConceptRoleRequestDto> allConcepts,
+			IdmConceptRoleRequestDto conceptRole,
 			IdmIdentityRoleDto identityRole) {
 		if (conceptRole == null || identityRole == null) {
 			return null;
@@ -1255,11 +1304,22 @@ public class DefaultIdmRoleRequestService
 		identityRole.setOriginalCreator(conceptRole.getOriginalCreator());
 		identityRole.setOriginalModifier(conceptRole.getOriginalModifier());
 		identityRole.setAutomaticRole(conceptRole.getAutomaticRole());
-		//
-		// if exists role tree node, set automatic role
-		if (conceptRole.getAutomaticRole() != null) {
-			identityRole.setAutomaticRole(conceptRole.getAutomaticRole());
+		// fill directly assigned role by superior concept
+		UUID directRole = conceptRole.getDirectRole();
+		UUID directConcept = conceptRole.getDirectConcept();
+		if (directRole != null) { // update / delete / new role composition 
+			identityRole.setDirectRole(directRole);
+		} else if (directConcept != null) { // new identity role by superior concept
+			directRole = allConcepts
+				.stream()
+				.filter(c -> c.getId().equals(directConcept))
+				.findFirst()
+				.get()
+				.getIdentityRole();
+			identityRole.setDirectRole(directRole);
 		}
+		identityRole.setRoleComposition(conceptRole.getRoleComposition());
+
 		return identityRole;
 	}
 
@@ -1308,7 +1368,7 @@ public class DefaultIdmRoleRequestService
 			UUID roleId = concept.getRole();
 			IdmIdentityContractDto identityContract = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityContract, IdmIdentityContractDto.class, null);
 
-			// Find all subroles for role. This is expensive operation
+			// Find all sub roles for role.
 			List<IdmRoleCompositionDto> subRoles = roleCompositionService.findAllSubRoles(roleId);
 			for (IdmRoleCompositionDto subRoleComposition : subRoles) {
 				IdmRoleDto subRole = DtoUtils.getEmbedded(subRoleComposition, IdmRoleComposition_.sub, IdmRoleDto.class, null);
@@ -1459,7 +1519,7 @@ public class DefaultIdmRoleRequestService
 	 * @param request
 	 * @return true, if concept is canceled
 	 */
-	private boolean cancelInvalidConcept(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request) {
+	private boolean cancelInvalidConcept(List<IdmIdentityRoleDto> automaticRoles, IdmConceptRoleRequestDto concept, IdmRoleRequestDto request) {
 		String message = null;
 		if (concept.getIdentityRole() == null
 				&& ConceptRoleRequestOperation.ADD != concept.getOperation()) { // identity role is not given for ADD
@@ -1475,17 +1535,139 @@ public class DefaultIdmRoleRequestService
 			message = MessageFormat.format(
 					"Request change in concept [{0}], was not executed, because requested role was deleted (not from this role request)!",
 					concept.getId());
+		} else if(ConceptRoleRequestOperation.ADD == concept.getOperation()
+				&& concept.getAutomaticRole() != null 
+				&& CollectionUtils.isNotEmpty(automaticRoles)) {
+			// check duplicate assigned automatic role
+			IdmIdentityRoleDto assignedRole = automaticRoles
+				.stream()
+				.filter(ir -> ir.getAutomaticRole() != null)
+				.filter(ir -> Objects.equal(ir.getAutomaticRole(), concept.getAutomaticRole()))
+				.filter(ir -> Objects.equal(ir.getContractPosition(), concept.getContractPosition()))
+				.filter(ir -> Objects.equal(ir.getIdentityContract(), concept.getIdentityContract()))
+				.findFirst()
+				.orElse(null);
+			if (assignedRole != null) {
+				message = MessageFormat.format(
+						"Request change in concept [{0}], was not executed, because requested automatic role was already assigned (not from this role request)!",
+						concept.getId());
+			}
 		}
 
 		if (message != null) {
 			addToLog(request, message);
 			conceptRoleRequestService.addToLog(concept, message);
 			// Cancel concept and WF
-			concept = conceptRoleRequestService.cancel(concept);
+			conceptRoleRequestService.cancel(concept);
 
 			return true;
 		}
 		// concept is valid
 		return false;
+	}
+	
+	/**
+	 * Create and append business role concepts.
+	 * 
+	 * @param concepts original concepts
+	 * @param identityRoles 
+	 * @return original + business role concepts (~all)
+	 * @since 10.6.0
+	 */
+	private List<IdmConceptRoleRequestDto> appendBusinessRoleConcepts(
+			List<IdmConceptRoleRequestDto> concepts,
+			List<IdmIdentityRoleDto> identityRoles) {
+		List<IdmConceptRoleRequestDto> results = Lists.newArrayList(concepts); // include original
+		Map<UUID, List<IdmIdentityRoleDto>> subRoles = identityRoles
+			.stream()
+			.filter(identityRole -> identityRole.getDirectRole() != null)
+			.collect(Collectors.groupingBy(IdmIdentityRoleDto::getDirectRole));
+		
+		concepts
+			.stream()
+			.filter(concept -> ConceptRoleRequestOperation.ADD == concept.getOperation())
+			.forEach(concept -> {
+				// find and assign all sub roles as concepts
+				roleCompositionService
+					.findAllSubRoles(concept.getRole())
+					.forEach(subRole -> {
+						IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+						conceptRoleRequest.setRoleRequest(concept.getRoleRequest());
+						conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
+						// from concept
+						conceptRoleRequest.setValidFrom(concept.getValidFrom());
+						conceptRoleRequest.setValidTill(concept.getValidTill());
+						conceptRoleRequest.setIdentityContract(concept.getIdentityContract());
+						conceptRoleRequest.setContractPosition(concept.getContractPosition());
+						// from assigned (~changed) sub role
+						conceptRoleRequest.setRole(subRole.getSub());
+						conceptRoleRequest.setDirectConcept(concept.getId());
+						conceptRoleRequest.setRoleComposition(subRole.getId());
+						// save and add to concepts to be processed
+						results.add(conceptRoleRequestService.save(conceptRoleRequest));
+					});
+			});
+		
+		concepts
+			.stream()
+			.filter(concept -> ConceptRoleRequestOperation.UPDATE == concept.getOperation())
+			.filter(concept -> subRoles.containsKey(concept.getIdentityRole()))
+			.forEach(concept -> {
+				// update sub roles by direct role
+				UUID directRole = concept.getIdentityRole();
+				subRoles
+					.get(directRole)
+					.forEach(subRole -> {
+						IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+						conceptRoleRequest.setRoleRequest(concept.getRoleRequest());
+						conceptRoleRequest.setOperation(ConceptRoleRequestOperation.UPDATE);
+						// from concept
+						conceptRoleRequest.setValidFrom(concept.getValidFrom());
+						conceptRoleRequest.setValidTill(concept.getValidTill());
+						conceptRoleRequest.setIdentityContract(concept.getIdentityContract());
+						conceptRoleRequest.setContractPosition(concept.getContractPosition());
+						// from assigned (~changed) sub role
+						conceptRoleRequest.setRole(subRole.getRole());
+						conceptRoleRequest.setIdentityRole(subRole.getId());
+						conceptRoleRequest.setAutomaticRole(subRole.getAutomaticRole());
+						conceptRoleRequest.setDirectRole(directRole);
+						conceptRoleRequest.setDirectConcept(concept.getId());
+						conceptRoleRequest.setRoleComposition(subRole.getRoleComposition());
+						// save and add to concepts to be processed
+						results.add(conceptRoleRequestService.save(conceptRoleRequest));
+					});
+			});
+		
+		concepts
+			.stream()
+			.filter(concept -> ConceptRoleRequestOperation.REMOVE == concept.getOperation())
+			.filter(concept -> subRoles.containsKey(concept.getIdentityRole()))
+			.forEach(concept -> {
+				// remove sub roles by direct role
+				UUID directRole = concept.getIdentityRole();
+				subRoles
+					.get(directRole)
+					.forEach(subRole -> {
+						IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+						conceptRoleRequest.setRoleRequest(concept.getRoleRequest());
+						conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+						// from concept
+						conceptRoleRequest.setValidFrom(concept.getValidFrom());
+						conceptRoleRequest.setValidTill(concept.getValidTill());
+						conceptRoleRequest.setIdentityContract(concept.getIdentityContract());
+						conceptRoleRequest.setContractPosition(concept.getContractPosition());
+						// from assigned (~changed) sub role
+						conceptRoleRequest.setRole(subRole.getRole());
+						conceptRoleRequest.setIdentityRole(subRole.getId());
+						conceptRoleRequest.setAutomaticRole(subRole.getAutomaticRole());
+						conceptRoleRequest.setDirectRole(directRole);
+						conceptRoleRequest.setDirectConcept(concept.getId());
+						conceptRoleRequest.setRoleComposition(subRole.getRoleComposition());
+						// save and add to concepts to be processed
+						results.add(conceptRoleRequestService.save(conceptRoleRequest));
+					});
+			});
+
+		return results;
 	}
 }

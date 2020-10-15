@@ -3,8 +3,8 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
-import { SchemaObjectClassManager, SchemaAttributeManager } from '../../redux';
+import { Advanced, Basic, Managers, Utils } from 'czechidm-core';
+import { SchemaAttributeManager, SchemaObjectClassManager } from '../../redux';
 
 const uiKey = 'schema-attribute';
 const manager = new SchemaAttributeManager();
@@ -24,6 +24,10 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.attributeDetail';
   }
 
+  getNavigationKey() {
+    return 'schema-object-classes';
+  }
+
   // @Deprecated - since V10 ... replaced by dynamic key in Route
   // UNSAFE_componentWillReceiveProps(nextProps) {
   //   const { attributeId} = nextProps.match.params;
@@ -34,12 +38,14 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
   }
 
   /**
    * Method for init component from didMount method and from willReceiveProps method
-   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   * @param  props - properties of component - props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
     const { attributeId} = props.match.params;
@@ -48,7 +54,9 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
-    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
+    if (this.refs.name) {
+      this.refs.name.focus();
+    }
   }
 
   _getIsNew(nextProps) {
@@ -69,12 +77,63 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
-      const systemId = this.props.match.params.entityId;
-      this.context.history.replace(`/system/${systemId}/object-classes/${entity._embedded.objectClass.id}/detail`, {attributeId: entity.id});
+      // Complete wizard step.
+      // Set new entity to the wizard context and go to next step.
+      if (this.isWizard()) {
+        const activeStep = this.context.wizardContext.activeStep;
+        if (activeStep) {
+          activeStep.id = 'schema';
+          activeStep.objectClass = entity._embedded.objectClass;
+          this.context.wizardContext.wizardForceUpdate();
+        }
+      } else {
+        const systemId = this.props.match.params.entityId;
+        this.context.history.replace(`/system/${systemId}/object-classes/${entity._embedded.objectClass.id}/detail`, {attributeId: entity.id});
+      }
     } else {
       this.addError(error);
     }
     super.afterSave();
+  }
+
+  goBack() {
+    if (this.isWizard()) {
+      // If is component in the wizard, then set new ID (master component)
+      // to the active action and render wizard.
+      const activeStep = this.context.wizardContext.activeStep;
+      if (activeStep) {
+        activeStep.id = 'schema';
+        this.context.wizardContext.wizardForceUpdate();
+      }
+    } else {
+      this.context.history.goBack();
+    }
+  }
+
+  wizardAddButtons(showLoading) {
+    return this.renderButtons(showLoading);
+  }
+
+  renderButtons(_showLoading) {
+    return (
+      <span>
+        <Basic.Button
+          type="button"
+          level="link"
+          onClick={this.goBack.bind(this)}
+          showLoading={_showLoading}>
+          {this.i18n('button.back')}
+        </Basic.Button>
+        <Basic.Button
+          onClick={this.save.bind(this)}
+          level="success"
+          type="submit"
+          showLoading={_showLoading}
+          rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+          {this.i18n('button.save')}
+        </Basic.Button>
+      </span>
+    );
   }
 
   render() {
@@ -83,13 +142,13 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
     const attribute = isNew ? this.state.attribute : _attribute;
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={this.i18n('title')}/>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader>
           <Basic.Icon value="list"/>
           {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header', attribute ? { name: manager.getNiceLabel(attribute)} : {})}}/>
+          <span dangerouslySetInnerHTML={{__html: this.i18n('header', attribute ? {name: manager.getNiceLabel(attribute)} : {})}}/>
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
@@ -135,22 +194,8 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
                 tooltip={this.i18n('returnedByDefaultTooltip')}
                 label={this.i18n('acc:entity.SchemaAttribute.returned_by_default')}/>
             </Basic.AbstractForm>
-            <Basic.PanelFooter>
-              <Basic.Button
-                type="button"
-                level="link"
-                onClick={this.context.history.goBack}
-                showLoading={_showLoading}>
-                {this.i18n('button.back')}
-              </Basic.Button>
-              <Basic.Button
-                onClick={this.save.bind(this)}
-                level="success"
-                type="submit"
-                showLoading={_showLoading}
-                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
-                {this.i18n('button.save')}
-              </Basic.Button>
+            <Basic.PanelFooter rendered={!this.isWizard()}>
+              {this.renderButtons(_showLoading)}
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
@@ -171,8 +216,7 @@ SchemaAttributeDetail.defaultProps = {
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.match.params.attributeId);
   if (entity) {
-    const objectClass = entity._embedded && entity._embedded.objectClass ? entity._embedded.objectClass.id : null;
-    entity.objectClass = objectClass;
+    entity.objectClass = entity._embedded && entity._embedded.objectClass ? entity._embedded.objectClass.id : null;
   }
   return {
     _attribute: entity,

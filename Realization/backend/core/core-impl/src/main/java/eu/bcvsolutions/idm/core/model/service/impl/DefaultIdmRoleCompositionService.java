@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
@@ -31,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -58,6 +60,7 @@ public class DefaultIdmRoleCompositionService
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleCompositionService.class);
 	//
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmCacheManager cacheManager;
 	
 	@Autowired
 	public DefaultIdmRoleCompositionService(IdmRoleCompositionRepository repository, EntityEventManager entityEventManager) {
@@ -80,23 +83,23 @@ public class DefaultIdmRoleCompositionService
 		return find(filter, null, permission).getContent();
 	}
 	
-	/**
-	 * TODO: Role composition cache - sub roles (cache value) by superior (cache key). 
-	 */
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<IdmRoleCompositionDto> findAllSubRoles(UUID superiorId, BasePermission... permission) {
 		Assert.notNull(superiorId, "Superior role identifier is required.");
 		//
-		List<IdmRoleCompositionDto> results = new ArrayList<>();
+		ValueWrapper value = cacheManager.getValue(ALL_SUB_ROLES_CACHE_NAME, superiorId);
+		if (value != null) {
+			return (List) value.get(); // never null
+		}
 		//
+		List<IdmRoleCompositionDto> results = new ArrayList<>();
 		findAllSubRoles(results, superiorId, permission);
+		cacheManager.cacheValue(ALL_SUB_ROLES_CACHE_NAME, superiorId, results);
 		//
 		return results;
 	}
 	
-	/**
-	 * TODO: Role composition cache - superior roles (cache value) by sub (cache key). 
-	 */
 	@Override
 	public List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission) {
 		Assert.notNull(subId, "Sub role identifier is required.");
@@ -120,9 +123,9 @@ public class DefaultIdmRoleCompositionService
 	@Override
 	@SuppressWarnings("unchecked")
 	public void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, UUID roleCompositionId, BasePermission... permission) {
-	Assert.notNull(event, "Event is required.");
-	IdmIdentityRoleDto identityRole = event.getContent();
-	Assert.notNull(identityRole, "Identity role identifier is required.");
+		Assert.notNull(event, "Event is required.");
+		IdmIdentityRoleDto identityRole = event.getContent();
+		Assert.notNull(identityRole, "Identity role identifier is required.");
 		// find direct sub roles
 		IdmRoleCompositionFilter compositionFilter = new IdmRoleCompositionFilter();
 		compositionFilter.setSuperiorId(identityRole.getRole());

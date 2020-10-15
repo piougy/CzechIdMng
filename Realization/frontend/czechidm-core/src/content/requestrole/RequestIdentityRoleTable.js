@@ -76,6 +76,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     );
   }
 
+  // eslint-disable-next-line camelcase
   UNSAFE_componentWillReceiveProps(nextProps) {
     const {request} = nextProps;
     if (request
@@ -124,6 +125,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   _closeDetail() {
     this.setState({
       detail: {
+        // eslint-disable-next-line react/no-access-state-in-setstate
         ...this.state.detail,
         show: false,
         add: false
@@ -208,7 +210,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   _createConceptsByIdentity() {
-    const { request, replaceUrl} = this.props;
+    const { request, putRequestToRedux} = this.props;
     this.setState({
       showLoading: true
     }, () => {
@@ -222,7 +224,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         } else {
           if (!request.id) {
             this.reload();
-            replaceUrl(requestReturned.id);
+            putRequestToRedux(requestReturned);
           }
           this._hideRoleByIdentitySelect();
           this.setState({
@@ -250,7 +252,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     this.setState({
       showLoading: true
     }, () => {
-      const { request, replaceUrl} = this.props;
+      const { request, putRequestToRedux} = this.props;
 
       const entity = form.getData();
       entity.roleRequest = request.id;
@@ -290,7 +292,9 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           }, () => {
             if (!request.id) {
               request.id = createdEntity.roleRequest;
-              replaceUrl(createdEntity.roleRequest);
+              if (createdEntity._embedded.roleRequest) {
+                putRequestToRedux(createdEntity._embedded.roleRequest);
+              }
             }
             this._closeDetail();
             // We need to fetch incompatibleRoles (could be changed)
@@ -303,7 +307,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   _internalDelete(data) {
-    const {request, replaceUrl} = this.props;
+    const {request, putRequestToRedux} = this.props;
     this.setState({showLoadingActions: true}, () => {
       data.roleRequest = request.id;
       this.context.store.dispatch(this.getManager().deleteEntity(data, null, (json, error) => {
@@ -311,33 +315,16 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           this.addError(error);
         }
         this.setState({showLoadingActions: false});
-        if (!request.id) {
-          request.id = json.roleRequest;
-          replaceUrl(json.roleRequest);
+        if (!request.id && json._embedded.roleRequest) {
+          const requestNew = json._embedded.roleRequest;
+          request.id = requestNew.id;
+          putRequestToRedux(requestNew);
         }
         // We need to fetch incompatibleRoles (could be changed)
         this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(request.id, `${ uiKeyIncompatibleRoles }${ request.id }`));
         this.reload();
       }));
     });
-  }
-
-  /**
-   * Gets duplicated concept or identity role for the given concept
-   */
-  _getOriginalForDuplicate(concept) {
-    if (!concept.duplicate || !concept._embedded || !concept._embedded.duplicates) {
-      return null;
-    }
-    const duplicates = concept._embedded.duplicates;
-    if (duplicates.identityRoles.length > 0) {
-      return duplicates.identityRoles[0];
-    }
-    if (duplicates.concepts.length > 0) {
-      return duplicates.concepts[0];
-    }
-    //
-    return null;
   }
 
   beforeDelete(bulkActionValue, selectedEntities) {
@@ -349,10 +336,11 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   afterDelete(entities) {
-    const {request, replaceUrl} = this.props;
-
+    const {request, putRequestToRedux} = this.props;
     if (!request.id && entities && entities.length > 0) {
-      replaceUrl(entities[0].roleRequest);
+      if (entities[0]._embedded.roleRequest) {
+        putRequestToRedux(entities[0]._embedded.roleRequest);
+      }
     } else {
       this.reload();
     }
@@ -484,6 +472,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       const formInstance = value._eav[0];
       const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values);
       result.push(
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events
         <div onClick={ !value._removed ? this._showDetail.bind(this, value, true, false) : null }>
           <Advanced.EavForm
             key={ `${rowIndex}-${value.id}` }
@@ -868,7 +857,7 @@ RequestIdentityRoleTable.propTypes = {
   request: PropTypes.object,
   readOnly: PropTypes.bool,
   showEnvironment: PropTypes.bool,
-  replaceUrl: PropTypes.func
+  putRequestToRedux: PropTypes.func
 };
 
 RequestIdentityRoleTable.defaultProps = {

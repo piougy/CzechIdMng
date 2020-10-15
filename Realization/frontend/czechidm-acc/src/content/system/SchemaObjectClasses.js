@@ -2,20 +2,16 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-//
-import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { SchemaObjectClassManager, SystemManager } from '../../redux';
 import uuid from 'uuid';
+//
+import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
+import { SchemaObjectClassManager, SystemManager } from '../../redux';
 
 const uiKey = 'schema-object-classes-entities-table';
 const manager = new SchemaObjectClassManager();
 const systemManager = new SystemManager();
 
 class SchemaObjectClasses extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -29,15 +25,30 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
     return 'acc:content.system.schemaObjectClasses';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
+  getNavigationKey() {
+    return 'schema-object-classes';
   }
 
   showDetail(entity, add) {
     const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.match.params.entityId;
     if (add) {
       const uuidId = uuid.v1();
-      this.context.history.push(`/system/${system}/object-classes/${uuidId}/new?new=1&systemId=${system}`);
+      if (this.isWizard()) {
+        const activeStep = this.context.wizardContext.activeStep;
+        if (activeStep) {
+          activeStep.id = 'schemaNew';
+          this.context.wizardContext.wizardForceUpdate();
+        }
+      } else {
+        this.context.history.push(`/system/${system}/object-classes/${uuidId}/new?new=1&systemId=${system}`);
+      }
+    } else if (this.isWizard()) {
+      const activeStep = this.context.wizardContext.activeStep;
+      if (activeStep) {
+        activeStep.id = 'schema';
+        activeStep.objectClass = entity;
+        this.context.wizardContext.wizardForceUpdate();
+      }
     } else {
       this.context.history.push(`/system/${system}/object-classes/${entity.id}/detail`);
     }
@@ -58,14 +69,30 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
     super.afterSave();
   }
 
+  wizardNext() {
+    if (!this.isWizard()) {
+      return;
+    }
+    const wizardContext = this.context.wizardContext;
+    if (this.props._schemas.total < 1) {
+      this.addMessage({
+        title: this.i18n('acc:wizard.create-system.steps.schemas.validation.missingSchema.title'),
+        message: this.i18n('acc:wizard.create-system.steps.schemas.validation.missingSchema.text'),
+        level: 'warning'
+      });
+      return;
+    }
+    if (wizardContext.callBackNext) {
+      wizardContext.callBackNext();
+    }
+  }
+
   _generateSchema(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs[`confirm-delete`].show(
-      this.i18n(`action.generateSchema.message`),
-      this.i18n(`action.generateSchema.header`)
-    ).then(() => {
+
+    const generate = () => {
       const {entityId} = this.props.match.params;
       this.setState({
         showLoading: true
@@ -84,7 +111,17 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
         this.addError(ex);
         this.refs.table.reload();
       });
-    }, () => {
+    };
+    // In wizard is confirm dialog now show.
+    if (this.isWizard()) {
+      generate();
+      return;
+    }
+
+    this.refs[`confirm-delete`].show(
+      this.i18n(`action.generateSchema.message`),
+      this.i18n(`action.generateSchema.header`)
+    ).then(generate, () => {
       // Rejected
     });
   }
@@ -141,18 +178,19 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
               null
             }
             buttons={
-              [<span>
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={this.showDetail.bind(this, { }, true)}
-                  rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
-                </Basic.Button>
-              </span>
+              [
+                <span>
+                  <Basic.Button
+                    level="success"
+                    key="add_button"
+                    className="btn-xs"
+                    onClick={this.showDetail.bind(this, { }, true)}
+                    rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+                    <Basic.Icon type="fa" icon="plus"/>
+                    {' '}
+                    {this.i18n('button.add')}
+                  </Basic.Button>
+                </span>
               ]
             }
             filter={
@@ -213,9 +251,11 @@ SchemaObjectClasses.defaultProps = {
 };
 
 function select(state, component) {
+  const schemas = Utils.Ui.getUiState(state, uiKey);
   return {
     system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.match.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _schemas: schemas
   };
 }
 

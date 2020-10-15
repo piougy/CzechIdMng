@@ -194,7 +194,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			eventFilter.setSuperOwnerId(identity.getId());
 			getHelper().waitForResult(res -> {
 				return entityEventService.find(eventFilter, PageRequest.of(0, 1)).getTotalElements() != 0;
-			}, 1000, 10);
+			});
 			//
 			// sub roles will be assigned
 			assignedRoles = identityRoleService.findAllByIdentity(identity.getId());

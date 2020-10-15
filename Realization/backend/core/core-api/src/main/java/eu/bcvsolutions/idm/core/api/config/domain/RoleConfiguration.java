@@ -53,6 +53,14 @@ public interface RoleConfiguration extends Configurable {
 	 */
 	String PROPERTY_ROLE_MANAGER_ROLE = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.roleManager";
 	String DEFAULT_ROLE_MANAGER_ROLE = "roleManagerRole";
+
+	/**
+	 * Delegation role.
+	 *
+	 * @since 10.6.0
+	 */
+	String PROPERTY_DELEGATION_ROLE = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.delegation";
+	String DEFAULT_DELEGATION_ROLE = "delegationRole";
 	
 	/**
 	 * If is true, then role-request description will be show on the detail.
@@ -209,6 +217,22 @@ public interface RoleConfiguration extends Configurable {
 	 * @since 10.5.0
 	 */
 	IdmRoleDto getRoleManagerRole();
+
+	/**
+	 * Delegation role code from configuration.
+	 *
+	 * @return full role code
+	 * @since 10.6.0
+	 */
+	String getDelegationRoleCode();
+
+	/**
+	 * Returns delegation role
+	 *
+	 * @return
+	 * @since 10.6.0
+	 */
+	IdmRoleDto getDelegationRole();
 
 	/**
 	 * Return role for approve change of role

@@ -69,7 +69,7 @@
         "header": "Schéma systému",
         "title": "Schéma systému",
         "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
-        "generateSchemaBtn": "Generovat schema",
+        "generateSchemaBtn": "Generovat schéma",
         "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace. Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě.",
         "edit": {
           "header": "Detail typu objektu na koncovém systému"
@@ -137,6 +137,7 @@
         "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu), podle kterého chceme hledat příslušné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
         "customFilterWithReconciliation": "Vlastní filtr nebude použit během rekonciliace.",
         "treeInfo": "Synchronizace stromu je vždy spouštěna jako rekonciliace.",
+        "roleCatalogueInfo": "Synchronizace struktury katalogu rolí je vždy spouštěna jako rekonciliace.",
         "edit": {
           "header": "Detail konfigurace synchronizace"
         },
@@ -1545,12 +1546,12 @@
           },
           "jdbcdriver": {
             "label": "JDBC Driver",
-            "help": "Zadejte implementaci JDBC driveru (class name). Pro Oracle <strong>oracle.jdbc.driver.OracleDriver</strong>. Pro <strong>MySQL org.gjt.mm.mysql.Driver</strong>. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "help": "Zadejte implementaci JDBC driveru (class name). Pro Oracle <strong>oracle.jdbc.driver.OracleDriver</strong>. Pro MySQL <strong>org.gjt.mm.mysql.Driver</strong>. Pro PostgreSQL <strong>org.postgresql.Driver</strong>. Může být prázdný, pokud je využíván poskytovaný datasource.",
             "placeholder": ""
           },
           "jdbcurltemplate": {
             "label": "JDBC Connection URL",
-            "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. Pro MySQL je šablona jdbc:mysql://[host]:[port(3306)]/[db], více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona <strong>jdbc:oracle:thin:@[host]:[port(1521)]:[db]</strong>. Pro MySQL je šablona <strong>jdbc:mysql://[host]:[port(3306)]/[db]</strong>. Pro PostgreSQL je šablona <strong>jdbc:postgresql://[host]:[port(5432)]/[db]</strong>, více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
             "placeholder": ""
           },
           "enableemptystring": {
@@ -2282,6 +2283,77 @@
       }
     }
   },
+  "wizard": {
+    "create-system": {
+      "name": "Průvodce napojením systému",
+      "steps": {
+        "systemDetail": {
+          "name":  "Název systému",
+          "help": "V tomto kroku <strong>zvolte název systému</strong> tak, jak chcete aby se zobrazoval v IdM."
+        },
+        "connector": {
+          "name":  "Konektor",
+          "help": "<strong>Konektor umožňuje komunikaci s externím systémem.</strong> Vyberte konektor systému, který chcete napojit. Následně vyplňte nezbytné konfigurační položky.",
+          "validation": {
+            "missingConnectorKey": {
+              "title": "Konektor není vyplněn!",
+              "text": "Vyberte konektor systému, který chcete napojit!"
+            }
+          }
+        },
+        "schemas": {
+          "name":  "Schéma",
+          "help": "<strong>Schéma představuje strukturu externího systému.</strong> Je generováno na základě Vámi vybraného konektoru a konfigurace. Pokud byla konfigurace konektoru vyplěnna správně, mělo by stačit pouze stisknout talčítko <strong>'Generovat schéma'</strong>.",
+          "validation": {
+            "missingSchema": {
+              "title": "Není vytvořné, žádně schéma!",
+              "text": "Stiskněte 'Generovat schéma' a nebo jej vytvořte ručně."
+            }
+          }
+        },
+        "schemaNew": {
+          "name":  "Schéma"
+        },
+        "schema": {
+          "name":  "Schéma"
+        },
+        "schemaAttributeNew": {
+          "name":  "Atribut schéma"
+        },
+        "schemaAttribute": {
+          "name":  "Atribut schéma"
+        },
+        "mapping": {
+          "name":  "Mapování",
+          "help": "<strong>Mapování určuje zdali chceme z externího systému data extrahovat (synchronizace), či je do něj zapisovat (provisioning).</strong> Mapování dále definuje, s jakým typem objektu chceme v IdM pracovat (identita, role, kontrakt ...)."
+        },
+        "mappingNew": {
+          "name":  "Mapování"
+        },
+        "mappingAttributes": {
+          "name":  "Atributy",
+          "help": "<strong>V mapování atributů vytváříme vazby mezi atributy externího systému a atributy v IdM.</strong> Nejdůležitějším atributem je atribut, který slouží jako primární klíč (PK) daného účtu. Tento atribut musí být označen jako <strong>'Je identifikátorem'</strong>."
+        },
+        "mappingAttribute": {
+          "name":  "Atribut"
+        },
+        "mappingAttributeNew": {
+          "name":  "Atribut"
+        },
+        "sync": {
+          "name":  "Synchronizace",
+          "help": "<strong>V konfiguraci synchronizace vytváříme pravidla, jak se mají načítat data z externího systému.</strong> Synchronizaci můžete spustit po dokončení průvodce na záložce <strong>'Synchronizace'</strong> přímo u systému."
+        },
+        "syncNew": {
+          "name":  "Synchronizace"
+        },
+        "summary": {
+          "name":  "Shrnutí",
+          "text": "<h2 style=\"margin-top: 0\">Gratulejeme,</h2><h3>Váš nový systém <strong>{{systemName}}</strong> byl úspěšně vytvořen.</h3><h3>Po dokončení budete přesměrování na detail nového systému.</h3>"
+        }
+      }
+    }
+  },
   "error": {
     "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
       "title": "Nenalezen konektor pro systém",
@@ -2624,6 +2696,14 @@
       "message": "Pro nadřazené UID: [{{parentUid}}] na systému [{{systemId}}] a účtu [{{parentAccount}}] nebyl nalezen účet stromové struktury."
     },
     "SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND": {
+      "title": "Nebyl nalezen účet",
+      "message": "Pro nadřazené UID: [{{parentUid}}] na systému [{{systemId}}] nebyl nalezen rodičovský účet."
+    },
+    "SYNCHRONIZATION_ROLE_CATALOGUE_TREE_ACCOUNT_NOT_FOUND": {
+      "title": "Nebyl nalezen účet",
+      "message": "Pro nadřazené UID: [{{parentUid}}] na systému [{{systemId}}] a účtu [{{parentAccount}}] nebyl nalezen účet katalogu rolí."
+    },
+    "SYNCHRONIZATION_ROLE_CATALOGUE_ACCOUNT_NOT_FOUND": {
       "title": "Nebyl nalezen účet",
       "message": "Pro nadřazené UID: [{{parentUid}}] na systému [{{systemId}}] nebyl nalezen rodičovský účet."
     },

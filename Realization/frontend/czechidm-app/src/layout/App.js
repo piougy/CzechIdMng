@@ -45,7 +45,6 @@ export class App extends Basic.AbstractContent {
     }
 
     if (appReady) {
-      this._handleRemoteAuth();
       this._handleTokenRefresh();
     }
   }
@@ -86,14 +85,6 @@ export class App extends Basic.AbstractContent {
     const basicRoutes = super.generateRouteComponents();
     const mockRoute = {component: Dashboard, access: [{ type: 'IS_AUTHENTICATED' }]};
     return [<Route key="dashboard" exact path="/" component={this._getComponent(mockRoute)}/>, ...basicRoutes];
-  }
-
-  _handleRemoteAuth() {
-    const { userContext } = this.props;
-    // handle expiration
-    if (userContext && userContext.isTryRemoteLogin) {
-      this.context.store.dispatch(securityManager.remoteLogin());
-    }
   }
 
   _handleTokenRefresh() {

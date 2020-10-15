@@ -53,7 +53,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
-import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
@@ -178,13 +177,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		return config;
 	}
 
-	/**
-	 * Call provisioning for given account
-	 * 
-	 * @param entity
-	 * @param entityType
-	 * @param logItem
-	 */
 	/**
 	 * Call provisioning for given account
 	 * 
@@ -478,26 +470,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	@Override
 	protected IdmTreeNodeService getService() {
 		return treeNodeService;
-	}
-
-	public static class TreeResultsHandler implements IcResultsHandler {
-
-		// List of all accounts
-		private Map<String, IcConnectorObject> accountsMap = new HashMap<>();
-
-		public TreeResultsHandler(Map<String, IcConnectorObject> accountsMap) {
-			this.accountsMap = accountsMap;
-		}
-
-		@Override
-		public boolean handle(IcConnectorObject connectorObject) {
-			Assert.notNull(connectorObject, "Connector object is required.");
-			Assert.notNull(connectorObject.getUidValue(), "Connector object uid is required.");
-			String uid = connectorObject.getUidValue();
-			accountsMap.put(uid, connectorObject);
-			return true;
-
-		}
 	}
 
 	/**

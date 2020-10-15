@@ -44,9 +44,9 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -54,6 +54,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -65,6 +67,7 @@ import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -103,7 +106,7 @@ public class DefaultSysSystemMappingService
 	private IdmIdentityContractService identityContractService;
 	@Lazy
 	@Autowired
-	private AccAccountService accountService;
+	private IdmTreeTypeService treeTypeService;
 	@Lazy
 	@Autowired
 	private AccIdentityAccountService identityAccountService;
@@ -129,7 +132,8 @@ public class DefaultSysSystemMappingService
 	}
 
 	@Override
-	public SysSystemMappingDto save(SysSystemMappingDto dto, BasePermission... permission) {
+	@Transactional
+	public SysSystemMappingDto saveInternal(SysSystemMappingDto dto) {
 		SystemEntityType entityType = dto.getEntityType();
 		if (SystemOperationType.PROVISIONING == dto.getOperationType() && !entityType.isSupportsProvisioning()) {
 			throw new ResultCodeException(AccResultCode.PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE, ImmutableMap.of("entityType", entityType));
@@ -140,7 +144,7 @@ public class DefaultSysSystemMappingService
 				.findBySystemMapping(dto).forEach(attribute -> {
 					getAttributeMappingService().validate(attribute, dto);
 				});
-		return super.save(dto, permission);
+		return super.saveInternal(dto);
 	}
 
 	@Override
@@ -242,8 +246,23 @@ public class DefaultSysSystemMappingService
 	}
 
 	@Override
+	protected SysSystemMappingDto internalExport(UUID id) {
+		// For searching tree-type by code, have to be tree-type DTO embedded.
+		SysSystemMappingDto dto = this.get(id);
+		if (dto != null && dto.getTreeType() != null) {
+			BaseDto roleDto = dto.getEmbedded().get(SysSystemMapping_.treeType.getName());
+			dto.getEmbedded().clear();
+			dto.getEmbedded().put(SysSystemMapping_.treeType.getName(), roleDto);
+		}
+		return dto;
+	}
+
+	@Override
 	public void export(UUID id, IdmExportImportDto batch) {
 		super.export(id, batch);
+		// Tree-type will be searching by code (advanced paring by treeType field)
+		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, this.getDtoClass());
+		descriptorDto.getAdvancedParingFields().add(SysSystemMapping_.treeType.getName());
 
 		// Export mapped attributes
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();

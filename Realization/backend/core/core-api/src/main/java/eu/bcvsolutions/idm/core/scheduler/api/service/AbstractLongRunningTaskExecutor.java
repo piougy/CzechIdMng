@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEventLock;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -56,13 +58,15 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	@Autowired private IdmProcessedTaskItemService itemService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private EnabledEvaluator enabledEvaluator;
+	@Autowired private EntityEventLock lock;
 	//
 	private String beanName; // spring bean name - used as processor id
 	private ParameterConverter parameterConverter;	
 	private UUID longRunningTaskId;
 	protected Long count = null;
 	protected Long counter = null;
-	private final Map<String, Object> properties = new HashMap<>(); 
+	private Optional<V> result = null;
+	private final Map<String, Object> properties = new HashMap<>();
 	
 	@Override
 	public String getName() {
@@ -113,6 +117,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	public void init(Map<String, Object> properties) {
 		count = null;
 		counter = null;
+		result = null;
 		//
 		if (properties != null) {
 			this.properties.putAll(properties);
@@ -163,6 +168,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		task.setStateful(isStateful());
 		//
 		longRunningTaskService.save(task);
+		//
 		return true;
 	}
 	
@@ -209,12 +215,34 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 			if (!start()) {
 				return null;
 			}
+			//
+			entityEventManager.registerAsynchronousTask(this);
+			//
 			V result = process();
 			//
+			lock.lock();
+			try {
+				this.result = Optional.ofNullable(result);
+				// notify end will or was called instead already
+				if (!entityEventManager.deregisterAsynchronousTask(this)) {
+					IdmLongRunningTaskDto task = longRunningTaskService.get(longRunningTaskId);
+					task.setRunning(false); // => not running, but not ended see LongRunningTaskEndProcessor
+					longRunningTaskService.save(task);
+					//
+					return null;
+				}
+			} finally {
+				lock.unlock();
+			}
 			return end(result, null);
 		} catch (Exception ex) {
 			return end(null, ex);
 		}
+	}
+	
+	@Override
+	public void notifyEnd() {
+		end(this.result == null ? null : result.orElse(null), null);
 	}
 	
 	/**
@@ -297,6 +325,10 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	@Override
 	public Long increaseCounter(){
 		return this.counter++;
+	}
+	
+	public Optional<V> getResult() {
+		return result;
 	}
 
 	@Override

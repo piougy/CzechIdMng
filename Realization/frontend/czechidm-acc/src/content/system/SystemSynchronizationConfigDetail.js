@@ -4,8 +4,8 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import { Basic, Domain, Managers, Utils, Advanced} from 'czechidm-core';
-import { SynchronizationConfigManager, SynchronizationLogManager, SystemMappingManager, SystemAttributeMappingManager} from '../../redux';
+import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
+import { SynchronizationConfigManager, SynchronizationLogManager, SystemAttributeMappingManager, SystemMappingManager } from '../../redux';
 import ReconciliationMissingAccountActionTypeEnum from '../../domain/ReconciliationMissingAccountActionTypeEnum';
 import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLinkedActionTypeEnum';
 import SynchronizationMissingEntityActionTypeEnum from '../../domain/SynchronizationMissingEntityActionTypeEnum';
@@ -82,7 +82,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
   /**
    * Method for init component from didMount method and from willReceiveProps method
-   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   * @param props - properties of component - props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
     const {configId} = props.match.params;
@@ -179,17 +179,38 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     }
   }
 
+  /**
+   * This method is call from the wizard if next action was executed.
+   */
+  wizardNext() {
+    if (!this.isWizard()) {
+      return;
+    }
+    this.save(false, false);
+  }
+
   afterSave(entity, error, close) {
-    const { entityId } = this.props.match.params;
+    const {entityId} = this.props.match.params;
     if (!error) {
       if (this._getIsNew()) {
-        this.addMessage({ message: this.i18n('create.success', { name: entity.name}) });
+        this.addMessage({message: this.i18n('create.success', {name: entity.name})});
       } else {
-        this.addMessage({ message: this.i18n('save.success', {name: entity.name}) });
+        this.addMessage({message: this.i18n('save.success', {name: entity.name})});
       }
-      this.context.history.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
-      if (close) {
-        this.context.history.replace(`/system/${entityId}/synchronization-configs/`);
+      if (this.isWizard()) {
+        // Set sync to the wizard context.
+        const wizardContext = this.context.wizardContext;
+        wizardContext.syncConfig = entity;
+        if (wizardContext.callBackNext) {
+          wizardContext.callBackNext();
+        } else if (wizardContext.onClickNext) {
+          wizardContext.onClickNext(false, true);
+        }
+      } else {
+        this.context.history.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, {configId: entity.id});
+        if (close) {
+          this.context.history.replace(`/system/${entityId}/synchronization-configs/`);
+        }
       }
     } else {
       this.addError(error);
@@ -199,9 +220,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   }
 
   afterSaveAndStartSynchronization(entity, error) {
-    const { entityId } = this.props.match.params;
+    const {entityId} = this.props.match.params;
     if (!error) {
-      this.context.history.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
+      this.context.history.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, {configId: entity.id});
       this._startSynchronization(entity);
     } else {
       this.addError(error);
@@ -211,7 +232,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   }
 
   _getIsNew(nextProps) {
-    const { query } = nextProps ? nextProps.location : this.props.location;
+    const {query} = nextProps ? nextProps.location : this.props.location;
     return (query) ? query.new : null;
   }
 
@@ -228,9 +249,11 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         this.setState({
           showLoading: false
         });
-        this.addMessage({ level: 'info',
+        this.addMessage({
+          level: 'info',
           message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started',
-            { name: json.name }) });
+            {name: json.name})
+        });
         this.context.store.dispatch(synchronizationConfigManager.fetchEntity(sync.id));
       }).catch(ex => {
         this.setState({
@@ -252,7 +275,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   _onChangeSystemMapping(systemMapping) {
     const systemMappingId = systemMapping ? systemMapping.id : null;
     const entityType = systemMapping ? systemMapping.entityType : null;
-    const isSelectedTree = entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE);
+    const isSelectedTree = (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE) ||
+      entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.ROLE_CATALOGUE));
     this.setState({
       systemMappingId,
       entityType
@@ -260,9 +284,13 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       // clear selected correlationAttribute
       this.refs.correlationAttribute.setValue(null);
       // clear selected tokenAttribute
-      this.refs.tokenAttribute.setValue(null);
+      if (this.refs.tokenAttribute) {
+        this.refs.tokenAttribute.setValue(null);
+      }
       // clear selected filterAttribute
-      this.refs.filterAttribute.setValue(null);
+      if (this.refs.filterAttribute) {
+        this.refs.filterAttribute.setValue(null);
+      }
 
       if (isSelectedTree) {
         this.refs.reconciliation.setValue(true);
@@ -338,19 +366,202 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     helpContent = helpContent.setHeader(
       <span>
         <Basic.Icon value="filter"/>
-        { this.i18n('help.header') }
+        {this.i18n('help.header')}
       </span>
     );
-    helpContent = helpContent.setBody(this.i18n('help.body', { escape: false }));
+    helpContent = helpContent.setBody(this.i18n('help.body', {escape: false}));
     //
     return helpContent;
   }
 
+  renderBaseInformation(finalEntityType,
+    synchronizationConfig,
+    innerShowLoading,
+    isSelectedTree,
+    isRoleCatalogue,
+    customFilterUsed,
+    reconciliationEnabled,
+    forceSearchMappingAttributes,
+    forceSearchCorrelationAttribute,
+    forceSearchSyncActionWfKey,
+    enabled) {
+    return (
+      <form onSubmit={this.save.bind(this, false, false, finalEntityType)}>
+        <Basic.Panel className="no-border">
+          <Basic.AbstractForm
+            ref="form"
+            data={synchronizationConfig}
+            showLoading={innerShowLoading}
+            className="panel-body"
+            readOnly={!Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+            <Basic.Checkbox
+              ref="enabled"
+              label={this.i18n('acc:entity.SynchronizationConfig.enabled')}
+              onChange={this._onChangeEnabled.bind(this)}/>
+            <Basic.Checkbox
+              ref="reconciliation"
+              readOnly={isSelectedTree || isRoleCatalogue}
+              label={this.i18n('acc:entity.SynchronizationConfig.reconciliation.label')}
+              helpBlock={this.i18n('acc:entity.SynchronizationConfig.reconciliation.help')}
+              onChange={this._onChangeReconciliation.bind(this)}/>
+            <Basic.LabelWrapper
+              hidden={!customFilterUsed || !reconciliationEnabled}>
+              <Basic.Alert
+                level="warning"
+                icon="exclamation-sign"
+                className="no-margin"
+                text={this.i18n(`acc:content.system.systemSynchronizationConfigDetail.customFilterWithReconciliation`)}/>
+            </Basic.LabelWrapper>
+            <Basic.Checkbox
+              ref="differentialSync"
+              label={this.i18n('acc:entity.SynchronizationConfig.differentialSync.label')}
+              helpBlock={this.i18n('acc:entity.SynchronizationConfig.differentialSync.help')}/>
+            <Basic.LabelWrapper
+              hidden={!isSelectedTree && !isRoleCatalogue}
+              label=" ">
+              <Basic.Alert
+                key="treeInfo"
+                level="warning"
+                icon="exclamation-sign"
+                className="no-margin"
+                text={isRoleCatalogue ? this.i18n('roleCatalogueInfo') : this.i18n('treeInfo')}/>
+            </Basic.LabelWrapper>
+            <Basic.TextField
+              ref="name"
+              label={this.i18n('acc:entity.SynchronizationConfig.name')}
+              required/>
+            <Basic.SelectBox
+              ref="systemMapping"
+              manager={systemMappingManager}
+              forceSearchParameters={forceSearchMappingAttributes}
+              onChange={this._onChangeSystemMapping.bind(this)}
+              label={this.i18n('acc:entity.SynchronizationConfig.systemMapping')}
+              required/>
+            <Basic.ScriptArea
+              ref="rootsFilterScript"
+              height="20em"
+              hidden={!isSelectedTree && !isRoleCatalogue}
+              helpBlock={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.help')}
+              label={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.label')}/>
+            <Basic.SelectBox
+              ref="correlationAttribute"
+              manager={systemAttributeMappingManager}
+              forceSearchParameters={forceSearchCorrelationAttribute}
+              label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
+              required/>
+            <Basic.TextField
+              ref="token"
+              label={this.i18n('acc:entity.SynchronizationConfig.token')}/>
+            <Basic.TextArea
+              ref="description"
+              label={this.i18n('acc:entity.SynchronizationConfig.description')}/>
+            <Basic.LabelWrapper label=" ">
+              <Basic.Alert
+                key="situationActionsAndWfInfo"
+                icon="exclamation-sign"
+                className="no-margin"
+                text={this.i18n('situationActionsAndWf')}/>
+            </Basic.LabelWrapper>
+            <Basic.ContentHeader text={this.i18n('acc:entity.SynchronizationConfig.linkedAction')} className="marginable"/>
+            <Basic.EnumSelectBox
+              className=""
+              ref="linkedAction"
+              enum={SynchronizationLinkedActionTypeEnum}
+              useSymbol={false}
+              label={this.i18n('situationAction')}
+              required/>
+            <Basic.SelectBox
+              ref="linkedActionWfKey"
+              label={this.i18n('situationActionWf')}
+              forceSearchParameters={forceSearchSyncActionWfKey}
+              multiSelect={false}
+              manager={workflowProcessDefinitionManager}/>
+
+            <Basic.ContentHeader text={this.i18n('acc:entity.SynchronizationConfig.unlinkedAction')} className="marginable"/>
+            <Basic.EnumSelectBox
+              ref="unlinkedAction"
+              enum={SynchronizationUnlinkedActionTypeEnum}
+              useSymbol={false}
+              label={this.i18n('situationAction')}
+              required/>
+            <Basic.SelectBox
+              ref="unlinkedActionWfKey"
+              label={this.i18n('situationActionWf')}
+              forceSearchParameters={forceSearchSyncActionWfKey}
+              multiSelect={false}
+              manager={workflowProcessDefinitionManager}/>
+
+            <Basic.ContentHeader text={this.i18n('acc:entity.SynchronizationConfig.missingEntityAction')} className="marginable"/>
+            <Basic.EnumSelectBox
+              ref="missingEntityAction"
+              enum={SynchronizationMissingEntityActionTypeEnum}
+              useSymbol={false}
+              label={this.i18n('situationAction')}
+              required/>
+            <Basic.SelectBox
+              ref="missingEntityActionWfKey"
+              label={this.i18n('situationActionWf')}
+              forceSearchParameters={forceSearchSyncActionWfKey}
+              multiSelect={false}
+              manager={workflowProcessDefinitionManager}/>
+
+            <Basic.ContentHeader text={this.i18n('acc:entity.SynchronizationConfig.missingAccountAction')} className="marginable"/>
+            <Basic.EnumSelectBox
+              ref="missingAccountAction"
+              enum={ReconciliationMissingAccountActionTypeEnum}
+              useSymbol={false}
+              label={this.i18n('situationAction')}
+              required/>
+            <Basic.SelectBox
+              ref="missingAccountActionWfKey"
+              label={this.i18n('situationActionWf')}
+              forceSearchParameters={forceSearchSyncActionWfKey}
+              multiSelect={false}
+              manager={workflowProcessDefinitionManager}/>
+          </Basic.AbstractForm>
+          <Basic.PanelFooter rendered={!this.isWizard()}>
+            <Basic.Button
+              type="button"
+              level="link"
+              onClick={this.context.history.goBack}
+              showLoading={innerShowLoading}>
+              {this.i18n('button.back')}
+            </Basic.Button>
+            <Basic.SplitButton
+              level="success"
+              title={this.i18n('button.saveAndContinue')}
+              onClick={this.save.bind(this, false, false, finalEntityType)}
+              showLoading={innerShowLoading}
+              type="submit"
+              showLoadingIcon
+              showLoadingText={this.i18n('button.saving')}
+              rendered={Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
+              pullRight
+              dropup>
+              <Basic.MenuItem
+                eventKey="1"
+                rendered={(enabled === null || enabled === true)
+                && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE')}
+                onClick={this.save.bind(this, true, false, finalEntityType)}>
+                {this.i18n('button.saveAndStartSynchronization')}
+              </Basic.MenuItem>
+              <Basic.MenuItem
+                eventKey="2"
+                onClick={this.save.bind(this, false, true, finalEntityType)}>
+                {this.i18n('button.saveAndClose')}
+              </Basic.MenuItem>
+            </Basic.SplitButton>
+          </Basic.PanelFooter>
+        </Basic.Panel>
+      </form>
+    );
+  }
+
   render() {
-    const { _showLoading, _synchronizationConfig } = this.props;
-    const { systemMappingId, showLoading, activeKey, entityType, enabled } = this.state;
+    const {_showLoading, _synchronizationConfig} = this.props;
+    const {systemMappingId, showLoading, activeKey, entityType, enabled} = this.state;
     const isNew = this._getIsNew();
-    const innerShowLoading = isNew ? showLoading : (_showLoading || showLoading);
+    const innerShowLoading = _showLoading || showLoading;
     const systemId = this.props.match.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters()
       .setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
@@ -371,11 +582,15 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     }
 
     let isSelectedTree = false;
+    let isRoleCatalogue = false;
     let specificConfiguration = null;
     const finalEntityType = this._getEntityType(synchronizationConfig, entityType);
     if (finalEntityType) {
       if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
         isSelectedTree = true;
+      }
+      if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.ROLE_CATALOGUE)) {
+        isRoleCatalogue = true;
       }
     }
     if (finalEntityType) {
@@ -404,194 +619,36 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
         specificConfiguration = (
           <SyncTreeConfig
             ref="formSpecific"
-            synchronizationConfig={ synchronizationConfig }
-            showLoading={ innerShowLoading }
-            isNew={ isNew }
+            synchronizationConfig={synchronizationConfig}
+            showLoading={innerShowLoading}
+            isNew={isNew}
             className="panel-body"/>
         );
       }
     }
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={this.i18n('title')}/>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.ContentHeader>
+        <Basic.ContentHeader rendered={!this.isWizard()}>
           <Basic.Icon value="component:synchronization"/>
           {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
         </Basic.ContentHeader>
-
         <Basic.Tabs activeKey={activeKey} onSelect={this._onChangeSelectTabs.bind(this)}>
           <Basic.Tab eventKey={1} title={this.i18n('tabs.basicConfiguration.label')} className="bordered">
-            <form onSubmit={this.save.bind(this, false, false, finalEntityType)}>
-              <Basic.Panel className="no-border">
-                <Basic.AbstractForm
-                  ref="form"
-                  data={synchronizationConfig}
-                  showLoading={innerShowLoading}
-                  className="panel-body"
-                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
-                  <Basic.Checkbox
-                    ref="enabled"
-                    label={this.i18n('acc:entity.SynchronizationConfig.enabled')}
-                    onChange={ this._onChangeEnabled.bind(this) }/>
-                  <Basic.Checkbox
-                    ref="reconciliation"
-                    readOnly={isSelectedTree}
-                    label={this.i18n('acc:entity.SynchronizationConfig.reconciliation.label')}
-                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.reconciliation.help')}
-                    onChange={this._onChangeReconciliation.bind(this)}/>
-                  <Basic.LabelWrapper
-                    hidden={!customFilterUsed || !reconciliationEnabled}>
-                    <Basic.Alert
-                      level="warning"
-                      icon="exclamation-sign"
-                      className="no-margin"
-                      text={this.i18n(`acc:content.system.systemSynchronizationConfigDetail.customFilterWithReconciliation`)}/>
-                  </Basic.LabelWrapper>
-                  <Basic.Checkbox
-                    ref="differentialSync"
-                    label={this.i18n('acc:entity.SynchronizationConfig.differentialSync.label')}
-                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.differentialSync.help')}/>
-                  <Basic.LabelWrapper
-                    hidden={!isSelectedTree}
-                    label=" ">
-                    <Basic.Alert
-                      key="treeInfo"
-                      level="warning"
-                      icon="exclamation-sign"
-                      className="no-margin"
-                      text={this.i18n('treeInfo')}/>
-                  </Basic.LabelWrapper>
-                  <Basic.TextField
-                    ref="name"
-                    label={this.i18n('acc:entity.SynchronizationConfig.name')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="systemMapping"
-                    manager={systemMappingManager}
-                    forceSearchParameters={forceSearchMappingAttributes}
-                    onChange={this._onChangeSystemMapping.bind(this)}
-                    label={this.i18n('acc:entity.SynchronizationConfig.systemMapping')}
-                    required/>
-                  <Basic.ScriptArea
-                    ref="rootsFilterScript"
-                    height="20em"
-                    hidden={!isSelectedTree}
-                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.help')}
-                    label={this.i18n('acc:entity.SynchronizationConfig.rootsFilterScript.label')}/>
-                  <Basic.SelectBox
-                    ref="correlationAttribute"
-                    manager={systemAttributeMappingManager}
-                    forceSearchParameters={forceSearchCorrelationAttribute}
-                    label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
-                    required/>
-                  <Basic.TextField
-                    ref="token"
-                    label={this.i18n('acc:entity.SynchronizationConfig.token')}/>
-                  <Basic.TextArea
-                    ref="description"
-                    label={this.i18n('acc:entity.SynchronizationConfig.description')}/>
-                  <Basic.LabelWrapper label=" ">
-                    <Basic.Alert
-                      key="situationActionsAndWfInfo"
-                      icon="exclamation-sign"
-                      className="no-margin"
-                      text={this.i18n('situationActionsAndWf')}/>
-                  </Basic.LabelWrapper>
-                  <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.linkedAction') } className="marginable"/>
-                  <Basic.EnumSelectBox
-                    className=""
-                    ref="linkedAction"
-                    enum={SynchronizationLinkedActionTypeEnum}
-                    useSymbol={ false }
-                    label={this.i18n('situationAction')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="linkedActionWfKey"
-                    label={this.i18n('situationActionWf')}
-                    forceSearchParameters={forceSearchSyncActionWfKey}
-                    multiSelect={false}
-                    manager={workflowProcessDefinitionManager}/>
-
-                  <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.unlinkedAction') } className="marginable"/>
-                  <Basic.EnumSelectBox
-                    ref="unlinkedAction"
-                    enum={SynchronizationUnlinkedActionTypeEnum}
-                    useSymbol={ false }
-                    label={this.i18n('situationAction')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="unlinkedActionWfKey"
-                    label={this.i18n('situationActionWf')}
-                    forceSearchParameters={forceSearchSyncActionWfKey}
-                    multiSelect={false}
-                    manager={workflowProcessDefinitionManager}/>
-
-                  <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.missingEntityAction') } className="marginable"/>
-                  <Basic.EnumSelectBox
-                    ref="missingEntityAction"
-                    enum={SynchronizationMissingEntityActionTypeEnum}
-                    useSymbol={ false }
-                    label={this.i18n('situationAction')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="missingEntityActionWfKey"
-                    label={this.i18n('situationActionWf')}
-                    forceSearchParameters={forceSearchSyncActionWfKey}
-                    multiSelect={false}
-                    manager={workflowProcessDefinitionManager}/>
-
-                  <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.missingAccountAction') } className="marginable"/>
-                  <Basic.EnumSelectBox
-                    ref="missingAccountAction"
-                    enum={ReconciliationMissingAccountActionTypeEnum}
-                    useSymbol={ false }
-                    label={this.i18n('situationAction')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="missingAccountActionWfKey"
-                    label={this.i18n('situationActionWf')}
-                    forceSearchParameters={forceSearchSyncActionWfKey}
-                    multiSelect={false}
-                    manager={workflowProcessDefinitionManager}/>
-                </Basic.AbstractForm>
-                <Basic.PanelFooter>
-                  <Basic.Button
-                    type="button"
-                    level="link"
-                    onClick={this.context.history.goBack}
-                    showLoading={innerShowLoading}>
-                    {this.i18n('button.back')}
-                  </Basic.Button>
-                  <Basic.SplitButton
-                    level="success"
-                    title={this.i18n('button.saveAndContinue')}
-                    onClick={this.save.bind(this, false, false, finalEntityType)}
-                    showLoading={innerShowLoading}
-                    type="submit"
-                    showLoadingIcon
-                    showLoadingText={this.i18n('button.saving')}
-                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
-                    pullRight
-                    dropup>
-                    <Basic.MenuItem
-                      eventKey="1"
-                      rendered={ (enabled === null || enabled === true)
-                        && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
-                      onClick={this.save.bind(this, true, false, finalEntityType)}>
-                      {this.i18n('button.saveAndStartSynchronization')}
-                    </Basic.MenuItem>
-                    <Basic.MenuItem
-                      eventKey="2"
-                      onClick={this.save.bind(this, false, true, finalEntityType)}>
-                      {this.i18n('button.saveAndClose')}
-                    </Basic.MenuItem>
-                  </Basic.SplitButton>
-                </Basic.PanelFooter>
-              </Basic.Panel>
-            </form>
+            {this.renderBaseInformation(finalEntityType,
+              synchronizationConfig,
+              innerShowLoading,
+              isSelectedTree,
+              isRoleCatalogue,
+              customFilterUsed,
+              reconciliationEnabled,
+              forceSearchMappingAttributes,
+              forceSearchCorrelationAttribute,
+              forceSearchSyncActionWfKey,
+              enabled)}
           </Basic.Tab>
           <Basic.Tab
             rendered={specificConfiguration !== null}
@@ -601,7 +658,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
                 {specificConfiguration}
-                <Basic.PanelFooter>
+                <Basic.PanelFooter rendered={!this.isWizard()}>
                   <Basic.Button
                     type="button"
                     level="link"
@@ -622,8 +679,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={ (enabled === null || enabled === true)
-                        && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
+                      rendered={(enabled === null || enabled === true)
+                      && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE')}
                       onClick={this.save.bind(this, true, false, finalEntityType)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -674,7 +731,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     enum={IcFilterOperationTypeEnum}
                     label={this.i18n('acc:entity.SynchronizationConfig.filterOperation')}
                     required
-                    clearable={ false }
+                    clearable={false}
                     readOnly={!customFilterUsed}/>
                   <Basic.SelectBox
                     ref="tokenAttribute"
@@ -688,10 +745,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     height="20em"
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}
-                    help={ this.getHelp() }
+                    help={this.getHelp()}
                     readOnly={!customFilterUsed}/>
                 </Basic.AbstractForm>
-                <Basic.PanelFooter>
+                <Basic.PanelFooter rendered={!this.isWizard()}>
                   <Basic.Button
                     type="button"
                     level="link"
@@ -712,8 +769,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={ (enabled === null || enabled === true)
-                        && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE') }
+                      rendered={(enabled === null || enabled === true)
+                      && synchronizationConfig && synchronizationConfig.enabled && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_CREATE')}
                       onClick={this.save.bind(this, true, false, finalEntityType)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -727,11 +784,11 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               </Basic.Panel>
             </form>
           </Basic.Tab>
-          <Basic.Tab eventKey={4} title={this.i18n('tabs.logs.label')}>
-            <Basic.ContentHeader rendered={synchronizationConfig !== null} style={{ marginBottom: 0, paddingLeft: 15 }}>
+          <Basic.Tab rendered={!this.isWizard()} eventKey={4} title={this.i18n('tabs.logs.label')}>
+            <Basic.ContentHeader rendered={synchronizationConfig !== null} style={{marginBottom: 0, paddingLeft: 15}}>
               <Basic.Icon value="transfer"/>
               {' '}
-              <span dangerouslySetInnerHTML={{ __html: this.i18n('synchronizationLogsHeader') }}/>
+              <span dangerouslySetInnerHTML={{__html: this.i18n('synchronizationLogsHeader')}}/>
             </Basic.ContentHeader>
 
             <Advanced.Table
@@ -744,17 +801,17 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
               rowClass={({rowIndex, data}) => (data[rowIndex].containsError ? 'danger' : '')}
               actions={
                 Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
-                ?
-                [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-                :
-                null
+                  ?
+                  [{value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false}]
+                  :
+                  null
               }>
               <Advanced.Column
                 property=""
                 header=""
                 className="detail-button"
                 cell={
-                  ({ rowIndex, data }) => (
+                  ({rowIndex, data}) => (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
                       onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
@@ -765,7 +822,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                 property="syncActionLogs"
                 header={this.i18n('acc:entity.SynchronizationLog.results')}
                 cell={
-                  ({ rowIndex, data }) => this._generateResultCell(rowIndex, data)
+                  ({rowIndex, data}) => this._generateResultCell(rowIndex, data)
                 }
               />
               <Advanced.Column property="started" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
@@ -774,7 +831,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                 property="statistic"
                 header={this.i18n('acc:entity.SynchronizationLog.statistic.label')}
                 cell={
-                  ({ rowIndex, data }) => this._generateStatisticCell(rowIndex, data)
+                  ({rowIndex, data}) => this._generateStatisticCell(rowIndex, data)
                 }
               />
             </Advanced.Table>
@@ -785,7 +842,6 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   }
 }
 
-
 SystemSynchronizationConfigDetail.propTypes = {
   _showLoading: PropTypes.bool,
 };
@@ -795,9 +851,14 @@ SystemSynchronizationConfigDetail.defaultProps = {
 
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, synchronizationConfigManager.getEntityType(), component.match.params.configId);
+
+  const {query} = component ? component.location : component.location;
+  const isNew = (query) ? query.new : null;
+  const _showLoading = isNew ? false : !entity;
+
   return {
     _synchronizationConfig: entity,
-    _showLoading: entity ? false : true,
+    _showLoading,
   };
 }
 

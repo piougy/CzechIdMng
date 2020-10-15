@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,20 +19,26 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.ecm.service.impl.DefaultAttachmentManagerIntegrationTest;
 import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationAttachmentDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationAttachmentFilter;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationRecipientFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationAttachmentService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationRecipientService;
@@ -72,6 +79,8 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	@Autowired private IdmEmailLogService emailLogService;
 	@Autowired private IdmNotificationTemplateService notificationTemplateService;
 	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
+	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private IdmNotificationAttachmentService notificationAttachmentService;
 
 	@Before
 	public void clear() {
@@ -95,6 +104,14 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 				Lists.newArrayList(identityOne, identityTwo)
 				);
 		Assert.assertEquals(1, notifications.size());
+		List<IdmNotificationLogDto> notificationOthers = notificationManager.send(
+				config.getTopic(),
+				new IdmMessageDto.Builder().setTemplate(template).build(),
+				identitySender,
+				Lists.newArrayList(identityOne, identityTwo)
+				);
+		Assert.assertEquals(1, notificationOthers.size());
+		IdmNotificationLogDto notificationOther = notificationLogService.get(notificationOthers.get(0));
 		//
 		IdmNotificationLogDto notification = notificationLogService.get(notifications.get(0));
 		Assert.assertNotNull(notification);
@@ -130,7 +147,30 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		Assert.assertNull(identityService.get(identitySender.getId()));
 		//shouldn't throw despite the fact that identitySender contained in notificationLogDtos has been deleted
 		notificationLogDtos = notificationLogService.find(senderFilter, null).getContent();
-		
+		//
+		// create notifications and attachments
+		IdmAttachmentDto attachmentOther = attachmentManager.save(DefaultAttachmentManagerIntegrationTest.prepareDto()); // other owner
+		IdmAttachmentDto attachment = DefaultAttachmentManagerIntegrationTest.prepareDto();
+		attachment.setOwnerType(null);
+		attachment.setInputData(IOUtils.toInputStream("mock content"));
+		attachment = attachmentManager.saveAttachment(notification, attachment);
+		//
+		IdmNotificationAttachmentDto notificationAttachment = new IdmNotificationAttachmentDto();
+		notificationAttachment.setAttachment(attachment.getId());
+		notificationAttachment.setName(attachment.getName());
+		notificationAttachment.setNotification(notification.getId());
+		notificationAttachment = notificationAttachmentService.save(notificationAttachment);
+		Assert.assertNotNull(attachmentManager.get(attachment));
+		Assert.assertNotNull(notificationAttachmentService.get(notificationAttachment));
+		//
+		IdmNotificationAttachmentDto notificationAttachmentOther = new IdmNotificationAttachmentDto();
+		notificationAttachmentOther.setAttachment(attachmentOther.getId());
+		notificationAttachmentOther.setName(attachmentOther.getName());
+		notificationAttachmentOther.setNotification(notificationOther.getId());
+		notificationAttachmentOther = notificationAttachmentService.save(notificationAttachmentOther);
+		Assert.assertNotNull(attachmentManager.get(attachmentOther));
+		Assert.assertNotNull(notificationAttachmentService.get(notificationAttachmentOther));
+		//
 		// delete parent notification
 		notificationLogService.delete(notification);
 		//
@@ -141,6 +181,10 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		Assert.assertTrue(recipientService.find(recipientFilter, null).getContent().isEmpty());
 		recipientFilter.setNotification(emailNotification.getId());
 		Assert.assertTrue(recipientService.find(recipientFilter, null).getContent().isEmpty());
+		Assert.assertNull(attachmentManager.get(attachment));
+		Assert.assertNotNull(attachmentManager.get(attachmentOther));
+		Assert.assertNull(notificationAttachmentService.get(notificationAttachment));
+		Assert.assertNotNull(notificationAttachmentService.get(notificationAttachmentOther));
 	}
 
 	@Test
@@ -731,6 +775,68 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 			return n.getRecipients().size() == 2
 					&& n.getRecipients().stream().anyMatch(r -> IdmConsoleLog.NOTIFICATION_TYPE.equals(r.getRealRecipient()));
 		}));
+	}
+	
+	@Test
+	public void testSendWithAttachments() {
+		NotificationConfigurationDto config = createConfig();
+		IdmNotificationTemplateDto template = createTestTemplate();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		//
+		IdmAttachmentDto attachmentOne = DefaultAttachmentManagerIntegrationTest.prepareDtoWithoutContent();
+		attachmentOne.setInputData(IOUtils.toInputStream("mock-content")); // prepared attachment
+		IdmAttachmentDto attachment = DefaultAttachmentManagerIntegrationTest.prepareDtoWithoutContent();
+		attachment.setInputData(IOUtils.toInputStream("mock-content"));	
+		IdmAttachmentDto attachmentTwo = attachmentManager.saveAttachment(identity, attachment);
+		List<IdmAttachmentDto> attachments = Lists.newArrayList(attachmentOne, attachmentTwo);
+		//
+		List<IdmNotificationLogDto> notifications = notificationManager.send(
+				config.getTopic(), 
+				new IdmMessageDto.Builder().setTemplate(template).build(), 
+				null,
+				Lists.newArrayList(identity),
+				attachments);
+		
+		Assert.assertEquals(1, notifications.size());
+		Assert.assertTrue(notifications.stream().anyMatch(n -> n.getType().equals(IdmEmailLog.NOTIFICATION_TYPE)));
+		//
+		IdmNotificationLogDto notification = notifications.get(0);
+		//
+		IdmNotificationAttachmentFilter notificationAttachmentFilter = new IdmNotificationAttachmentFilter();
+		notificationAttachmentFilter.setNotification(notification.getId());
+		List<IdmNotificationAttachmentDto> notificationAttachments = notificationAttachmentService.find(notificationAttachmentFilter, null).getContent();
+		Assert.assertEquals(2, notificationAttachments.size());
+		Assert.assertTrue(notificationAttachments.stream().allMatch(na -> na.getAttachment() != null));
+		Assert.assertTrue(notificationAttachments.stream().anyMatch(na -> na.getAttachment().equals(attachmentTwo.getId())));
+	}
+	
+	@Test
+	public void testSendWithWrongAttachments() {
+		NotificationConfigurationDto config = createConfig();
+		IdmNotificationTemplateDto template = createTestTemplate();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		// attachment without content
+		IdmAttachmentDto attachment = attachmentManager.save(DefaultAttachmentManagerIntegrationTest.prepareDto());
+		//
+		List<IdmNotificationLogDto> notifications = notificationManager.send(
+				config.getTopic(), 
+				new IdmMessageDto.Builder().setTemplate(template).build(), 
+				null,
+				Lists.newArrayList(identity),
+				Lists.newArrayList(attachment));
+		
+		Assert.assertEquals(1, notifications.size());
+		Assert.assertTrue(notifications.stream().anyMatch(n -> n.getType().equals(IdmEmailLog.NOTIFICATION_TYPE)));
+		//
+		IdmNotificationLogDto notification = notifications.get(0);
+		Assert.assertEquals(NotificationState.NOT, notification.getState());
+		//
+		IdmNotificationAttachmentFilter notificationAttachmentFilter = new IdmNotificationAttachmentFilter();
+		notificationAttachmentFilter.setNotification(notification.getId());
+		List<IdmNotificationAttachmentDto> notificationAttachments = notificationAttachmentService.find(notificationAttachmentFilter, null).getContent();
+		Assert.assertEquals(1, notificationAttachments.size());
+		Assert.assertTrue(notificationAttachments.stream().allMatch(na -> na.getAttachment() != null));
+		Assert.assertTrue(notificationAttachments.stream().anyMatch(na -> na.getAttachment().equals(attachment.getId())));
 	}
 
 	private IdmNotificationTemplateDto createTestTemplate() {

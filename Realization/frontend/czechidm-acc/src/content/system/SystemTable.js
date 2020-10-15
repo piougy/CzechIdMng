@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import { Basic, Advanced, Utils, Managers, Domain } from 'czechidm-core';
+import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
 import uuid from 'uuid';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 //
@@ -98,8 +98,17 @@ export class SystemTable extends Advanced.AbstractTableContent {
           level="success"
           key="add_button"
           className="btn-xs"
-          onClick={ this.showDetail.bind(this, { }) }
+          onClick={ this.props.showWizardDetail }
           rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
+          icon="fa:list-ol">
+          { this.i18n('button.add') }
+        </Basic.Button>,
+        <Basic.Button
+          level="success"
+          key="add_button"
+          className="btn-xs"
+          onClick={ this.showDetail.bind(this, { }) }
+          rendered={ false }
           icon="fa:plus">
           { this.i18n('button.add') }
         </Basic.Button>
@@ -153,6 +162,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
         </Basic.Div>
       );
     }
+    return null;
   }
 
   render() {

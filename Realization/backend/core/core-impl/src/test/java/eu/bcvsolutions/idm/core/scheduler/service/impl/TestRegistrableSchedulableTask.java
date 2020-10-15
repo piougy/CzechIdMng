@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
- * Test schedulable task
+ * Test schedulable task.
  * 
  * @author Radek Tomiška
  *
@@ -19,6 +19,7 @@ public class TestRegistrableSchedulableTask extends AbstractSchedulableTaskExecu
 	
 	public static final String DESCRIPTION = "test-description";
 	public static final String PARAMETER = "parameterOne";
+	private String description;
 	
 	@Override
 	public String process() {
@@ -30,6 +31,18 @@ public class TestRegistrableSchedulableTask extends AbstractSchedulableTaskExecu
 		List<String> params = super.getPropertyNames();
 		params.add(PARAMETER);
 		return params;
+	}
+	
+	@Override
+    public String getDescription() {
+    	if (description != null) {
+    		return description;
+    	}
+    	return super.getDescription();
+    }
+    
+    public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

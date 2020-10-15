@@ -29,12 +29,15 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationAttachmentDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationAttachmentFilter;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationRecipientFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationAttachmentService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationRecipientService;
@@ -69,6 +72,7 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 	@Autowired private IdmNotificationRecipientService notificationRecipientService;
 	@Autowired private IdmNotificationTemplateService notificationTemplateService;
 	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
+	@Autowired private IdmNotificationAttachmentService notificationAttachmentService;
 	//
 	private DefaultReportManager manager;
 	
@@ -225,7 +229,6 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 			try (InputStream is = attachmentManager.getAttachmentData(report.getData())) {
 				Assert.assertEquals(mapper.writeValueAsString(TestReportExecutor.identities), IOUtils.toString(is));
 			}
-			attachmentManager.deleteAttachments(report);
 			//
 			// test notification is sent
 			IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
@@ -234,6 +237,15 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 			notificationFilter.setNotificationType(IdmNotificationLog.class);
 			List<IdmNotificationLogDto> notifications = notificationService.find(notificationFilter, null).getContent();
 			Assert.assertEquals(1, notifications.size());
+			//
+			// test notification attachments
+			IdmNotificationAttachmentFilter notificationAttachmentFilter = new IdmNotificationAttachmentFilter();
+			notificationAttachmentFilter.setNotification(notifications.get(0).getId());
+			List<IdmNotificationAttachmentDto> notificationAttachments = notificationAttachmentService.find(notificationAttachmentFilter, null).getContent();
+			Assert.assertEquals(1, notificationAttachments.size());
+			Assert.assertNotNull(notificationAttachments.get(0).getAttachment());
+			//
+			attachmentManager.deleteAttachments(report);
 		} finally {
 			logout();
 		}

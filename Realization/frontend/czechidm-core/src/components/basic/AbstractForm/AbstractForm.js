@@ -28,6 +28,7 @@ class AbstractForm extends AbstractContextComponent {
     this.state = { mode, showLoading: (showLoading != null ? showLoading : true), componentsKeys: keys};
   }
 
+  // eslint-disable-next-line camelcase
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.children !== this.props.children) {
       const {componentsKeys} = this.state;
@@ -372,14 +373,22 @@ class AbstractForm extends AbstractContextComponent {
   }
 
   render() {
-    const {rendered, className, showLoading, children, style} = this.props;
+    const {rendered, className, showLoading, children, style, onSubmit} = this.props;
     if (!rendered) {
       return null;
     }
+
+    const submitForm = onSubmit ? (
+      <form onSubmit={onSubmit}>
+        {children}
+        <input type="submit" className="hidden"/>
+      </form>
+    ) : children;
+
     return (
       <Loading showLoading={showLoading || this.state.showLoading}>
         <div className={ classnames('abstract-form', 'clearfix', className) } style={ style }>
-          {children}
+          {submitForm}
         </div>
         {this.getFooter()}
       </Loading>
@@ -391,7 +400,8 @@ AbstractForm.propTypes = {
   showLoading: PropTypes.bool,
   readOnly: PropTypes.bool,
   disabled: PropTypes.bool,
-  data: PropTypes.object
+  data: PropTypes.object,
+  onSubmit: PropTypes.func
 };
 
 AbstractForm.defaultProps = {

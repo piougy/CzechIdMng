@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,7 +21,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.event.processor.ObserveRequestProcessor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -39,6 +41,7 @@ public class DefaultIdmRoleCompositionServiceIntegrationTest extends AbstractInt
 	
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmCacheManager cacheManager;
 	//
 	private DefaultIdmRoleCompositionService service;
 
@@ -379,14 +382,32 @@ public class DefaultIdmRoleCompositionServiceIntegrationTest extends AbstractInt
 		//
 		allSubRoles = service.findAllSubRoles(subOneSubSub.getId());
 		Assert.assertTrue(allSubRoles.isEmpty());
+		Assert.assertNotNull(cacheManager.getValue(IdmRoleCompositionService.ALL_SUB_ROLES_CACHE_NAME, subOneSubSub.getId()));
 		//
 		allSubRoles = service.findAllSubRoles(subOne.getId());
 		distinctRoles = service.getDistinctRoles(allSubRoles);
+		Assert.assertNotNull(cacheManager.getValue(IdmRoleCompositionService.ALL_SUB_ROLES_CACHE_NAME, subOne.getId()));
 		//
 		Assert.assertEquals(3, distinctRoles.size());
 		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOne.getId())));
 		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSub.getId())));
 		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSubSub.getId())));
+		//
+		// add role composition
+		IdmRoleDto subOneSubTwo = getHelper().createRole();
+		getHelper().createRoleComposition(subOneSub, subOneSubTwo);
+		Assert.assertNull(cacheManager.getValue(IdmRoleCompositionService.ALL_SUB_ROLES_CACHE_NAME, subOneSubSub.getId()));
+		Assert.assertNull(cacheManager.getValue(IdmRoleCompositionService.ALL_SUB_ROLES_CACHE_NAME, subOne.getId()));
+		//
+		allSubRoles = service.findAllSubRoles(subOne.getId());
+		distinctRoles = service.getDistinctRoles(allSubRoles);
+		Assert.assertNotNull(cacheManager.getValue(IdmRoleCompositionService.ALL_SUB_ROLES_CACHE_NAME, subOne.getId()));
+		//
+		Assert.assertEquals(4, distinctRoles.size());
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOne.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSub.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSubSub.getId())));
+		Assert.assertTrue(distinctRoles.stream().anyMatch(r -> r.equals(subOneSubTwo.getId())));
 	}
 	
 }

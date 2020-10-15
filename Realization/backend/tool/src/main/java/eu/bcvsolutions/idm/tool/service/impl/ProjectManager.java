@@ -272,7 +272,7 @@ public class ProjectManager {
 			//
 			// create new idm.war
 			LOG.info("Build backend application with frontend included ...");
-			prepareBackendMavenProject(installedJarModules, targetFolder);
+			prepareBackendMavenProject(productVersion, installedJarModules, targetFolder);
 			mavenManager.command(
 					targetFolder, 
 					"clean", 
@@ -347,7 +347,7 @@ public class ProjectManager {
 				new File(targetFolder, "pom.xml"));
 	}
 	
-	private void prepareBackendMavenProject(List<File> installedJarModules, File targetFolder) throws Exception {
+	private void prepareBackendMavenProject(String productVersion, List<File> installedJarModules, File targetFolder) throws Exception {
 		File projectDescriptor = new File(targetFolder, "pom.xml");
 		//
 		FileUtils.copyInputStreamToFile(
@@ -371,6 +371,13 @@ public class ProjectManager {
 		MavenXpp3Reader reader = new MavenXpp3Reader();
 		//
 		ObjectNode buildPom = (ObjectNode) xmlMapper.readTree(projectDescriptor);
+		//
+		// set parent to include CzechIdM dependencies
+		ObjectNode parentWrapper = xmlMapper.createObjectNode();
+		parentWrapper.put("groupId", ReleaseManager.MAVEN_GROUP_ID);
+		parentWrapper.put("artifactId", "idm-parent");
+		parentWrapper.put("version", productVersion);
+		buildPom.set("parent", parentWrapper);
 		//
 		// find pom.xml modules in jar
 		Map<String, String> resolvedModules = new HashMap<>();
@@ -420,6 +427,7 @@ public class ProjectManager {
 		int registeredDependencies = 0;
 		ArrayNode dependencies = xmlMapper.createArrayNode();
 		for (Model module : modules.values()) {
+			Parent parent = module.getParent();
 			for (Dependency dependency : module.getDependencies()) {
 				// group id decorator
 				String groupId = dependency.getGroupId();
@@ -428,7 +436,6 @@ public class ProjectManager {
 				} else if("${project.groupId}".equals(groupId)) {
 					groupId = module.getGroupId();
 					if (StringUtils.isEmpty(groupId)) {
-						Parent parent = module.getParent();
 						if (parent != null) {
 							groupId = parent.getGroupId();
 						}
@@ -440,11 +447,25 @@ public class ProjectManager {
 				// resolve module version as project property
 				if (version != null && version.startsWith("${") && version.endsWith("}")) {
 					String propertyKey = version.substring(2, version.length() - 1);
-					if (module.getProperties().containsKey(propertyKey)) {
+					if ("project.version".equals(propertyKey)) {
+						version = module.getVersion();
+						if (StringUtils.isEmpty(version) && parent != null) {
+							version = parent.getVersion();
+						}
+					} else if (module.getProperties().containsKey(propertyKey)) {
 						version = module.getProperties().getProperty(propertyKey);
 					}
 				}
 				String scope = dependency.getScope();
+				// ignore provided dependencies
+				if ("provided".equals(scope)) { // FIXME:
+					LOG.debug("Module dependency [{}] is provided, skipping.", simpleModuleId);
+					continue;
+				}
+				if (ReleaseManager.MAVEN_GROUP_ID.equals(groupId)) {
+					LOG.debug("CzechIdM module dependency [{}] should be placed in modules folder, skipping from dependencies.", simpleModuleId);
+					continue;
+				}
 				//
 				// simple check dependency is fully specified
 				if (StringUtils.isEmpty(groupId) 

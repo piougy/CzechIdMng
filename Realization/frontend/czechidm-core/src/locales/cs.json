@@ -439,6 +439,15 @@
             "title": "Skrýt heslo"
           }
         }
+      },
+      "Wizard": {
+        "defaultHeader": "Průvodce",
+        "button": {
+          "next": "Další",
+          "previous": "Předchozí",
+          "finish": "Dokončit",
+          "skip": "Přeskočit"
+        }
       }
     },
     "advanced": {
@@ -1108,7 +1117,9 @@
       "CHANGEEMAIL": "Změna emailu",
       "CHANGEEXTERNALCODE": "Změna osobního čísla",
       "CHANGEDESCRIPTION": "Změna popisu",
-      "SWITCHUSER": "Přihlásit se za uživatele"
+      "SWITCHUSER": "Přihlásit se za uživatele",
+      "DELEGATOR": "Delegující",
+      "DELEGATE": "Delegovaný"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -3643,6 +3654,9 @@
       },
       "sent": {
         "success": "Odeslání notifikace bylo úspěšné"
+      },
+      "attachments": {
+        "header": "Přílohy"
       }
     },
     "notificationTemplate": {
@@ -3904,6 +3918,10 @@
         "parent": {
           "placeholder": "$t(entity.EntityEvent.parent.label) (uuid)"
         }
+      },
+      "counter": {
+        "info": "Počet nezpracovaných událostí",
+        "error": "Počet událostí s výjimkou"
       },
       "event": {
         "header": "Události na entitách",
@@ -5325,7 +5343,16 @@
     "EntityEvent": {
       "_type": "Event",
       "created": {
-        "label": "Datum"
+        "label": "$t(entity.created)"
+      },
+      "eventStarted": {
+        "label": "Spuštěno"
+      },
+      "eventEnded": {
+        "label": "Ukončeno"
+      },
+      "duration": {
+        "label": "Trvání události"
       },
       "superOwnerId": {
         "label": "Hlavní vlastník"
@@ -5741,7 +5768,7 @@
     "attributes": {
       "core-topic-report-generate-success": {
         "label": "Notifikace",
-        "help": "Odeslat report po úspěšném dokončení na zadaný topic dle konfigurace notifikací. Ve výchozím nastavení je report zaslán uživateli, který report vytvořil. Pokud je report nakonfigurovaný jako naplánovaná úloha, je třeba nakonfigurovat příjemce v kongiraci notifikací dle topicu (report je z plánovače tvořen pod systémovým uživatelem)."
+        "help": "Odeslat report po úspěšném dokončení na zadaný topic dle konfigurace notifikací. Ve výchozím nastavení je report zaslán uživateli, který report vytvořil. Pokud je report nakonfigurovaný jako naplánovaná úloha, je třeba nakonfigurovat příjemce v konfiguraci notifikací dle topicu (report je z plánovače tvořen pod systémovým uživatelem)."
       }
     },
     "bulk-action": {
@@ -6406,7 +6433,7 @@
         "icon": "component:scheduled-task"
       },
       "core-hr-end-contract-long-running-task": {
-        "label": "HR procss - ukončení pracovně právního vztahu",
+        "label": "HR proces - ukončení pracovně právního vztahu",
         "help": "Úloha zpracuje pracovně právní vztahy, které jsou ukončené (neaktivní).",
         "icon": "component:scheduled-task"
       },
@@ -7104,6 +7131,10 @@
       "title": "Role byla již přiřazena",
       "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}]."
     },
+    "AUTOMATIC_ROLE_ALREADY_ASSIGNED_TO_CONTRACT": {
+      "title": "Role byla již přiřazena",
+      "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro kontrakt [{{contract}}] a pozici [{{position}}]."
+    },
     "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED": {
       "title": "Role je přiřazena",
       "message": "Role [{{role}}] je přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}]."
@@ -7430,7 +7461,7 @@
     },
     "ROLE_COMPOSITION_RUN_CONCURRENTLY": {
       "title": "Business role jsou ve zpracování",
-      "message": "Business role bude zpracována asznchronně na pozadí."
+      "message": "Business role bude zpracována asynchronně na pozadí."
     },
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Business role je mazána jiným procesem",
@@ -7737,6 +7768,9 @@
     },
     "token-cache": {
       "description": "Cache pro ukládání tokenů přihlášených uživatelů. Cache je vyprázdněna automaticky při každé změně tokenu. Platnost cache je 1 minuta - po jedné minutě je prodlužována platnost tokenu, pokud se token používá a cache se vyprázdní."
+    },
+    "all-sub-roles": {
+      "description": "Cache pro ukládání sub rolí dle definice business role. Cache je vyprázdněna automaticky při každé změně business rolí."
     }
   }
 }

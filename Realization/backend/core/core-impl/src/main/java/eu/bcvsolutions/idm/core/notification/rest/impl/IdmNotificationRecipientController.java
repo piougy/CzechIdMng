@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.rest.impl;
 
+import java.util.Set;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
@@ -35,8 +37,6 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Read notification recipients.
  * 
- * TODO: count, test
- * 
  * @author Peter Sourek
  * @author Radek Tomiška
  */
@@ -48,7 +48,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmNotificationRecipientController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmNotificationRecipientController extends AbstractReadDtoController<IdmNotificationRecipientDto, IdmNotificationRecipientFilter> {
+public class IdmNotificationRecipientController extends AbstractReadWriteDtoController<IdmNotificationRecipientDto, IdmNotificationRecipientFilter> {
 
 	protected static final String TAG = "Notification recipients";
 	
@@ -95,6 +95,24 @@ public class IdmNotificationRecipientController extends AbstractReadDtoControlle
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countNotificationRecipients", 
+			tags = { IdmNotificationRecipientController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
 
 	@Override
 	@ResponseBody
@@ -115,6 +133,26 @@ public class IdmNotificationRecipientController extends AbstractReadDtoControlle
 			@ApiParam(value = "Recipient's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnNotificationRecipient", 
+			tags = { IdmNotificationRecipientController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")})
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Notification recipient uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 
 	@Override

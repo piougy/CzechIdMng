@@ -20,6 +20,10 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
  */
 public interface IdmNotificationRecipientRepository extends AbstractEntityRepository<IdmNotificationRecipient> {
 
+	/**
+	 * @deprecated @since 10.6.0 - use service filter
+	 */
+	@Deprecated
 	@Query("select e from IdmNotificationRecipient e left join e.notification n where (n.id = ?#{[0].notification})")
 	Page<IdmNotificationRecipient> find(IdmNotificationRecipientFilter filter, Pageable pageable);
 	

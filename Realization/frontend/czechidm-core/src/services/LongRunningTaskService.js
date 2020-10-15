@@ -5,7 +5,7 @@ import * as Utils from '../utils';
 import SchedulerService from './SchedulerService';
 
 /**
- * Long running task administration
+ * Long running task administration.
  *
  * @author Radek Tomiška
  */

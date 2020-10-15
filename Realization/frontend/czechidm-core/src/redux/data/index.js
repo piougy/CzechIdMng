@@ -85,6 +85,7 @@ import ImportLogManager from './ImportLogManager';
 import DelegationDefinitionManager from './DelegationDefinitionManager';
 import DelegationManager from './DelegationManager';
 import BulkActionManager from './BulkActionManager';
+import NotificationAttachmentManager from './NotificationAttachmentManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -132,6 +133,7 @@ const ManagerRoot = {
   ContractGuaranteeManager,
   ContractPositionManager,
   NotificationRecipientManager,
+  NotificationAttachmentManager,
   SmsManager,
   LoggingEventManager,
   LoggingEventExceptionManager,
@@ -169,5 +171,5 @@ const ManagerRoot = {
   BulkActionManager
 };
 
-ManagerRoot.version = '10.4.0';
+ManagerRoot.version = '10.6.0';
 module.exports = ManagerRoot;

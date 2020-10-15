@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import moment from 'moment';
 import Immutable from 'immutable';
 //
-import { Basic, Advanced, Utils, Managers, Services, Domain, Enums } from 'czechidm-core';
+import { Basic, Advanced, Utils, Managers, Domain, Enums } from 'czechidm-core';
 import { ReportManager } from '../../redux';
 
 const manager = new ReportManager();
@@ -584,24 +583,11 @@ export class ReportTable extends Advanced.AbstractTableContent {
                           {
                             !longRunningTask.taskStarted
                             ||
-                            <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                              <Basic.Tooltip
-                                ref="popover"
-                                placement="bottom"
-                                value={
-                                  moment
-                                    .utc(moment.duration(moment(longRunningTask.modified).diff(moment(longRunningTask.taskStarted))).asMilliseconds())
-                                    .format(this.i18n('format.times'))
-                                }>
-                                <span>
-                                  {
-                                    moment
-                                      .duration(moment(longRunningTask.taskStarted).diff(moment(longRunningTask.modified)))
-                                      .locale(Services.LocalizationService.getCurrentLanguage())
-                                      .humanize()
-                                  }
-                                </span>
-                              </Basic.Tooltip>
+                            <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.duration') }>
+                              <Basic.TimeDuration
+                                start={ longRunningTask.taskStarted }
+                                end={ longRunningTask.taskEnded || longRunningTask.modified }
+                                humanized/>
                             </Basic.LabelWrapper>
                           }
                         </Basic.Col>

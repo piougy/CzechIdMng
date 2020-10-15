@@ -5,12 +5,12 @@ import { connect } from 'react-redux';
 import Joi from 'joi';
 //
 import { Advanced, Basic, Domain, Enums, Managers, Utils } from 'czechidm-core';
+import MappingContextCompleters from 'czechidm-core/src/content/script/completers/MappingContextCompleters';
 import { AttributeControlledValueManager, SchemaAttributeManager, SystemAttributeMappingManager, SystemMappingManager } from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import AttributeControlledValueTable from './AttributeControlledValueTable';
 import { RoleSystemAttributeTable } from '../role/RoleSystemAttributeTable';
-import MappingContextCompleters from 'czechidm-core/src/content/script/completers/MappingContextCompleters';
 
 const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
@@ -45,6 +45,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.attributeMappingDetail';
   }
 
+  // eslint-disable-next-line camelcase
   UNSAFE_componentWillReceiveProps(nextProps) {
     const {_attribute} = nextProps;
 
@@ -72,7 +73,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   /**
    * Method for init component from didMount method and from willReceiveProps method
-   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   * @param  props - properties of component - props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
     const { attributeId} = props.match.params;
@@ -119,20 +120,46 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
-      this.context.history.goBack();
+      // Go to parent wizard component.
+      if (this.isWizard()) {
+        this.goBack();
+      } else {
+        this.context.history.goBack();
+      }
     } else {
       this.addError(error);
     }
     super.afterSave();
   }
 
+  goBack() {
+    if (this.isWizard()) {
+      // If is component in the wizard, then set new ID (master component)
+      // to the active action and render wizard.
+      const activeStep = this.context.wizardContext.activeStep;
+      if (activeStep) {
+        activeStep.id = 'mappingAttributes';
+        activeStep.mapping = this.props._systemMapping;
+        this.context.wizardContext.wizardForceUpdate();
+      }
+    } else {
+      this.context.history.goBack();
+    }
+  }
+
+  wizardAddButtons(showLoading) {
+    return this.renderButtons(showLoading);
+  }
+
   closeDetail() {
-    this.refs.form.processEnded();
+    if (this.refs.form) {
+      this.refs.form.processEnded();
+    }
   }
 
   _checkboxChanged(key, uncheckKey, event) {
     const checked = event.currentTarget.checked;
-    this.setState({[key]: checked}, ()=>{
+    this.setState({[key]: checked}, () => {
       if (checked && uncheckKey !== null) {
         this.setState({[uncheckKey]: false});
         this.refs[uncheckKey].setState({value: false}, () => {
@@ -238,6 +265,28 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     ];
   }
 
+  renderButtons(_showLoading) {
+    return (
+      <span>
+        <Basic.Button
+          type="button"
+          level="link"
+          onClick={this.goBack.bind(this)}
+          showLoading={_showLoading}>
+          {this.i18n('button.back')}
+        </Basic.Button>
+        <Basic.Button
+          level="success"
+          type={this.isWizard() ? 'button' : 'submit'}
+          onClick={this.isWizard() ? this.save.bind(this) : null}
+          showLoading={_showLoading}
+          rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
+          {this.i18n('button.save')}
+        </Basic.Button>
+      </span>
+    );
+  }
+
   render() {
     const { _showLoading, _attribute, _systemMapping } = this.props;
     const { disabledAttribute, entityAttribute, extendedAttribute, activeKey, strategyType, passwordAttribute, _idmPropertyName} = this.state;
@@ -268,38 +317,40 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
         )
       ) : '';
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled && !passwordAttribute;
-    const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
-    const strategyTypeTemp = strategyType ? strategyType : attribute.strategyType;
+    const isSynchronization = !!(_systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION');
+    const strategyTypeTemp = strategyType || attribute.strategyType;
     const isMerge = strategyTypeTemp === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE);
     const showPasswordFilter = passwordAttribute && !isSynchronization && _systemMapping && _systemMapping.entityType === 'IDENTITY';
 
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={this.i18n('title')}/>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.ContentHeader>
           <Basic.Icon value="list-alt"/>
           {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header', attribute ? { name: attribute.idmPropertyName} : {})}}/>
+          <span dangerouslySetInnerHTML={{__html: this.i18n('header', attribute ? {name: attribute.idmPropertyName} : {})}}/>
         </Basic.ContentHeader>
         <Basic.Tabs
           activeKey={activeKey}
           onSelect={this._onChangeSelectTabs.bind(this)}>
           <Basic.Tab eventKey={1} title={this.i18n('tabs.basic.label')} className="bordered">
             <form onSubmit={this.save.bind(this)}>
-              <Basic.Panel className="no-border last" style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}>
+              <Basic.Panel className="no-border last" style={{marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15}}>
                 <Basic.AbstractForm
                   ref="form"
-                  data={ attribute }
-                  showLoading={ _showLoading }
-                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                  data={attribute}
+                  showLoading={_showLoading}
+                  readOnly={!Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
                   <Basic.Checkbox
                     ref="disabledAttribute"
+                    hidden={this.isWizard()}
                     onChange={this._checkboxChanged.bind(this, 'disabledAttribute', null)}
                     tooltip={this.i18n('acc:entity.SystemAttributeMapping.disabledAttribute.tooltip')}
                     label={this.i18n('acc:entity.SystemAttributeMapping.disabledAttribute.label')}/>
                   <Basic.SelectBox
                     ref="systemMapping"
+                    hidden
                     manager={systemMappingManager}
                     label={this.i18n('acc:entity.SystemAttributeMapping.systemMapping')}
                     readOnly
@@ -312,7 +363,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     label={this.i18n('acc:entity.SystemAttributeMapping.schemaAttribute')}
                     readOnly={_isDisabled}
                     required
-                    pageSize={ Domain.SearchParameters.MAX_SIZE }/>
+                    pageSize={Domain.SearchParameters.MAX_SIZE}/>
                   <Basic.TextField
                     ref="name"
                     label={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
@@ -320,6 +371,44 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     readOnly={_isDisabled}
                     required
                     max={255}/>
+                  <Basic.Checkbox
+                    ref="uid"
+                    onChange={this._checkboxChanged.bind(this, 'uid', null)}
+                    tooltip={this.i18n('acc:entity.SystemAttributeMapping.uid.tooltip')}
+                    label={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}
+                    readOnly={_isDisabled}/>
+                  <Basic.Checkbox
+                    ref="entityAttribute"
+                    onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
+                    label={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
+                    readOnly={_isDisabled || passwordAttribute}/>
+                  <Basic.Checkbox
+                    ref="extendedAttribute"
+                    onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
+                    label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
+                    readOnly={_isDisabled || passwordAttribute}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.help', {escape: false})}/>
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Basic.EnumSelectBox
+                        ref="idmPropertyEnum"
+                        readOnly={_isDisabled || !_isEntityAttribute || passwordAttribute}
+                        enum={entityTypeEnum}
+                        helpBlock={this.i18n(`acc:${propertyHelpBlockLabel}`, {escape: false})}
+                        onChange={this._onChangeEntityEnum.bind(this)}
+                        label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyEnum')}
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <Basic.TextField
+                        ref="idmPropertyName"
+                        readOnly={_isDisabled || !_isRequiredIdmField || _isEntityAttribute || passwordAttribute}
+                        label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
+                        helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
+                        required={_isRequiredIdmField}
+                        max={255}/>
+                    </div>
+                  </Basic.Row>
                   <Basic.EnumSelectBox
                     ref="strategyType"
                     enum={AttributeMappingStrategyTypeEnum}
@@ -339,44 +428,6 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.tooltip')}
                     label={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.label')}
                     readOnly={_isDisabled}/>
-                  <Basic.Checkbox
-                    ref="uid"
-                    onChange={this._checkboxChanged.bind(this, 'uid', null)}
-                    tooltip={this.i18n('acc:entity.SystemAttributeMapping.uid.tooltip')}
-                    label={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}
-                    readOnly={_isDisabled}/>
-                  <Basic.Checkbox
-                    ref="entityAttribute"
-                    onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
-                    label={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
-                    readOnly={_isDisabled || passwordAttribute}/>
-                  <Basic.Checkbox
-                    ref="extendedAttribute"
-                    onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
-                    label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
-                    readOnly={_isDisabled || passwordAttribute}
-                    helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.help', { escape: false }) }/>
-                  <Basic.Row>
-                    <div className="col-lg-6">
-                      <Basic.EnumSelectBox
-                        ref="idmPropertyEnum"
-                        readOnly={_isDisabled || !_isEntityAttribute || passwordAttribute}
-                        enum={entityTypeEnum}
-                        helpBlock={ this.i18n(`acc:${propertyHelpBlockLabel}`, { escape: false })}
-                        onChange={this._onChangeEntityEnum.bind(this)}
-                        label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyEnum')}
-                      />
-                    </div>
-                    <div className="col-lg-6">
-                      <Basic.TextField
-                        ref="idmPropertyName"
-                        readOnly={_isDisabled || !_isRequiredIdmField || _isEntityAttribute || passwordAttribute}
-                        label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
-                        helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
-                        required={_isRequiredIdmField}
-                        max={255}/>
-                    </div>
-                  </Basic.Row>
                   <Basic.Checkbox
                     ref="confidentialAttribute"
                     label={this.i18n('acc:entity.SystemAttributeMapping.confidentialAttribute')}
@@ -401,7 +452,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                   <Basic.Checkbox
                     ref="cached"
                     label={this.i18n('acc:entity.SystemAttributeMapping.cached.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.cached.help', { escape: false })}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.cached.help', {escape: false})}
                     readOnly={_isDisabled}/>
                   <Basic.LabelWrapper label=" ">
                     <Basic.Alert
@@ -424,7 +475,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                       Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT)]}
                     headerText={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScriptSelectBox.label')}
                     label={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help',  { escape: false })}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help', {escape: false})}
                     scriptManager={scriptManager}
                     readOnly={_isDisabled}/>
                   <Advanced.ScriptArea
@@ -434,46 +485,33 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT),
                       Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)]}
                     headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help',  { escape: false })}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help', {escape: false})}
                     label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.label')}
                     scriptManager={scriptManager}
                     readOnly={_isDisabled}/>
                 </Basic.AbstractForm>
-                <Basic.PanelFooter>
-                  <Basic.Button
-                    type="button"
-                    level="link"
-                    onClick={this.context.history.goBack}
-                    showLoading={_showLoading}>
-                    {this.i18n('button.back')}
-                  </Basic.Button>
-                  <Basic.Button
-                    level="success"
-                    type="submit"
-                    showLoading={ _showLoading }
-                    rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
-                    {this.i18n('button.save')}
-                  </Basic.Button>
+                <Basic.PanelFooter rendered={!this.isWizard()}>
+                  {this.renderButtons(_showLoading)}
                 </Basic.PanelFooter>
               </Basic.Panel>
             </form>
           </Basic.Tab>
           <Basic.Tab eventKey={2} rendered={isMerge && !isNew} title={this.i18n('tabs.controlledValues.label')} className="bordered">
             <Basic.ContentHeader
-              text={ this.i18n('tabs.controlledValues.cache.header') }
-              style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
+              text={this.i18n('tabs.controlledValues.cache.header')}
+              style={{marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15}}/>
             <Basic.Alert
               level="info"
               showHtmlText
-              text={ this.i18n('tabs.controlledValues.cache.helpBlock') }
-              style={{ marginBottom: 0, marginRight: 15, marginLeft: 15 }}
+              text={this.i18n('tabs.controlledValues.cache.helpBlock')}
+              style={{marginBottom: 0, marginRight: 15, marginLeft: 15}}
             />
             <Basic.Alert
               level="warning"
               rendered={attribute && attribute.evictControlledValuesCache}
               showHtmlText
-              text={ this.i18n('tabs.controlledValues.cache.evicted') }
-              style={{ marginBottom: 0, marginRight: 15, marginLeft: 15 }}
+              text={this.i18n('tabs.controlledValues.cache.evicted')}
+              style={{marginBottom: 0, marginRight: 15, marginLeft: 15}}
             />
             <AttributeControlledValueTable
               ref="controlledValuesTable"
@@ -483,13 +521,13 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
               forceSearchParameters={controlledValuesForceSearchParameters}
             />
             <Basic.ContentHeader
-              text={ this.i18n('tabs.controlledValues.historic.header') }
-              style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
+              text={this.i18n('tabs.controlledValues.historic.header')}
+              style={{marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15}}/>
             <Basic.Alert
               level="info"
               showHtmlText
-              text={ this.i18n('tabs.controlledValues.historic.helpBlock') }
-              style={{ marginBottom: 0, marginRight: 15, marginLeft: 15 }}
+              text={this.i18n('tabs.controlledValues.historic.helpBlock')}
+              style={{marginBottom: 0, marginRight: 15, marginLeft: 15}}
             />
             <AttributeControlledValueTable
               ref="historicValuesTable"
@@ -500,10 +538,10 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
           </Basic.Tab>
           <Basic.Tab eventKey={3} rendered={!isNew} title={this.i18n('tabs.attributeOverridden.label')} className="bordered">
             <Basic.ContentHeader
-              text={ this.i18n('tabs.attributeOverridden.header') }
-              style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
+              text={this.i18n('tabs.attributeOverridden.header')}
+              style={{marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15}}/>
             <RoleSystemAttributeTable
-              uiKey={ `attribute-mapping-overridden-${attribute.id}`}
+              uiKey={`attribute-mapping-overridden-${attribute.id}`}
               rendered={activeKey === 3}
               columns={['role', 'transformScript', 'strategyType']}
               linkMenu={null}
@@ -513,25 +551,25 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
               showAddButton={false}
               showFilter={false}
               showRowSelection={false}
-              forceSearchParameters={ overriddenForceSearchParameters }
-              match={ this.props.match }/>
+              forceSearchParameters={overriddenForceSearchParameters}
+              match={this.props.match}/>
           </Basic.Tab>
-          <Basic.Tab eventKey={ 4 } rendered={ showPasswordFilter } title={ this.i18n('tabs.passwordFilter.label') } className="bordered">
-            <form onSubmit={ this.save.bind(this) }>
-              <Basic.Panel className="no-border last" style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}>
+          <Basic.Tab eventKey={4} rendered={showPasswordFilter} title={this.i18n('tabs.passwordFilter.label')} className="bordered">
+            <form onSubmit={this.save.bind(this)}>
+              <Basic.Panel className="no-border last" style={{marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15}}>
                 <Basic.AbstractForm
                   ref="formPasswordFilter"
-                  data={ attribute }
-                  showLoading={ _showLoading }
-                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEMATTRIBUTEMAPPING_UPDATE']) }>
+                  data={attribute}
+                  showLoading={_showLoading}
+                  readOnly={!Managers.SecurityManager.hasAnyAuthority(['SYSTEMATTRIBUTEMAPPING_UPDATE'])}>
                   <Basic.Checkbox
                     ref="passwordFilter"
-                    label={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.passwordFilter.label') }
-                    helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.passwordFilter.help') }/>
+                    label={this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.passwordFilter.label')}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.passwordFilter.help')}/>
                   <Basic.TextField
                     ref="echoTimeout"
-                    label={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.echoTimeout.label') }
-                    helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.echoTimeout.help') }
+                    label={this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.echoTimeout.label')}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.echoTimeout.help')}
                     type="number"
                     validation={Joi.number()
                       .allow(null)
@@ -541,26 +579,26 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     required/>
                   <Advanced.ScriptArea
                     ref="transformationUidScript"
-                    scriptCategory={ [Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.SYSTEM),
-                      Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.SYSTEM)] }
-                    headerText={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.label') }
-                    helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.help') }
-                    label={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.label') }
-                    scriptManager={ this.scriptManager }/>
+                    scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.SYSTEM),
+                      Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.SYSTEM)]}
+                    headerText={this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.label')}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.help')}
+                    label={this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.label')}
+                    scriptManager={this.scriptManager}/>
                 </Basic.AbstractForm>
-                <Basic.PanelFooter>
+                <Basic.PanelFooter rendered={!this.isWizard()}>
                   <Basic.Button
                     type="button"
                     level="link"
-                    onClick={this.context.history.goBack}
+                    onClick={this.goBack.bind(this)}
                     showLoading={_showLoading}>
                     {this.i18n('button.back')}
                   </Basic.Button>
                   <Basic.Button
                     level="success"
                     type="submit"
-                    showLoading={ _showLoading }
-                    rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEMATTRIBUTEMAPPING_UPDATE']) }>
+                    showLoading={_showLoading}
+                    rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEMATTRIBUTEMAPPING_UPDATE'])}>
                     {this.i18n('button.save')}
                   </Basic.Button>
                 </Basic.PanelFooter>

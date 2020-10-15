@@ -7,8 +7,10 @@ import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +46,10 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
@@ -73,6 +79,8 @@ import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.dto.filter.VsRequestFilter;
 import eu.bcvsolutions.idm.vs.entity.VsRequest;
 import eu.bcvsolutions.idm.vs.entity.VsRequest_;
+import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer;
+import eu.bcvsolutions.idm.vs.entity.VsSystemImplementer_;
 import eu.bcvsolutions.idm.vs.event.VsRequestEvent;
 import eu.bcvsolutions.idm.vs.event.VsRequestEvent.VsRequestEventType;
 import eu.bcvsolutions.idm.vs.event.processor.VsRequestRealizationProcessor;
@@ -88,6 +96,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
  * Service for request in virtual system
  * 
  * @author Svanda
+ * @author Ondrej Husnik
  *
  */
 @Service
@@ -619,6 +628,39 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			predicates.add(builder.equal(root.get(VsRequest_.roleRequestId), filter.getRoleRequestId()));
 		}
 
+		// System implementers
+		List<UUID> implementers = filter.getImplementers();
+		if (implementers != null && !implementers.isEmpty()) {
+			Path<UUID> systemIdPath = root.get(VsRequest_.system).get(SysSystem_.id);
+			
+			// subquery of VsImplementers
+			Subquery<VsSystemImplementer> subquery = query.subquery(VsSystemImplementer.class);
+			Root<VsSystemImplementer> subRoot = subquery.from(VsSystemImplementer.class);
+			
+			// subquery of Identities who are VsImplementers by role 
+			Subquery<IdmIdentityRole> identRoleSubqery = query.subquery(IdmIdentityRole.class);
+			Root<IdmIdentityRole> identRoleSubroot = identRoleSubqery.from(IdmIdentityRole.class);
+			
+			// subquery searching for implementers identity assigned by role 
+			identRoleSubqery.select(identRoleSubroot);
+			identRoleSubqery.where(
+					builder.and(
+							builder.equal(identRoleSubroot.get(IdmIdentityRole_.role), subRoot.get(VsSystemImplementer_.role)),
+							identRoleSubroot.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id).in(implementers)
+							)
+						);
+			
+			// query combination 
+			subquery.select(subRoot);
+			subquery.where(
+				builder.and(
+					builder.equal(subRoot.get(VsSystemImplementer_.system).get(SysSystem_.id), systemIdPath)),
+						builder.or(
+							subRoot.get(VsSystemImplementer_.identity).get(IdmIdentity_.id).in(implementers),
+							builder.exists(identRoleSubqery))
+					);
+			predicates.add(builder.exists(subquery));
+		}
 		return predicates;
 	}
 

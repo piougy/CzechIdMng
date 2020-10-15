@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -88,6 +89,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
  *
  * @author Svanda
  * @author Patrik Stloukal
+ * @author Ondrej Husnik
  */
 public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationTest {
 
@@ -851,6 +853,55 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(3, requests.size());
 	}
+	
+	@Test
+	public void filterByImplementersTest () {
+		IdmIdentityDto implementerIdentity1 = helper.createIdentity(helper.createName());
+		IdmIdentityDto implementerIdentity2 = helper.createIdentity(helper.createName());
+		IdmRoleDto implementerRole = helper.createRole(helper.createName());
+		IdmIdentityDto userIdentity = helper.createIdentity(helper.createName());
+		IdmRoleDto userRole = helper.createRole(helper.createName());
+		// system with implementer by identity
+		VsSystemDto vsConfig1 = new VsSystemDto();
+		vsConfig1.setName(helper.createName());
+		vsConfig1.setImplementers(Arrays.asList(implementerIdentity1.getId()));
+		SysSystemDto system1 = helper.createVirtualSystem(vsConfig1);
+		helper.createRoleSystem(userRole, system1);
+		// system with implementer by role
+		VsSystemDto vsConfig2 = new VsSystemDto();
+		vsConfig2.setName(helper.createName());
+		vsConfig2.setImplementerRoles(Arrays.asList(implementerRole.getId()));
+		SysSystemDto system2 = helper.createVirtualSystem(vsConfig2);
+		helper.createRoleSystem(userRole, system2);
+		// assign user and implementer roles
+		helper.assignRoles(helper.getPrimeContract(implementerIdentity2.getId()), false, implementerRole);
+		helper.assignRoles(helper.getPrimeContract(userIdentity.getId()), false, userRole);
+		
+		// no filter used, find all requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertTrue(requests.size() >= 2);
+		
+		// find requests defined by implementer identity 
+		requestFilter = new VsRequestFilter();
+		requestFilter.setImplementers(Arrays.asList(implementerIdentity1.getId()));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		Assert.assertEquals(requests.get(0).getSystem(), system1.getId());
+		
+		// find requests defined by implementer role 
+		requestFilter = new VsRequestFilter();
+		requestFilter.setImplementers(Arrays.asList(implementerIdentity2.getId()));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		Assert.assertEquals(requests.get(0).getSystem(), system2.getId());
+		
+		// prove that no requests are found when identity is not an implementer 
+		requestFilter = new VsRequestFilter();
+		requestFilter.setImplementers(Arrays.asList(userIdentity.getId()));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(0, requests.size());
+ 	} 
 
 	@Test
 	public void createAndRealizeRequestWithNoteTest() {

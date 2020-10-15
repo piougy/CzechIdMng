@@ -10,7 +10,6 @@ import * as Utils from '../utils';
 
 const uiKey = 'configuration_table';
 const manager = new ConfigurationManager();
-const dataManager = new DataManager();
 
 const IDM_CONFIGURATION_PREFIX = 'idm.';
 
@@ -316,22 +315,22 @@ class Configurations extends Advanced.AbstractTableContent {
           <Advanced.Table
             ref="table"
             uiKey={ uiKey }
-            manager={ this.getManager()}
+            manager={ this.getManager() }
             showRowSelection
             rendered={ !detail.show }
             filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+              <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <Basic.Col lg={ 4 }>
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.Configuration.name')}/>
+                        placeholder={ this.i18n('entity.Configuration.name') }/>
                     </Basic.Col>
                     <Basic.Col lg={ 4 }>
                     </Basic.Col>
                     <Basic.Col lg={ 4 } className="text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                      <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>
@@ -347,11 +346,10 @@ class Configurations extends Advanced.AbstractTableContent {
                       level="success"
                       key="add_button"
                       className="btn-xs"
-                      onClick={this.showDetail.bind(this, { public: true })}
-                      rendered={ manager.canSave() }>
-                      <Basic.Icon type="fa" icon="plus"/>
-                      {' '}
-                      {this.i18n('button.add')}
+                      onClick={ this.showDetail.bind(this, { public: true }) }
+                      rendered={ manager.canSave() }
+                      icon="fa:plus">
+                      { this.i18n('button.add') }
                     </Basic.Button>
                   </span>
                   <span>
@@ -360,10 +358,9 @@ class Configurations extends Advanced.AbstractTableContent {
                       key="addMore_button"
                       className="btn-xs"
                       onClick={ this.showAddMore.bind(this, { public: true }) }
-                      rendered={ manager.canSave() }>
-                      <Basic.Icon type="fa" icon="plus"/>
-                      {' '}
-                      {this.i18n('button.addMore')}
+                      rendered={ manager.canSave() }
+                      icon="fa:plus">
+                      { this.i18n('button.addMore') }
                     </Basic.Button>
                   </span>
                 </span>
@@ -373,6 +370,9 @@ class Configurations extends Advanced.AbstractTableContent {
               (processedBulkAction) => {
                 // clean all bulk actions in redux
                 if (processedBulkAction.id === 'configuration-delete-bulk-action') {
+                  // reload public configurations
+                  this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
+                  // reload all bulk actions
                   this.context.store.dispatch(this.getManager().clearBulkActions());
                 }
               }
@@ -385,8 +385,8 @@ class Configurations extends Advanced.AbstractTableContent {
               cell={
                 ({ rowIndex, data }) => (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 )
               }/>
             <Advanced.Column property="name" sort width={ 250 }/>
@@ -421,30 +421,30 @@ class Configurations extends Advanced.AbstractTableContent {
                 <Basic.Alert
                   text={ this.i18n('nameDoesntContainPrefixAlert', { prefix: IDM_CONFIGURATION_PREFIX, escape: false }) }
                   level="warning"
-                  rendered={showPrefixWarning}/>
+                  rendered={ showPrefixWarning }/>
                 <Basic.TextField
                   ref="name"
-                  label={this.i18n('entity.Configuration.name')}
-                  onChange={this._changeName.bind(this)}
+                  label={ this.i18n('entity.Configuration.name') }
+                  onChange={ this._changeName.bind(this) }
                   required
                   helpBlock={ this.i18n('guarded', { guarded: ConfigurationManager.GUARDED_PROPERTY_NAMES.join(', '), escape: false }) }/>
                 <Basic.TextField
-                  type={isGuarded ? 'password' : 'text'}
+                  type={ isGuarded ? 'password' : 'text' }
                   ref="value"
-                  label={this.i18n('entity.Configuration.value')}
-                  confidential={isGuarded !== false}/>
+                  label={ this.i18n('entity.Configuration.value') }
+                  confidential={ isGuarded !== false }/>
                 <Basic.Checkbox
                   ref="confidential"
-                  label={this.i18n('entity.Configuration.confidential')}
-                  helpBlock={this.i18n('confidential.help')}
-                  onChange={this._changeConfidential.bind(this)}
-                  readOnly={isGuarded === 'by_name'}>
+                  label={ this.i18n('entity.Configuration.confidential') }
+                  helpBlock={ this.i18n('confidential.help') }
+                  onChange={ this._changeConfidential.bind(this) }
+                  readOnly={ isGuarded === 'by_name' }>
                 </Basic.Checkbox>
                 <Basic.Checkbox
                   ref="public"
-                  label={this.i18n('entity.Configuration.public')}
+                  label={ this.i18n('entity.Configuration.public') }
                   readOnly={ isSecured }
-                  helpBlock={this.i18n('secured.help')}>
+                  helpBlock={ this.i18n('secured.help') }>
                 </Basic.Checkbox>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
@@ -454,7 +454,7 @@ class Configurations extends Advanced.AbstractTableContent {
                 level="link"
                 onClick={ this.closeDetail.bind(this) }
                 showLoading={ _showLoading }>
-                {this.i18n('button.close')}
+                { this.i18n('button.close') }
               </Basic.Button>
               <Basic.Button
                 type="submit"
@@ -463,7 +463,7 @@ class Configurations extends Advanced.AbstractTableContent {
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
                 rendered={ manager.canSave(detail.entity, _permissions) }>
-                {this.i18n('button.save')}
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>
@@ -471,13 +471,13 @@ class Configurations extends Advanced.AbstractTableContent {
 
         <Basic.Modal
           bsSize="large"
-          show={detail.addMore}
-          onHide={this.closeAddMore.bind(this)}
+          show={ detail.addMore }
+          onHide={ this.closeAddMore.bind(this) }
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={ !_showLoading }>
 
-          <form onSubmit={this.saveMore.bind(this)}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('addMore.header')} rendered/>
+          <form onSubmit={ this.saveMore.bind(this) }>
+            <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('addMore.header') } rendered/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="formAddMore"

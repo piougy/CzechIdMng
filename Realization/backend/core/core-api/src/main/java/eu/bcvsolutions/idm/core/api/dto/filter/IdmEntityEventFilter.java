@@ -24,6 +24,7 @@ public class IdmEntityEventFilter extends DataFilter {
 	public static final String PARAMETER_OWNER_TYPE = "ownerType";
 	public static final String PARAMETER_OWNER_ID = "ownerId";
 	public static final String PARAMETER_SUPER_OWNER_ID = "superOwnerId";
+	public static final String PARAMETER_SUPER_OWNER_TYPE = "superOwnerType";
 	public static final String PARAMETER_STATES = "states";
 	public static final String PARAMETER_PRIORITY = "priority";
 	public static final String PARAMETER_RESULT_CODE = "resultCode";

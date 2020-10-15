@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.context.ApplicationEvent;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.EventContentDeletedException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 
 /**
  * Entity processing based on synchronous {@link ApplicationEvent} publishing.
@@ -44,6 +46,18 @@ public interface EntityEventManager extends ScriptEnabled {
 	
 	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify";
 	String EVENT_PROPERTY_SKIP_NOTIFICATION = "idm:skip-notification"; // skip sending notifications
+	/**
+	 * @deprecated @since 10.6.0 - added to solve backward compatibility, will be removed in future release.
+	 */
+	@Deprecated
+	String EVENT_PROPERTY_SKIP_SUB_ROLES = "idm:skip-sub-roles"; // skip assign sub roles by asynchronous event processing
+	
+	/**
+	 * Transaction events by transaction id.
+	 * 
+	 * @since 10.6.0
+	 */
+	String TRANSACTION_EVENT_CACHE_NAME = String.format("%s:transaction-event-cache", CoreModule.MODULE_ID);
 	
 	/**
 	 * Cancel all previously ran events
@@ -374,4 +388,22 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * @since 9.6.0
 	 */
 	void propagateProperties(EntityEvent<?> event, EntityEvent<?> parentEvent);
+	
+	/**
+	 * Register long running task executor for nofity on end, when all events created from this executor are completed.
+	 * 
+	 * @param executor LRT
+	 * @return true, when executor is registered. False - task can end synchronously.
+	 * @since 10.6.0
+	 */
+	boolean registerAsynchronousTask(LongRunningTaskExecutor<?> executor);
+	
+	/**
+	 * Register long running task executor for nofity on end, when all events created from this executor are completed.
+	 * 
+	 * @param executor LRT
+	 * @return false, when task published some asynchronous events, and this events are not processed yet => lrt cannot be deregistred. True - task can end synchronously.
+	 * @since 10.6.0
+	 */
+	boolean deregisterAsynchronousTask(LongRunningTaskExecutor<?> executor);
 }

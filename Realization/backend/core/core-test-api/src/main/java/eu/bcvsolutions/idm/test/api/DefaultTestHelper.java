@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -59,6 +60,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
@@ -73,6 +76,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
+import eu.bcvsolutions.idm.core.api.service.IdmDelegationDefinitionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -103,7 +107,9 @@ import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -120,7 +126,8 @@ import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 @Component("testHelper")
 public class DefaultTestHelper implements TestHelper {
 
-	@Autowired private ApplicationContext context;
+	@Autowired
+	private ApplicationContext context;
 	@Autowired private DataSource dataSource;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmTreeNodeService treeNodeService;
@@ -157,7 +164,9 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private FilterManager filterManager;
 	@Autowired private IdmScriptAuthorityService scriptAuthorityService;
 	@Autowired private IdmScriptService scriptService;
-	
+	@Autowired private LongRunningTaskManager taskManager;
+	@Autowired private IdmDelegationDefinitionService delegationDefinitionService;
+
 	@Override
 	public LoginDto loginAdmin() {
 		return loginService.login(new LoginDto(TestHelper.ADMIN_USERNAME, new GuardedString(TestHelper.ADMIN_PASSWORD)));
@@ -225,6 +234,18 @@ public class DefaultTestHelper implements TestHelper {
 		identity.setPassword(password);
 		//
 		return identity;
+	}
+	
+	@Override
+	public IdmIdentityDto createIdentityOnly() {
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(createName());
+		identity.setFirstName("Test");
+		identity.setLastName("Identity");
+		CoreEvent<IdmIdentityDto> event = new CoreEvent<IdmIdentityDto>(CoreEventType.CREATE, identity);
+		event.getProperties().put(IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, Boolean.TRUE);
+		//
+		return identityService.publish(event).getContent();
 	}
 
 	@Override
@@ -348,7 +369,24 @@ public class DefaultTestHelper implements TestHelper {
 		roleComposition.setSuperior(superior.getId());
 		roleComposition.setSub(sub.getId());
 		//
-		return roleCompositionService.save(roleComposition);
+		roleComposition = roleCompositionService.save(roleComposition);
+		// wait for role composition is processed
+		if (entityEventManager.isAsynchronous()) {
+			waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setOperationState(OperationState.CREATED);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			}, 500, 10);
+			waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setOperationState(OperationState.RUNNING);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			}, 500, 10);
+		}
+		//
+		return roleComposition;
 	}
 	
 	@Override
@@ -421,7 +459,24 @@ public class DefaultTestHelper implements TestHelper {
 		if (skipLongRunningTask) {
 			return roleTreeNodeService.saveInternal(roleTreeNode);
 		}
-		return roleTreeNodeService.save(roleTreeNode);
+		roleTreeNode = roleTreeNodeService.save(roleTreeNode);
+		// wait for automatic role is processed.
+		if (entityEventManager.isAsynchronous()) {
+			waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setOperationState(OperationState.CREATED);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			}, 500, 10);
+			waitForResult(res -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setOperationState(OperationState.RUNNING);
+				//
+				return taskManager.findLongRunningTasks(filter, null).getTotalElements() != 0;
+			}, 500, 10);
+		}
+		//
+		return roleTreeNode;
 	}
 
 	@Override
@@ -985,7 +1040,17 @@ public class DefaultTestHelper implements TestHelper {
 	public IdmProfileDto createProfile(IdmIdentityDto identity) {
 		return profileService.findOrCreateByIdentity(identity.getId());
 	}
-	
+
+	@Override
+	public IdmDelegationDefinitionDto createDelegation(IdmIdentityDto delegate, IdmIdentityDto delegator, BasePermission... permissions) {
+		IdmDelegationDefinitionDto definition = new IdmDelegationDefinitionDto();
+		definition.setType("default-delegation-type");
+		definition.setDelegator(delegator.getId());
+		definition.setDelegate(delegate.getId());
+
+		return delegationDefinitionService.save(definition, permissions);
+	}
+
 	@Override
 	public void recalculateAutomaticRoleByAttribute(UUID automaticRoleId) {
 		automaticRoleAttributeService.recalculate(automaticRoleId);

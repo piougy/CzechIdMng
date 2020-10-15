@@ -6,7 +6,7 @@ import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
 
 /**
- * Notification recipient
+ * Notification recipient.
  *
  * @author Peter Šourek
  * @author Radek Tomiška

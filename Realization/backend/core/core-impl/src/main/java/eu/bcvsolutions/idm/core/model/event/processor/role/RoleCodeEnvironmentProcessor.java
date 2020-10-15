@@ -31,6 +31,7 @@ public class RoleCodeEnvironmentProcessor
 		extends CoreEventProcessor<IdmRoleDto> 
 		implements RoleProcessor {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleCodeEnvironmentProcessor.class);
 	public static final String PROCESSOR_NAME = "core-role-code-environment-processor";
 	//
 	private final IdmRoleService service;
@@ -60,6 +61,16 @@ public class RoleCodeEnvironmentProcessor
 			} else {
 				throw new ResultCodeException(CoreResultCode.ROLE_CODE_REQUIRED);
 			}
+		}
+		//
+		// check code <=> baseCode + environment fits
+		if (StringUtils.isNotEmpty(role.getCode()) 
+				&& StringUtils.isNotEmpty(role.getBaseCode())
+				&& role.getCode().equals(service.getCodeWithEnvironment(role))) {
+			LOG.debug("Role code [{}] fits with baseCode [{}] and environment [{}].",
+					role.getCode(), role.getBaseCode(), role.getEnvironment());
+			//
+			return new DefaultEventResult<>(event, this);
 		}
 		//
 		IdmRoleDto previous = event.getOriginalSource();

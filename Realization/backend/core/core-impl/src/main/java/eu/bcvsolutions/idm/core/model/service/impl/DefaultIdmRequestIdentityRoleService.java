@@ -1,13 +1,12 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import java.time.LocalDate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -75,7 +73,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 
 	@Override
 	public Page<IdmRequestIdentityRoleDto> find(IdmRequestIdentityRoleFilter filter, Pageable pageable,
-			BasePermission... permission) {
+												BasePermission... permission) {
 		LOG.debug(MessageFormat.format("Find idm-request-identity-roles by filter [{0}] ", filter));
 		Assert.notNull(filter, "Filter is required.");
 		
@@ -87,7 +85,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 		// If is true, then we want to return only concepts (not assigned roles)
 		boolean returnOnlyChanges = filter.isOnlyChanges();
 		
-		List<IdmRequestIdentityRoleDto> results = new ArrayList<IdmRequestIdentityRoleDto>();
+		List<IdmRequestIdentityRoleDto> results = new ArrayList<>();
 		
 		long total = 0;
 		int countConcepts = 0;
@@ -134,7 +132,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 		}
 		
 		PageRequest pageableRequest = PageRequest.of(pageable.getPageNumber(),
-				results.size() > pageable.getPageSize() ? results.size() : pageable.getPageSize(), pageable.getSort());
+				Math.max(results.size(), pageable.getPageSize()), pageable.getSort());
 		return new PageImpl<>(results, pageableRequest, total);
 	}
 	
@@ -153,8 +151,9 @@ public class DefaultIdmRequestIdentityRoleService extends
 			IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRole,
 					IdmIdentityRole_.identityContract.getName(), IdmIdentityContractDto.class);
 			UUID requestId = dto.getRoleRequest();
+			IdmRoleRequestDto request = null;
 			if(requestId == null) {
-				IdmRoleRequestDto request = this.createRequest(identityContractDto.getIdentity());
+				request = this.createRequest(identityContractDto.getIdentity());
 				requestId = request.getId();
 			}
 			IdmConceptRoleRequestDto conceptRoleRequest = createConcept(identityRole, identityContractDto, requestId,
@@ -165,6 +164,10 @@ public class DefaultIdmRequestIdentityRoleService extends
 			conceptRoleRequest.setEavs(dto.getEavs());
 			// Create concept with EAVs
 			conceptRoleRequest = conceptRoleService.save(conceptRoleRequest, permission);
+			if (request != null) {
+				// Add request to concept. Will be used on the FE (prevent loading of request).
+				conceptRoleRequest.getEmbedded().put(IdmConceptRoleRequest_.roleRequest.getName(), request);
+			}
 			
 			return this.conceptToRequestIdentityRole(conceptRoleRequest, null);
 		} else if(dto.getId() == null && dto.getIdentityRole() == null) {
@@ -184,19 +187,25 @@ public class DefaultIdmRequestIdentityRoleService extends
 			IdmIdentityContractDto identityContractDto = identityContractService.get(dto.getIdentityContract());
 			
 			UUID requestId = dto.getRoleRequest();
+			IdmRoleRequestDto request = null;
 			if(requestId == null) {
-				IdmRoleRequestDto request = this.createRequest(identityContractDto.getIdentity());
+				request = this.createRequest(identityContractDto.getIdentity());
 				requestId = request.getId();
 			}
 			List<IdmConceptRoleRequestDto> concepts = Lists.newArrayList();
 			
 			UUID finalRequestId = requestId;
+			IdmRoleRequestDto finalRequest = request;
 			roles.forEach(role -> {
 				IdmConceptRoleRequestDto conceptRoleRequest = createConcept(null, identityContractDto, finalRequestId,
 						role, dto.getValidFrom(), dto.getValidTill(), ConceptRoleRequestOperation.ADD);
 				conceptRoleRequest.setEavs(dto.getEavs());
 				// Create concept with EAVs
 				conceptRoleRequest = conceptRoleService.save(conceptRoleRequest);
+				if (finalRequest != null) {
+					// Add request to concept. Will be used on the FE (prevent loading of request).
+					conceptRoleRequest.getEmbedded().put(IdmConceptRoleRequest_.roleRequest.getName(), finalRequest);
+				}
 				concepts.add(conceptRoleRequest);
 			});
 			// Beware more then one concepts could be created, but only first will be returned!
@@ -235,14 +244,19 @@ public class DefaultIdmRequestIdentityRoleService extends
 			UUID requestId = dto.getRoleRequest();
 			IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRoleDto,
 					IdmIdentityRole_.identityContract.getName(), IdmIdentityContractDto.class);
+			IdmRoleRequestDto request = null;
 			if(requestId == null) {
-				IdmRoleRequestDto request = this.createRequest(identityContractDto.getIdentity());
+				request = this.createRequest(identityContractDto.getIdentity());
 				requestId = request.getId();
 			}
 			IdmRoleRequestDto mockRequest = new IdmRoleRequestDto();
 			mockRequest.setId(requestId);
 			IdmConceptRoleRequestDto concept = roleRequestService.createConcept(mockRequest, identityContractDto, identityRoleDto.getId(), identityRoleDto.getRole(),
 					ConceptRoleRequestOperation.REMOVE);
+			if (request != null) {
+				// Add request to concept. Will be used on the FE (prevent loading of request).
+				concept.getEmbedded().put(IdmConceptRoleRequest_.roleRequest.getName(), request);
+			}
 			
 			return this.conceptToRequestIdentityRole(concept, null);
 			
@@ -369,7 +383,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 					requestIdentityRoleWithConcept.setValidFrom(concept.getValidFrom());
 					requestIdentityRoleWithConcept.setValidTill(concept.getValidTill());
 					requestIdentityRoleWithConcept.setRoleRequest(concept.getRoleRequest());
-					IdmFormInstanceDto formInstanceDto  = null;
+					IdmFormInstanceDto formInstanceDto;
 					// For updated identity-role replace EAVs from the concept
 					if (ConceptRoleRequestOperation.UPDATE == concept.getOperation()) {
 						formInstanceDto  = conceptRoleService.getRoleAttributeValues(concept, true);
@@ -457,7 +471,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 		IdmRequestIdentityRoleDto requestIdentityRoleDto = modelMapper.map(concept, IdmRequestIdentityRoleDto.class);
 		
 		if (filter != null && filter.isIncludeEav()) {
-			IdmFormInstanceDto formInstanceDto  = null;
+			IdmFormInstanceDto formInstanceDto;
 			if (ConceptRoleRequestOperation.REMOVE == concept.getOperation()) {
 				IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept,
 						IdmConceptRoleRequest_.identityRole.getName(), IdmIdentityRoleDto.class,

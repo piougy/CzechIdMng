@@ -14,7 +14,7 @@ import NotificationSentState from './NotificationSentState';
 import SearchParameters from '../../domain/SearchParameters';
 
 /**
-* Audit for sent notifications
+* Audit for sent notifications.
 *
 * @author Radek Tomiška
 */
@@ -79,20 +79,27 @@ export class NotificationTable extends Advanced.AbstractTableContent {
     const forceSearchParameters = new SearchParameters().setFilter('notificationType', 'notification');
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={notificationManager}
-          rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+          uiKey={ uiKey }
+          manager={ notificationManager }
+          rowClass={ ({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); } }
           filterOpened={filterOpened}
           showRowSelection={ SecurityManager.hasAnyAuthority(['NOTIFICATION_DELETE']) }
           actions={
             SecurityManager.hasAnyAuthority(['NOTIFICATION_DELETE'])
             ?
-            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+            [{
+              value: 'delete',
+              niceLabel: this.i18n('action.delete.action'),
+              action: this.onDelete.bind(this),
+              icon: 'fa:trash',
+              deleteOperation: true,
+              level: 'error'
+            }]
             :
             null
           }
@@ -161,7 +168,7 @@ export class NotificationTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column property="sentLog" sort face="text" rendered={false} width="300px"/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

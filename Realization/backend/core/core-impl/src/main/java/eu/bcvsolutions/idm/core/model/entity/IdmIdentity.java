@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormProjection;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 
 /**
  * Identity
@@ -51,7 +52,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormProjection;
 		@Index(name = "idx_idm_identity_form_proj", columnList = "form_projection_id")})
 public class IdmIdentity 
 		extends AbstractEntity
-		implements Codeable, FormableEntity, Disableable, AuditSearchable, ExternalCodeable, ExternalIdentifiable {
+		implements Codeable, FormableEntity, Disableable, AuditSearchable, ExternalCodeable, ExternalIdentifiable, AttachableEntity {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//

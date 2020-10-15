@@ -47,12 +47,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByAttributeTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -66,7 +63,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * Test for change automatic role via request.
  * 
  * @author svandav
- *
+ * @author Radek Tomiška
  */
 public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends AbstractCoreWorkflowIntegrationTest {
 
@@ -86,8 +83,6 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmConfigurationService configurationService;
-	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
 	private IdmAutomaticRoleAttributeRuleService ruleService;
 	@Autowired
@@ -144,7 +139,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	
 			Assert.assertEquals(RequestState.CONCEPT, request.getState());
 	
-			IdmIdentityDto identity = helper.createIdentity();
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 			IdmAutomaticRoleAttributeRuleRequestDto rule = new IdmAutomaticRoleAttributeRuleRequestDto();
 			rule.setRequest(request.getId());
 			rule.setOperation(RequestOperationType.ADD);
@@ -157,13 +152,16 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 			request = roleRequestService.startRequestInternal(request.getId(), true);
 			// Recalculate
 			Assert.assertNotNull(request.getAutomaticRole());
-			this.recalculateSync(request.getAutomaticRole());
-	
 			request = roleRequestService.get(request.getId());
-	
 			Assert.assertEquals(RequestState.EXECUTED, request.getState());
+			//
+			getHelper().waitForResult(res -> {
+				return identityRoleService.findAllByIdentity(identity.getId()).isEmpty();
+			});
+			//
 			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 			Assert.assertFalse(identityRoles.isEmpty());
+			Assert.assertEquals(1, identityRoles.size());
 			Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
 			Assert.assertNotNull(identityRoles.get(0).getAutomaticRole());
 		} finally {
@@ -194,12 +192,15 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	
 			// Create automatic role via manager
 			automaticRole = automaticRoleManager.createAutomaticRoleByAttribute(automaticRole, true, rule);
-			// Recalculate
 			Assert.assertNotNull(automaticRole.getId());
-			this.recalculateSync(automaticRole.getId());
+			
+			getHelper().waitForResult(res -> {
+				return identityRoleService.findAllByIdentity(identity.getId()).isEmpty();
+			});
 	
 			List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 			Assert.assertFalse(identityRoles.isEmpty());
+			Assert.assertEquals(1, identityRoles.size());
 			Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
 			Assert.assertNotNull(identityRoles.get(0).getAutomaticRole());
 		} finally {
@@ -291,6 +292,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 
 	@Test
 	public void testRemoveRule() {
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		//
 		IdmRoleDto role = prepareRole();
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityDto identityTwo = helper.createIdentity();
@@ -507,6 +510,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	
 	@Test
 	public void testAutomaticRoleRequestReferentialIntegrity () {
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		//
 		IdmRoleDto role = prepareRole();
 		IdmTreeNodeDto nodeOne = helper.createTreeNode();
 		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
@@ -698,18 +703,6 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 			return;
 		}
 		fail("Automatic role request have to be approving by gurantee!");
-	}
-
-	/**
-	 * Method correspond method
-	 * {@link IdmAutomaticRoleAttributeRuleService#recalculate()} but in
-	 * synchronized mode
-	 */
-	private Boolean recalculateSync(UUID automaticRoleId) {
-		ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper
-				.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
-		automaticRoleTask.setAutomaticRoleId(automaticRoleId);
-		return longRunningTaskManager.executeSync(automaticRoleTask);
 	}
 
 	/**

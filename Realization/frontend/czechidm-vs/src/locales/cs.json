@@ -113,6 +113,9 @@
       "filter": {
         "text": {
           "placeholder": "UID (identifikátor účtu)"
+        },
+        "implementers": {
+          "placeholder": "Implementátoři systémů"
         }
       },
       "cancel-reason": {

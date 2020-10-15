@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +15,14 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationAttachmentDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationAttachmentService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationSender;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
@@ -43,6 +48,11 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	private IdmNotificationTemplateService notificationTemplateService;
 	@Autowired(required = false)
 	private ConfigurationService configurationService; // optional internal dependency - e.g. checks for sender is enabled
+	@Autowired 
+	private IdmNotificationAttachmentService notificationAttachmentService;
+	@Autowired 
+	private AttachmentManager attachmentManager;
+	
 	
 	/**
 	 * Returns true, if given delimiter equals this managers {@link IdmNotification} type.
@@ -210,5 +220,38 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 			IdmNotificationRecipientDto recipient, String realRecipient) {
 		return new IdmNotificationRecipientDto(notification.getId(), recipient.getIdentityRecipient(),
 			realRecipient);
+	}
+	
+	/**
+	 * Create link between notification and it's attachments.
+	 * Not persisted attachment will be persisted wit notification as owner.
+	 * 
+	 * @param notification notification
+	 * @return saved attachments
+	 * @since 10.6.0
+	 */
+	protected List<IdmAttachmentDto> saveNotificationAttachments(IdmNotificationDto notification, List<IdmAttachmentDto> attachments) {
+		if (CollectionUtils.isEmpty(attachments)) {
+			return attachments;
+		}
+		//
+		return attachments
+			.stream()
+			.map(attachment -> {
+				// Not persisted attachment will be persisted wit notification as owner.
+				if (attachmentManager.isNew(attachment)) {
+					attachment = attachmentManager.saveAttachment(notification, attachment);
+				}
+				//
+				IdmNotificationAttachmentDto notificationAttachment = new IdmNotificationAttachmentDto();
+				notificationAttachment.setNotification(notification.getId());
+				notificationAttachment.setName(attachment.getName());
+				notificationAttachment.setAttachment(attachment.getId());
+				//
+				notificationAttachmentService.save(notificationAttachment);
+				//
+				return attachment;
+			})
+			.collect(Collectors.toList());
 	}
 }

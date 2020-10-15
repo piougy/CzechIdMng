@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -192,9 +193,7 @@ public class DefaultImportManager implements ImportManager {
 		logFilter.setBatchId(batch.getId());
 		importLogService.findIds(logFilter, null)//
 				.getContent()//
-				.forEach(logId -> {
-					importLogService.deleteById(logId);
-				});
+				.forEach(logId -> importLogService.deleteById(logId));
 
 		IdmAttachmentDto attachment = attachmentManager.get(batch.getData());
 		Path tempDirectory = null;
@@ -217,14 +216,10 @@ public class DefaultImportManager implements ImportManager {
 			context.getImportTaskExecutor().setCount(countOfFiles - 1);
 
 			// Import new and update exist DTOs.
-			manifest.getExportOrder().forEach(descriptor -> {
-				this.executeImportForType(descriptor, context);
-			});
+			manifest.getExportOrder().forEach(descriptor -> this.executeImportForType(descriptor, context));
 
 			// Delete redundant DTOs.
-			Lists.reverse(manifest.getExportOrder()).forEach(descriptor -> {
-				this.removeRedundant(descriptor, context);
-			});
+			Lists.reverse(manifest.getExportOrder()).forEach(descriptor -> this.removeRedundant(descriptor, context));
 
 			return context;
 		} finally {
@@ -239,7 +234,7 @@ public class DefaultImportManager implements ImportManager {
 	/**
 	 * Ensures add new and update existed DTOs by given batch.
 	 *
-	 * @param dtoClass
+	 * @param descriptor
 	 * @param context
 	 */
 	private void executeImportForType(ExportDescriptorDto descriptor, ImportContext context) {
@@ -251,7 +246,7 @@ public class DefaultImportManager implements ImportManager {
 			List<BaseDto> dtos;
 			try (Stream<Path> paths = Files.walk(dtoTypePath)) {
 				dtos = paths//
-						.filter(path -> Files.isRegularFile(path))//
+						.filter(Files::isRegularFile)//
 						.map(path -> {
 							BaseDto dto = convertFileToDto(path.toFile(), dtoClass, context);
 							Assert.notNull(dto, "DTO cannot be null after conversion from the batch!");
@@ -339,7 +334,7 @@ public class DefaultImportManager implements ImportManager {
 					IdmFormDefinitionDto definition = formInstance.getFormDefinition();
 					Assert.notNull(definition, "Definition cannot be null for import!");
 
-					CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE,
+					CoreEvent<IdmFormInstanceDto> event = new CoreEvent<>(CoreEventType.UPDATE,
 							formInstance);
 
 					// Check if owner exist (UPDATE/ADD)
@@ -375,6 +370,8 @@ public class DefaultImportManager implements ImportManager {
 					// DTO with same ID already exists -> update.
 					IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), dto, RequestOperationType.UPDATE,
 							(UUID) parentDto.getId());
+					// Resolve excluded fields
+					dto = this.excludeFields(dto, currentDto, context);
 					if (!context.isDryRun()) {
 						dtoService.save(dto);
 						dtoLog.setResult(new OperationResultDto(OperationState.EXECUTED));
@@ -419,6 +416,9 @@ public class DefaultImportManager implements ImportManager {
 					IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), dto, RequestOperationType.UPDATE,
 							(UUID) parentDto.getId());
 					if (!context.isDryRun()) {
+						// Resolve excluded fields
+						dto = this.excludeFields(dto, currentDto, context);
+						// Save a DTO.
 						dtoService.save(dto);
 						dtoLog.setResult(new OperationResultDto(OperationState.EXECUTED));
 					} else {
@@ -432,6 +432,9 @@ public class DefaultImportManager implements ImportManager {
 							(UUID) parentDto.getId());
 					// No current DTO was found -> create.
 					if (!context.isDryRun()) {
+						// Resolve excluded fields
+						dto = this.excludeFields(dto, null, context);
+						// Save new DTO.
 						dtoService.save(dto);
 						dtoLog.setResult(new OperationResultDto(OperationState.EXECUTED));
 					} else {
@@ -447,6 +450,32 @@ public class DefaultImportManager implements ImportManager {
 		}
 	}
 
+	/**
+	 * Resolve excluded fields. If some fields for this DTO class are excluded,
+	 * then will be sets to a value from the current DTO (or set to the null, if current DTO does not exist).
+	 *
+	 * @param dto
+	 * @param currentDto
+	 * @param context
+	 * @return
+	 */
+	private BaseDto excludeFields(BaseDto dto, BaseDto currentDto, ImportContext context) {
+		if (dto == null) {
+			return null;
+		}
+		ExportDescriptorDto descriptor = this.getDescriptor(context, dto.getClass());
+		Assert.notNull(descriptor, "Descriptor cannot be null here!");
+		descriptor.getExcludedFields().forEach(excludedField -> {
+			Object currentFieldValue = null;
+			if (currentDto != null) {
+				currentFieldValue = this.getDtoFieldValue(currentDto, excludedField);
+			}
+			this.setDtoFieldValue(dto, excludedField, currentFieldValue);
+		});
+
+		return dto;
+	}
+
 	private List<BaseDto> sortsDTOs(Class<? extends BaseDto> dtoClass, List<BaseDto> dtos) {
 
 		String itselfField = this.containsItselfTypeRelation(dtoClass);
@@ -460,10 +489,7 @@ public class DefaultImportManager implements ImportManager {
 		Set<BaseDto> roots = dtos.stream()//
 				.filter(dto -> {
 					UUID id = getFieldUUIDValue(itselfField, dto, dtoClass);
-					if (id == null) {
-						return true;
-					}
-					return false;
+					return id == null;
 				}).collect(Collectors.toSet());
 		if (roots.isEmpty()) {
 			throw new ResultCodeException(CoreResultCode.IMPORT_FAILED_ROOT_NOT_FOUND,
@@ -492,19 +518,14 @@ public class DefaultImportManager implements ImportManager {
 	private void sortingChildren(UUID parentId, String itselfField, Class<? extends BaseDto> dtoClass,
 			List<BaseDto> dtos, List<BaseDto> orderedDtos) {
 
-		List<BaseDto> chlidren = dtos.stream()//
+		List<BaseDto> children = dtos.stream()//
 				.filter(dto -> {
 					UUID id = getFieldUUIDValue(itselfField, dto, dtoClass);
-					if (parentId.equals(id)) {
-						return true;
-					}
-					return false;
+					return Objects.equals(parentId, id);
 				}).collect(Collectors.toList());
 		// Add all children to ordered list
-		orderedDtos.addAll(chlidren);
-		chlidren.forEach(child -> {
-			this.sortingChildren((UUID) child.getId(), itselfField, dtoClass, dtos, orderedDtos);
-		});
+		orderedDtos.addAll(children);
+		children.forEach(child -> this.sortingChildren((UUID) child.getId(), itselfField, dtoClass, dtos, orderedDtos));
 	}
 
 	/**
@@ -601,12 +622,12 @@ public class DefaultImportManager implements ImportManager {
 						} else {
 							Assert.notNull(batchFieldDtoAsString,
 									MessageFormat.format(
-											"Embedded map must contains DTO for advaced paring field [{0}]",
+											"Embedded map must contains DTO for advanced paring field [{0}]",
 											advancedParingField));
 						}
 					}
 
-					BaseDto batchFieldDto = null;
+					BaseDto batchFieldDto;
 					try {
 						batchFieldDto = this.convertStringToDto(batchFieldDtoAsString.toString(), dtoClassField,
 								context);
@@ -684,6 +705,7 @@ public class DefaultImportManager implements ImportManager {
 		// Find super parent (gold) DTO (typically it is DTO for system, role ...)
 		Class<? extends AbstractDto> superParentDtoClass = getSuperParentDtoClass(descriptor, context);
 
+		Assert.notNull(superParentDtoClass, "Supper parent cannot be null here!");
 		Path superParentDtoTypePath = Paths.get(context.getTempDirectory().toString(),
 				superParentDtoClass.getSimpleName());
 		try {
@@ -691,7 +713,7 @@ public class DefaultImportManager implements ImportManager {
 			Set<UUID> superParentIdsInBatch;
 			try (Stream<Path> paths = Files.walk(superParentDtoTypePath)) {
 				superParentIdsInBatch = paths//
-						.filter(path -> Files.isRegularFile(path))//
+						.filter(Files::isRegularFile)//
 						.map(path -> {
 							BaseDto dto = convertFileToDto(path.toFile(), superParentDtoClass, context);
 							return (UUID) dto.getId();
@@ -705,12 +727,12 @@ public class DefaultImportManager implements ImportManager {
 				Path dtoTypePath = Paths.get(context.getTempDirectory().toString(), inheritedClass.getSimpleName());
 				try (Stream<Path> paths = Files.walk(dtoTypePath)) {
 					Set<Serializable> childrenIds = paths//
-							.filter(path -> Files.isRegularFile(path))//
-							.map(path -> (BaseDto) convertFileToDto(path.toFile(), inheritedClass, context))//
+							.filter(Files::isRegularFile)//
+							.map(path -> convertFileToDto(path.toFile(), inheritedClass, context))//
 							.map(dto -> {
 								// If ID has been replaced, then we need to also replace it.
-								if (context.getReplacedIDs().containsKey(dto.getId())) {
-									return context.getReplacedIDs().get(dto.getId());
+								if (context.getReplacedIDs().containsKey((UUID)dto.getId())) {
+									return context.getReplacedIDs().get((UUID)dto.getId());
 								}
 								return dto.getId();
 							}).collect(Collectors.toSet());
@@ -726,7 +748,7 @@ public class DefaultImportManager implements ImportManager {
 					}
 
 					ReadWriteDtoService<BaseDto, BaseFilter> dtoService = getDtoService(serviceDtoClass);
-					BaseFilter filterBase = (BaseFilter) dtoService.getFilterClass().newInstance();
+					BaseFilter filterBase = dtoService.getFilterClass().newInstance();
 
 					// Fill super-parent-property by superParentId (call setter = check if filter is
 					// implemented).
@@ -734,7 +756,7 @@ public class DefaultImportManager implements ImportManager {
 							.invoke(filterBase, superParentId);
 
 					// Load all IDs in IdM for this parent ID.
-					List<UUID> childrenIdsInIdM = (List<UUID>) dtoService.find(filterBase, null)//
+					List<UUID> childrenIdsInIdM = dtoService.find(filterBase, null)//
 							.getContent()//
 							.stream()//
 							.map(childDto -> ((AbstractDto) childDto).getId())//
@@ -787,37 +809,13 @@ public class DefaultImportManager implements ImportManager {
 
 		return manifest.getExportOrder()//
 				.stream()//
-				.map(descriptor -> {
-					return descriptor.getDtoClass();
-				}).filter(dto -> {
+				.map(ExportDescriptorDto::getDtoClass)
+				.filter(dto -> {
 					if (dto.isAnnotationPresent(Inheritable.class)) {
-						if (parentClass == dto.getAnnotation(Inheritable.class).dtoService()) {
-							return true;
-						}
+						return parentClass == dto.getAnnotation(Inheritable.class).dtoService();
 					}
 					return false;
 				}).collect(Collectors.toSet());
-	}
-
-	/**
-	 * Find super parent DTO for given DTO. Searching is only in the batch.
-	 * 
-	 * @param dto
-	 * @param context
-	 * @return
-	 */
-	@SuppressWarnings("unused")
-	private BaseDto getSuperParentDtoFromBatch(BaseDto dto, ImportContext context) {
-
-		BaseDto parentDto = dto;
-		BaseDto lastParentDto = dto;
-		while (true) {
-			parentDto = this.getParentDtoFromBatch(parentDto, context);
-			if (parentDto == null) {
-				return lastParentDto;
-			}
-			lastParentDto = parentDto;
-		}
 	}
 
 	/**
@@ -850,8 +848,8 @@ public class DefaultImportManager implements ImportManager {
 				Path dtoTypePath = Paths.get(context.getTempDirectory().toString(), parentType.getSimpleName());
 				try (Stream<Path> paths = Files.walk(dtoTypePath)) {
 					BaseDto parentDto = paths//
-							.filter(path -> Files.isRegularFile(path))//
-							.map(path -> (BaseDto) convertFileToDto(path.toFile(), parentType, context))//
+							.filter(Files::isRegularFile)//
+							.map(path -> convertFileToDto(path.toFile(), parentType, context))//
 							.filter(d -> parentId.equals(d.getId()))//
 							.findFirst()//
 							.orElse(null);
@@ -871,7 +869,7 @@ public class DefaultImportManager implements ImportManager {
 		try {
 			try (Stream<Path> paths = Files.walk(mainPath)) {
 				return paths//
-						.filter(path -> Files.isRegularFile(path))//
+						.filter(Files::isRegularFile)//
 						.count();
 			}
 		} catch (IOException ex) {
@@ -904,9 +902,10 @@ public class DefaultImportManager implements ImportManager {
 	}
 
 	private ExportDescriptorDto getDescriptor(ImportContext context, Class<? extends BaseDto> parentDtoClass) {
-		ExportDescriptorDto parentDescriptor = context.getExportDescriptors().stream()
-				.filter(des -> des.getDtoClass().equals(parentDtoClass)).findFirst().orElse(null);
-		return parentDescriptor;
+		return context.getExportDescriptors().stream()
+				.filter(des -> des.getDtoClass().equals(parentDtoClass))
+				.findFirst()
+				.orElse(null);
 	}
 
 	private Class<? extends AbstractDto> getDtoClassFromField(Class<? extends BaseDto> dtoClass, String fieldProperty) {
@@ -919,6 +918,42 @@ public class DefaultImportManager implements ImportManager {
 			throw new ResultCodeException(CoreResultCode.EXPORT_IMPORT_REFLECTION_FAILED, e);
 		}
 		return null;
+	}
+
+	/**
+	 * Get value from the getter for given field.
+	 *
+	 * @param dto
+	 * @param fieldProperty
+	 * @return
+	 */
+	private Object getDtoFieldValue(BaseDto dto, String fieldProperty) {
+		if (dto == null) {
+			return null;
+		}
+		try {
+			return EntityUtils.getEntityValue(dto, fieldProperty);
+		} catch (ReflectiveOperationException | IntrospectionException e) {
+			throw new ResultCodeException(CoreResultCode.EXPORT_IMPORT_REFLECTION_FAILED, e);
+		}
+	}
+
+	/**
+	 * Set value with use the setter for given field.
+	 *
+	 * @param dto
+	 * @param fieldProperty
+	 * @param value
+	 */
+	private void setDtoFieldValue(BaseDto dto, String fieldProperty, Object value) {
+		if (dto == null) {
+			return;
+		}
+		try {
+			EntityUtils.setEntityValue(dto,fieldProperty,value);
+		} catch (ReflectiveOperationException | IntrospectionException e) {
+			throw new ResultCodeException(CoreResultCode.EXPORT_IMPORT_REFLECTION_FAILED, e);
+		}
 	}
 
 	/**
@@ -1013,9 +1048,9 @@ public class DefaultImportManager implements ImportManager {
 				.collect(Collectors.toSet());//
 
 		// Replace found IDs
-		for (UUID idToRplace : idsToReplace) {
-			replacedDtoAsString = replacedDtoAsString.replace(idToRplace.toString(),
-					replacedIDs.get(idToRplace).toString());
+		for (UUID idToReplace : idsToReplace) {
+			replacedDtoAsString = replacedDtoAsString.replace(idToReplace.toString(),
+					replacedIDs.get(idToReplace).toString());
 		}
 		return (DTO) mapper.readValue(replacedDtoAsString, dtoClass);
 	}

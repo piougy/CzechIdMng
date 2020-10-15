@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.event.processor;
 
+import java.time.ZonedDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -43,6 +45,7 @@ public class LongRunningTaskEndProcessor
 		IdmLongRunningTaskDto task = event.getContent();
 		// end task
 		task.setRunning(false);
+		task.setTaskEnded(ZonedDateTime.now());
 		// and persist state
 		service.save(task);
 		event.setContent(task);

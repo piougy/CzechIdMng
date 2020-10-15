@@ -99,10 +99,9 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 			// fill email to recipientDto
 			emailLog.getRecipients().add(new IdmNotificationRecipientDto(email));
 		}
-		emailLog.setAttachments(attachments);
 		emailLog = this.emailLogService.save(emailLog);
-		// TODO: remove after attachments will be persisted
-		emailLog.setAttachments(attachments);
+		// save notification attachments
+		emailLog.setAttachments(saveNotificationAttachments(emailLog, attachments));
 		//
 		producerTemplate.sendBody("direct:emails", emailLog);
 		//

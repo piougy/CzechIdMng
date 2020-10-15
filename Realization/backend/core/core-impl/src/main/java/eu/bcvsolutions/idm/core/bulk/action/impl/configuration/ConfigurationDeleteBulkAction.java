@@ -21,8 +21,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
  * @author Ondrej Husnik
  *
  */
-
-@Component("configurationDeleteBulkAction")
+@Component(ConfigurationDeleteBulkAction.NAME)
 @Description("Delete selected configurations")
 public class ConfigurationDeleteBulkAction extends AbstractRemoveBulkAction<IdmConfigurationDto, DataFilter> {
 

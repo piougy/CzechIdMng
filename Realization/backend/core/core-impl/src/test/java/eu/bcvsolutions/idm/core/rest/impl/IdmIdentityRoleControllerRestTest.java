@@ -112,8 +112,9 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		// automatic
 		IdmIdentityRoleDto automaticIdentityRole = new IdmIdentityRoleDto();
 		automaticIdentityRole.setIdentityContract(contract.getId());
-		automaticIdentityRole.setRole(getHelper().createRole().getId());
-		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(getHelper().createRole().getId());
+		IdmRoleDto role = getHelper().createRole();
+		automaticIdentityRole.setRole(role.getId());
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
 		automaticIdentityRole.setAutomaticRole(automaticRole.getId());
 		IdmIdentityRoleDto automatic = createDto(automaticIdentityRole);
 		//

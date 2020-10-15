@@ -18,8 +18,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Radek Tomiška
  *
  */
-public interface IdmAuthorizationPolicyService extends 
-		ReadWriteDtoService<IdmAuthorizationPolicyDto, 
+public interface IdmAuthorizationPolicyService extends
+		ReadWriteDtoService<IdmAuthorizationPolicyDto,
 		IdmAuthorizationPolicyFilter>,
 		AuthorizableService<IdmAuthorizationPolicyDto> {
 	

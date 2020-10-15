@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -13,9 +15,13 @@ import org.springframework.context.annotation.Description;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -36,6 +42,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepositor
 public class AuthorizationPolicyByIdentityFilterBuilder extends AbstractFilterBuilder<IdmAuthorizationPolicy, IdmAuthorizationPolicyFilter> {
 
 	@Autowired @Lazy private RoleConfiguration roleConfiguration;
+	@Autowired @Lazy private IdmRoleCompositionService roleCompositionService;
 	
 	@Autowired
 	public AuthorizationPolicyByIdentityFilterBuilder(IdmAuthorizationPolicyRepository repository) {
@@ -74,9 +81,18 @@ public class AuthorizationPolicyByIdentityFilterBuilder extends AbstractFilterBu
 			return predicate;
 		}
 		//
+		// find all default role sub roles 
+		Set<UUID> defaultRoles = Sets.newHashSet(defaultRoleId);
+		defaultRoles.addAll(
+				roleCompositionService
+					.findAllSubRoles(defaultRoleId)
+					.stream()
+					.map(IdmRoleCompositionDto::getSub)
+					.collect(Collectors.toSet())
+		);
 		return builder.or(
 				predicate,
-				builder.equal(root.get(IdmAuthorizationPolicy_.role).get(IdmRole_.id), defaultRoleId)
+				root.get(IdmAuthorizationPolicy_.role).get(IdmRole_.id).in(defaultRoles)
 		);
 	}
 }

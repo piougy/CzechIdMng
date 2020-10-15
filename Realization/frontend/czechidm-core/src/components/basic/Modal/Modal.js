@@ -101,7 +101,7 @@ export default class BasicModal extends AbstractComponent {
     //
     const heightDifference = modalDialog.height() - $(window).height();
     const footerBottom = heightDifference - (event ? event.target.scrollTop : modal.scrollTop());
-    const footerHeight = modalFooter.outerHeight();
+    const footerHeight = parseInt(modalFooter.outerHeight(), 10);
     const modalMargin = (parseInt(modalDialog.css('margin-bottom'), 10) - 1) || 29; // FIXME: -1 => border bottom
     const _fixedBottom = footerBottom +
       (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)); // on end -> between dialog margin
@@ -115,18 +115,23 @@ export default class BasicModal extends AbstractComponent {
     // console.log('_fixedBottom', _fixedBottom);
     this.setState({
       fixedBottom: _fixedBottom,
-      bodyStyle: {
-        paddingBottom: footerHeight
-      }
+      bodyStyle: (_fixedBottom > 0) ? { paddingBottom: footerHeight } : {}
     }, () => {
-      modalFooter.css({
-        position: 'absolute',
-        bottom: _fixedBottom,
-        backgroundColor: 'white',
-        width: '100%',
-        borderRadius: '0px 0px 6px 6px', // FIXME: by modal radius
-        zIndex: 3 // confidential, validations etc. uses 2
-      });
+      if (_fixedBottom > 0) {
+        modalFooter.css({
+          position: 'absolute',
+          bottom: _fixedBottom,
+          backgroundColor: 'white',
+          width: '100%',
+          borderRadius: '0px 0px 6px 6px', // FIXME: by modal radius
+          zIndex: 7 // confidential uses 2, validation uses 2, script area uses 7.
+        });
+      } else {
+        modalFooter.css({
+          position: 'relative',
+          bottom: 0
+        });
+      }
       if (cb) {
         cb();
       }

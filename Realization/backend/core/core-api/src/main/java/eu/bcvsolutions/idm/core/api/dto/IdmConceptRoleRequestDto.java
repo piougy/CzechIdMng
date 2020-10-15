@@ -37,6 +37,9 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
     @Embedded(dtoClass = IdmIdentityRoleDto.class)
     private UUID identityRole; // For update and delete operations
     private UUID roleTreeNode; // this attribute can't be renamed (backward compatibility) - AutomaticRole reference
+    private UUID directRole; // directly assigned business role
+    private UUID directConcept; // directly assigned business role concept (when new business role is assigned)
+    private UUID roleComposition; // business role definition
     private LocalDate validFrom;
     private LocalDate validTill;
     private ConceptRoleRequestOperation operation;
@@ -211,6 +214,66 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
 	
 	public void setSystemState(OperationResultDto systemState) {
 		this.systemState = systemState;
+	}
+	
+	/**
+	 * Concept for business role.
+	 * 
+	 * @return directly assigned role
+	 * @since 10.6.0
+	 */
+	public UUID getDirectRole() {
+		return directRole;
+	}
+	
+	/**
+	 * Concept for business role.
+	 * 
+	 * @param directRole directly assigned role concept
+	 * @since 10.6.0
+	 */
+	public void setDirectRole(UUID directRole) {
+		this.directRole = directRole;
+	}
+	
+	/**
+	 * Concept for business role concept.
+	 * 
+	 * @return directly assigned role concept
+	 * @since 10.6.0
+	 */
+	public UUID getDirectConcept() {
+		return directConcept;
+	}
+	
+	/**
+	 * Concept for business role concept.
+	 * 
+	 * @param directConcept directly assigned role concept
+	 * @since 10.6.0
+	 */
+	public void setDirectConcept(UUID directConcept) {
+		this.directConcept = directConcept;
+	}
+	
+	/**
+	 * Concept for business role definition.
+	 * 
+	 * @return business role definition
+	 * @since 10.6.0
+	 */
+	public UUID getRoleComposition() {
+		return roleComposition;
+	}
+	
+	/**
+	 * Concept for business role definition.
+	 * 
+	 * @param roleComposition business role definition
+	 * @since 10.6.0
+	 */
+	public void setRoleComposition(UUID roleComposition) {
+		this.roleComposition = roleComposition;
 	}
 
 	@Override

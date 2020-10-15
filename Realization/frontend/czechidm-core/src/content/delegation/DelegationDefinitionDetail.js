@@ -219,6 +219,10 @@ class DelegationDefinitionDetail extends Basic.AbstractContent {
                 rendered={!!_selectedType}
                 onChange={ this._onChangeDelegator.bind(this) }
                 label={ this.i18n('entity.DelegationDefinition.delegator.label') }
+                forceSearchParameters={
+                  new SearchParameters()
+                    .setFilter('_permission', 'DELEGATOR')
+                }
                 disableable={ false }
                 required/>
               <Advanced.EntitySelectBox
@@ -226,6 +230,7 @@ class DelegationDefinitionDetail extends Basic.AbstractContent {
                 rendered={!!selectedDelegator && _selectedType && !!_selectedType.supportsDelegatorContract}
                 entityType="identityContract"
                 useFirst
+                disableable={false}
                 readOnly={!manager.canSave(definition, _permissions)}
                 forceSearchParameters={
                   new SearchParameters()
@@ -237,9 +242,14 @@ class DelegationDefinitionDetail extends Basic.AbstractContent {
               <Advanced.IdentitySelect
                 ref="delegate"
                 rendered={!!_selectedType}
+                disableable={false}
                 readOnly={!manager.canSave(definition, _permissions)}
                 style={{maxWidth: 500}}
                 label={ this.i18n('entity.DelegationDefinition.delegate.label') }
+                forceSearchParameters={
+                  new SearchParameters()
+                    .setFilter('_permission', 'DELEGATE')
+                }
                 required/>
               <Basic.DateTimePicker
                 mode="date"

@@ -90,6 +90,18 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	private IdmAutomaticRole automaticRole;
 	
 	@Audited
+	@Column(name = "direct_role_id", length = 16, nullable = true)
+	private UUID directRole;
+	
+	@Audited
+	@Column(name = "direct_concept_id", length = 16, nullable = true)
+	private UUID directConcept;
+	
+	@Audited
+	@Column(name = "role_composition_id", length = 16, nullable = true)
+	private UUID roleComposition;
+	
+	@Audited
 	@Column(name = "valid_from")
 	private LocalDate validFrom;
 	
@@ -236,4 +248,63 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 		this.systemState = systemState;
 	}
 	
+	/**
+	 * Concept for business role.
+	 * 
+	 * @return directly assigned role
+	 * @since 10.6.0
+	 */
+	public UUID getDirectRole() {
+		return directRole;
+	}
+	
+	/**
+	 * Concept for business role.
+	 * 
+	 * @param directRole directly assigned role concept
+	 * @since 10.6.0
+	 */
+	public void setDirectRole(UUID directRole) {
+		this.directRole = directRole;
+	}
+	
+	/**
+	 * Concept for business role.
+	 * 
+	 * @return directly assigned role concept
+	 * @since 10.6.0
+	 */
+	public UUID getDirectConcept() {
+		return directConcept;
+	}
+	
+	/**
+	 * Concept for business role concept.
+	 * 
+	 * @param directRole directly assigned role concept
+	 * @since 10.6.0
+	 */
+	public void setDirectConcept(UUID directConcept) {
+		this.directConcept = directConcept;
+	}
+	
+	/**
+	 * Concept for business role.
+	 * 
+	 * @return business role
+	 * @since 10.6.0
+	 */
+	public UUID getRoleComposition() {
+		return roleComposition;
+	}	
+	
+	/**
+	 * Concept for business role.
+	 * 
+	 * @param roleComposition business role
+	 * @since 10.6.0
+	 */
+	public void setRoleComposition(UUID roleComposition) {
+		this.roleComposition = roleComposition;
+	}
 }

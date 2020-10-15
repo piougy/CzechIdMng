@@ -5,6 +5,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,8 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Registrable filter - filters will be applied, when property with defined name will be found in filtering parameters.
@@ -30,7 +34,10 @@ import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
  */
 public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends DataFilter> extends BaseFilterBuilder<E, F> {
 
+	@Autowired @Lazy private LookupService lookupService;
+	//
 	private final BaseEntityRepository<E, ?> repository;
+	private ParameterConverter parameterConverter;
 
 	public AbstractFilterBuilder(BaseEntityRepository<E, ?> repository) {
 		Assert.notNull(repository, "Repository is required for filter builder construction.");
@@ -64,5 +71,18 @@ public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends Data
 			pageable = PageRequest.of(0, Integer.MAX_VALUE);
 		}
 		return getRepository().findAll(criteria, pageable);
+	}
+	
+	/**
+	 * Return parameter converter helper.
+	 * 
+	 * @return initialized parameter converter
+	 * @since 10.6.0
+	 */
+	protected ParameterConverter getParameterConverter() {
+		if (parameterConverter == null) {
+			parameterConverter = new ParameterConverter(lookupService);
+		}
+		return parameterConverter;
 	}
 }

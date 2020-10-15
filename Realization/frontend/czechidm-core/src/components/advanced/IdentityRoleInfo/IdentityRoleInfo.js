@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { IdentityRoleManager, IdentityContractManager, RoleManager } from '../../../redux';
+import { IdentityRoleManager, IdentityContractManager, RoleManager, IdentityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import DateValue from '../DateValue/DateValue';
 import EntityInfo from '../EntityInfo/EntityInfo';
@@ -11,6 +11,7 @@ import EntityInfo from '../EntityInfo/EntityInfo';
 const manager = new IdentityRoleManager();
 const identityContractManager = new IdentityContractManager();
 const roleManager = new RoleManager();
+const identityManager = new IdentityManager();
 
 /**
  * Assigned role basic information (info card)
@@ -30,18 +31,28 @@ export class IdentityRoleInfo extends AbstractEntityInfo {
     return this.getManager().getNiceLabel(_entity, showIdentity);
   }
 
+  _isNotLoaded(permissions) {
+    return permissions === undefined || permissions === null || permissions === false;
+  }
+
   onEnter() {
     super.onEnter();
     //
     const entity = this.getEntity();
     if (entity && entity.identityContract) {
       const _contractPermissions = identityContractManager.getPermissions(this.context.store.getState(), null, entity.identityContract);
-      if (_contractPermissions === null || _contractPermissions === false) {
+      if (this._isNotLoaded(_contractPermissions)) {
         this.context.store.dispatch(identityContractManager.fetchPermissions(entity.identityContract));
       }
       const _rolePermissions = roleManager.getPermissions(this.context.store.getState(), null, entity.role);
-      if (_rolePermissions === null || _rolePermissions === false) {
+      if (this._isNotLoaded(_rolePermissions)) {
         this.context.store.dispatch(roleManager.fetchPermissions(entity.role));
+      }
+      if (entity._embedded && entity._embedded.identityContract) {
+        const _identityPermissions = identityManager.getPermissions(this.context.store.getState(), null, entity._embedded.identityContract.identity);
+        if (this._isNotLoaded(_identityPermissions)) {
+          this.context.store.dispatch(identityManager.fetchPermissions(entity._embedded.identityContract.identity));
+        }
       }
     }
   }

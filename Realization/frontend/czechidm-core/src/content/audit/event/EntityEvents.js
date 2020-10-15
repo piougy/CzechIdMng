@@ -1,14 +1,38 @@
 import React from 'react';
+import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
+import { EntityEventManager, DataManager } from '../../../redux';
+import SearchParameters from '../../../domain/SearchParameters';
 import EntityEventTable from './EntityEventTable';
 
+const manager = new EntityEventManager();
+
 /**
- * List of persisted entity events
+ * List of persisted entity events.
  *
  * @author Radek Tomiška
  */
-export default class EntityEvents extends Basic.AbstractContent {
+class EntityEvents extends Basic.AbstractContent {
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    // fetch counts
+    this.context.store.dispatch(
+      manager.fetchEntitiesCount(
+        new SearchParameters().setFilter('states', ['CREATED', 'RUNNING']),
+        `entity-event-info-count`
+      )
+    );
+    this.context.store.dispatch(
+      manager.fetchEntitiesCount(
+        new SearchParameters().setFilter('states', ['EXCEPTION']),
+        `entity-event-error-count`
+      )
+    );
+  }
 
   getContentKey() {
     return 'content.entityEvents';
@@ -19,12 +43,34 @@ export default class EntityEvents extends Basic.AbstractContent {
   }
 
   render() {
+    const { infoCounter, errorCounter } = this.props;
+    //
     return (
       <Basic.Div>
-        { this.renderPageHeader() }
+        <Basic.PageHeader>
+          <Helmet title={ this.i18n('title') } />
+          <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
+            { this.i18n('header') }
+            <Basic.Badge
+              level="info"
+              text={ infoCounter }
+              style={{ marginLeft: 5 }}
+              title={ this.i18n('counter.info') }
+              onClick={ () => this.refs.table.useFilterData({ states: ['CREATED', 'RUNNING'] }) }/>
+            <Basic.Badge
+              level="error"
+              text={ errorCounter }
+              style={{ marginLeft: 5 }}
+              title={ this.i18n('counter.error') }
+              onClick={ () => this.refs.table.useFilterData({ states: ['EXCEPTION'] }) }/>
+          </Basic.Div>
+        </Basic.PageHeader>
 
         <Basic.Panel>
-          <EntityEventTable uiKey="entity-event-table" filterOpened />
+          <EntityEventTable
+            ref="table"
+            uiKey="entity-event-table"
+            filterOpened/>
         </Basic.Panel>
       </Basic.Div>
     );
@@ -35,3 +81,12 @@ EntityEvents.propTypes = {
 };
 EntityEvents.defaultProps = {
 };
+
+function select(state) {
+  return {
+    infoCounter: DataManager.getData(state, `entity-event-info-count`),
+    errorCounter: DataManager.getData(state, `entity-event-error-count`)
+  };
+}
+
+export default connect(select)(EntityEvents);

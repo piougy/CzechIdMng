@@ -1143,7 +1143,7 @@ public class DefaultIdmRoleRequestService
 			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole,
 					 ImmutableMap.of(IdmAccountDto.SKIP_PROPAGATE, Boolean.TRUE));
 
-			identityRoleService.publish(event);
+			identityRoleService.publish(event, requestEvent);
 			// Add list of identity-accounts for delayed ACM to parent event
 			Set<UUID> subIdentityAccountsForAcm = event
 					.getSetProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, UUID.class);
@@ -1187,7 +1187,7 @@ public class DefaultIdmRoleRequestService
 		event.setPriority(PriorityType.IMMEDIATE);
 
 		// propagate event
-		identityRole = identityRoleService.publish(event).getContent();
+		identityRole = identityRoleService.publish(event, requestEvent).getContent();
 
 		// Updated assigned roles by business roles
 		Set<IdmIdentityRoleDto> subUpdatedIdentityRoles = event

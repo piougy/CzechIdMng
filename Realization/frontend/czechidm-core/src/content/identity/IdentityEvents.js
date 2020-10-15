@@ -18,7 +18,7 @@ const identityManager = new IdentityManager();
  * @author Radek Tomiška
  */
 class IdentityEvents extends Basic.AbstractContent {
-//
+
   componentDidMount() {
     super.componentDidMount();
     //
@@ -68,12 +68,14 @@ class IdentityEvents extends Basic.AbstractContent {
               level="info"
               text={ infoCounter }
               style={{ marginLeft: 5 }}
-              title={ this.i18n('counter.info') }/>
+              title={ this.i18n('counter.info') }
+              onClick={ () => this.refs.table.useFilterData({ states: ['CREATED', 'RUNNING'] }) }/>
             <Basic.Badge
               level="error"
               text={ errorCounter }
               style={{ marginLeft: 5 }}
-              title={ this.i18n('counter.error') }/>
+              title={ this.i18n('counter.error') }
+              onClick={ () => this.refs.table.useFilterData({ states: ['EXCEPTION'] }) }/>
           </Basic.Div>
         </Basic.ContentHeader>
 
@@ -87,6 +89,7 @@ class IdentityEvents extends Basic.AbstractContent {
         <Basic.ContentHeader text={ this.i18n('event.header') } style={{ marginBottom: 0 }} rendered={ false }/>
         <Basic.Panel className="no-border last">
           <EntityEventTable
+            ref="table"
             uiKey="identity-entity-event-table"
             filterOpened={false}
             forceSearchParameters={ forceSearchParameters }

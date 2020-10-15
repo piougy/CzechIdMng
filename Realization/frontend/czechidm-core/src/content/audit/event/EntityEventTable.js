@@ -63,6 +63,11 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
     this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
+  useFilterData(data = {}) {
+    this.refs.filterForm.setData(data);
+    this.refs.table.useFilterData(data);
+  }
+
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
@@ -138,6 +143,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
   render() {
     const {
       columns,
+      defaultSearchParameters,
       forceSearchParameters,
       rendered,
       className,
@@ -236,6 +242,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
           }
           filterOpened={ filterOpened }
           forceSearchParameters={ _forceSearchParameters }
+          defaultSearchParameters={ defaultSearchParameters }
           _searchParameters={ this.getSearchParameters() }
           showRowSelection
           className={ className }
@@ -508,6 +515,10 @@ EntityEventTable.propTypes = {
    * "Hard filters"
    */
   forceSearchParameters: PropTypes.object,
+  /**
+   * "Default filters"
+   */
+  defaultSearchParameters: PropTypes.object,
   /**
    * Rendered
    */

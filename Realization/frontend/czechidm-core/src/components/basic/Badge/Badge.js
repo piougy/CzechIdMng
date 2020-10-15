@@ -6,7 +6,7 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Icon from '../Icon/Icon';
 
 /**
- * Badge box
+ * Badge box.
  *
  * @author Radek Tomiška
  */
@@ -21,7 +21,7 @@ class Badge extends AbstractComponent {
   }
 
   render() {
-    const { level, title, text, value, className, rendered, showLoading, ...others } = this.props;
+    const { level, title, text, value, className, rendered, showLoading, style, ...others } = this.props;
     const _text = text || value;
     if (!rendered || !_text) {
       return null;
@@ -31,8 +31,20 @@ class Badge extends AbstractComponent {
       `badge-${ (level === 'error' ? 'danger' : level) }`,
       className
     );
+    //
+    let _style = style;
+    if (others.onClick) {
+      _style = {
+        cursor: 'pointer',
+        ...style
+      };
+    }
     return (
-      <span className={classNames} title={title} {...others}>
+      <span
+        className={ classNames }
+        title={ title }
+        style={ _style }
+        { ...others }>
         {
           showLoading
           ?

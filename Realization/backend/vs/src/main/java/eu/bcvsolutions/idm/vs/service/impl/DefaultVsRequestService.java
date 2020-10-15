@@ -630,7 +630,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 		// System implementers
 		List<UUID> implementers = filter.getImplementers();
-		if (implementers != null && !implementers.isEmpty()) {
+		if (!CollectionUtils.isEmpty(implementers)) {
 			Path<UUID> systemIdPath = root.get(VsRequest_.system).get(SysSystem_.id);
 			
 			// subquery of VsImplementers
@@ -645,7 +645,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			identRoleSubqery.select(identRoleSubroot);
 			identRoleSubqery.where(
 					builder.and(
-							builder.equal(identRoleSubroot.get(IdmIdentityRole_.role), subRoot.get(VsSystemImplementer_.role)),
+							builder.equal(identRoleSubroot.get(IdmIdentityRole_.role), subRoot.get(VsSystemImplementer_.role)), // correlation
 							identRoleSubroot.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id).in(implementers)
 							)
 						);
@@ -654,11 +654,12 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			subquery.select(subRoot);
 			subquery.where(
 				builder.and(
-					builder.equal(subRoot.get(VsSystemImplementer_.system).get(SysSystem_.id), systemIdPath)),
-						builder.or(
-							subRoot.get(VsSystemImplementer_.identity).get(IdmIdentity_.id).in(implementers),
-							builder.exists(identRoleSubqery))
-					);
+					builder.equal(subRoot.get(VsSystemImplementer_.system).get(SysSystem_.id), systemIdPath),
+					builder.or(
+						subRoot.get(VsSystemImplementer_.identity).get(IdmIdentity_.id).in(implementers),
+						builder.exists(identRoleSubqery)
+					)
+				));
 			predicates.add(builder.exists(subquery));
 		}
 		return predicates;

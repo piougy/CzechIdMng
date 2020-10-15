@@ -197,27 +197,27 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     const { filterOpened, showLoading} = this.state;
 
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-realize" level="success">
-          <div style={{ marginTop: '20px' }}>
+          <Basic.Div style={{ marginTop: 20 }}>
             <Basic.AbstractForm ref="realize-form" uiKey="confirm-realize" >
               <Basic.TextArea
                 ref="realize-reason"
                 placeholder={this.i18n('vs:content.vs-requests.realize-reason.placeholder')}
               />
             </Basic.AbstractForm>
-          </div>
+          </Basic.Div>
         </Basic.Confirm>
         <Basic.Confirm ref="confirm-cancel" level="danger">
-          <div style={{marginTop: '20px'}}>
+          <Basic.Div style={{ marginTop: 20 }}>
             <Basic.AbstractForm ref="cancel-form" uiKey="confirm-cancel" >
               <Basic.TextArea
                 ref="cancel-reason"
                 placeholder={this.i18n('vs:content.vs-requests.cancel-reason.placeholder')}
                 required/>
             </Basic.AbstractForm>
-          </div>
+          </Basic.Div>
         </Basic.Confirm>
 
         <Advanced.Table
@@ -398,7 +398,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             className="detail-button"
             cell={this._getButtonsCell.bind(this)}/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

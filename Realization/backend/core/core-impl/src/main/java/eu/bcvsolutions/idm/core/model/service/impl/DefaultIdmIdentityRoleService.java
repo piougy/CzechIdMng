@@ -191,12 +191,18 @@ public class DefaultIdmIdentityRoleService
 		}
 		List<UUID> identities = filter.getIdentities();
 		if (!identities.isEmpty()) {
+			if (identities.size() > 500) {
+				throw new IllegalArgumentException(String.format("Identities size exceeded, given [%s], max [%s]", identities.size(), 500));
+			}
 			predicates.add(
 					root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id).in(identities) 
-				);
+			);
 		}
 		List<UUID> roles = filter.getRoles();
 		if (!roles.isEmpty()) {
+			if (roles.size() > 500) {
+				throw new IllegalArgumentException(String.format("Roles size exceeded, given [%s], max [%s]", roles.size(), 500));
+			}
 			predicates.add(root.get(IdmIdentityRole_.role).get(IdmRole_.id).in(roles));
 		}
 		List<String> roleEnvironments = filter.getRoleEnvironments();

@@ -316,9 +316,9 @@ Build features:
  ├── tool                           ⟵ [required] Here is idm-tool.jar (+lib or one-fat-jar).
  ├── product                        ⟵ [required] Here is product .war artefact (e.g. idm-9.7.14.war, idm-10.1.0.war or extracted folder idm-10.1.0). Can be downloaded from our nexus.
  ├── modules                        ⟵ [optional] Here are project modules (~ IdM modules) and connectors. Third party module libraries (dependencies) could be here too, but they are resolved automatically - see bellow.
- ├── frontend                       ⟵ [optional] Here can be custom frontend files - czechidm-app frontend module, localization can be overriden, e.t.c
+ ├── frontend                       ⟵ [optional] Here can be custom frontend files - **overriden czechidm-app frontend module sources** can be placed directly in this folder, localization can be overriden, e.t.c
  |   ├── config                     ⟵ frontend configuration (by profile, stage - see https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/frontend/czechidm-app/config/README.md)
- |   ├── czechidm-modules           ⟵ additional frontend modules (or overriden core module files, e.g. localization)
+ |   ├── czechidm-modules           ⟵ additional frontend modules (or other overriden product module files e.g. czechidm-core, czechidm-acc) 
  ├── dist                           ⟵ [optional] Folder will be created automatically by tool usage - it will contain output artefacts ready for deploy (e.g. idm.war).
  ├── target                         ⟵ [optional] Folder will be created automatically by tool usage - used by tool internally for build.
 ```

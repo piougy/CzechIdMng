@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +25,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -325,14 +329,86 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 		return super.getPermissions(backendId);
 	}
 
+	
+	/**
+	 * Get available bulk actions for script definition
+	 *
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
+	@ApiOperation(
+			value = "Get available bulk actions", 
+			nickname = "availableBulkAction", 
+			tags = { IdmScriptController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "") })
+				})
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return super.getAvailableBulkActions();
+	}
+	
+	/**
+	 * Process bulk action for script definition
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
+	@ApiOperation(
+			value = "Process bulk action for script definition", 
+			nickname = "bulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmScriptController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "")})
+				})
+	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.bulkAction(bulkAction);
+	}
+	
+	/**
+	 * Prevalidate bulk action for script definition
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
+	@ApiOperation(
+			value = "Prevalidate bulk action for script definition", 
+			nickname = "prevalidateBulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmScriptController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "")})
+				})
+	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.prevalidateBulkAction(bulkAction);
+	}
+	
+	
 	@Override
 	protected IdmScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmScriptFilter filter = new IdmScriptFilter(parameters);
-		filter.setDescription(getParameterConverter().toString(parameters, "description"));
-		filter.setCode(getParameterConverter().toString(parameters, "code"));
-		filter.setUsedIn(getParameterConverter().toString(parameters, "usedIn"));
-		filter.setCategory(getParameterConverter().toEnum(parameters, "category", IdmScriptCategory.class));
-		filter.setInCategory(getParameterConverter().toEnums(parameters, "inCategory", IdmScriptCategory.class));
+		filter.setDescription(getParameterConverter().toString(parameters, IdmScriptFilter.PARAMETER_DESCRIPTION));
+		filter.setCode(getParameterConverter().toString(parameters, IdmScriptFilter.PARAMETER_CODE));
+		filter.setUsedIn(getParameterConverter().toString(parameters, IdmScriptFilter.PARAMETER_USED_IN));
+		filter.setCategory(getParameterConverter().toEnum(parameters, IdmScriptFilter.PARAMETER_CATEGORY, IdmScriptCategory.class));
+		filter.setInCategory(getParameterConverter().toEnums(parameters, IdmScriptFilter.PARAMETER_IN_CATEGORY, IdmScriptCategory.class));
 		//
 		return filter;
 	}

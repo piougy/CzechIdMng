@@ -210,6 +210,7 @@
     },
     "redeploy": {
       "action": "Obnovit z disku (redeploy)",
+      "icon": "fa:upload",
       "header_0": "N/A",
       "header_1": "Obnovit záznam",
       "header_2": "Obnovit záznamy",
@@ -230,6 +231,7 @@
     },
     "backup": {
       "action": "Zálohovat",
+      "icon": "fa:download",
       "header_0": "N/A",
       "header_1": "Zálohovat záznam",
       "header_2": "Zálohovat záznamy",
@@ -5891,6 +5893,21 @@
         "label": "$t(action.delete.action) definice formuláře",
         "help": "Smaže vybrané definice formuláře.",
         "icon": "$t(action.delete.icon)"
+      },
+      "script-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) definice skriptů",
+        "help": "Smaže vybrané definice skriptů.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "script-definition-backup-bulk-action": {
+        "label": "$t(action.backup.action) definice skriptů",
+        "help": "Zálohuje vybrané definice skriptů.",
+        "icon": "$t(action.backup.icon)"
+      },
+      "script-definition-redeploy-bulk-action": {
+        "label": "$t(action.redeploy.action) definice skriptů",
+        "help": "Obnoví vybrané definice skriptů.",
+        "icon": "$t(action.redeploy.icon)"
       },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) konfigurace",

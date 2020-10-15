@@ -267,7 +267,7 @@ public enum CoreResultCode implements ResultCode {
 	MODEL_MAPPER_SERVICE_INIT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Service [%s] cannot be used, model mapper is wrongly inited, try to restart this application."),
 	//
 	// backup
-	BACKUP_FOLDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Folder for backup dont exists in application properties, please specify this property: [%s]"),
+	BACKUP_FOLDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Backup folder doesn't exist in application properties, please specify this property: [%s]"),
 	BACKUP_FAIL(HttpStatus.BAD_REQUEST, "Backup for script code: [%s] failed. Error message: [%s]."),
 	DEPLOY_ERROR(HttpStatus.BAD_REQUEST, "Failed load entity from path [%s]."),
 	XML_JAXB_INIT_ERROR(HttpStatus.BAD_REQUEST, "Failed init JAXB instance."),

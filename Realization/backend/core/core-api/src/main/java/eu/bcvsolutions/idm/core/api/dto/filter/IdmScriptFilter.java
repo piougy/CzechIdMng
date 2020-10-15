@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -21,12 +20,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 
 public class IdmScriptFilter extends DataFilter {
 
-    private String description;
-    private IdmScriptCategory category;    
-    private String code;
-    private String usedIn;
-    private List<IdmScriptCategory> inCategory; // or
-    
+	public static final String PARAMETER_DESCRIPTION = "description";
+	public static final String PARAMETER_CODE = "code";
+	public static final String PARAMETER_USED_IN = "usedIn";
+	public static final String PARAMETER_CATEGORY = "category";
+	public static final String PARAMETER_IN_CATEGORY = "inCategory";
+
+	
     public IdmScriptFilter() {
         this(new LinkedMultiValueMap<>());
     }
@@ -36,45 +36,42 @@ public class IdmScriptFilter extends DataFilter {
     }
 
     public List<IdmScriptCategory> getInCategory() {
-    	if (inCategory == null) {
-    		inCategory = new ArrayList<>();
-    	}
-		return inCategory;
+		return getParameterConverter().toEnums(getData(), PARAMETER_IN_CATEGORY, IdmScriptCategory.class);
 	}
 
 	public void setInCategory(List<IdmScriptCategory> inCategory) {
-		this.inCategory = inCategory;
+		put(PARAMETER_IN_CATEGORY, inCategory);
 	}
 
 	public String getUsedIn() {
-		return usedIn;
+		return getParameterConverter().toString(getData(), PARAMETER_USED_IN);
 	}
 
 	public void setUsedIn(String usedIn) {
-		this.usedIn = usedIn;
+		set(PARAMETER_USED_IN, usedIn);
 	}
 
 	public String getDescription() {
-        return description;
+		return getParameterConverter().toString(getData(), PARAMETER_DESCRIPTION);
     }
 
     public void setDescription(String description) {
-        this.description = description;
+    	set(PARAMETER_DESCRIPTION, description);
     }
 
     public IdmScriptCategory getCategory() {
-        return category;
+    	return getParameterConverter().toEnum(getData(), PARAMETER_CATEGORY, IdmScriptCategory.class);
     }
 
     public void setCategory(IdmScriptCategory category) {
-        this.category = category;
+    	set(PARAMETER_CATEGORY, category);
     }
 
 	public String getCode() {
-		return code;
+		return getParameterConverter().toString(getData(), PARAMETER_CODE);
 	}
 
 	public void setCode(String code) {
-		this.code = code;
+		set(PARAMETER_CODE, code);
 	}
 }

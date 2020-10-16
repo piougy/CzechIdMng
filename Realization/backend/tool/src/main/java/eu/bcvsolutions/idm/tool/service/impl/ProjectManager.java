@@ -19,7 +19,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -413,8 +412,6 @@ public class ProjectManager {
                 	try (InputStream is = new FileInputStream(file)) {
         				Model model = reader.read(is);
         				modules.put(model.getId(), model);
-        				// we don't want to add directly installed modules as dependency repetitivelly
-        				resolvedModules.put(getSimpleModuleId(model), "");
         			}
                 }
             }	
@@ -423,98 +420,91 @@ public class ProjectManager {
 		if (modules.isEmpty()) {
 			return;
 		}
-		// resolve third party dependencies
+		// append installed modules as dependencies
 		int registeredDependencies = 0;
 		ArrayNode dependencies = xmlMapper.createArrayNode();
 		for (Model module : modules.values()) {
 			Parent parent = module.getParent();
-			for (Dependency dependency : module.getDependencies()) {
-				// group id decorator
-				String groupId = dependency.getGroupId();
+			// group id decorator
+			String groupId = module.getGroupId();
+			if (StringUtils.isEmpty(groupId)) {
+				groupId = parent.getGroupId();
+			} else if("${project.groupId}".equals(groupId)) {
+				groupId = module.getGroupId();
 				if (StringUtils.isEmpty(groupId)) {
-					groupId = module.getGroupId();
-				} else if("${project.groupId}".equals(groupId)) {
-					groupId = module.getGroupId();
-					if (StringUtils.isEmpty(groupId)) {
-						if (parent != null) {
-							groupId = parent.getGroupId();
-						}
+					if (parent != null) {
+						groupId = parent.getGroupId();
 					}
 				}
-				String artifactId = dependency.getArtifactId();
-				String simpleModuleId = getSimpleModuleId(groupId, artifactId);
-				String version = dependency.getVersion();
-				// resolve module version as project property
-				if (version != null && version.startsWith("${") && version.endsWith("}")) {
-					String propertyKey = version.substring(2, version.length() - 1);
-					if ("project.version".equals(propertyKey)) {
-						version = module.getVersion();
-						if (StringUtils.isEmpty(version) && parent != null) {
-							version = parent.getVersion();
-						}
-					} else if (module.getProperties().containsKey(propertyKey)) {
-						version = module.getProperties().getProperty(propertyKey);
-					}
-				}
-				String scope = dependency.getScope();
-				// ignore provided dependencies
-				if ("provided".equals(scope)) { // FIXME:
-					LOG.debug("Module dependency [{}] is provided, skipping.", simpleModuleId);
-					continue;
-				}
-				if (ReleaseManager.MAVEN_GROUP_ID.equals(groupId)) {
-					LOG.debug("CzechIdM module dependency [{}] should be placed in modules folder, skipping from dependencies.", simpleModuleId);
-					continue;
-				}
-				//
-				// simple check dependency is fully specified
-				if (StringUtils.isEmpty(groupId) 
-						|| StringUtils.isEmpty(artifactId)
-						|| StringUtils.isEmpty(version)) {
-					throw new BuildException(String.format("Backend module artefact [%s:%s:%s] cannot "
-							+ "be registered as maven dependency for backend build, "
-							+ "required artefact properties are not defined.",
-							groupId, artifactId, version));
-				}
-				//
-				// skip already resolved modules 
-				if (resolvedModules.containsKey(simpleModuleId)) {
-					String checkVersion = resolvedModules.get(simpleModuleId);
-					if (StringUtils.isEmpty(checkVersion)) {
-						LOG.debug("Module [{}] is already registered, skipping.", simpleModuleId);
-						continue;
-					}
-					if (checkVersion.equals(version)) {
-						LOG.debug("Module [{}] is already registered with the same version [{}], skipping.", simpleModuleId, checkVersion);
-						continue;
-					}
-					throw new BuildException(String.format("Backend module artefact [%s:%s:%s] cannot "
-							+ "be registered as maven dependency for backend build, "
-							+ "the same library is already registeres with version [%s]. "
-							+ "Update module dependencies or copy third party library to modules folder to ensure concrete version is used.",
-							groupId, artifactId, version, checkVersion));
-				}
-				//
-				// create target dependency
-				ObjectNode targetDependency = xmlMapper.createObjectNode();
-				targetDependency.put("groupId", groupId);
-				targetDependency.put("artifactId", artifactId);
-				targetDependency.put("version", version);
-				if (StringUtils.isNotEmpty(scope)) {
-					targetDependency.put("scope", scope);
-				}
-				dependencies.add(targetDependency);
-				//
-				registeredDependencies++;
-				resolvedModules.put(simpleModuleId, version);
-				LOG.info("Backend module artefact [{}:{}:{}] registered as maven dependency for backend build.",
-						groupId, artifactId, version);
 			}
+			String artifactId = module.getArtifactId();
+			String simpleModuleId = getSimpleModuleId(groupId, artifactId);
+			String version = module.getVersion();
+			// resolve module version as project property
+			if (StringUtils.isEmpty(version) && parent != null) {
+				version = parent.getVersion();
+			} else if (version != null && version.startsWith("${") && version.endsWith("}")) {
+				String propertyKey = version.substring(2, version.length() - 1);
+				if ("project.version".equals(propertyKey)) {
+					if (parent != null) {
+						version = parent.getVersion();
+					}
+				} else if (module.getProperties().containsKey(propertyKey)) {
+					version = module.getProperties().getProperty(propertyKey);
+				}
+			}
+			//
+			// simple check dependency is fully specified
+			if (StringUtils.isEmpty(groupId) 
+					|| StringUtils.isEmpty(artifactId)
+					|| StringUtils.isEmpty(version)) {
+				throw new BuildException(String.format("Backend module artefact [%s:%s:%s] cannot "
+						+ "be registered as maven dependency for backend build, "
+						+ "required artefact properties are not defined.",
+						groupId, artifactId, version));
+			}
+			//
+			// skip already resolved modules 
+			if (resolvedModules.containsKey(simpleModuleId)) {
+				String checkVersion = resolvedModules.get(simpleModuleId);
+				if (StringUtils.isEmpty(checkVersion)) {
+					LOG.debug("Module [{}] is already registered, skipping.", simpleModuleId);
+					continue;
+				}
+				if (checkVersion.equals(version)) {
+					LOG.debug("Module [{}] is already registered with the same version [{}], skipping.", simpleModuleId, checkVersion);
+					continue;
+				}
+				throw new BuildException(String.format("Backend module artefact [%s:%s:%s] cannot "
+						+ "be registered as maven dependency for backend build, "
+						+ "the same library is already registeres with version [%s]. "
+						+ "Update module dependencies or copy third party library to modules folder to ensure concrete version is used.",
+						groupId, artifactId, version, checkVersion));
+			}
+			//
+			// create target dependency
+			ObjectNode targetDependency = xmlMapper.createObjectNode();
+			targetDependency.put("groupId", groupId);
+			targetDependency.put("artifactId", artifactId);
+			targetDependency.put("version", version);
+			dependencies.add(targetDependency);
+			//
+			registeredDependencies++;
+			resolvedModules.put(simpleModuleId, version);
+			LOG.info("Backend module artefact [{}:{}:{}] registered as maven dependency for backend build.",
+					groupId, artifactId, version);
 		}
 		// no additional 3th party dependencies are resolved
 		if (registeredDependencies == 0) {
 			return;
 		}
+		//
+		// add core module as dependency => all product librarioes will be resolved at first
+		ObjectNode coreDependency = xmlMapper.createObjectNode();
+		coreDependency.put("groupId", ReleaseManager.MAVEN_GROUP_ID);
+		coreDependency.put("artifactId", "idm-core-impl");
+		coreDependency.put("version", productVersion);
+		dependencies.insert(0, coreDependency); // the first dependency
 		//
 		ObjectNode dependenciesWrapper = xmlMapper.createObjectNode();
 		dependenciesWrapper.set("dependency", dependencies);
@@ -530,18 +520,6 @@ public class ProjectManager {
 		}
 		LOG.info("Backend maven project [{}] for build prepared. Modules [{}] registered as dependency.",
 				projectDescriptor.getPath(), registeredDependencies);
-	}
-	
-	private String getSimpleModuleId(Model model) {
-		String groupId = model.getGroupId();
-		if (StringUtils.isEmpty(groupId)) {
-			Parent parent = model.getParent();
-			if (parent != null) {
-				groupId = parent.getGroupId();
-			}
-		}
-		//
-		return getSimpleModuleId(groupId, model.getArtifactId());
 	}
 	
 	private String getSimpleModuleId(String groupId, String artifactId) {

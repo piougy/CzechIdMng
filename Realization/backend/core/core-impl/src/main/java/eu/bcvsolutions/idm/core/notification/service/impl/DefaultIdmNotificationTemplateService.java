@@ -12,6 +12,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -30,8 +34,6 @@ import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -57,6 +59,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigur
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration_;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate_;
 import eu.bcvsolutions.idm.core.notification.jaxb.IdmNotificationTemplateType;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationTemplateRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -68,10 +71,10 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * method for template engine - apache velocity. Initialization apache velocity
  * is in constructor.
  * 
- * TODO: rewrite toPredicates
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  *
  */
 @Service("notificationTemplateService")
@@ -117,15 +120,24 @@ public class DefaultIdmNotificationTemplateService extends
 		}
 	}
 	
-	/**
-	 * TODO: rewrite toPredicates and remove this method
-	 */
+	
 	@Override
-	protected Page<IdmNotificationTemplate> findEntities(IdmNotificationTemplateFilter filter, Pageable pageable, BasePermission... permission) {
-		if (filter == null) {
-			return repository.findAll(pageable);
+	protected List<Predicate> toPredicates(Root<IdmNotificationTemplate> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmNotificationTemplateFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		// quick - "fulltext"
+		if (StringUtils.isNotEmpty(filter.getText())) {
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get(IdmNotificationTemplate_.code)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmNotificationTemplate_.subject)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmNotificationTemplate_.name)), "%" + filter.getText().toLowerCase() + "%")			
+					));
 		}
-		return repository.find(filter, pageable);
+		// unmodifiable / system flag
+		Boolean unmodifiable = filter.getUnmodifiable();
+		if (unmodifiable != null) {
+			predicates.add(builder.equal(root.get(IdmNotificationTemplate_.unmodifiable), unmodifiable));
+		}
+		return predicates;
 	}
 	
 	@Override

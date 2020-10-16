@@ -41,15 +41,10 @@ public abstract class AbstractBackupBulkAction<DTO extends AbstractDto, F extend
 		try {
 			Assert.notNull(dto, "Entity to backup is required!");
 			Assert.notNull(dto.getId(), "Id of entity to backup is required!");
-			Recoverable<DTO> service = null;
-			if (getService() instanceof Recoverable) {
-				service = (Recoverable<DTO>) getService();
-			} else {
-				Assert.isTrue(getService() instanceof Recoverable, "Entity service has to implement recoverable interface!");
-			}
+			Assert.isTrue(getService() instanceof Recoverable, "Entity service has to implement recoverable interface!");
+			Recoverable<DTO> service = (Recoverable<DTO>) getService();
 			// call backup
 			service.backup(dto);
-
 		} catch (Exception ex) {
 			itemException = new OperationResult//
 					.Builder(OperationState.EXCEPTION)//

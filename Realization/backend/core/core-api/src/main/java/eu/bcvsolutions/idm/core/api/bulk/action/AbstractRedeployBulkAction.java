@@ -40,15 +40,10 @@ public abstract class AbstractRedeployBulkAction<DTO extends AbstractDto, F exte
 		try {
 			Assert.notNull(dto, "Entity to redeploy is required!");
 			Assert.notNull(dto.getId(), "Id of entity to redeploy is required!");
-			Recoverable<DTO> service = null;
-			if (getService() instanceof Recoverable) {
-				service = (Recoverable<DTO>) getService();
-			} else {
-				Assert.isTrue(getService() instanceof Recoverable, "Entity service has to implement recoverable interface!");
-			}
+			Assert.isTrue(getService() instanceof Recoverable, "Entity service has to implement recoverable interface!");
+			Recoverable<DTO> service = (Recoverable<DTO>) getService();
 			// call redeploy
 			service.redeploy(dto);
-
 		} catch (Exception ex) {
 			itemException = new OperationResult//
 					.Builder(OperationState.EXCEPTION)//

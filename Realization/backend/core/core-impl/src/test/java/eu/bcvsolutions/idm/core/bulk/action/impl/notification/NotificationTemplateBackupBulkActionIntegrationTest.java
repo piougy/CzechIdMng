@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.bulk.action.impl.script;
+package eu.bcvsolutions.idm.core.bulk.action.impl.notification;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -25,33 +25,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
-import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.api.service.Recoverable;
-import eu.bcvsolutions.idm.core.model.entity.IdmScript;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Integration tests for {@link ScriptBackupBulkAction}
+ * Integration tests for {@link RedeployBulkAction}
  *
  * @author Ondrej Husnik
  *
  */
 
-public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTest {
+public class NotificationTemplateBackupBulkActionIntegrationTest extends AbstractBulkActionTest {
 	
-	private static final String TEST_SCRIPT_CODE_1 = "testScript1";
+	private static final String TEST_TEMPLATE = "testTemplate";
 	private static final String TEST_BACKUP_FOLDER = "/tmp/idm_test_backup/";
 	private static final String CHANGED_TEST_DESC = "CHANGED_TEST_DESC";
 	
 	private IdmIdentityDto loggedUser; 
 
 	@Autowired
-	private IdmScriptService scriptService;
+	private IdmNotificationTemplateService templateService;
+	
 	
 	@Before
 	public void login() {
@@ -68,31 +69,54 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 	
 	@Test
 	public void processBulkActionByIds() {
-		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
-		Set<UUID> scripts = new HashSet<UUID>();
-		scripts.add(script1.getId());
+		IdmNotificationTemplateDto template1 = templateService.getByCode(TEST_TEMPLATE);
+		Set<UUID> templates = new HashSet<UUID>();
+		templates.add(template1.getId());
 		
-		script1.setDescription(CHANGED_TEST_DESC);
-		script1 = scriptService.save(script1);
-		assertEquals(script1.getDescription(), CHANGED_TEST_DESC);
+		template1.setSubject(CHANGED_TEST_DESC);
+		template1 = templateService.save(template1);
+		assertEquals(template1.getSubject(), CHANGED_TEST_DESC);
 		
-		IdmBulkActionDto bulkAction = this.findBulkAction(IdmScript.class, ScriptBackupBulkAction.NAME);
-		bulkAction.setIdentifiers(scripts);
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmNotificationTemplate.class,  NotificationTemplateBackupBulkAction.NAME);
+		bulkAction.setIdentifiers(templates);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 1l, null, null);
 		
-		// test the file exits and contains set description
-		testBackupFileContent(script1, loggedUser.getUsername());
+		testBackupFileContent(template1, loggedUser.getUsername());
 	}
 	
+	@Test
+	public void processBulkActionByFilter() {
+		IdmNotificationTemplateDto template1 = templateService.getByCode(TEST_TEMPLATE);
+		Set<UUID> templates = new HashSet<UUID>();
+		templates.add(template1.getId());
+			
+		template1.setSubject(CHANGED_TEST_DESC);
+		template1 = templateService.save(template1);
+		assertEquals(template1.getSubject(), CHANGED_TEST_DESC);
+		
+		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter();
+		filter.setText(CHANGED_TEST_DESC);
+		
+		List<IdmNotificationTemplateDto> checkScripts = templateService.find(filter, null).getContent();
+		assertEquals(1, checkScripts.size());
+
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmNotificationTemplate.class,  NotificationTemplateBackupBulkAction.NAME);
+		bulkAction.setTransformedFilter(filter);
+		bulkAction.setFilter(toMap(filter));
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		checkResultLrt(processAction, 1l, null, null);
+		
+		testBackupFileContent(template1, loggedUser.getUsername());
+	}
 	
 	@Test
 	public void prevalidationBulkActionByIds() {
 		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, "");
-		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
+		IdmNotificationTemplateDto template1 = templateService.getByCode(TEST_TEMPLATE);
 		
-		IdmBulkActionDto bulkAction = this.findBulkAction(IdmScript.class, ScriptBackupBulkAction.NAME);
-		bulkAction.getIdentifiers().add(script1.getId());
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmNotificationTemplate.class, NotificationTemplateBackupBulkAction.NAME);
+		bulkAction.getIdentifiers().add(template1.getId());
 		
 		// None info results
 		ResultModels resultModels = bulkActionManager.prevalidate(bulkAction);
@@ -100,54 +124,30 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 		assertEquals(1, results.size());
 		assertEquals(results.get(0).getStatusEnum(), CoreResultCode.BACKUP_FOLDER_NOT_FOUND.toString());
 	}
-	
-	@Test
-	public void processBulkActionByFilter() {
-		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
-		Set<UUID> scripts = new HashSet<UUID>();
-		scripts.add(script1.getId());
-			
-		script1.setDescription(CHANGED_TEST_DESC);
-		script1 = scriptService.save(script1);
-		
-		IdmScriptFilter filter = new IdmScriptFilter();
-		filter.setCode(TEST_SCRIPT_CODE_1);
-		List<IdmScriptDto> checkScripts = scriptService.find(filter, null).getContent();
-		assertEquals(1, checkScripts.size());
-
-		IdmBulkActionDto bulkAction = this.findBulkAction(IdmScript.class, ScriptBackupBulkAction.NAME);
-		bulkAction.setTransformedFilter(filter);
-		bulkAction.setFilter(toMap(filter));
-		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-		checkResultLrt(processAction, 1l, null, null);
-		
-		// test the file exits and contains set description
-		testBackupFileContent(script1, loggedUser.getUsername());
-	}
 
 	@Test
 	public void processBulkActionWithoutPermission() {
-		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
-		Set<UUID> scripts = new HashSet<UUID>();
-		scripts.add(script1.getId());
+		IdmNotificationTemplateDto template1 = templateService.getByCode(TEST_TEMPLATE);
+		Set<UUID> templates = new HashSet<UUID>();
+		templates.add(template1.getId());
 		
-		script1.setDescription(CHANGED_TEST_DESC);
-		script1 = scriptService.save(script1);
+		template1.setSubject(CHANGED_TEST_DESC);
+		template1 = templateService.save(template1);
+		assertEquals(template1.getSubject(), CHANGED_TEST_DESC);
 		
-		// user doeasn't have permission for script backup
-		IdmIdentityDto userIdentity = this.createUserWithAuthorities(IdmBasePermission.UPDATE);
-		loginAsNoAdmin(userIdentity.getUsername());
+		// user hasn't permission for script update
+		IdmIdentityDto readerIdentity = this.createUserWithAuthorities(IdmBasePermission.UPDATE);
+		loginAsNoAdmin(readerIdentity.getUsername());
 		
-		IdmBulkActionDto bulkAction = this.findBulkAction(IdmScript.class, ScriptBackupBulkAction.NAME);
-		bulkAction.setIdentifiers(scripts);
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmNotificationTemplate.class,  NotificationTemplateBackupBulkAction.NAME);
+		bulkAction.setIdentifiers(templates);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 0l, null, null);
-
+		
 		// no backup files exits
 		assertNull(getBackupFiles());
 	}
-	
-	
+
 	/**
 	 * Cleans backup directory after every test 
 	 */
@@ -163,7 +163,6 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 		}
 	}
 	
-	
 	/**
 	 * Get backup files for logged user and specified script
 	 * 
@@ -174,7 +173,7 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 	private File[] getBackupFiles() {
 		ZonedDateTime date = ZonedDateTime.now();
 		DecimalFormat decimalFormat = new DecimalFormat("00");
-		File directory = new File(TEST_BACKUP_FOLDER + "scripts/" + date.getYear()
+		File directory = new File(TEST_BACKUP_FOLDER + "templates/" + date.getYear()
 				+ decimalFormat.format(date.getMonthValue()) + decimalFormat.format(date.getDayOfMonth()) + "/");
 		return directory.listFiles();
 	}
@@ -186,7 +185,7 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 	 * @param loggedUserName
 	 * @return
 	 */
-	private void testBackupFileContent(IdmScriptDto script, String loggedUserName) {
+	private void testBackupFileContent(IdmNotificationTemplateDto script, String loggedUserName) {
 		try {
 			File[] files = getBackupFiles();
 			assertEquals(1, files.length);
@@ -196,7 +195,7 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 			assertTrue(backup.getName().contains(script.getCode()));
 			
 			String content = new String(Files.readAllBytes(backup.toPath()), StandardCharsets.UTF_8);
-			assertTrue(content.contains("<description><![CDATA[" + script.getDescription() + "]]></description>"));
+			assertTrue(content.contains("<subject>" + script.getSubject() + "</subject>"));
 		} catch (Exception e) {
 			fail();
 		}

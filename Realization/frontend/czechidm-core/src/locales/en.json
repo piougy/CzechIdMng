@@ -5857,6 +5857,21 @@
         "help": "$t(action.redeploy.action) selected script definitions.",
         "icon": "$t(action.redeploy.icon)"
       },
+      "notification-template-delete-bulk-action": {
+        "label": "$t(action.delete.action) notification templates",
+        "help": "$t(action.delete.action) selected notification templates.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "notification-template-backup-bulk-action": {
+        "label": "$t(action.backup.action) notification templates",
+        "help": "$t(action.backup.action) selected notification templates.",
+        "icon": "$t(action.backup.icon)"
+      },
+      "notification-template-redeploy-bulk-action": {
+        "label": "$t(action.redeploy.action) notification templates",
+        "help": "$t(action.redeploy.action) selected notification templates.",
+        "icon": "$t(action.redeploy.icon)"
+      },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) configuration items",
         "help": "$t(action.delete.action) selected configuration items.",

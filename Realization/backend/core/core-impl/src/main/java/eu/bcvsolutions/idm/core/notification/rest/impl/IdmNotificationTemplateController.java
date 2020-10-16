@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.rest.impl;
 
+import java.util.List;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -20,8 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -276,5 +280,82 @@ public class IdmNotificationTemplateController extends AbstractEventableDtoContr
 		}
 		notificationTemplateService.backup(template);
 		return new ResponseEntity<>(toResource(template), HttpStatus.OK);
+	}
+	
+	/**
+	 * Get available bulk actions for notification templates
+	 *
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
+	@ApiOperation(
+			value = "Get available bulk actions", 
+			nickname = "availableBulkAction", 
+			tags = { IdmNotificationTemplateController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ, description = "") })
+				})
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return super.getAvailableBulkActions();
+	}
+	
+	/**
+	 * Process bulk action for notification templates
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
+	@ApiOperation(
+			value = "Process bulk action for notification templates", 
+			nickname = "bulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmNotificationTemplateController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ, description = "")})
+				})
+	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.bulkAction(bulkAction);
+	}
+	
+	/**
+	 * Prevalidate bulk action for notification template
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
+	@ApiOperation(
+			value = "Prevalidate bulk action for notification templates", 
+			nickname = "prevalidateBulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmNotificationTemplateController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ, description = "")})
+				})
+	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.prevalidateBulkAction(bulkAction);
+	}
+	
+	@Override
+	protected IdmNotificationTemplateFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter(parameters);
+		filter.setUnmodifiable(getParameterConverter().toBoolean(parameters, IdmNotificationTemplateFilter.PARAMETER_UNMODIFIABLE));
+		return filter;
 	}
 }

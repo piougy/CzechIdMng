@@ -5909,6 +5909,21 @@
         "help": "Obnoví vybrané definice skriptů.",
         "icon": "$t(action.redeploy.icon)"
       },
+      "notification-template-delete-bulk-action": {
+        "label": "$t(action.delete.action) šablony notifikací",
+        "help": "$t(action.delete.action) vybrané šablony notifikací.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "notification-template-backup-bulk-action": {
+        "label": "$t(action.backup.action) šablony notifikací",
+        "help": "$t(action.backup.action) vybrané šablony notifikací.",
+        "icon": "$t(action.backup.icon)"
+      },
+      "notification-template-redeploy-bulk-action": {
+        "label": "$t(action.redeploy.action) šablony notifikací",
+        "help": "$t(action.redeploy.action) vybrané šablony notifikací.",
+        "icon": "$t(action.redeploy.icon)"
+      },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) konfigurace",
         "help": "Smaže vybrané konfigurace",

@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
@@ -51,9 +52,16 @@ public class RoleTreeNodeSaveProcessor extends CoreEventProcessor<IdmRoleTreeNod
 		event.setContent(dto);
 		//
 		// assign role by this added automatic role to all existing identity contracts with long running task
-		ProcessAutomaticRoleByTreeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
-		automaticRoleTask.setAutomaticRoles(Lists.newArrayList(dto.getId()));
-		executeTask(event, automaticRoleTask);
+		try {
+			ProcessAutomaticRoleByTreeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
+			automaticRoleTask.setAutomaticRoles(Lists.newArrayList(dto.getId()));
+			executeTask(event, automaticRoleTask);
+		} catch (AcceptedException ex) {
+			DefaultEventResult<IdmRoleTreeNodeDto> result = new DefaultEventResult<>(event, this);
+			result.setSuspended(true);
+			//
+			return result;
+		}
 		//
 		return new DefaultEventResult<>(event, this);
 	}

@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.event.RoleTreeNodeEvent.RoleTreeNodeEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -57,9 +58,16 @@ public class RoleTreeNodeDeleteProcessor extends CoreEventProcessor<IdmRoleTreeN
 			if (longRunningTaskManager.isAsynchronous()) {
 				automaticRoleTask.setRequireNewTransaction(true);
 			}
-			longRunningTaskManager.execute(automaticRoleTask);
-			// TODO: new flag asynchronous?
-			return new DefaultEventResult.Builder<>(event, this).setSuspended(true).build();
+			try {
+				longRunningTaskManager.execute(automaticRoleTask);
+			} catch (AcceptedException ex) {
+				DefaultEventResult<IdmRoleTreeNodeDto> result = new DefaultEventResult<>(event, this);
+				result.setSuspended(true);
+				//
+				return result;
+			}
+			//
+			return new DefaultEventResult.Builder<>(event, this).build();
 		}
 		//
 		return new DefaultEventResult<>(event, this);

@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
@@ -91,7 +92,7 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		filter.setRunning(Boolean.TRUE);
 		//
 		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-			throw new ResultCodeException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
+			throw new AcceptedException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
 					ImmutableMap.of(
 							"taskId", longRunningTaskId.toString(),
 							"roleCompositionId", roleCompositionId.toString()

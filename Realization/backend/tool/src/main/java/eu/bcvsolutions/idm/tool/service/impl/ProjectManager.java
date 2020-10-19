@@ -379,7 +379,7 @@ public class ProjectManager {
 		buildPom.set("parent", parentWrapper);
 		//
 		// find pom.xml modules in jar
-		Map<String, String> resolvedModules = new HashMap<>();
+		Map<String, String> resolvedModules = new HashMap<>(ProductReleaseManager.BACKEND_MODULES.length + installedJarModules.size());
 		// add all product modules as resolved => will not be registered repetitivelly
 		Arrays
 			.stream(ProductReleaseManager.BACKEND_MODULES)

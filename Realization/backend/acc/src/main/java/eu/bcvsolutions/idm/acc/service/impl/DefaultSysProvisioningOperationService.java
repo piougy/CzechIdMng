@@ -16,6 +16,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.EmptyProvisioningType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -230,7 +232,23 @@ public class DefaultSysProvisioningOperationService
 		}
 		// empty provisioning
 		Boolean emptyProvisioning = filter.getEmptyProvisioning();
-		if (emptyProvisioning != null) {
+		EmptyProvisioningType emptyProvisioningType = filter.getEmptyProvisioningType();
+		if (emptyProvisioning != null || emptyProvisioningType != null) {
+			if (BooleanUtils.isTrue(emptyProvisioning) 
+					&& emptyProvisioningType != null
+					&& emptyProvisioningType != EmptyProvisioningType.EMPTY) {
+				// empty + not empty => nothing
+				predicates.add(builder.disjunction());
+			} else if(BooleanUtils.isFalse(emptyProvisioning)
+					&& emptyProvisioningType != null
+					&& emptyProvisioningType != EmptyProvisioningType.NON_EMPTY) {
+				// not empty + filled somehow => nothing
+				predicates.add(builder.disjunction());
+			} else if (emptyProvisioningType == null) {
+				// fill by boolean value
+				emptyProvisioningType = emptyProvisioning ? EmptyProvisioningType.EMPTY : EmptyProvisioningType.NON_EMPTY;
+			}
+			
 			Subquery<SysProvisioningAttribute> subquery = query.subquery(SysProvisioningAttribute.class);
 			Root<SysProvisioningAttribute> subRoot = subquery.from(SysProvisioningAttribute.class);
 			subquery.select(subRoot);
@@ -239,37 +257,55 @@ public class DefaultSysProvisioningOperationService
             );
 			//
 			Predicate provisioningPredicate = builder.exists(subquery); // has attributes
-			if (emptyProvisioning) {
-				provisioningPredicate = builder.and(
-						builder.not(provisioningPredicate), // empty
-						builder.notEqual(root.get(SysProvisioningOperation_.operationType), ProvisioningEventType.DELETE) // delete operations are not considered as empty
-				);
-			} else {
-				// delete operations are not considered as empty or filled => show all time
-				provisioningPredicate = builder.or(
-						provisioningPredicate,
-						builder.equal(root.get(SysProvisioningOperation_.operationType), ProvisioningEventType.DELETE)
-				);
-			}
-			predicates.add(
+			Predicate notProcessedPredicate = builder.or(
+					// Not executed operations (already in queue, created) are not wanted - attributes are not computed in this phase.
+					builder.equal(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.CREATED),
+					builder.equal(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.RUNNING),
 					builder.and(
-							provisioningPredicate,
-							// Not executed operations (already in queue, created) are not wanted - attributes are not computed in this phase.
-							builder.notEqual(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.CREATED),
-							builder.notEqual(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.RUNNING),
+							builder.equal(
+									root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), 
+									OperationState.NOT_EXECUTED
+							),
+							// only readOnly has attributes evaluated
 							builder.or(
-									builder.notEqual(
-											root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), 
-											OperationState.NOT_EXECUTED
-									),
-									// only readOnly has attributes evaluated
-									builder.equal(
-											root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_CODE), 
-											AccResultCode.PROVISIONING_SYSTEM_READONLY.name()
-									)
+								builder.isNull(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_CODE)),
+								builder.notEqual(
+										root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_CODE), 
+										AccResultCode.PROVISIONING_SYSTEM_READONLY.name()
+								)
 							)
 					)
 			);
+			switch (emptyProvisioningType) {
+				case EMPTY: {
+					provisioningPredicate = builder.and(
+							builder.not(provisioningPredicate), // empty
+							builder.notEqual(root.get(SysProvisioningOperation_.operationType), ProvisioningEventType.DELETE), // delete operations are not considered as empty
+							builder.not(notProcessedPredicate)
+					);
+					break;
+				}
+				case NON_EMPTY: {
+					// delete operations are not considered as empty or filled => show all time
+					provisioningPredicate = builder.and(
+						builder.or(
+								provisioningPredicate,
+								builder.equal(root.get(SysProvisioningOperation_.operationType), ProvisioningEventType.DELETE)
+						),
+						builder.not(notProcessedPredicate)
+					);
+					break;
+				}
+				case NOT_PROCESSED: {
+					provisioningPredicate = notProcessedPredicate;
+					break;
+				}
+				default: {
+					throw new UnsupportedOperationException(String.format("Empty profisioning type [%s] is not supported by filter predicates.", 
+							emptyProvisioningType));
+				}
+			}
+			predicates.add(provisioningPredicate);
 		}
 		return predicates;
 	}

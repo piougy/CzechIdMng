@@ -1,19 +1,17 @@
 package eu.bcvsolutions.idm.acc.dto.filter;
 
-import java.util.ArrayList;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.acc.domain.EmptyProvisioningType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
@@ -37,6 +35,7 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	public static final String PARAMETER_ATTRIBUTE_UPDATED = "attributeUpdated"; // list - OR
 	public static final String PARAMETER_ATTRIBUTE_REMOVED = "attributeRemoved"; // list - OR
 	public static final String PARAMETER_EMPTY_PROVISIONING = "emptyProvisioning"; // provisioning attributes are empty
+	public static final String PARAMETER_EMPTY_PROVISIONING_TYPE = "emptyProvisioningType"; // provisioning attributes are empty / non empty / not computed
 	public static final String PARAMETER_ROLE_REQUEST_ID = "roleRequestId";
 	public static final String PARAMETER_NOT_IN_STATE = "notInState";
 
@@ -53,96 +52,92 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	}
 
 	public ZonedDateTime getFrom() {
-		return getParameterConverter().toDateTime(data, PARAMETER_FROM);
+		return getParameterConverter().toDateTime(getData(), PARAMETER_FROM);
 	}
 
 	public void setFrom(ZonedDateTime from) {
-		data.set(PARAMETER_FROM, from);
+		set(PARAMETER_FROM, from);
 	}
 
 	public ZonedDateTime getTill() {
-		return getParameterConverter().toDateTime(data, PARAMETER_TILL);
+		return getParameterConverter().toDateTime(getData(), PARAMETER_TILL);
 	}
 
 	public void setTill(ZonedDateTime till) {
-		data.set(PARAMETER_TILL, till);
+		set(PARAMETER_TILL, till);
 	}
 
 	public UUID getSystemId() {
-		return getParameterConverter().toUuid(data, PARAMETER_SYSTEM_ID);
+		return getParameterConverter().toUuid(getData(), PARAMETER_SYSTEM_ID);
 	}
 
 	public void setSystemId(UUID systemId) {
-		data.set(PARAMETER_SYSTEM_ID, systemId);
+		set(PARAMETER_SYSTEM_ID, systemId);
 	}
-
+	
 	public ProvisioningEventType getOperationType() {
-		return getParameterConverter().toEnum(data, PARAMETER_OPERATION_TYPE, ProvisioningEventType.class);
+		return getParameterConverter().toEnum(getData(), PARAMETER_OPERATION_TYPE, ProvisioningEventType.class);
 	}
 
 	public void setOperationType(ProvisioningEventType operationType) {
-		data.set(PARAMETER_OPERATION_TYPE, operationType);
+		set(PARAMETER_OPERATION_TYPE, operationType);
 	}
 
 	public SystemEntityType getEntityType() {
-		return getParameterConverter().toEnum(data, PARAMETER_ENTITY_TYPE, SystemEntityType.class);
+		return getParameterConverter().toEnum(getData(), PARAMETER_ENTITY_TYPE, SystemEntityType.class);
 	}
 
 	public void setEntityType(SystemEntityType entityType) {
-		data.set(PARAMETER_ENTITY_TYPE, entityType);
+		set(PARAMETER_ENTITY_TYPE, entityType);
 	}
 
 	public OperationState getResultState() {
-		return getParameterConverter().toEnum(data, PARAMETER_RESULT_STATE, OperationState.class);
+		return getParameterConverter().toEnum(getData(), PARAMETER_RESULT_STATE, OperationState.class);
 	}
 	
 
 	public void setResultState(OperationState resultState) {
-		data.set(PARAMETER_RESULT_STATE, resultState);
+		set(PARAMETER_RESULT_STATE, resultState);
 	}
 
 	public OperationState getNotInState() {
-		return getParameterConverter().toEnum(data, PARAMETER_NOT_IN_STATE, OperationState.class);
+		return getParameterConverter().toEnum(getData(), PARAMETER_NOT_IN_STATE, OperationState.class);
 	}
 	
 	public void setNotInState(OperationState resultState) {
-		data.set(PARAMETER_NOT_IN_STATE, resultState);
+		set(PARAMETER_NOT_IN_STATE, resultState);
 	}
 	
 	public UUID getEntityIdentifier() {
-		try {
-			return getParameterConverter().toUuid(data, PARAMETER_ENTITY_IDENTIFIER);
-		} catch (ClassCastException ex) {
-			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
-		}
+		return getParameterConverter().toUuid(getData(), PARAMETER_ENTITY_IDENTIFIER);
 	}
 
 	public void setEntityIdentifier(UUID entityIdentifier) {
-		data.set(PARAMETER_ENTITY_IDENTIFIER, entityIdentifier);
+		set(PARAMETER_ENTITY_IDENTIFIER, entityIdentifier);
 	}
 	
 	public UUID getSystemEntity() {
-		return getParameterConverter().toUuid(data, PARAMETER_SYSTEM_ENTITY_ID);
+		return getParameterConverter().toUuid(getData(), PARAMETER_SYSTEM_ENTITY_ID);
 	}
 
 	public void setSystemEntity(UUID systemEntity) {
-		data.set(PARAMETER_SYSTEM_ENTITY_ID, systemEntity);
+		set(PARAMETER_SYSTEM_ENTITY_ID, systemEntity);
 	}
 
 	public void setBatchId(UUID batchId) {
-		data.set(PARAMETER_BATCH_ID, batchId);
+		set(PARAMETER_BATCH_ID, batchId);
 	}
 	
 	public UUID getBatchId() {
-		return getParameterConverter().toUuid(data, PARAMETER_BATCH_ID);
+		return getParameterConverter().toUuid(getData(), PARAMETER_BATCH_ID);
 	}
 
 	public String getSystemEntityUid() {
-		return getParameterConverter().toString(data, PARAMETER_SYSTEM_ENTITY_UID);
+		return getParameterConverter().toString(getData(), PARAMETER_SYSTEM_ENTITY_UID);
 	}
 
 	public void setSystemEntityUid(String systemEntityUid) {
-		data.set(PARAMETER_SYSTEM_ENTITY_UID, systemEntityUid);
+		set(PARAMETER_SYSTEM_ENTITY_UID, systemEntityUid);
 	}
 	
 	/**
@@ -152,7 +147,7 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	 * @since 9.6.3
 	 */
 	public List<String> getAttributeUpdated() {
-		return getParameterConverter().toStrings(data, PARAMETER_ATTRIBUTE_UPDATED);
+		return getParameterConverter().toStrings(getData(), PARAMETER_ATTRIBUTE_UPDATED);
 	}
 	
 	/**
@@ -162,7 +157,7 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	 * @since 9.6.3
 	 */
 	public void setAttributeUpdated(List<String> attributeUpdated) {
-		data.put(PARAMETER_ATTRIBUTE_UPDATED, attributeUpdated == null ? null : new ArrayList<Object>(attributeUpdated));
+		put(PARAMETER_ATTRIBUTE_UPDATED, attributeUpdated);
 	}
 
 	/**
@@ -172,7 +167,7 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	 * @since 9.6.3
 	 */
 	public List<String> getAttributeRemoved() {
-		return getParameterConverter().toStrings(data, PARAMETER_ATTRIBUTE_REMOVED);
+		return getParameterConverter().toStrings(getData(), PARAMETER_ATTRIBUTE_REMOVED);
 	}
 
 	/**
@@ -182,7 +177,7 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	 * @since 9.6.3
 	 */
 	public void setAttributeRemoved(List<String> attributeRemoved) {
-		data.put(PARAMETER_ATTRIBUTE_REMOVED, attributeRemoved == null ? null : new ArrayList<Object>(attributeRemoved));
+		put(PARAMETER_ATTRIBUTE_REMOVED, attributeRemoved);
 	}
 	
 	/**
@@ -192,7 +187,7 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	 * @since 9.6.3
 	 */
 	public Boolean getEmptyProvisioning() {
-		return getParameterConverter().toBoolean(data, PARAMETER_EMPTY_PROVISIONING);
+		return getParameterConverter().toBoolean(getData(), PARAMETER_EMPTY_PROVISIONING);
 	}
 	
 	/**
@@ -202,14 +197,34 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	 * @since 9.6.3
 	 */
 	public void setEmptyProvisioning(Boolean emptyProvisioning) {
-		data.set(PARAMETER_EMPTY_PROVISIONING, emptyProvisioning);
+		set(PARAMETER_EMPTY_PROVISIONING, emptyProvisioning);
+	}
+	
+	/**
+	 * Provisioning context with connector attributes is empty / non empty / not computed.
+	 * 
+	 * @return type
+	 * @since 10.6.0
+	 */
+	public EmptyProvisioningType getEmptyProvisioningType() {
+		return getParameterConverter().toEnum(getData(), PARAMETER_EMPTY_PROVISIONING_TYPE, EmptyProvisioningType.class);
+	}
+	
+	/**
+	 * Provisioning context with connector attributes is empty / non empty / not computed.
+	 * 
+	 * @param emptyProvisioningType
+	 * @since 10.6.0
+	 */
+	public void setEmptyProvisioningType(EmptyProvisioningType emptyProvisioningType) {
+		set(PARAMETER_EMPTY_PROVISIONING_TYPE, emptyProvisioningType);
 	}
 	
 	public UUID getRoleRequestId() {
-		return getParameterConverter().toUuid(data, PARAMETER_ROLE_REQUEST_ID);
+		return getParameterConverter().toUuid(getData(), PARAMETER_ROLE_REQUEST_ID);
 	}
 
 	public void setRoleRequestId(UUID roleRequestId) {
-		data.set(PARAMETER_ROLE_REQUEST_ID, roleRequestId);
+		set(PARAMETER_ROLE_REQUEST_ID, roleRequestId);
 	}
 }

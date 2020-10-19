@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Archived provisioning operation
+ * Archived provisioning operation.
  * 
  * @author Radek Tomiška
  *

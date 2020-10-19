@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.workflow.permissions;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -1809,6 +1810,162 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		}
 	}
 
+	@Test
+	public void testGetTaskByUserInvolvedInProcess() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
+
+		loginAsAdmin(InitTestDataProcessor.TEST_USER_2);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestDataProcessor.TEST_USER_1);
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestDataProcessor.TEST_USER_2);
+
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto adminRole = roleConfiguration.getAdminRole();
+		adminRole.setPriority(priority);
+		getHelper().createRoleGuarantee(adminRole, test2);
+		adminRole = roleService.save(adminRole);
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
+				APPROVE_ROLE_BY_SECURITY_KEY);
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, true);
+
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// Help Desk
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(InitTestDataProcessor.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestDataProcessor.TEST_USER_1, "approve");
+		// Manager
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestDataProcessor.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestDataProcessor.TEST_USER_2);
+		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(1, tasks.size());
+		WorkflowTaskInstanceDto notApprovedTask = tasks.get(0);
+
+		// Approver of this task has permission to read this task.
+		loginWithout(InitTestDataProcessor.TEST_USER_2, IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		WorkflowTaskInstanceDto task = workflowTaskInstanceService.get(UUID.fromString(notApprovedTask.getId()));
+		assertNotNull(task);
+		// This task isn't resolved yet.
+		assertFalse(task instanceof WorkflowHistoricTaskInstanceDto);
+
+		// Login as applicant.
+		loginWithout(test1.getUsername(), IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		// Applicant can read a process -> but cannot read all tasks of a process.
+		task = workflowTaskInstanceService.get(UUID.fromString(notApprovedTask.getId()));
+		assertNull(task);
+
+		// Login as random user.
+		IdmIdentityDto randomUser = getHelper().createIdentity();
+		loginWithout(randomUser.getUsername(), IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		// Random user doesn't have read permission on the task and process.
+		task = workflowTaskInstanceService.get(UUID.fromString(notApprovedTask.getId()));
+		assertNull(task);
+
+		// Random user can read the task if filter has set OnlyInvolved to FALSE.
+		WorkflowFilterDto taskFilterApproved = new WorkflowFilterDto();
+		taskFilterApproved.setOnlyInvolved(Boolean.FALSE);
+		task = workflowTaskInstanceService.get(UUID.fromString(notApprovedTask.getId()), taskFilterApproved);
+		assertNotNull(task);
+		// This task isn't resolved yet.
+		assertFalse(task instanceof WorkflowHistoricTaskInstanceDto);
+	}
+
+	@Test
+	public void testGetHistoricTaskByUserInvolvedInProcess() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
+
+		loginAsAdmin(InitTestDataProcessor.TEST_USER_2);
+		IdmIdentityDto test1 = identityService.getByUsername(InitTestDataProcessor.TEST_USER_1);
+		IdmIdentityDto test2 = identityService.getByUsername(InitTestDataProcessor.TEST_USER_2);
+
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto adminRole = roleConfiguration.getAdminRole();
+		adminRole.setPriority(priority);
+		getHelper().createRoleGuarantee(adminRole, test2);
+		adminRole = roleService.save(adminRole);
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
+				APPROVE_ROLE_BY_SECURITY_KEY);
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, true);
+
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(test1);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		// Help Desk
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(InitTestDataProcessor.TEST_ADMIN_USERNAME);
+		checkAndCompleteOneTask(taskFilter, InitTestDataProcessor.TEST_USER_1, "approve");
+		// Manager
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(InitTestDataProcessor.TEST_USER_2);
+		taskFilter.setCandidateOrAssigned(InitTestDataProcessor.TEST_USER_2);
+		WorkflowTaskInstanceDto approvedTask = checkAndCompleteOneTask(taskFilter, InitTestDataProcessor.TEST_USER_1, "approve");
+
+		// Approver of this task has permission to read this task.
+		loginWithout(InitTestDataProcessor.TEST_USER_2, IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		WorkflowTaskInstanceDto task = workflowTaskInstanceService.get(UUID.fromString(approvedTask.getId()));
+		assertNotNull(task);
+		assertTrue(task instanceof WorkflowHistoricTaskInstanceDto);
+
+		// Login as applicant.
+		loginWithout(test1.getUsername(), IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		// Applicant can read a process -> but cannot read all tasks of a process.
+		task = workflowTaskInstanceService.get(UUID.fromString(approvedTask.getId()));
+		assertNull(task);
+		assertTrue(workflowProcessInstanceService.canReadProcessOrHistoricProcess(approvedTask.getProcessInstanceId()));
+
+		// Login as random user.
+		IdmIdentityDto randomUser = getHelper().createIdentity();
+		loginWithout(randomUser.getUsername(), IdmGroupPermission.APP_ADMIN, CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+		// Random user doesn't have read permission on the task and process.
+		task = workflowTaskInstanceService.get(UUID.fromString(approvedTask.getId()));
+		assertNull(task);
+		assertFalse(workflowProcessInstanceService.canReadProcessOrHistoricProcess(approvedTask.getProcessInstanceId()));
+
+		// Random user can read the task if filter has set OnlyInvolved to FALSE.
+		WorkflowFilterDto taskFilterApproved = new WorkflowFilterDto();
+		taskFilterApproved.setOnlyInvolved(Boolean.FALSE);
+		task = workflowTaskInstanceService.get(UUID.fromString(approvedTask.getId()), taskFilterApproved);
+		assertNotNull(task);
+		assertTrue(task instanceof WorkflowHistoricTaskInstanceDto);
+	}
+
 	/**
 	 * Return {@link WorkflowHistoricProcessInstanceDto} for current logged user
 	 *
@@ -1862,11 +2019,11 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		return request;
 	}
 
-	private void checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision) {
-		this.checkAndCompleteOneTask(taskFilter, user, decision, null);
+	private WorkflowTaskInstanceDto checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision) {
+		return this.checkAndCompleteOneTask(taskFilter, user, decision, null);
 	}
 
-	private void checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision, String userTaskId) {
+	private WorkflowTaskInstanceDto checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision, String userTaskId) {
 		IdmIdentityDto identity = identityService.getByUsername(user);
 		List<WorkflowTaskInstanceDto> tasks;
 		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.find(taskFilter, null).getContent();
@@ -1877,6 +2034,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(identity.getId().toString(), tasks.get(0).getApplicant());
 
 		workflowTaskInstanceService.completeTask(tasks.get(0).getId(), decision);
+
+		return tasks.get(0);
 	}
 
 	/**

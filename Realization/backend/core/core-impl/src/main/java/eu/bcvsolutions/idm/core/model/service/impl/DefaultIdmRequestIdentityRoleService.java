@@ -116,7 +116,8 @@ public class DefaultIdmRequestIdentityRoleService extends
 			PageRequest pageableForAssignedRoles = PageRequest.of(
 					pageNumberForAssignedRoles, pageable.getPageSize(),
 					pageable.getSort());
-
+			// TODO: On a task detail approver must have permission to read identity-roles. If don't have it, then no concept are show.
+			//  Maybe identity-roles should be load without permission here (permission by request).
 			Page<IdmIdentityRoleDto> identityRolesPage = identityRoleService.find(identityRoleFilter,
 					pageableForAssignedRoles, permission);
 			List<IdmIdentityRoleDto> identityRoles = identityRolesPage.getContent();

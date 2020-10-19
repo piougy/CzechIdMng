@@ -37,6 +37,7 @@ public enum CoreResultCode implements ResultCode {
 	ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity type [%s] with id [%s] not found."),
 	CONTENT_DELETED(HttpStatus.CONFLICT, "Content [%s] with type [%s] was deleted. Operation cannot be executed and will be canceled."),
 	WF_WARNING(HttpStatus.BAD_REQUEST, "Warning occured during workflow execution: %s"),
+	WF_TASK_FILTER_INVOLVED_ONLY(HttpStatus.BAD_REQUEST, "Task filter 'onlyInvolved' cannot be set to FALSE via REST!"),
 	BAD_FILTER(HttpStatus.BAD_REQUEST, "The filter is wrong!"),
 	UNMODIFIABLE_ATTRIBUTE_CHANGE(HttpStatus.BAD_REQUEST, "Attribute %s for class %s can't be changed!"),
 	UNMODIFIABLE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "Unmodifiable record [%s] can't be deleted!"),

@@ -105,4 +105,10 @@ public interface WorkflowProcessInstanceService extends ReadWriteDtoService<Work
 	 * @return
 	 */
 	Set<IdmIdentityDto> getApproversForProcess(String processInstaceId);
+
+	/**
+	 * Return true, if can read process or historic process with this ID.
+	 * If not, returns false. If process does not exists, return false too.
+	 */
+	boolean canReadProcessOrHistoricProcess(String id);
 }

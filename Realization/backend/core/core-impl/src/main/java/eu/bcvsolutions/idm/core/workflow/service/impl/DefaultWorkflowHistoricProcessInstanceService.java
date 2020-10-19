@@ -214,7 +214,7 @@ public class DefaultWorkflowHistoricProcessInstanceService
 		// check security ... only involved user or applicant can work with
 		// historic process instance ... admin can see all historic processes every time
 		// TODO: refactor and use username/id from filter
-		if (!securityService.isAdmin()) {
+		if (!securityService.isAdmin() && Boolean.TRUE == filter.getOnlyInvolved()) {
 			// Applicant and Implementer is added to involved user after process
 			// (subprocess) started. This modification allow not use OR clause.
 			query.involvedUser(securityService.getCurrentId() == null ? UUID.randomUUID().toString() : securityService.getCurrentId().toString());

@@ -7,7 +7,10 @@ import java.util.Map;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 /**
- * 
+ * Universal workflow filter for process and tasks.
+ *
+ * @author Vít Švanda
+ *
  * FIXME: filter is used in bulk action and cannot be saved and persisted into DB (DataFilter is required to asynchronous bulk action processing).
  *
  */
@@ -23,6 +26,9 @@ public class WorkflowFilterDto extends QuickFilter {
 	private String candidateOrAssigned;
 	private ZonedDateTime createdBefore;
 	private ZonedDateTime createdAfter;
+	// If true, then returns only objects where logged user is involved.
+	// Cannot be set via REST (security reasons)!
+	private Boolean onlyInvolved = Boolean.TRUE;
 	
 	public WorkflowFilterDto() {
 	}
@@ -108,5 +114,25 @@ public class WorkflowFilterDto extends QuickFilter {
 
 	public void setCreatedAfter(ZonedDateTime createdAfter) {
 		this.createdAfter = createdAfter;
+	}
+
+	/**
+	 * Returns only objects where logged user is involved.
+	 * If false or null, then check on involved is skip.
+	 *
+	 * Super admin, skip this always.
+	 */
+	public Boolean getOnlyInvolved() {
+		return onlyInvolved;
+	}
+
+	/**
+	 * Returns only objects where logged user is involved.
+	 * If false or null, then check on involved is skip.
+	 *
+	 * Super admin, skip this always.
+	 */
+	public void setOnlyInvolved(Boolean onlyInvolved) {
+		this.onlyInvolved = onlyInvolved;
 	}
 }

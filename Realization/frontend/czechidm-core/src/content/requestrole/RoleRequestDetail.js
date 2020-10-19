@@ -516,9 +516,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 showLoading={showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
+              {/* Save button is allowed only in Concept and Exception state. On approve task looks this button useless and strange.*/}
               <Basic.Button
                 onClick={this.save.bind(this, false)}
-                disabled={!isEditable}
+                disabled={!canExecuteTheRequest}
                 rendered={ request && roleRequestManager.canSave(request, _permissions)}
                 level="default"
                 type="submit"

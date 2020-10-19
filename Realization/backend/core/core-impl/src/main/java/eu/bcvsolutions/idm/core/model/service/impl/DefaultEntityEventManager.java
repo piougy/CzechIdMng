@@ -1176,7 +1176,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_EVENT_ID);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_PRIORITY);
-		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_SUPER_OWNER_ID);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_PARENT_EVENT_ID);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_PARENT_EVENT_TYPE);
 		copiedProperies.remove(EntityEvent.EVENT_PROPERTY_ROOT_EVENT_ID);

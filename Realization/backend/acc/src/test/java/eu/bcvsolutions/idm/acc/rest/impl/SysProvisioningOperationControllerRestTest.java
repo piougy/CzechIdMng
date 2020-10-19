@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.DefaultAccTestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.EmptyProvisioningType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -188,6 +189,7 @@ public class SysProvisioningOperationControllerRestTest extends AbstractReadWrit
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setSystemId(system.getId());
 		filter.setEmptyProvisioning(Boolean.TRUE);
+		filter.setEmptyProvisioningType(EmptyProvisioningType.EMPTY);
 		List<SysProvisioningOperationDto> results = find(filter);
 		//
 		Assert.assertEquals(2, results.size());
@@ -195,12 +197,81 @@ public class SysProvisioningOperationControllerRestTest extends AbstractReadWrit
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationReadOnly.getId())));
 		//
 		filter.setEmptyProvisioning(Boolean.FALSE);
+		filter.setEmptyProvisioningType(null);
 		results = find(filter);
 		//
 		Assert.assertEquals(3, results.size());
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationTwo.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationThree.getId())));
+	}
+	
+	@Test
+	public void testFindByEmptyProvisioningType() {
+		SysSystemDto system = getHelper().createTestResourceSystem(false);
+		String attributeOne = getHelper().createName();
+		String attributeTwo = getHelper().createName();
+		// prepare provisioning operation with attributes
+		// not empty
+		SysProvisioningOperationDto operationOne = createDto(prepareDto(system));
+		createAttribute(operationOne.getId(), attributeOne, false);
+		SysProvisioningOperationDto operationTwo = createDto(prepareDto(system));
+		createAttribute(operationTwo.getId(), attributeOne, true);
+		createAttribute(operationTwo.getId(), attributeTwo, false);
+		SysProvisioningOperationDto operation = prepareDto(system);
+		operation.setOperationType(ProvisioningEventType.DELETE);
+		SysProvisioningOperationDto operationThree = createDto(operation);
+		// empty
+		SysProvisioningOperationDto operationEmpty = createDto(prepareDto(system));
+		operation = prepareDto(system);
+		operation.setResult(new OperationResult(OperationState.NOT_EXECUTED));
+		operation.getResult().setCode(AccResultCode.PROVISIONING_SYSTEM_READONLY.name());
+		SysProvisioningOperationDto operationReadOnly = createDto(operation);
+		// attributes are not evaluated
+		operation = prepareDto(system);
+		operation.setResult(new OperationResult(OperationState.NOT_EXECUTED));
+		SysProvisioningOperationDto operationFour = createDto(operation);
+		operation = prepareDto(system);
+		operation.setResult(new OperationResult(OperationState.RUNNING));
+		SysProvisioningOperationDto operationFive = createDto(operation);
+		operation = prepareDto(system);
+		operation.setResult(new OperationResult(OperationState.CREATED));
+		SysProvisioningOperationDto operationSix = createDto(operation);
+		//
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
+		filter.setEmptyProvisioningType(EmptyProvisioningType.EMPTY);
+		List<SysProvisioningOperationDto> results = find(filter);
+		//
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationEmpty.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationReadOnly.getId())));
+		//
+		filter.setEmptyProvisioningType(EmptyProvisioningType.NON_EMPTY);
+		results = find(filter);
+		//
+		Assert.assertEquals(3, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationOne.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationTwo.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationThree.getId())));
+		//
+		filter.setEmptyProvisioningType(EmptyProvisioningType.NOT_PROCESSED);
+		results = find(filter);
+		//
+		Assert.assertEquals(3, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationFour.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationFive.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationSix.getId())));
+		//
+		filter.setEmptyProvisioning(Boolean.TRUE);
+		filter.setEmptyProvisioningType(EmptyProvisioningType.NOT_PROCESSED);
+		results = find(filter);
+		Assert.assertTrue(results.isEmpty());
+		//
+		filter.setEmptyProvisioning(Boolean.FALSE);
+		filter.setEmptyProvisioningType(EmptyProvisioningType.NOT_PROCESSED);
+		results = find(filter);
+		Assert.assertTrue(results.isEmpty());
 	}
 	
 	@Override

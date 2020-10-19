@@ -247,6 +247,9 @@ public class DefaultSysProvisioningArchiveService
 			}
 			predicates.add(provisioningPredicate);
 		}
+		if (filter.getEmptyProvisioningType() != null) {
+			throw new UnsupportedOperationException("Filter by empty provisioning type is not supported in archive. Use 'emptyProvisioning' parameter instead.");
+		}
 		//
 		return predicates;
 	}

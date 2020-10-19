@@ -626,8 +626,8 @@
         },
         "emptyProvisioning": {
           "placeholder": "All operations ...",
-          "yes": "Empty provisioning provisioning only (without atributes)",
-          "no": "Exclude empty provisioning (with attributes)"
+          "yes": "Empty provisioning only (without atributes)",
+          "no": "Non-empty provisioning (with attributes)"
         }
       }
     },
@@ -1448,6 +1448,11 @@
         "DESCRIPTION": "",
         "DISABLED": ""
       }
+    },
+    "EmptyProvisioningTypeEnum": {
+      "EMPTY": "Empty provisioning only (without atributes)",
+      "NON_EMPTY": "Non-empty provisioning (with attributes)",
+      "NOT_PROCESSED": "Not calculated yet (attributes are not calculated)"
     }
   },
   "permission": {

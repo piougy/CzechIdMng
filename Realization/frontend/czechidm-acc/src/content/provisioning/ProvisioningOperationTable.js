@@ -7,12 +7,13 @@ import { Link } from 'react-router-dom';
 import { Basic, Advanced, Enums, Utils, Managers } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
+import EmptyProvisioningTypeEnum from '../../domain/EmptyProvisioningTypeEnum';
 import { SystemManager } from '../../redux';
 
 const systemManager = new SystemManager();
 
 /**
- * Provisioning operation and archive table
+ * Provisioning operation and archive table.
  *
  * @author Radk Tomiška
  */
@@ -122,9 +123,9 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-deleteAll" level="danger">
-          <div style={{ marginTop: 20 }}>
+          <Basic.Div style={{ marginTop: 20 }}>
             <Basic.AbstractForm ref="delete-form" uiKey="confirm-deleteAll" >
               <Basic.SelectBox
                 ref="delete-system"
@@ -134,7 +135,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                 value={ systemId }
                 readOnly={ systemId !== null }/>
             </Basic.AbstractForm>
-          </div>
+          </Basic.Div>
         </Basic.Confirm>
 
         <Advanced.Table
@@ -222,13 +223,19 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
                       placeholder={ this.i18n('filter.attributeRemoved.placeholder') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="emptyProvisioningType"
+                      placeholder={ this.i18n('filter.emptyProvisioning.placeholder') }
+                      enum={ EmptyProvisioningTypeEnum }
+                      rendered={ !isArchive }/>
                     <Advanced.Filter.BooleanSelectBox
                       ref="emptyProvisioning"
                       placeholder={ this.i18n('filter.emptyProvisioning.placeholder') }
                       options={ [
                         { value: 'true', niceLabel: this.i18n('filter.emptyProvisioning.yes') },
                         { value: 'false', niceLabel: this.i18n('filter.emptyProvisioning.no') }
-                      ]}/>
+                      ]}
+                      rendered={ isArchive }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -396,7 +403,7 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
             }
             rendered={ _.includes(columns, 'roleRequestId') } />
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

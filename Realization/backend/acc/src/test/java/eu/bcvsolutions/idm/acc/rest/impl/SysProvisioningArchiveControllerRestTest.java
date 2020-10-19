@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.DefaultAccTestHelper;
+import eu.bcvsolutions.idm.acc.domain.EmptyProvisioningType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -18,6 +19,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningAttribute;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningAttributeRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -34,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 public class SysProvisioningArchiveControllerRestTest extends AbstractReadWriteDtoControllerRestTest<SysProvisioningArchiveDto> {
 
 	@Autowired private SysProvisioningArchiveController controller;
+	@Autowired private SysProvisioningArchiveService service;
 	@Autowired private SysProvisioningAttributeRepository provisioningAttributeRepository;
 	
 	@Override
@@ -184,6 +187,14 @@ public class SysProvisioningArchiveControllerRestTest extends AbstractReadWriteD
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationTwo.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationThree.getId())));
+	}
+	
+	@Test(expected = UnsupportedOperationException.class)
+	public void testFindByEmptyProvisioningTypeNotSupported() {
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setEmptyProvisioningType(EmptyProvisioningType.EMPTY);
+		//
+		service.find(filter, null);
 	}
 	
 	private SysProvisioningAttribute createAttribute(UUID provisioningId, String name, boolean removed) {

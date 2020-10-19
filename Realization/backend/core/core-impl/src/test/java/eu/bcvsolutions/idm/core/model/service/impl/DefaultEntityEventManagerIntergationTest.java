@@ -739,7 +739,9 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findValidRoles(identity.getId(), null).getContent().isEmpty();
 			}, 500, 20);
-			Assert.assertEquals(1L, identityRoleService.findValidRoles(identity.getId(), null).getTotalElements());
+			// created roles 
+			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
+			Assert.assertEquals(1, assignedRoles.size());
 			//
 			// created events for the request
 			IdmEntityEventFilter filter = new IdmEntityEventFilter();
@@ -748,9 +750,14 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			List<IdmEntityEventDto> events = entityEventService.find(filter, null).getContent();
 			Assert.assertEquals(1, events.size());
 			Assert.assertEquals(transactionId, events.get(0).getTransactionId());
-			// created roles 
-			List<IdmIdentityRoleDto> roles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
-			Assert.assertEquals(1, roles.size());
+			Assert.assertEquals(identity.getId(), events.get(0).getSuperOwnerId());
+			//
+			filter.setOwnerId(assignedRoles.get(0).getId());
+			filter.setEventType(RoleRequestEventType.CREATE.name());
+			events = entityEventService.find(filter, null).getContent();
+			Assert.assertEquals(1, events.size());
+			Assert.assertEquals(transactionId, events.get(0).getTransactionId());
+			Assert.assertEquals(identity.getId(), events.get(0).getSuperOwnerId());
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			manager.deleteAllEvents();

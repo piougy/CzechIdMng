@@ -1449,6 +1449,11 @@
         "DESCRIPTION": "",
         "DISABLED": ""
       }
+    },
+    "EmptyProvisioningTypeEnum": {
+      "EMPTY": "Pouze prázdný provisioning (bez atributů)",
+      "NON_EMPTY": "Bez prázdného provisioningu (s atributy)",
+      "NOT_PROCESSED": "Atributy nejsou ještě vyhodnoceny"
     }
   },
   "permission": {

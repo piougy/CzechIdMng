@@ -194,7 +194,7 @@ class AbstractContextComponent extends AbstractComponent {
    * @param  {object} options parameters
    * @return {string}         localized message
    */
-  _i18n(key, options) {
+  _i18n(key, options = {}) {
     let result = i18n(key, options);
     // escape html
     if (options && options.escape === false && key !== result) {
@@ -211,7 +211,7 @@ class AbstractContextComponent extends AbstractComponent {
    * @param  {object} options parameters
    * @return {string}         localized message
    */
-  i18n(key, options) {
+  i18n(key, options = {}) {
     if (!key) {
       return '';
     }

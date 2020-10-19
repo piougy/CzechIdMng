@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.tool.exception.BuildException;
 public class ProjectManagerUnitTest extends AbstractUnitTest {
 
 	@Test
-	public void testBuildWithAtrefact() {
+	public void testBuildWithAtrifact() {
 		createMockProjectStructure(false, false);
 	}
 	
@@ -111,7 +111,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			File manifestFolder = new File(warFolder, "META-INF");
 			manifestFolder.mkdirs();
 			File productManifest = new File(manifestFolder, "MANIFEST.MF");
-			createManifest(productManifest);
+			createManifest(productManifest, AbstractReleaseManagerUnitTest.PRODUCT_VERSION);
 			if (extracted) {
 				FileUtils.moveDirectory(warFolder, new File(productFolder, "idm-1.0.0-SNAPSHOT"));
 			} else {
@@ -125,7 +125,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			File moduleOneManifestFolder = new File(moduleOneFolder, "META-INF");
 			moduleOneManifestFolder.mkdirs();
 			File moduleOneManifest = new File(moduleOneManifestFolder, "MANIFEST.MF");
-			createManifest(moduleOneManifest);
+			createManifest(moduleOneManifest, "1.0.0-SNAPSHOT");
 			File moduleOneFeSourcesFolder = new File(moduleOneFolder, "fe-sources");
 			File moduleOneFrontendModulesFolder = new File(moduleOneFeSourcesFolder, "czechidm-modules");
 			File moduleOneFrontendModuleFolder = new File(moduleOneFrontendModulesFolder, "czechidm-one");
@@ -146,34 +146,46 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 					  + "<artifactId>idm-parent</artifactId>"
 					  + "<version>" + AbstractReleaseManagerUnitTest.PRODUCT_VERSION + "</version>"
 					+ "</parent>"
-					+ "<artifactId>idm-module-one</artifactId>"
-					+ "<packaging>jar</packaging>"
-					+ "<properties>"
-						+ "<csv.version>1.3</csv.version>"
-					+ "</properties>"
-					+ "<dependencies>"
-						+ "<dependency>"
-							+ "<groupId>org.apache.commons</groupId>"
-							+ "<artifactId>commons-csv</artifactId>"
-							+ "<version>${csv.version}</version>"
-						+ "</dependency>"
-						+ "<dependency>"
-							+ "<groupId>org.apache.commons</groupId>"
-							+ "<artifactId>commons-csv</artifactId>"
-							+ "<version>" + (duplicateDependency ? "2.17" : "1.3") + "</version>"
-						+ "</dependency>"
-					+ "</dependencies>" +
+					+ "<artifactId>idm-scim-impl</artifactId>" // we need exists artifact (in local or nexus repository) with some third party dependency
+					+ "<version>2.1.0</version>"
+					+ "<packaging>jar</packaging>" +
 					"</project>",
 					AttachableEntity.DEFAULT_CHARSET);
 			//
 			ZipUtils.compress(moduleOneFolder, new File(modulesFolder, "module-one-1.0.0-SNAPSHOT.jar").getPath());
 			FileUtils.forceDelete(moduleOneFolder);
+			//
+			if (duplicateDependency) {
+				File duplicateModuleOneFolder = new File(modulesFolder, "duplicate-module-one");
+				File duplicateModuleOneManifestFolder = new File(duplicateModuleOneFolder, "META-INF");
+				duplicateModuleOneManifestFolder.mkdirs();
+				File duplicateModuleOneManifest = new File(duplicateModuleOneManifestFolder, "MANIFEST.MF");
+				createManifest(duplicateModuleOneManifest, "1.1.0-SNAPSHOT");
+				// prepare maven descriptor inside module with two dependencies
+				File duplicateModuleOneMavenPom = new File(String.format("%s/maven/eu.bcvsolutions.idm/czechidm-one/pom.xml", duplicateModuleOneManifestFolder.getPath()));
+				FileUtils.writeStringToFile(duplicateModuleOneMavenPom,
+						"<project>"
+						+ "<modelVersion>4.0.0</modelVersion>"
+						+ "<parent>"
+						  + "<groupId>eu.bcvsolutions.idm</groupId>"
+						  + "<artifactId>idm-parent</artifactId>"
+						  + "<version>" + AbstractReleaseManagerUnitTest.PRODUCT_VERSION + "</version>"
+						+ "</parent>"
+						+ "<artifactId>idm-scim-impl</artifactId>" // we need exists artifact (in local or nexus repository) with some third party dependency
+						+ "<version>2.0.0</version>"
+						+ "<packaging>jar</packaging>" +
+						"</project>",
+						AttachableEntity.DEFAULT_CHARSET);
+				//
+				ZipUtils.compress(duplicateModuleOneFolder, new File(modulesFolder, "module-one-1.1.0-SNAPSHOT.jar").getPath());
+				FileUtils.forceDelete(duplicateModuleOneFolder);
+			}
 			// two
 			File moduleTwoFolder = new File(modulesFolder, "module-two");
 			File moduleTwoManifestFolder = new File(moduleTwoFolder, "META-INF");
 			moduleTwoManifestFolder.mkdirs();
 			File moduleTwoManifest = new File(moduleTwoManifestFolder, "MANIFEST.MF");
-			createManifest(moduleTwoManifest);
+			createManifest(moduleTwoManifest, "1.0.0-SNAPSHOT");
 			ZipUtils.compress(moduleTwoFolder, new File(modulesFolder, "module-two-1.0.0-SNAPSHOT.jar").getPath());
 			FileUtils.forceDelete(moduleTwoFolder);
 			//
@@ -209,17 +221,19 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/mock-lib.jar", warFolder.getPath())).exists());
 			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/module-one-1.0.0-SNAPSHOT.jar", warFolder.getPath())).exists());
 			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/module-two-1.0.0-SNAPSHOT.jar", warFolder.getPath())).exists());
-			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/commons-csv-1.3.jar", warFolder.getPath())).exists());
+			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/idm-scim-api-2.1.0.jar", warFolder.getPath())).exists());
+			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/idm-scim-impl-2.1.0.jar", warFolder.getPath())).exists());
+			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/scim2-sdk-common-2.1.3.jar", warFolder.getPath())).exists());
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 	
-	private void createManifest(File manifestDestination) throws IOException {
+	private void createManifest(File manifestDestination, String version) throws IOException {
 		Manifest manifest = new Manifest();
         Attributes global = manifest.getMainAttributes();
         global.put(Attributes.Name.MANIFEST_VERSION, "1.0.0");
-        global.put(Attributes.Name.IMPLEMENTATION_VERSION, "1.0.0-SNAPSHOT");
+        global.put(Attributes.Name.IMPLEMENTATION_VERSION, version);
         try (OutputStream os = new FileOutputStream(manifestDestination)) {
         	manifest.write(os);
         }

@@ -316,9 +316,9 @@ Build features:
  ├── tool                           ⟵ [required] Here is idm-tool.jar (+lib or one-fat-jar).
  ├── product                        ⟵ [required] Here is product .war artefact (e.g. idm-9.7.14.war, idm-10.1.0.war or extracted folder idm-10.1.0). Can be downloaded from our nexus.
  ├── modules                        ⟵ [optional] Here are project modules (~ IdM modules) and connectors. Third party module libraries (dependencies) could be here too, but they are resolved automatically - see bellow.
- ├── frontend                       ⟵ [optional] Here can be custom frontend files - czechidm-app frontend module, localization can be overriden, e.t.c
+ ├── frontend                       ⟵ [optional] Here can be custom frontend files - **overriden czechidm-app frontend module sources** can be placed directly in this folder, localization can be overriden, e.t.c
  |   ├── config                     ⟵ frontend configuration (by profile, stage - see https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/frontend/czechidm-app/config/README.md)
- |   ├── czechidm-modules           ⟵ additional frontend modules (or overriden core module files, e.g. localization)
+ |   ├── czechidm-modules           ⟵ additional frontend modules (or other overriden product module files e.g. czechidm-core, czechidm-acc)
  ├── dist                           ⟵ [optional] Folder will be created automatically by tool usage - it will contain output artefacts ready for deploy (e.g. idm.war).
  ├── target                         ⟵ [optional] Folder will be created automatically by tool usage - used by tool internally for build.
 ```
@@ -345,17 +345,19 @@ Usable additional tool argument:
 
 Third party module dependencies are inluded in target build automatically:
 - Product modules (``core``, ``acc`` etc.) are not defined as maven dependencies. These libraries are installed from product placed in product folder. **Product dependency should be defined as provided in module dependencies**.
-- libraries added into ``modules`` folder are **copied from ``modules`` forder directly**. Benefit: snapshot module version can be added there => build can be done even library (or whole module) is not available in local or nexus repository => **see settings.xml above to resolve private artefacts**),
-- other 3th party libraries are included:
-  - library scope is preserved (e.g. provided libraries are supported),
+- Modules or libraries added into ``modules`` folder are **registered as project dependencies for build. All libraries have to be available in local or nexus repository => see settings.xml above to resolve private artefacts**),
+- libraries are included:
+  - 3th party libraries from module are included,
+  - library scope is ``compile``,
   - library has to be available in maven repository (local or nexus),
-  - library version can be defined by maven property too. Property should be defined directly in module - resolving properties from parent module is not supported.
-  - if **more versions of the same library is defined, then the build fails**. Update module dependencies or copy third party library to modules folder to ensure concrete version is used.
-  - **CzechIdM module is not included as maven dependency - place all project CzechIdM modules into ``modules`` forder (e.g. ``crt-api`` + ``crt-impl``)**.
+  - library version can be defined by parent too,
+  - if **more versions of the same library is found in ``modules`` folder, then the build fails**.
 
 ## Future development
 
 - add module dependency descriptor with compatible product version list (e.g. scim module 1.2.3 is compatible / tested with product 9.7.14, 10.0.0, 10.1.0)
+- check ``fe-sources`` is included after build
+- add ``deploy`` command - when deploy fails (e.g. nexus is temporarily unavailable).
 
 ## License
 

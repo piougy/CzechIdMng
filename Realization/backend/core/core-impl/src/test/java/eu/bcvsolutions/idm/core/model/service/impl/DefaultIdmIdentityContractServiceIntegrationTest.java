@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -1469,7 +1470,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
 	}
 	
-	@Test(expected = ResultCodeException.class)
+	@Test(expected = AcceptedException.class)
 	public void testPreventToDeleteCurrentlyDeletedRole() {
 		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(getHelper().createRole(), getHelper().createTreeNode(), true);
 		RemoveAutomaticRoleTaskExecutor taskExecutor = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
@@ -1483,6 +1484,30 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			//
 			taskExecutor = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
 			taskExecutor.setAutomaticRoleId(automaticRole.getId());
+			//
+			longRunningTaskManager.execute(taskExecutor);
+		} finally {
+			lrt.setRunning(false);
+			lrt = longRunningTaskService.save(lrt);
+			//
+			longRunningTaskService.delete(lrt);
+		}
+	}
+	
+	@Test(expected = AcceptedException.class)
+	public void testAcceptSimultaneousAutomaticRoleTask() {
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(getHelper().createRole(), getHelper().createTreeNode(), true);
+		ProcessAutomaticRoleByTreeTaskExecutor taskExecutor = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
+		taskExecutor.setAutomaticRoles(Lists.newArrayList(automaticRole.getId()));
+		//
+		IdmLongRunningTaskDto lrt = null;
+		try {
+			lrt = longRunningTaskManager.resolveLongRunningTask(taskExecutor, null, OperationState.RUNNING);
+			lrt.setRunning(true);
+			longRunningTaskService.save(lrt);
+			//
+			taskExecutor = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
+			taskExecutor.setAutomaticRoles(Lists.newArrayList(automaticRole.getId()));
 			//
 			longRunningTaskManager.execute(taskExecutor);
 		} finally {

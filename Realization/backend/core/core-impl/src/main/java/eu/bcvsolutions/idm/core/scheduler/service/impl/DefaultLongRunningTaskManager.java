@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -235,7 +236,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(noRollbackFor = AcceptedException.class)
 	public synchronized <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		if (!isAsynchronous()) {
 			V result = executeSync(taskExecutor);

@@ -13,6 +13,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
@@ -301,16 +303,29 @@ public class DefaultIdmAutomaticRoleRequestService extends
 				// Remove tree automatic role
 				Assert.notNull(automaticRoleId, "Id of automatic role in the request (for delete) is required!");
 				// Recount (remove) assigned roles ensures LRT during delete
-				automaticRoleTreeService.delete(automaticRoleTreeService.get(automaticRoleId));
+				try {
+					automaticRoleTreeService.delete(automaticRoleTreeService.get(automaticRoleId));
+				} catch (AcceptedException ex) {
+					LOG.info("Automatic role [{}] will be removed asynchronously.", automaticRoleId);
+				}
 				request.setAutomaticRole(null);
 
 			} else if (RequestOperationType.ADD == request.getOperation()) {
 				// Create new tree automatic role
 				IdmRoleTreeNodeDto treeAutomaticRole = new IdmRoleTreeNodeDto();
 				treeAutomaticRole = initTreeAutomaticRole(request, treeAutomaticRole);
-				// Recount of assigned roles ensures LRT after save 
-				treeAutomaticRole = automaticRoleTreeService.save(treeAutomaticRole);
-				request.setAutomaticRole(treeAutomaticRole.getId());
+				// Recount of assigned roles ensures LRT
+				try {
+					treeAutomaticRole = automaticRoleTreeService.save(treeAutomaticRole);
+					request.setAutomaticRole(treeAutomaticRole.getId());
+				} catch (AcceptedException ex) {
+					// automatic role will be processed asynchronously, but it's persisted
+					String treeAutomaticRoleIdentifier = ex.getIdentifier();
+					if (StringUtils.isEmpty(treeAutomaticRoleIdentifier)) {
+						throw ex;
+					}
+					request.setAutomaticRole(DtoUtils.toUuid(treeAutomaticRoleIdentifier));
+				}
 			} else {
 				// Update is not supported
 				throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED,
@@ -437,15 +452,15 @@ public class DefaultIdmAutomaticRoleRequestService extends
 		request = this.save(request);
 
 		IdmAutomaticRoleRequestDto result = this.getIdmAutomaticRoleRequestService().startRequest(request.getId(), true);
-		if(RequestState.EXECUTED == result.getState()) {
+		if (RequestState.EXECUTED == result.getState()) {
 			UUID createdAutomaticRoleId = result.getAutomaticRole();
 			Assert.notNull(createdAutomaticRoleId, "Automatic role identifier is required.");
 			return automaticRoleTreeService.get(createdAutomaticRoleId);
 		}
-		if(RequestState.IN_PROGRESS == result.getState()) {
+		if (RequestState.IN_PROGRESS == result.getState()) {
 			throw new AcceptedException();
 		}
-		if(RequestState.EXCEPTION == result.getState()) {
+		if (RequestState.EXCEPTION == result.getState()) {
 			throw new AcceptedException();
 		}
 		return null;

@@ -17,6 +17,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -54,6 +55,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
@@ -189,7 +191,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		filter.setRunning(Boolean.TRUE);
 		//
 		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-			throw new ResultCodeException(
+			throw new AcceptedException(
 					CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
 					ImmutableMap.of("taskId", longRunningTaskId.toString())
 			);
@@ -199,16 +201,32 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	@Override
 	public Page<IdmRoleTreeNodeDto> getItemsToProcess(Pageable pageable) {
 		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
-		filter.setIds(automaticRoles);
+		// we need to process all automatic roles => assigned role removal is on the end 
+		List<IdmRoleTreeNodeDto> items = new ArrayList<>(automaticRoles.size());
 		//
-		return roleTreeNodeService.find(
-				filter, 
-				PageRequest.of(
-						0, 
-						Integer.MAX_VALUE, 
-						Sort.by(String.format("%s.%s", IdmRoleTreeNode_.role.getName(), IdmRole_.code.getName()))
-				)
-		);
+		int pageSize = 500; // prevent to exceed IN limit sql clause
+		Page<UUID> idPage = new PageImpl<UUID>(automaticRoles, PageRequest.of(0, pageSize), automaticRoles.size());
+		for (int page = 0; page < idPage.getTotalPages(); page++) {
+			int end = (page + 1) * pageSize;
+			if (end > automaticRoles.size()) {
+				end = automaticRoles.size();
+			}
+			filter.setIds(automaticRoles.subList(page * pageSize, end));
+
+			items.addAll(roleTreeNodeService
+					.find(
+						filter, 
+						PageRequest.of(
+								0, 
+								Integer.MAX_VALUE, 
+								Sort.by(String.format("%s.%s", IdmRoleTreeNode_.role.getName(), IdmRole_.code.getName()))
+						)
+					)
+					.getContent()
+			);
+		}
+		//
+		return new PageImpl<>(items, PageRequest.of(0, automaticRoles.size()), automaticRoles.size());
 	}
 	
 	@Override

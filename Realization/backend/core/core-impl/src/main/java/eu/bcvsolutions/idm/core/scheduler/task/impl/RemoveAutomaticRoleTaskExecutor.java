@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
@@ -115,7 +116,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		//
 		if (byTree) {
 			for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-				throw new ResultCodeException(
+				throw new AcceptedException(
 						CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
 						ImmutableMap.of("taskId", longRunningTaskId.toString())
 				);
@@ -123,7 +124,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			//
 			filter.setTaskType(AutowireHelper.getTargetType(ProcessAutomaticRoleByTreeTaskExecutor.class));
 			for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-				throw new ResultCodeException(
+				throw new AcceptedException(
 						CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
 						ImmutableMap.of("taskId", longRunningTaskId.toString())
 				);

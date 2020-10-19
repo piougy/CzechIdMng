@@ -7,6 +7,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -78,6 +79,15 @@ public class DefaultIdmConfidentialStorageValueService extends
 		if (StringUtils.isNotEmpty(filter.getKey())) {
 			predicates.add(builder.equal(root.get(IdmConfidentialStorageValue_.key), filter.getKey()));
 		}
+		//
+		if (filter.getEmptyVector() != null) {
+			if (BooleanUtils.isTrue(filter.getEmptyVector())) {
+				predicates.add(builder.isNull(root.get(IdmConfidentialStorageValue_.iv)));
+			} else {
+				predicates.add(builder.isNotNull(root.get(IdmConfidentialStorageValue_.iv)));
+			}
+		}
+		//
 		return predicates;
 	}
 

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -40,7 +41,7 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	public void encryptAndDecryptStringValue() {
+	public void encryptAndDecryptStringValueBackwardCompatible() {
 		String password = "123456";
 		String encryptString = cryptService.encryptString(password);
 		
@@ -51,9 +52,23 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 		assertNotEquals(decryptString, encryptString);
 		assertEquals(decryptString, password);
 	}
+
+	@Test
+	public void encryptAndDecryptStringValue() {
+		String password = "123456";
+		byte[] vector = generateIV();
+		String encryptString = cryptService.encryptString(password, vector);
+		
+		assertNotEquals(password, encryptString);
+		
+		String decryptString = cryptService.decryptString(encryptString, vector);
+		
+		assertNotEquals(decryptString, encryptString);
+		assertEquals(decryptString, password);
+	}
 	
 	@Test
-	public void encryptAndDecryptStringValue255Long() {
+	public void encryptAndDecryptStringValue255LongBackwardCompatible() {
 		Random random = new Random();
 		byte[] password255 = new byte[255];
 		random.nextBytes(password255);
@@ -68,9 +83,27 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 		assertNotEquals(decryptString, encryptString);
 		assertEquals(decryptString, password);
 	}
+
+	@Test
+	public void encryptAndDecryptStringValue255Long() {
+		Random random = new Random();
+		byte[] password255 = new byte[255];
+		random.nextBytes(password255);
+		String password = new String(password255);
+		byte[] vector = generateIV();
+		
+		String encryptString = cryptService.encryptString(password, vector);
+		
+		assertNotEquals(password, encryptString);
+		
+		String decryptString = cryptService.decryptString(encryptString, vector);
+		
+		assertNotEquals(decryptString, encryptString);
+		assertEquals(decryptString, password);
+	}
 	
 	@Test
-	public void encryptAndDecryptGuardedString() {
+	public void encryptAndDecryptGuardedStringBackwardCompatible() {
 		GuardedString password = new GuardedString("123456");
 		
 		String encryptString = cryptService.encryptString(password.asString());
@@ -82,9 +115,24 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 		assertNotEquals(decryptString, encryptString);
 		assertEquals(decryptString, password.asString());
 	}
+
+	@Test
+	public void encryptAndDecryptGuardedString() {
+		GuardedString password = new GuardedString("123456");
+		byte[] vector = generateIV();
+		
+		String encryptString = cryptService.encryptString(password.asString(),vector);
+		
+		assertNotEquals(password.asString(), encryptString);
+		
+		String decryptString = cryptService.decryptString(encryptString, vector);
+		
+		assertNotEquals(decryptString, encryptString);
+		assertEquals(decryptString, password.asString());
+	}
 	
 	@Test
-	public void encryptAndDecryptList() {
+	public void encryptAndDecryptListBackwardCompatible() {
 		List<String> list = new ArrayList<>();
 		list.add("0");
 		list.add("1");
@@ -102,9 +150,30 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 		assertEquals(listDeserialize.get(2), list.get(2));
 		assertEquals(listDeserialize.get(3), list.get(3));
 	}
+
+	@Test
+	public void encryptAndDecryptList() {
+		List<String> list = new ArrayList<>();
+		list.add("0");
+		list.add("1");
+		list.add("2");
+		list.add("3");
+		byte[] vector = generateIV();
+
+		byte[] encrypt = cryptService.encrypt(SerializationUtils.serialize((Serializable) list), vector);
+
+		byte[] decrypt = cryptService.decrypt(encrypt, vector);
+		
+		List<String> listDeserialize = SerializationUtils.deserialize(decrypt);
+
+		assertEquals(listDeserialize.get(0), list.get(0));
+		assertEquals(listDeserialize.get(1), list.get(1));
+		assertEquals(listDeserialize.get(2), list.get(2));
+		assertEquals(listDeserialize.get(3), list.get(3));
+	}
 	
 	@Test
-	public void encryptAndDecryptString() {
+	public void encryptAndDecryptStringBackwardCompatible() {
 		String password = "123456";
 		byte [] encrypt = cryptService.encrypt(password.getBytes());
 		
@@ -114,5 +183,32 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 		assertNotEquals(password, new String(encrypt));
 		
 		assertEquals(password, new String(decryptString));
+	}
+
+	@Test
+	public void encryptAndDecryptString() {
+		String password = "123456";
+		byte[] vector = generateIV(); 
+
+		byte [] encrypt = cryptService.encrypt(password.getBytes(), vector);
+		
+		byte [] decryptString = cryptService.decrypt(encrypt, vector);
+		
+		// defensive while is file not found encrypt is not working
+		assertNotEquals(password, new String(encrypt));
+		
+		assertEquals(password, new String(decryptString));
+	}
+
+	/**
+	 * Generate new vector
+	 *
+	 * @return
+	 */
+	private byte[] generateIV() {
+		byte[] newIV = new byte[16];
+		SecureRandom s = new SecureRandom();
+		s.nextBytes(newIV);
+		return newIV;
 	}
 }

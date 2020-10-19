@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### Administrator
 
 - [#1981](https://redmine.czechidm.com/issues/1981) - Design of bulk actions used in tables was changed. Filter is now expanded to the top and quick buttons are shown for the first five actions (by default), next actions are in drop down menu. Bulk action order was changed too. Order, icon, level, enforce quick button or disable bulk action can be configured by application setting. Quick button count (or disable quick buttons) can be configured by application setting too.
+- [#2355](https://redmine.czechidm.com/issues/2355) - IdM now supports AES-256 key for encryption and decryption confidential storage. If you want use the new encryption please change key via long running task ``ChangeConfidentialStorageKeyTaskExecutor``.
+- [#2355](https://redmine.czechidm.com/issues/2355) - For every item in confidential storage will be generated new initial vector. Please check how many records do you have in table ``idm_confidential_storage`` (_SELECT COUNT(*) FROM idm_confidential_storage_). For 300 items takes first start IdM about 30 seconds. Please be patient. 
 
 ### Developer
 

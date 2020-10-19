@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 /**
  * Default implementation of {@link CryptService}
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  * 
  */
 public class DefaultCryptService implements CryptService {
@@ -52,8 +52,9 @@ public class DefaultCryptService implements CryptService {
 	 */
 	private static String ENCODING = "UTF-8";
 	/**
-	 * Initialization vector
+	 * Initialization vector - old behavior with static vector
 	 */
+	@Deprecated
 	private static byte [] IV = { 48, 104, 118, 113, 103, 116, 51, 114, 107, 54, 51, 57, 108, 121, 119, 101 };
 	//
 	private final ConfigurableEnvironment env;
@@ -70,8 +71,8 @@ public class DefaultCryptService implements CryptService {
 		try {
 			key = this.getKey();
 			// just for key validation ... will be in log
-			initCipher(Cipher.DECRYPT_MODE, key);
-			initCipher(Cipher.ENCRYPT_MODE, key);
+			initCipher(Cipher.DECRYPT_MODE, key, IV);
+			initCipher(Cipher.ENCRYPT_MODE, key, IV);
 			LOG.info("Initializing Cipher succeeded - Confidetial storage will be crypted.");
 		} catch (InvalidKeyException | UnsupportedEncodingException ex) {
 			LOG.error("Problem with initializing Cipher. Error: [{}]. Confidetial storage is not crypted! ", ex.getMessage());
@@ -79,24 +80,42 @@ public class DefaultCryptService implements CryptService {
 	}
 	
 	@Override
-	public String encryptString(String value) {
-		byte[] encryptValue = this.encrypt(value.getBytes(StandardCharsets.UTF_8));
+	public String encryptString(String value, byte[] iv) {
+		byte[] encryptValue = this.encrypt(value.getBytes(StandardCharsets.UTF_8), iv);
 		return Base64.encodeBase64String(encryptValue);
 	}
 
 	@Override
-	public String decryptString(String value) {
-		byte[] serializableValue = this.decrypt(Base64.decodeBase64(value));
+	public String encryptString(String value) {
+		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
+		return encryptString(value, IV);
+	}
+
+	@Override
+	public String decryptString(String value, byte[] iv) {
+		byte[] serializableValue = this.decrypt(Base64.decodeBase64(value), iv);
 		return new String(serializableValue, StandardCharsets.UTF_8);
 	}
-	
+
 	@Override
-	public byte[] decrypt(byte[] value) {
-		return this.decryptWithKey(value, null);
+	public String decryptString(String value) {
+		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
+		return decryptString(value, IV);
 	}
 	
 	@Override
-	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey) {
+	public byte[] decrypt(byte[] value, byte[] iv) {
+		return this.decryptWithKey(value, null, iv);
+	}
+
+	@Override
+	public byte[] decrypt(byte[] value) {
+		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
+		return decrypt(value, IV);
+	}
+	
+	@Override
+	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey, byte[] iv) {
 		Assert.notNull(value, "Value is required.");
 
 		SecretKey key = this.key;
@@ -105,7 +124,7 @@ public class DefaultCryptService implements CryptService {
 		}
 
 		try {
-			Cipher decryptCipher = initCipher(Cipher.DECRYPT_MODE, key);
+			Cipher decryptCipher = initCipher(Cipher.DECRYPT_MODE, key, iv);
 			if (decryptCipher == null) {
 				logNotCryptedWarning();
 				return value;
@@ -116,11 +135,17 @@ public class DefaultCryptService implements CryptService {
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 	}
-	
+
 	@Override
-	public byte[] encrypt(byte[] value) {
+	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey) {
+		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
+		return decryptWithKey(value, guardedKey, IV);
+	}
+
+	@Override
+	public byte[] encrypt(byte[] value, byte[] iv) {
 		try {
-			Cipher encryptCipher = initCipher(Cipher.ENCRYPT_MODE, key);
+			Cipher encryptCipher = initCipher(Cipher.ENCRYPT_MODE, key, iv);
 			if (encryptCipher == null) {
 				logNotCryptedWarning();
 				return value;
@@ -130,6 +155,12 @@ public class DefaultCryptService implements CryptService {
 			LOG.error("Encrypt problem! Password will not be encrypted! Error:", ex);
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), ex);
 		}
+	}
+
+	@Override
+	public byte[] encrypt(byte[] value) {
+		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
+		return encrypt(value, IV);
 	}
 
 	/**
@@ -192,15 +223,19 @@ public class DefaultCryptService implements CryptService {
 	 * @param key
 	 * @throws InvalidKeyException
 	 */
-	private Cipher initCipher(int encryptMode, SecretKey key) throws InvalidKeyException {
+	private Cipher initCipher(int encryptMode, SecretKey key, byte[] iv) throws InvalidKeyException {
 		if (key == null) {
 			return null;
 		}
-		//
+
+		if (iv == null) {
+			LOG.warn("Confidential storage value hasn't defined dynamic vector.");
+		}
+
 		Cipher cipher = null;
 		try {
 			cipher = Cipher.getInstance(ALGORITHM + "/" + ALGORITHM_MODE + "/" + ALGORITHM_PADDING);
-			cipher.init(encryptMode, key, new IvParameterSpec(IV));
+			cipher.init(encryptMode, key, new IvParameterSpec(iv));
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException e) {
 			LOG.error("Cipher can't be initialized!");
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);

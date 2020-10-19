@@ -17,6 +17,7 @@ public class IdmConfidentialStorageValueFilter extends DataFilter {
 	private UUID ownerId;
 	private String ownerType;
 	private String key;
+	private Boolean emptyVector;
 	
 	public IdmConfidentialStorageValueFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -48,5 +49,13 @@ public class IdmConfidentialStorageValueFilter extends DataFilter {
 
 	public void setOwnerType(String ownerType) {
 		this.ownerType = ownerType;
+	}
+
+	public Boolean getEmptyVector() {
+		return emptyVector;
+	}
+
+	public void setEmptyVector(Boolean emptyVector) {
+		this.emptyVector = emptyVector;
 	}
 }

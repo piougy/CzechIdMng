@@ -205,6 +205,6 @@ public class InitDelegationRoleProcessor extends AbstractInitApplicationProcesso
 	@Override
 	public int getOrder() {
 		// after user role is created
-		return CoreEvent.DEFAULT_ORDER + 50;
+		return CoreEvent.DEFAULT_ORDER + 60;
 	}
 }

@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang3.SerializationUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,17 +26,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 	
 	@Autowired private CryptService cryptService;
-	
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-	
-	@After
-	@Override
-	public void logout() {
-		super.logout();
-	}
 	
 	@Test
 	public void encryptAndDecryptStringValueBackwardCompatible() {

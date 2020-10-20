@@ -33,9 +33,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * Task change all values in confidential storage with new key from file or
  * application properties. This task required start this task after you change
  * key to new.
- * 
- * TODO: change parameter oldKey to input type password (now isn't this required
- * because as parameter is send old key)
  *
  * @author Ondrej Kopr
  *

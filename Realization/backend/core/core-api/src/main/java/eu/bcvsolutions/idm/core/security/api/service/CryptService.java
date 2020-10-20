@@ -19,8 +19,8 @@ public interface CryptService {
 	 * Encrypt string value by {@link Base64} and method encodeBase64String
 	 * 
 	 * @param value
-	 * @deprecated method used old behavior with static vector, please use method {@link CryptService#encryptString(String, byte[])}
 	 * @return
+	 * @deprecated @since 10.6.0 method used old behavior with static vector, please use method {@link CryptService#encryptString(String, byte[])}
 	 */
 	@Deprecated
 	String encryptString(String value);
@@ -38,8 +38,8 @@ public interface CryptService {
 	 * Decrypt string value with {@link Base64} and method Base64
 	 * 
 	 * @param value
-	 * @deprecated method used old behavior with static vector, please use method {@link CryptService#decryptString(String, byte[])}
 	 * @return
+	 * @deprecated @since 10.6.0 method used old behavior with static vector, please use method {@link CryptService#decryptString(String, byte[])}
 	 */
 	@Deprecated
 	String decryptString(String value);
@@ -57,8 +57,8 @@ public interface CryptService {
 	 * Basic encrypt byte array with key from resource and initialization vector define by this class.
 	 * 
 	 * @param value
-	 * @deprecated method used old behavior with static vector, please use method {@link CryptService#encrypt(byte[], byte[])}
 	 * @return
+	 * @deprecated @since 10.6.0 method used old behavior with static vector, please use method {@link CryptService#encrypt(byte[], byte[])}
 	 */
 	@Deprecated
 	byte[] encrypt(byte[] value);
@@ -76,8 +76,8 @@ public interface CryptService {
 	 * Basic decrypt byte array with key from resoruce and initialization vector define by this class.
      *
 	 * @param value
-	 * @deprecated method used old behavior with static vector, please use method {@link CryptService#decrypt(byte[], byte[])}
 	 * @return
+	 * @deprecated @since 10.6.0 method used old behavior with static vector, please use method {@link CryptService#decrypt(byte[], byte[])}
 	 */
 	@Deprecated
 	byte[] decrypt(byte[] value);
@@ -96,9 +96,9 @@ public interface CryptService {
 	 * If key will be null method use key classic confidential key defined in application properties or file.
 	 *
 	 * @param value
-	 * @deprecated method used old behavior with static vector, please use method {@link CryptService#decryptWithKey(byte[], GuardedString, byte[])}
 	 * @param key
 	 * @return
+	 * @deprecated @since 10.6.0 method used old behavior with static vector, please use method {@link CryptService#decryptWithKey(byte[], GuardedString, byte[])}
 	 */
 	@Deprecated
 	byte[] decryptWithKey(byte[] value, GuardedString key);

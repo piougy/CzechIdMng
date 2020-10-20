@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
 
 /**
- * Find and setup dynamic vector for confidential storage
+ * Find and setup dynamic vector for confidential storage.
  *
  * @author Ondrej Kopr
  * @since 10.6.0

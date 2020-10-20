@@ -53,6 +53,7 @@ public class DefaultCryptService implements CryptService {
 	private static String ENCODING = "UTF-8";
 	/**
 	 * Initialization vector - old behavior with static vector
+	 * @deprecated @since 10.6.0
 	 */
 	@Deprecated
 	private static byte [] IV = { 48, 104, 118, 113, 103, 116, 51, 114, 107, 54, 51, 57, 108, 121, 119, 101 };
@@ -131,7 +132,7 @@ public class DefaultCryptService implements CryptService {
 			}
 			return decryptCipher.doFinal(value);
 		} catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
-			LOG.error("Decrypt problem! Password will not be decrypthed! Error: {}", e.getLocalizedMessage());
+			LOG.error("Decrypt problem! Value will not be decrypthed! Error: {}", e.getLocalizedMessage(), e);
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 	}
@@ -152,7 +153,7 @@ public class DefaultCryptService implements CryptService {
 			}
 			return encryptCipher.doFinal(value);
 		} catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException ex) {
-			LOG.error("Encrypt problem! Password will not be encrypted! Error:", ex);
+			LOG.error("Encrypt problem! Value will not be encrypted! Error:", ex);
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), ex);
 		}
 	}

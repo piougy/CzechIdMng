@@ -7690,6 +7690,10 @@
     "MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE": {
       "title": "Delegátor není schvalovatelem úkolu!",
       "message": "Delegátor [{{delegator}}] není schvalovatelem úkolu [{{task}}]."
+    },
+    "WF_TASK_FILTER_INVOLVED_ONLY": {
+      "title": "Úkoly používají špatný filtr!",
+      "message": "Není povoleno nastavit filtr úkolů 'onlyInvolved' na jinou hodnotu než TRUE!"
     }
   },
   "validationError": {

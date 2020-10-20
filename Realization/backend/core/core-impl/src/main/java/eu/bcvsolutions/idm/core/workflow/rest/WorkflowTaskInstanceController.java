@@ -2,6 +2,11 @@ package eu.bcvsolutions.idm.core.workflow.rest;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -81,6 +86,9 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 	private BulkActionManager bulkActionManager;
 	@Autowired
 	private SecurityService securityService;
+	@Autowired
+	private WorkflowProcessInstanceService processInstanceService;
+
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;
 
 	@Autowired
@@ -150,7 +158,12 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 	public Set<String> getPermissions(
 			@ApiParam(value = "Task instance id.", required = true)
 			@PathVariable String backendId) {
-		WorkflowTaskInstanceDto taskInstanceDto = workflowTaskInstanceService.get(backendId);
+		WorkflowFilterDto context = new WorkflowFilterDto();
+		context.setOnlyInvolved(Boolean.FALSE);
+		WorkflowTaskInstanceDto taskInstanceDto = workflowTaskInstanceService.get(backendId, context);
+		if (taskInstanceDto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
 		return workflowTaskInstanceService.getPermissions(taskInstanceDto);
 	}
 
@@ -161,6 +174,29 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 	// need call direct service with Permission.READ!
 	public WorkflowTaskInstanceDto getDto(Serializable backendId) {
 		WorkflowTaskInstanceDto dto = getService().get(backendId, IdmBasePermission.READ);
+		// Found task is returned immediately only if is not null and is not historic.
+
+		// Why if is historic? If user isn't assigned to this task, but is involved (is delegator), then historic task will
+		// be returned, but in same time real task instance is not completed. This can confuse a user, because information/label
+		// on FE will said that task was resolved. For prevent this, I try to find task instance if user has permission to the process.
+		if (dto == null || dto instanceof WorkflowHistoricTaskInstanceDto) {
+			WorkflowFilterDto filter = new WorkflowFilterDto();
+			filter.setOnlyInvolved(Boolean.FALSE);
+			if (dto == null) {
+				// First load the task without check permission. We need ID of a process.
+				WorkflowTaskInstanceDto task = workflowTaskInstanceService.get(backendId, filter);
+				if (task == null) {
+					return null;
+				}
+				dto = task;
+			}
+			boolean hasUsePermissionOnProcess = processInstanceService.canReadProcessOrHistoricProcess(dto.getProcessInstanceId());
+			if (hasUsePermissionOnProcess) {
+				// User has permission to read the process. We can set filter for find all tasks (check on the user has to be involved in tasks, will be skip).
+				dto = getService().get(backendId, filter, IdmBasePermission.READ);
+			}
+		}
+
 		// Add delegation to a task.
 		addDelegationToTask(dto, IdmBasePermission.READ);
 
@@ -255,10 +291,8 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 			boolean currentUserIsCandidate = dto.getIdentityLinks().stream()
 				.filter(identityLink -> IdentityLinkType.CANDIDATE.equals(identityLink.getType())
 				|| IdentityLinkType.ASSIGNEE.equals(identityLink.getType()))
-				.filter(identityLink -> currentUserId != null
-						&& UUID.fromString(identityLink.getUserId()).equals(currentUserId))
-				.findFirst()
-				.isPresent();
+				.anyMatch(identityLink -> currentUserId != null
+						&& UUID.fromString(identityLink.getUserId()).equals(currentUserId));
 			
 			boolean filterOnlyForCurrentUser = currentUserIsCandidate && !workflowTaskInstanceService.canReadAllTask(permission);
 			
@@ -292,9 +326,11 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 	@Override
 	protected WorkflowFilterDto toFilter(MultiValueMap<String, Object> parameters) {
 		WorkflowFilterDto filter = super.toFilter(parameters);
-		
 		if (filter == null) {
 			return new WorkflowFilterDto();
+		}
+		if (filter.getOnlyInvolved() != Boolean.TRUE) {
+			throw new ResultCodeException(CoreResultCode.WF_TASK_FILTER_INVOLVED_ONLY);
 		}
 		return filter;
 	}

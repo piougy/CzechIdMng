@@ -91,11 +91,9 @@ public class DefaultWorkflowHistoricTaskInstanceService
 		if (filter.getProcessDefinitionKey() != null) {
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
 		}
-		// check security ... only assigneed user to task or process applicant or implementer can work with
-		// historic task instance ... admin can see all historic tasks every time
-		if(!securityService.isAdmin()) {
-			// TODO Now we don't have detail for historic task. When we need detail, then we will need create different projection (detail can't be read by applicant)
-			
+		// check security ... only assigned user to task or process applicant or implementer can work with
+		// historic task instance ... admin can see all historic tasks every time.
+		if(!securityService.isAdmin() && Boolean.TRUE == filter.getOnlyInvolved()) {
 			String loggedUserId = securityService.getCurrentId().toString();
 			query.taskInvolvedUser(loggedUserId);
 		}
@@ -153,19 +151,30 @@ public class DefaultWorkflowHistoricTaskInstanceService
 	@Override
 	public WorkflowHistoricTaskInstanceDto get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Identifier is required.");
+
 		return this.get(String.valueOf(id));
 	}
 
 	@Override
-	public WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId) {
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setId(UUID.fromString(historicTaskInstanceId));
+	public WorkflowHistoricTaskInstanceDto get(Serializable id, WorkflowFilterDto context, BasePermission... permission) {
+		Assert.notNull(id, "Identifier is required.");
+		if (context == null) {
+			context = new WorkflowFilterDto();
+		}
+		context.setId(UUID.fromString(String.valueOf(id)));
 		List<WorkflowHistoricTaskInstanceDto> resources = this
-				.find(filter, PageRequest.of(0, 1))
+				.find(context, PageRequest.of(0, 1))
 				.getContent();
 		return !resources.isEmpty() ? resources.get(0) : null;
 	}
-	
+
+	@Override
+	public WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId) {
+		Assert.notNull(historicTaskInstanceId, "Identifier is required.");
+
+		return this.get(historicTaskInstanceId, null, null);
+	}
+
 	@Override
 	public WorkflowHistoricTaskInstanceDto getTaskByProcessId(String processId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();

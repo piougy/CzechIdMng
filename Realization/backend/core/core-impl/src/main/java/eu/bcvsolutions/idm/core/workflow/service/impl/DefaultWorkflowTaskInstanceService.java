@@ -145,9 +145,6 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	/**
 	 * Check if user can complete this task
-	 *
-	 * @param taskId
-	 * @return
 	 */
 	private boolean canExecute(WorkflowTaskInstanceDto task, BasePermission[] permission) {
 		return permission == null || permission.length == 0 || this.getPermissions(task).contains(IdmBasePermission.EXECUTE.getName());
@@ -164,23 +161,30 @@ public class DefaultWorkflowTaskInstanceService extends
 	}
 
 	@Override
-	public WorkflowTaskInstanceDto get(Serializable id, BasePermission... permission) {
-		Assert.notNull(id, "Identifier is required.");
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setId(UUID.fromString(String.valueOf(id)));
-		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null, permission).getContent();
+	public WorkflowTaskInstanceDto get(Serializable id, WorkflowFilterDto context, BasePermission... permission) {
+		if (context == null) {
+			context = new WorkflowFilterDto();
+		}
+		context.setId(UUID.fromString(String.valueOf(id)));
+		List<WorkflowTaskInstanceDto> tasks = internalSearch(context, null, permission).getContent();
 
 		if (!tasks.isEmpty()) {
 			return tasks.get(0);
 
 		}
 		// Current task doesn't exists, we try to find historic task.
-		WorkflowHistoricTaskInstanceDto historicTask = historicTaskInstanceService.get(String.valueOf(id));
+		WorkflowHistoricTaskInstanceDto historicTask = historicTaskInstanceService.get(String.valueOf(id), context);
 		if (historicTask != null) {
 			return historicTask;
 		}
 
 		return null;
+	}
+
+	@Override
+	public WorkflowTaskInstanceDto get(Serializable id, BasePermission... permission) {
+		Assert.notNull(id, "Identifier is required.");
+		return this.get(id, null, permission);
 	}
 
 	@Override
@@ -197,11 +201,10 @@ public class DefaultWorkflowTaskInstanceService extends
 		
 		// If is logged user candidate or assigned, then can execute task.
 		boolean isCandidate = dto.getIdentityLinks().stream()
-				.filter(
+				.anyMatch(
 						(identity) -> ((identity.getType().equals(IdentityLinkType.ASSIGNEE)
 						|| identity.getType().equals(IdentityLinkType.CANDIDATE))
-						&& identity.getUserId().equals(loggedUserId)))
-				.findFirst().isPresent();
+						&& identity.getUserId().equals(loggedUserId)));
 		if (isCandidate) {
 			permissions.add(IdmBasePermission.EXECUTE.getName());
 		}
@@ -339,7 +342,7 @@ public class DefaultWorkflowTaskInstanceService extends
 					&& !((AbstractComponentFormType) formType).isExportableToRest()) {
 				return;
 			}
-			Object values = ((AbstractFormType) formType).getInformation("values");
+			Object values = formType.getInformation("values");
 			if (values instanceof Map<?, ?>) {
 				dto.getFormData().add(toResource(property, (Map<String, String>) values));
 			} else {
@@ -374,7 +377,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		FormDataDto dto = new FormDataDto();
 		dto.setId(property.getId());
 		dto.setName(property.getName());
-		String value = "";
+		String value;
 		try {
 			value = new ObjectMapper().writeValueAsString(history);
 		} catch (JsonProcessingException e) {
@@ -434,9 +437,11 @@ public class DefaultWorkflowTaskInstanceService extends
 		if (!canReadAllTask(permission)) {
 			// if user can't read all task check filter
 			if (filter.getCandidateOrAssigned() == null) {
-				filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+				if (Boolean.TRUE == filter.getOnlyInvolved()) {
+					filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+				}
 			} else {
-				IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, filter.getCandidateOrAssigned());
+				IdmIdentityDto identity = lookupService.lookupDto(IdmIdentityDto.class, filter.getCandidateOrAssigned());
 				if (!identity.getId().equals(securityService.getCurrentId())) {
 					throw new ResultCodeException(CoreResultCode.FORBIDDEN,
 							"You do not have permission for access to all tasks!");

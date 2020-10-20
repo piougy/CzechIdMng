@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -76,6 +77,8 @@ public class DefaultWorkflowProcessInstanceService
 	private HistoryService historyService;
 	@Autowired
 	private TaskService taskService;
+	@Autowired
+	private WorkflowHistoricProcessInstanceService historicProcessInstanceService;
 
 	@Override
 	@Transactional
@@ -209,7 +212,7 @@ public class DefaultWorkflowProcessInstanceService
 		// Applicant and Implementer is added to involved user after process
 		// (subprocess) started. This modification allow not use OR clause.
 		boolean checkRight = !ObjectUtils.isEmpty(PermissionUtils.trimNull(permission));
-		if (checkRight && !securityService.isAdmin()){
+		if (checkRight && !securityService.isAdmin() && Boolean.TRUE == filter.getOnlyInvolved()){
 			UUID currentId = securityService.getCurrentId();
 			if (currentId == null) {
 				currentId = UUID.randomUUID();
@@ -220,7 +223,7 @@ public class DefaultWorkflowProcessInstanceService
 		if (pageable.getSort() != null) {
 			LOG.warn("Sort is not supported, will be ignored.");
 		}
-		
+
 		query.orderByProcessDefinitionId();
 		query.desc();
 		long count = query.count();
@@ -233,7 +236,7 @@ public class DefaultWorkflowProcessInstanceService
 			}
 		}
 
-		return new PageImpl<WorkflowProcessInstanceDto>(dtos, pageable, count);
+		return new PageImpl<>(dtos, pageable, count);
 	}
 	
 	@Override
@@ -282,7 +285,7 @@ public class DefaultWorkflowProcessInstanceService
 			return Sets.newHashSet();
 		}
 
-		Set<IdmIdentityDto> identities = new HashSet<IdmIdentityDto>();
+		Set<IdmIdentityDto> identities = new HashSet<>();
 		
 		// All subprocess
 		List<ProcessInstance> list = runtimeService
@@ -360,6 +363,18 @@ public class DefaultWorkflowProcessInstanceService
 		approvers.addAll(this.getApproversForSubprocess(processInstaceId));
 
 		return approvers;
+	}
+
+	@Override
+	public boolean canReadProcessOrHistoricProcess(String id) {
+		// Try to get the process. Process will returned only if user has permission to read that process (or history of that process).
+		WorkflowProcessInstanceDto processInstance = this.get(id, true);
+		if (processInstance != null) {
+			return true;
+		}
+		// Ok, process was not returned, but we need to check historic process (on involved user) too.
+		WorkflowHistoricProcessInstanceDto historicProcess = historicProcessInstanceService.get(id);
+		return historicProcess != null;
 	}
 
 	private WorkflowProcessInstanceDto toResource(ProcessInstance instance) {

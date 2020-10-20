@@ -7638,6 +7638,10 @@
     "MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE": {
       "title": "The delegator is not the task approver!",
       "message": "The delegator [{{delegator}}] is not the approver of the task [{{task}}]."
+    },
+    "WF_TASK_FILTER_INVOLVED_ONLY": {
+      "title": "Tasks use the wrong filter!",
+      "message": "It is not allowed to set the task filter 'onlyInvolved' to a value other than TRUE!"
     }
   },
   "validationError": {

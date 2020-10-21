@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -243,6 +244,67 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 		TestTaskExecutor executorTwo = new TestTaskExecutor();
 		executorTwo.setCount(10L);
 		manager.executeSync(executorTwo);
+	}
+	
+	@Test(expected = AcceptedException.class)
+	public void testCheckConcurrentExecution() {
+		TestCheckConcurrentTask executorOne = new TestCheckConcurrentTask();
+		executorOne.setIterationCount(50L);
+		executorOne.setSleep(500L);
+		LongRunningFutureTask<String> longRunningFutureTask = manager.execute(executorOne);
+		getHelper().waitForResult(res -> {
+			return !service.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
+		});		
+		TestCheckConcurrentTask executorTwo = new TestCheckConcurrentTask();
+		executorTwo.setIterationCount(10L);
+		manager.executeSync(executorTwo);
+	}
+	
+	@Test
+	public void testCheckConcurrentExecutionProcessCreated() {
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		TestCheckConcurrentTask executorOne = new TestCheckConcurrentTask();
+		executorOne.setCount(1L);
+		//
+		manager.resolveLongRunningTask(executorOne, null, null);
+		UUID taskOneId = executorOne.getLongRunningTaskId();
+		executorOne.setLongRunningTaskId(null);
+		manager.resolveLongRunningTask(executorOne, null, OperationState.CREATED);
+		UUID taskOneTwo = executorOne.getLongRunningTaskId();
+		executorOne.setLongRunningTaskId(null);
+		manager.resolveLongRunningTask(executorOne, null, OperationState.CREATED);
+		UUID taskOneThree = executorOne.getLongRunningTaskId();
+		TestCheckOtherConcurrentTask executorOther = new TestCheckOtherConcurrentTask();
+		executorOther.setCount(1L);
+		manager.resolveLongRunningTask(executorOther, null, null);
+		UUID taskOtherOne = executorOne.getLongRunningTaskId();
+		executorOther.setLongRunningTaskId(null);
+		manager.resolveLongRunningTask(executorOther, null, null);
+		UUID taskOtherTwo = executorOne.getLongRunningTaskId();
+		//
+		manager.processCreated();
+		//
+		Assert.assertEquals(OperationState.EXECUTED, manager.getLongRunningTask(taskOneId).getResultState());
+		Assert.assertEquals(OperationState.CREATED, manager.getLongRunningTask(taskOneTwo).getResultState());
+		Assert.assertEquals(OperationState.CREATED, manager.getLongRunningTask(taskOneThree).getResultState());
+		Assert.assertEquals(OperationState.CREATED, manager.getLongRunningTask(taskOtherOne).getResultState());
+		Assert.assertEquals(OperationState.CREATED, manager.getLongRunningTask(taskOtherTwo).getResultState());
+		//
+		manager.processCreated();
+		//
+		Assert.assertEquals(OperationState.EXECUTED, manager.getLongRunningTask(taskOneId).getResultState());
+		Assert.assertEquals(OperationState.EXECUTED, manager.getLongRunningTask(taskOneTwo).getResultState());
+		Assert.assertEquals(OperationState.CREATED, manager.getLongRunningTask(taskOneThree).getResultState());
+		Assert.assertEquals(OperationState.CREATED, manager.getLongRunningTask(taskOtherOne).getResultState());
+		Assert.assertEquals(OperationState.CREATED, manager.getLongRunningTask(taskOtherTwo).getResultState());
+		//
+		manager.processCreated();
+		//
+		Assert.assertEquals(OperationState.EXECUTED, manager.getLongRunningTask(taskOneId).getResultState());
+		Assert.assertEquals(OperationState.EXECUTED, manager.getLongRunningTask(taskOneTwo).getResultState());
+		Assert.assertEquals(OperationState.EXECUTED, manager.getLongRunningTask(taskOneThree).getResultState());
+		Assert.assertEquals(OperationState.EXECUTED, manager.getLongRunningTask(taskOtherOne).getResultState());
+		Assert.assertEquals(OperationState.EXECUTED, manager.getLongRunningTask(taskOtherTwo).getResultState());
 	}
 	
 	@Test

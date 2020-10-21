@@ -2,7 +2,11 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.IdmCheckConcurrentExecution;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
@@ -11,11 +15,13 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  *
  */
-public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String> {
+@Component
+@IdmCheckConcurrentExecution
+public class TestCheckConcurrentTask extends AbstractSchedulableTaskExecutor<String> {
 
 	private String result;
-	private Long count;
-	private Long counter;
+	private Long iterationCount;
+	private Long sleep;
 	
 	@Override
 	public Long getCount() {
@@ -23,25 +29,27 @@ public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String>
 	}
 	
 	@Override
-	public Long getCounter() {
-		return counter;
-	}
-	
-	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
-		count = 5L;
-		counter = 0L;
 		result = (String) properties.get(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY);
 	}
 	
 	@Override
 	public String process() {
-		for (long i = 0; i < count; i++) {
+		counter = 0L;
+		for (long i = 0; i < iterationCount; i++) {
 			counter++;
-			if(!updateState()) {
+			if (!updateState()) {
 				break;
+			}
+			//
+			if (sleep != null) {
+				try {
+					Thread.sleep(sleep);
+				} catch (Exception ex) {
+					throw new CoreException(ex);
+				}
 			}
 		}			
 		return result;
@@ -51,4 +59,12 @@ public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String>
 	public boolean isDisabled() {
 		return false;
 	}
+	
+	public void setSleep(Long sleep) {
+		this.sleep = sleep;
+	}
+	
+	public void setIterationCount(Long iterationCount) {
+		this.iterationCount = iterationCount;
+	}	
 }

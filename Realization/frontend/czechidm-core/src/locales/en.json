@@ -6642,6 +6642,10 @@
       "title": "Task is already running",
       "message": "Task [{{taskId}}] is already running - can not be started twice."
     },
+    "LONG_RUNNING_TASK_ACCEPTED": {
+      "title": "Concurrent task is already running",
+      "message": "Task will be started asynchronously after concurrent task ends."
+    },
     "LONG_RUNNING_TASK_DELETE_FAILED_IS_RUNNING": {
       "title": "Task is already running",
       "message": "Task is already running - can not be deleted. Wait for task completion or cancel task."

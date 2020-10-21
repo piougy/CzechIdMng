@@ -55,7 +55,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
@@ -64,7 +63,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -76,8 +74,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.IdmCheckConcurrentExecution;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
@@ -91,6 +89,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška                                                     
  * @since 10.4.0 
  */
+@IdmCheckConcurrentExecution
 @Component(ProcessAutomaticRoleByTreeTaskExecutor.TASK_NAME)
 public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmRoleTreeNodeDto> {
 
@@ -184,17 +183,6 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		//
 		if (CollectionUtils.isEmpty(automaticRoles)) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TREE_TASK_INVALID);
-		}
-		//
-		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		filter.setTaskType(AutowireHelper.getTargetType(this));
-		filter.setRunning(Boolean.TRUE);
-		//
-		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-			throw new AcceptedException(
-					CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
-					ImmutableMap.of("taskId", longRunningTaskId.toString())
-			);
 		}
 	}
 	

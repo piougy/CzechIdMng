@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,6 +32,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
  * @author Radek Tomiška                                                     
  * @since 10.4.0 
  */
+@DisallowConcurrentExecution
 @Component(ProcessAllAutomaticRoleByTreeTaskExecutor.TASK_NAME)
 public class ProcessAllAutomaticRoleByTreeTaskExecutor extends ProcessAutomaticRoleByTreeTaskExecutor {
 

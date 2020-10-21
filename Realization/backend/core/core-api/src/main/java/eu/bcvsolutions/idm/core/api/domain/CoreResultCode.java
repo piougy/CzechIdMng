@@ -176,6 +176,7 @@ public enum CoreResultCode implements ResultCode {
 	LONG_RUNNING_TASK_NOT_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is not running - can not be innterrupted or cancelled."),
 	LONG_RUNNING_TASK_DIFFERENT_INSTANCE(HttpStatus.BAD_REQUEST, "Task [%s] has different instance [%s], can not be accessed from this instance [%s]."),
 	LONG_RUNNING_TASK_IS_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is already running - can not be started twice."),
+	LONG_RUNNING_TASK_ACCEPTED(HttpStatus.ACCEPTED, "Concurrent task is already running. Task will be started asynchronously after concurrent task ends."),
 	LONG_RUNNING_TASK_DELETE_FAILED_IS_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is already running - cannot be deleted. Cancel task or wait to complete."),
 	LONG_RUNNING_TASK_IS_PROCESSED(HttpStatus.BAD_REQUEST, "Task [%s] is already processed - can not be started twice"),
 	LONG_RUNNING_TASK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Task [%s] type [%s] ended on instance [%s] with exception."),

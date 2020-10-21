@@ -174,7 +174,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					Class<? extends LongRunningTaskExecutor<?>>[] disallowConcurrentTaskTypes = 
 							disallowConcurrentExecution.taskTypes();	
 					
-					if (disallowConcurrentTaskTypes.length >= 0
+					if (disallowConcurrentTaskTypes.length > 0
 							&& CollectionUtils.containsAny(
 									processedTaskTypes, 
 									Arrays

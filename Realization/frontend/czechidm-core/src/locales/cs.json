@@ -7704,7 +7704,7 @@
     },
     "string": {
       "min_1" : "Zadejte minimálně jeden znak!",
-      "min_2" : "Zadejte minimálně dva znaky!",
+      "min_2" : "Zadejte minimálně {{count}} znaky!",
       "min_5" : "Zadejte minimálně {{count}} znaků!",
       "base" : "Položka je povinná!",
       "email": "Formát emailu není validní!",

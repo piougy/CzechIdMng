@@ -237,6 +237,9 @@ public class SysProvisioningOperationControllerRestTest extends AbstractReadWrit
 		operation = prepareDto(system);
 		operation.setResult(new OperationResult(OperationState.CREATED));
 		SysProvisioningOperationDto operationSix = createDto(operation);
+		operation = prepareDto(system);
+		operation.setResult(new OperationResult(OperationState.BLOCKED));
+		SysProvisioningOperationDto operationSeven = createDto(operation);
 		//
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 		filter.setSystemId(system.getId());
@@ -258,10 +261,11 @@ public class SysProvisioningOperationControllerRestTest extends AbstractReadWrit
 		filter.setEmptyProvisioningType(EmptyProvisioningType.NOT_PROCESSED);
 		results = find(filter);
 		//
-		Assert.assertEquals(3, results.size());
+		Assert.assertEquals(4, results.size());
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationFour.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationFive.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationSix.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationSeven.getId())));
 		//
 		filter.setEmptyProvisioning(Boolean.TRUE);
 		filter.setEmptyProvisioningType(EmptyProvisioningType.NOT_PROCESSED);

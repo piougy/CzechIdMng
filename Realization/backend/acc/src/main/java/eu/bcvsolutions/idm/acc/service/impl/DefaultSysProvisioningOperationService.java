@@ -261,6 +261,7 @@ public class DefaultSysProvisioningOperationService
 					// Not executed operations (already in queue, created) are not wanted - attributes are not computed in this phase.
 					builder.equal(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.CREATED),
 					builder.equal(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.RUNNING),
+					builder.equal(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), OperationState.BLOCKED),
 					builder.and(
 							builder.equal(
 									root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), 

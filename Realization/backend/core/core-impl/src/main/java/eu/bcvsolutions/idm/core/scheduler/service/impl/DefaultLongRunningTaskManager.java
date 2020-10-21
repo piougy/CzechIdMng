@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,9 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,6 +48,7 @@ import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.ecm.entity.IdmAttachment;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.IdmCheckConcurrentExecution;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -153,31 +157,73 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		Set<String> processedTaskTypes = Sets.newHashSet();
 		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
-		service.findAllByInstance(instanceId, OperationState.CREATED).forEach(task -> {
+		for (IdmLongRunningTaskDto task : service.findAllByInstance(instanceId, OperationState.CREATED)) {
 			String taskType = task.getTaskType();
 			UUID taskId = task.getId();
-			if (!processedTaskTypes.contains(taskType)) {
-				try {
-					LongRunningFutureTask<?> futureTask = processCreated(taskId);
-					if (futureTask != null) {
-						taskList.add(futureTask);
-						// prevent to persisted task starts twice
-						if (AutowireHelper.getTargetClass(futureTask.getExecutor()).isAnnotationPresent(DisallowConcurrentExecution.class)) {
+			//
+			if (processedTaskTypes.contains(taskType)) {
+				LOG.debug("Task type [{}] is already processed.", taskType);
+				continue;
+			}
+			// check concurrent tasks before task is executed
+			try {
+				Class<?> executorClass = Class.forName(taskType);
+				if (executorClass.isAnnotationPresent(IdmCheckConcurrentExecution.class)) {
+					IdmCheckConcurrentExecution disallowConcurrentExecution = 
+							executorClass.getAnnotation(IdmCheckConcurrentExecution.class);
+					Class<? extends LongRunningTaskExecutor<?>>[] disallowConcurrentTaskTypes = 
+							disallowConcurrentExecution.taskTypes();	
+					
+					if (disallowConcurrentTaskTypes.length >= 0
+							&& CollectionUtils.containsAny(
+									processedTaskTypes, 
+									Arrays
+										.asList(disallowConcurrentTaskTypes)
+										.stream()
+										.map(Class::getCanonicalName)
+										.collect(Collectors.toList()))) {
+						LOG.debug("Concurrent task for task type [{}] is already processed.", taskType);
+						processedTaskTypes.add(taskType);
+						continue;
+					}
+				}			
+			} catch (ClassNotFoundException ex) {
+				LOG.warn("Class [{}] for long running task [{}] not found. Task execution will be skipped.",
+						taskType, task.getId());
+			}
+			//
+			try {
+				LongRunningFutureTask<?> futureTask = processCreated(taskId);
+				if (futureTask != null) {
+					taskList.add(futureTask);
+					// prevent to persisted task starts twice
+					Class<?> executorClass = AutowireHelper.getTargetClass(futureTask.getExecutor());
+					if (executorClass.isAnnotationPresent(DisallowConcurrentExecution.class)) {
+						processedTaskTypes.add(taskType);
+					}
+					if (executorClass.isAnnotationPresent(IdmCheckConcurrentExecution.class)) {
+						IdmCheckConcurrentExecution disallowConcurrentExecution = 
+								executorClass.getAnnotation(IdmCheckConcurrentExecution.class);
+						Class<? extends LongRunningTaskExecutor<?>>[] disallowConcurrentTaskTypes = 
+								disallowConcurrentExecution.taskTypes();	
+						
+						if (disallowConcurrentTaskTypes.length == 0) {
 							processedTaskTypes.add(taskType);
 						}
-						failedLoggedTask.remove(taskId);
 					}
-				} catch (ResultCodeException ex) {
-					// we want to process other task, if some task fails and log just once
-					processedTaskTypes.add(taskType);
-					if (!failedLoggedTask.contains(taskId)) {
-						// we want to know in log, some scheduled task is not complete before next execution attempt
-						ExceptionUtils.log(LOG, ex);
-						failedLoggedTask.add(taskId);
-					}
+					// task is processed => remove from failed tasks to log exception again, when task fails in future
+					failedLoggedTask.remove(taskId);
+				}
+			} catch (ResultCodeException ex) {
+				// we want to process other task, if some task fails and log just once
+				processedTaskTypes.add(taskType);
+				if (!failedLoggedTask.contains(taskId)) {
+					// we want to know in log, some scheduled task is not complete before next execution attempt
+					ExceptionUtils.log(LOG, ex);
+					failedLoggedTask.add(taskId);
 				}
 			}
-		});
+		}
 		return taskList;
 	}
 
@@ -601,7 +647,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * @param task
 	 * @return
 	 */
-	private LongRunningTaskExecutor<?> createTaskExecutor(IdmLongRunningTaskDto task) {
+	protected LongRunningTaskExecutor<?> createTaskExecutor(IdmLongRunningTaskDto task) {
 		Assert.notNull(task, "Long running task instance is required!");
 		if (!OperationState.isRunnable(task.getResultState())) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));

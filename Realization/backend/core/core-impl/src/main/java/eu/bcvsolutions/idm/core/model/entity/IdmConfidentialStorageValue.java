@@ -52,7 +52,7 @@ public class IdmConfidentialStorageValue extends AbstractEntity {
 	@Column(name = "storage_value", length = Integer.MAX_VALUE - 1)
 	private byte[] value;
 
-	@Column(name = "iv")
+	@Column(name = "iv", length = Integer.MAX_VALUE - 1)
 	private byte[] iv;
 
 	public UUID getOwnerId() {

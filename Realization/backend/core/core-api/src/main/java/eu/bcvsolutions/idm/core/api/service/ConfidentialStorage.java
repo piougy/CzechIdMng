@@ -216,13 +216,5 @@ public interface ConfidentialStorage {
 	 * @since 8.2.0
 	 */
 	String getOwnerType(Class<? extends Identifiable> ownerType);
-
-	/**
-	 * Renew vector for given confidential storage value. Method has defensive behavior with checking vector inside value.
-	 *
-	 * @param value
-	 * @since 10.6.0
-	 */
-	void renewVector(IdmConfidentialStorageValueDto value);
 	
 }

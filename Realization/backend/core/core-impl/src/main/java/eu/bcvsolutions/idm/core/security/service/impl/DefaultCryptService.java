@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.BadPaddingException;
@@ -32,9 +33,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 
 /**
- * Default implementation of {@link CryptService}
+ * Default implementation of {@link CryptService}.
  * 
  * @author Ondrej Kopr
+ * @author Radek Tomiška
  * 
  */
 public class DefaultCryptService implements CryptService {
@@ -72,8 +74,8 @@ public class DefaultCryptService implements CryptService {
 		try {
 			key = this.getKey();
 			// just for key validation ... will be in log
-			initCipher(Cipher.DECRYPT_MODE, key, IV);
-			initCipher(Cipher.ENCRYPT_MODE, key, IV);
+			initCipher(Cipher.DECRYPT_MODE, key, generateVector());
+			initCipher(Cipher.ENCRYPT_MODE, key, generateVector());
 			LOG.info("Initializing Cipher succeeded - Confidetial storage will be crypted.");
 		} catch (InvalidKeyException | UnsupportedEncodingException ex) {
 			LOG.error("Problem with initializing Cipher. Error: [{}]. Confidetial storage is not crypted! ", ex.getMessage());
@@ -81,33 +83,59 @@ public class DefaultCryptService implements CryptService {
 	}
 	
 	@Override
-	public String encryptString(String value, byte[] iv) {
-		byte[] encryptValue = this.encrypt(value.getBytes(StandardCharsets.UTF_8), iv);
-		return Base64.encodeBase64String(encryptValue);
-	}
-
-	@Override
 	public String encryptString(String value) {
-		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
-		return encryptString(value, IV);
-	}
-
-	@Override
-	public String decryptString(String value, byte[] iv) {
-		byte[] serializableValue = this.decrypt(Base64.decodeBase64(value), iv);
-		return new String(serializableValue, StandardCharsets.UTF_8);
-	}
-
-	@Override
-	public String decryptString(String value) {
-		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
-		return decryptString(value, IV);
+		return encryptString(value, null);
 	}
 	
 	@Override
-	public byte[] decrypt(byte[] value) {
-		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
-		return decrypt(value, IV);
+	public String encryptString(String value, byte[] iv) {
+		Assert.notNull(value, "Encrypted value is required.");
+		//
+		byte[] encryptValue = encrypt(value.getBytes(StandardCharsets.UTF_8), iv);
+		//
+		return Base64.encodeBase64String(encryptValue);
+	}
+	
+	@Override
+	public byte[] encrypt(byte[] value) {
+		return encrypt(value, null);
+	}
+	
+	@Override
+	public byte[] encrypt(byte[] value, byte[] iv) {
+		Assert.notNull(value, "Encrypted value is required.");
+		if (iv == null) {
+			LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated method.");
+			iv = IV;
+		}
+		try {
+			Cipher encryptCipher = initCipher(Cipher.ENCRYPT_MODE, key, iv);
+			if (encryptCipher == null) {
+				logNotCryptedWarning();
+				return value;
+			}
+			return encryptCipher.doFinal(value);
+		} catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException ex) {
+			LOG.error("Encrypt problem! Value will not be encrypted! Error:", ex);
+			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), ex);
+		}
+	}
+	
+	@Override
+	public String decryptString(String value) {
+		return decryptString(value, null);
+	}
+	
+	@Override
+	public String decryptString(String value, byte[] iv) {
+		byte[] serializableValue = decrypt(Base64.decodeBase64(value), iv);
+		//
+		return new String(serializableValue, StandardCharsets.UTF_8);
+	}
+	
+	@Override
+	public byte[] decrypt(byte[] value) {;
+		return decrypt(value, null);
 	}
 	
 	@Override
@@ -116,10 +144,8 @@ public class DefaultCryptService implements CryptService {
 	}
 	
 	@Override
-	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey) {
-		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
-		
-		return decryptWithKey(value, guardedKey, IV);
+	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey) {		
+		return decryptWithKey(value, guardedKey, null);
 	}
 	
 	@Override
@@ -129,12 +155,16 @@ public class DefaultCryptService implements CryptService {
 		if (guardedKey == null) {
 			return value;
 		}
-
+		//
 		return decrypt(value, new SecretKeySpec(guardedKey.asBytes(), ALGORITHM), iv);
 	}
 	
 	private byte[] decrypt(byte[] value, SecretKey key, byte[] iv) {
 		Assert.notNull(value, "Value is required.");
+		if (iv == null) {
+			LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated method.");
+			iv = IV;
+		}
 		//
 		try {
 			Cipher decryptCipher = initCipher(Cipher.DECRYPT_MODE, key, iv);
@@ -148,26 +178,14 @@ public class DefaultCryptService implements CryptService {
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
 		}
 	}
-
-	@Override
-	public byte[] encrypt(byte[] value) {
-		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
-		return encrypt(value, IV);
-	}
 	
 	@Override
-	public byte[] encrypt(byte[] value, byte[] iv) {
-		try {
-			Cipher encryptCipher = initCipher(Cipher.ENCRYPT_MODE, key, iv);
-			if (encryptCipher == null) {
-				logNotCryptedWarning();
-				return value;
-			}
-			return encryptCipher.doFinal(value);
-		} catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException ex) {
-			LOG.error("Encrypt problem! Value will not be encrypted! Error:", ex);
-			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), ex);
-		}
+	public byte[] generateVector() {
+		byte[] vector = new byte[16];
+		SecureRandom s = new SecureRandom();
+		s.nextBytes(vector);
+		
+		return vector;
 	}
 
 	/**

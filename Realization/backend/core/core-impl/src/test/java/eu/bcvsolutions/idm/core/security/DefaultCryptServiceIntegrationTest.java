@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.Serializable;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -57,7 +56,7 @@ public class DefaultCryptServiceIntegrationTest extends AbstractIntegrationTest 
 	@Test
 	public void encryptAndDecryptStringValue() {
 		String password = "123456";
-		byte[] vector = generateIV();
+		byte[] vector = cryptService.generateVector();
 		String encryptString = cryptService.encryptString(password, vector);
 		
 		assertNotEquals(password, encryptString);
@@ -91,7 +90,7 @@ public class DefaultCryptServiceIntegrationTest extends AbstractIntegrationTest 
 		byte[] password255 = new byte[255];
 		random.nextBytes(password255);
 		String password = new String(password255);
-		byte[] vector = generateIV();
+		byte[] vector = cryptService.generateVector();
 		
 		String encryptString = cryptService.encryptString(password, vector);
 		
@@ -120,7 +119,7 @@ public class DefaultCryptServiceIntegrationTest extends AbstractIntegrationTest 
 	@Test
 	public void encryptAndDecryptGuardedString() {
 		GuardedString password = new GuardedString("123456");
-		byte[] vector = generateIV();
+		byte[] vector = cryptService.generateVector();
 		
 		String encryptString = cryptService.encryptString(password.asString(),vector);
 		
@@ -159,7 +158,7 @@ public class DefaultCryptServiceIntegrationTest extends AbstractIntegrationTest 
 		list.add("1");
 		list.add("2");
 		list.add("3");
-		byte[] vector = generateIV();
+		byte[] vector = cryptService.generateVector();
 
 		byte[] encrypt = cryptService.encrypt(SerializationUtils.serialize((Serializable) list), vector);
 
@@ -189,7 +188,7 @@ public class DefaultCryptServiceIntegrationTest extends AbstractIntegrationTest 
 	@Test
 	public void encryptAndDecryptString() {
 		String password = "123456";
-		byte[] vector = generateIV(); 
+		byte[] vector = cryptService.generateVector();
 
 		byte [] encrypt = cryptService.encrypt(password.getBytes(), vector);
 		
@@ -205,20 +204,8 @@ public class DefaultCryptServiceIntegrationTest extends AbstractIntegrationTest 
 	public void testDecryptWithoutKey() {
 		String value = "123456";
 		
-		byte [] decryptString = cryptService.decryptWithKey(value.getBytes(), null, generateIV());
+		byte [] decryptString = cryptService.decryptWithKey(value.getBytes(), null, cryptService.generateVector());
 		
 		Assert.assertEquals(value, new String(decryptString));
-	}
-
-	/**
-	 * Generate new vector
-	 *
-	 * @return
-	 */
-	private byte[] generateIV() {
-		byte[] newIV = new byte[16];
-		SecureRandom s = new SecureRandom();
-		s.nextBytes(newIV);
-		return newIV;
 	}
 }

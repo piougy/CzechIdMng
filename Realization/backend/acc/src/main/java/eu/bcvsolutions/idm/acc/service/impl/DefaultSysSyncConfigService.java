@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncTreeConfig_;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import java.util.List;
 import java.util.UUID;
 
@@ -241,17 +246,44 @@ public class DefaultSysSyncConfigService
 	}
 
 	@Override
+	protected AbstractSysSyncConfigDto internalExport(UUID id) {
+		// For searching tree-type by code, have to be tree-type DTO embedded.
+		AbstractSysSyncConfigDto dto = this.get(id);
+		if (dto instanceof SysSyncContractConfigDto && ((SysSyncContractConfigDto)dto).getDefaultTreeType() != null) {
+			AbstractDto treeType = (AbstractDto) dto.getEmbedded().get(SysSyncContractConfig_.defaultTreeType.getName());
+			AbstractDto treeNode = (AbstractDto) dto.getEmbedded().get(SysSyncContractConfig_.defaultTreeNode.getName());
+			dto.getEmbedded().clear();
+			// Put tree-type to the node embedded (tree-type will be use for findByExample).
+			if (treeNode != null) {
+				treeNode.getEmbedded().put(SysSyncContractConfig_.defaultTreeType.getName(), treeType);
+				dto.getEmbedded().put(SysSyncContractConfig_.defaultTreeType.getName(), treeType);
+			}
+			dto.getEmbedded().put(SysSyncContractConfig_.defaultTreeNode.getName(), treeNode);
+		}
+		return dto;
+	}
+
+	@Override
 	public void export(UUID id, IdmExportImportDto batch) {
 		super.export(id, batch);
 		AbstractSysSyncConfigDto dto = this.get(id);
 		if ( dto == null) {
 			return;
 		}
-		// Token will be excluded for the export. It means a token on the target IdM will be not changed.
-		// Or will be sets to the null, if sync does not exist yet.
 		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, dto.getClass());
 		if (descriptorDto != null) {
+			// Token will be excluded for the export. It means a token on the target IdM will be not changed.
+			// Or will be sets to the null, if sync does not exist yet.
 			descriptorDto.getExcludedFields().add(SysSyncConfig_.token.getName());
+			if (dto instanceof  SysSyncContractConfigDto) {
+				// Tree-type will be searching by code (advanced paring by treeType field)
+				descriptorDto.getAdvancedParingFields().add(SysSyncContractConfig_.defaultTreeType.getName());
+				// Tree-type will be searching by code (advanced paring by treeNode field)
+				descriptorDto.getAdvancedParingFields().add(SysSyncContractConfig_.defaultTreeNode.getName());
+			}
 		}
+
+
+
 	}
 }

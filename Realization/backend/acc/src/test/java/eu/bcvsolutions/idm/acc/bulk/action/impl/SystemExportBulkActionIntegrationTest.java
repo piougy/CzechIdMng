@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.bulk.action.impl;
 
+import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
+import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import java.util.List;
@@ -536,6 +539,74 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 		// Redundant sync had to be deleted!
 		redundantSync = (SysSyncConfigDto) synchronizationConfigService.get(redundantSync.getId());
 		Assert.assertNull(redundantSync);
+	}
+
+	@Test
+	public void testExportAndImportContractSyncAdvancedPairing() {
+		SysSystemDto system = createSystem();
+		List<SysSystemMappingDto> mappings = findMappings(system);
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMappingDto originalMapping = mappings.get(0);
+		List<SysSystemAttributeMappingDto> originalAttributes = findAttributeMappings(system);
+		SysSystemAttributeMappingDto originalAttribute = originalAttributes.get(0);
+
+		IdmTreeTypeDto treeType = getHelper().createTreeType();
+		IdmTreeNodeDto treeNode = getHelper().createTreeNode(treeType, null);
+
+		SysSyncContractConfigDto originalSync = new SysSyncContractConfigDto();
+		originalSync.setSystemMapping(originalMapping.getId());
+		originalSync.setName(getHelper().createName());
+		originalSync.setCorrelationAttribute(originalAttribute.getId());
+		originalSync.setDefaultTreeType(treeType.getId());
+		originalSync.setDefaultTreeNode(treeNode.getId());
+		originalSync = (SysSyncContractConfigDto) synchronizationConfigService.save(originalSync);
+
+		// Make export, upload, delete system and import
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
+
+		system = systemService.get(system.getId());
+		Assert.assertNotNull(system);
+
+		mappings = findMappings(system);
+		List<SysSystemAttributeMappingDto> attributes = findAttributeMappings(system);
+		Assert.assertEquals(1, mappings.size());
+		SysSystemMappingDto mapping = mappings.get(0);
+		Assert.assertEquals(originalMapping.getId(), mapping.getId());
+		Assert.assertEquals(originalAttributes.size(), attributes.size());
+
+		// Create redundant sync
+		SysSyncConfigDto redundantSync = new SysSyncConfigDto();
+		redundantSync.setSystemMapping(originalMapping.getId());
+		redundantSync.setName(getHelper().createName());
+		redundantSync.setCorrelationAttribute(originalAttribute.getId());
+		redundantSync = (SysSyncConfigDto) synchronizationConfigService.save(redundantSync);
+
+		// Clear tree type and tree node.
+		originalSync.setDefaultTreeType(null);
+		originalSync.setDefaultTreeNode(null);
+		originalSync = (SysSyncContractConfigDto) synchronizationConfigService.save(originalSync);
+
+		// Delete original tree-type and tree-node and create new with same code (test of advanced paring).
+		getHelper().deleteTreeNode(treeNode.getId());
+		getHelper().deleteTreeType(treeType.getId());
+		IdmTreeTypeDto treeTypeNew = getHelper().createTreeType(treeType.getCode());
+		IdmTreeNodeDto treeNodeNew = getHelper().createTreeNode(treeTypeNew, treeNode.getCode(), null);
+
+		// Execute import (check authoritative mode)
+		importBatch = importManager.executeImport(importBatch, false);
+		Assert.assertNotNull(importBatch);
+		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
+		Assert.assertEquals(OperationState.EXECUTED, importBatch.getResult().getState());
+
+		// Redundant sync had to be deleted!
+		redundantSync = (SysSyncConfigDto) synchronizationConfigService.get(redundantSync.getId());
+		Assert.assertNull(redundantSync);
+
+		// Check advanced paring for tree-type and tree-node.
+		originalSync = (SysSyncContractConfigDto) synchronizationConfigService.get(originalSync.getId());
+		Assert.assertNotNull(originalSync);
+		Assert.assertEquals(treeTypeNew.getId(), originalSync.getDefaultTreeType());
+		Assert.assertEquals(treeNodeNew.getId(), originalSync.getDefaultTreeNode());
 	}
 
 	@Test

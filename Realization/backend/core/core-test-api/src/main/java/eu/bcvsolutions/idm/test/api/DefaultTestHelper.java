@@ -324,6 +324,11 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	@Override
+	public void deleteTreeType(UUID id) {
+		treeTypeService.deleteById(id);
+	}
+
+	@Override
 	public IdmRoleDto createRole() {
 		return createRole(null);
 	}

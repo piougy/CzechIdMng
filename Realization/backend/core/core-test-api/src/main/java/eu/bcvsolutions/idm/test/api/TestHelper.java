@@ -256,6 +256,8 @@ public interface TestHelper {
 
 	void deleteTreeNode(UUID id);
 
+	void deleteTreeType(UUID id);
+
 	/**
 	 * Creates role with random code.
 	 *

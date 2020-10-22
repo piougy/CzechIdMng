@@ -66,7 +66,7 @@ public class ExportDescriptorDto implements Serializable {
 	private Set<String> excludedFields = Sets.newHashSet();
 
 	/**
-	 * If is true and will cannot be persisted (some relation not was not found),
+	 * If is true and DTO cannot be persisted (some relation was not found),
 	 * then only warning will be logged, but batch can continue.
 	 */
 	private boolean optional = false;

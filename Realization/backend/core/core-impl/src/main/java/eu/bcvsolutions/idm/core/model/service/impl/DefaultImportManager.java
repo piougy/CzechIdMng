@@ -1,5 +1,12 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -112,7 +119,11 @@ public class DefaultImportManager implements ImportManager {
 	private FormService formService;
 	@Autowired
 	private EntityManager entityManager;
-	
+	@Autowired
+	private IdmTreeNodeService treeNodeService;
+	@Autowired
+	private IdmTreeTypeService treeTypeService;
+
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultImportManager.class);
 
 	@Override
@@ -389,6 +400,9 @@ public class DefaultImportManager implements ImportManager {
 					currentDto = lookupService.lookupDto(serviceDtoClass, ((Codeable) dto).getCode());
 				}
 
+				// Find target DTO by example source DTO (typically by more then one filter field).
+				currentDto = findByExample(dto, null, context);
+
 				if (dto instanceof IdmFormDefinitionDto) {
 					IdmFormDefinitionDto definition = (IdmFormDefinitionDto) dto;
 					// We try to find exists definition by code and type (IdmFormDefinitionDto is
@@ -448,6 +462,42 @@ public class DefaultImportManager implements ImportManager {
 		} catch (IOException | IllegalArgumentException e) {
 			throw new ResultCodeException(CoreResultCode.EXPORT_IMPORT_IO_FAILED, e);
 		}
+	}
+
+	/**
+	 * Find target DTO by example source DTO (typically by more then one filter field).
+	 *
+	 * TODO: Move to the find by example in service/lookup (not exists yet :-)).
+	 * @param dto
+	 * @param embeddedDto
+	 * @param context
+	 * @return
+	 */
+	private BaseDto findByExample(BaseDto dto, EmbeddedDto embeddedDto, ImportContext context) throws IOException {
+		if (dto instanceof IdmTreeNodeDto) {
+			// We try to find exists tree-node by code and tree-type.
+			IdmTreeNodeDto node = (IdmTreeNodeDto) dto;
+			IdmTreeTypeDto embeddedTreeType = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType, IdmTreeTypeDto.class, null);
+			if (embeddedTreeType == null && embeddedDto != null) {
+				// Embedded data cannot be deserialized by default. We need made deserialized item, which we need (tree-type).
+				JsonNode treeTypeString = embeddedDto.getEmbedded().get(IdmTreeNode_.treeType.getName());
+				embeddedTreeType  = this.convertStringToDto(treeTypeString.toString(), IdmTreeTypeDto.class, context);
+			}
+			if (embeddedTreeType != null) {
+				// Find tree-type by code.
+				BaseDto treeType = lookupService.lookupDto(IdmTreeTypeDto.class, ((Codeable) embeddedTreeType).getCode());
+				if (treeType != null) {
+					IdmTreeNodeFilter nodeFilter = new IdmTreeNodeFilter();
+					nodeFilter.setTreeTypeId((UUID) treeType.getId());
+					nodeFilter.setCode(node.getCode());
+					List<IdmTreeNodeDto> nodes = treeNodeService.find(nodeFilter, null).getContent();
+					if (nodes.size() == 1) {
+						return nodes.get(0);
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -631,37 +681,44 @@ public class DefaultImportManager implements ImportManager {
 					try {
 						batchFieldDto = this.convertStringToDto(batchFieldDtoAsString.toString(), dtoClassField,
 								context);
-					} catch (IOException e) {
-						throw new ResultCodeException(CoreResultCode.IMPORT_CONVERT_TO_DTO_FAILED,
-								ImmutableMap.of("file", "Converted from String.", "dto", dtoClass), e);
-					}
 
-					if (batchFieldDto instanceof Codeable) {
-						String code = ((Codeable) batchFieldDto).getCode();
-						if (Strings.isNotEmpty(code)) {
-							currentFieldDto = lookupService.lookupDto(serviceDtoClass, code);
-							if (currentFieldDto != null) {
-								// DTO for given code exists -> replace ID by this new in given DTO.
-								new PropertyDescriptor(advancedParingField, dtoClass)//
-										.getWriteMethod()//
-										.invoke(dto, currentFieldDto.getId());
-								// Save old and new ID for next DTOs.
-								context.getReplacedIDs().put(id, (UUID) currentFieldDto.getId());
-								continue;
-							} else {
-								// No target DTO was found on target IdM.
-								// If is DTO set as optional, we will only skip this DTO.
-								if (descriptor.isOptional()) {
-									throw new ResultCodeException(
-											CoreResultCode.IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL,
-											ImmutableMap.of("field", advancedParingField, "dto", dto.toString(),
-													"notFoundDto", batchFieldDto.toString(), "code", code));
-								}
-								throw new ResultCodeException(CoreResultCode.IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND,
+						String code = null;
+						if (batchFieldDto instanceof Codeable) {
+							code = ((Codeable) batchFieldDto).getCode();
+							if (Strings.isNotEmpty(code)) {
+								currentFieldDto = lookupService.lookupDto(serviceDtoClass, code);
+							}
+						} else if (batchFieldDto != null) {
+							// Find target DTO by example source DTO (typically by more then one filter field).
+							code = batchFieldDto.toString();
+							EmbeddedDto fieldEmbeddedDto = (EmbeddedDto) this.convertStringToDto(batchFieldDtoAsString.toString(), EmbeddedDto.class,
+									context);
+							currentFieldDto = this.findByExample(batchFieldDto, fieldEmbeddedDto, context);
+						}
+						if (currentFieldDto != null) {
+							// DTO for given code exists -> replace ID by this new in given DTO.
+							new PropertyDescriptor(advancedParingField, dtoClass)//
+									.getWriteMethod()//
+									.invoke(dto, currentFieldDto.getId());
+							// Save old and new ID for next DTOs.
+							context.getReplacedIDs().put(id, (UUID) currentFieldDto.getId());
+							continue;
+						} else {
+							// No target DTO was found on target IdM.
+							// If is DTO set as optional, we will only skip this DTO.
+							if (descriptor.isOptional()) {
+								throw new ResultCodeException(
+										CoreResultCode.IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL,
 										ImmutableMap.of("field", advancedParingField, "dto", dto.toString(),
 												"notFoundDto", batchFieldDto.toString(), "code", code));
 							}
+							throw new ResultCodeException(CoreResultCode.IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND,
+									ImmutableMap.of("field", advancedParingField, "dto", dto.toString(),
+											"notFoundDto", batchFieldDto.toString(), "code", code));
 						}
+					} catch (IOException e) {
+						throw new ResultCodeException(CoreResultCode.IMPORT_CONVERT_TO_DTO_FAILED,
+								ImmutableMap.of("file", "Converted from String.", "dto", dtoClass), e);
 					}
 				}
 

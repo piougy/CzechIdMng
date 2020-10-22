@@ -69,7 +69,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	//
 	private DefaultIdmConfidentialStorage confidentalStorage;
 	
-	
 	@Before
 	public void initStorage() {
 		confidentalStorage = context.getAutowireCapableBeanFactory().createBean(DefaultIdmConfidentialStorage.class);
@@ -114,8 +113,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
 	@Transactional
+	@SuppressWarnings("unchecked")
 	public void testSaveValues() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		String storageKeyOne = getHelper().createName();
@@ -129,8 +128,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
 	@Transactional
+	@SuppressWarnings("unchecked")
 	public void testSaveMoreKeys() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		String storageKeyOne = getHelper().createName();
@@ -506,8 +505,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		runChangeConfidentialStorageKeyTask(keyOne);
 	}
 
-	@Transactional
 	@Test
+	@Transactional
 	public void testChangeIvVector() {
 		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
 		String keyOne = "1234567890abcdef";
@@ -535,8 +534,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		runChangeConfidentialStorageKeyTask(originalKey);
 	}
 
-	@Transactional
 	@Test
+	@Transactional
 	public void testCheckValueAfterChangeKey() {
 		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
 		String keyOne = "1234567890abcdef";
@@ -563,8 +562,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		assertEquals(password, serializable);
 	}
 
-	@Transactional
 	@Test
+	@Transactional
 	public void testRenewVector() {
 		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
 		assertFalse(StringUtils.isEmpty(originalKey));
@@ -630,7 +629,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		for (IdmAuditDto audit : audits) {
 			Assert.assertEquals(storageValueDto.getId(), audit.getEntityId());
 		}
-
 	}
 
 	@Test

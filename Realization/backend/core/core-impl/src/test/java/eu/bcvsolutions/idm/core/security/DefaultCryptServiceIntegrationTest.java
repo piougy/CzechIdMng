@@ -10,22 +10,36 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.service.CryptService;
+import eu.bcvsolutions.idm.core.security.service.impl.DefaultCryptService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Crypt service tests
  * 
  * @author Ondřej Kopr
+ * @author Radek Tomiška
  *
  */
-public class DefaultCryptServiceTest extends AbstractIntegrationTest {
+@Transactional
+public class DefaultCryptServiceIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private CryptService cryptService;
+	@Autowired
+	private ApplicationContext context;
+	
+	private DefaultCryptService cryptService;
+
+	@Before
+	public void init() {
+		cryptService = context.getAutowireCapableBeanFactory().createBean(DefaultCryptService.class);
+	}
 	
 	@Test
 	public void encryptAndDecryptStringValueBackwardCompatible() {
@@ -185,6 +199,15 @@ public class DefaultCryptServiceTest extends AbstractIntegrationTest {
 		assertNotEquals(password, new String(encrypt));
 		
 		assertEquals(password, new String(decryptString));
+	}
+	
+	@Test
+	public void testDecryptWithoutKey() {
+		String value = "123456";
+		
+		byte [] decryptString = cryptService.decryptWithKey(value.getBytes(), null, generateIV());
+		
+		Assert.assertEquals(value, new String(decryptString));
 	}
 
 	/**

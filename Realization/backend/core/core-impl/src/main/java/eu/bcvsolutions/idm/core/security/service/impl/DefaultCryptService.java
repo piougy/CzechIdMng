@@ -105,25 +105,37 @@ public class DefaultCryptService implements CryptService {
 	}
 	
 	@Override
-	public byte[] decrypt(byte[] value, byte[] iv) {
-		return this.decryptWithKey(value, null, iv);
-	}
-
-	@Override
 	public byte[] decrypt(byte[] value) {
 		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
 		return decrypt(value, IV);
 	}
 	
 	@Override
+	public byte[] decrypt(byte[] value, byte[] iv) {
+		return decrypt(value, this.key, iv);
+	}
+	
+	@Override
+	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey) {
+		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
+		
+		return decryptWithKey(value, guardedKey, IV);
+	}
+	
+	@Override
 	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey, byte[] iv) {
 		Assert.notNull(value, "Value is required.");
-
-		SecretKey key = this.key;
-		if (guardedKey != null) {
-			key = new SecretKeySpec(guardedKey.asBytes(), ALGORITHM);
+		// key is not => value is not encrypted
+		if (guardedKey == null) {
+			return value;
 		}
 
+		return decrypt(value, new SecretKeySpec(guardedKey.asBytes(), ALGORITHM), iv);
+	}
+	
+	private byte[] decrypt(byte[] value, SecretKey key, byte[] iv) {
+		Assert.notNull(value, "Value is required.");
+		//
 		try {
 			Cipher decryptCipher = initCipher(Cipher.DECRYPT_MODE, key, iv);
 			if (decryptCipher == null) {
@@ -138,11 +150,11 @@ public class DefaultCryptService implements CryptService {
 	}
 
 	@Override
-	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey) {
+	public byte[] encrypt(byte[] value) {
 		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
-		return decryptWithKey(value, guardedKey, IV);
+		return encrypt(value, IV);
 	}
-
+	
 	@Override
 	public byte[] encrypt(byte[] value, byte[] iv) {
 		try {
@@ -156,12 +168,6 @@ public class DefaultCryptService implements CryptService {
 			LOG.error("Encrypt problem! Value will not be encrypted! Error:", ex);
 			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), ex);
 		}
-	}
-
-	@Override
-	public byte[] encrypt(byte[] value) {
-		LOG.warn("IdM use old behavior with static vector. Please don't use this deprecated.");
-		return encrypt(value, IV);
 	}
 
 	/**

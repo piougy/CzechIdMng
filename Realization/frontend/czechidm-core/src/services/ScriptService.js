@@ -29,6 +29,10 @@ class ScriptService extends AbstractService {
     return false;
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   /**
    * Returns default searchParameters for scripts
    *

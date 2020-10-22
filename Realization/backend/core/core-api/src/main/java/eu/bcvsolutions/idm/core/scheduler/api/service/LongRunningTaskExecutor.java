@@ -5,9 +5,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 
@@ -19,8 +21,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 public interface LongRunningTaskExecutor<V> extends Callable<V>, Configurable {
 	
 	String CONFIGURABLE_TYPE = "long-running-task";
-	String PARAMETER_INSTANCE_ID = "core:instanceId"; // server instance id
-	String PARAMETER_TRANSACTION_CONTEXT = "core:transactionContext"; // user transaction context
+	String PARAMETER_INSTANCE_ID = String.format("%s:%s", CoreModule.MODULE_ID, ConfigurationService.PROPERTY_INSTANCE_ID); // server instance id
+	String PARAMETER_TRANSACTION_CONTEXT = String.format("%s:transactionContext", CoreModule.MODULE_ID); // user transaction context
 	
 	@Override
 	default String getConfigurableType() {

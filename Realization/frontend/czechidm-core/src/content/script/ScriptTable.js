@@ -109,7 +109,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={uiKey}
           manager={scriptManager}
-          showRowSelection={SecurityManager.hasAuthority('SCRIPT_DELETE')}
+          showRowSelection
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
           forceSearchParameters={forceSearchParameters}
           filter={
@@ -143,13 +143,6 @@ export class ScriptTable extends Advanced.AbstractTableContent {
             </Advanced.Filter>
           }
           filterOpened={ filterOpened }
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
-              { value: 'redeploy', niceLabel: this.i18n('action.redeploy.action'), action: this.onRedeployOrBackup.bind(this), disabled: false },
-              { value: 'backup', niceLabel: this.i18n('action.backup.action'), action: this.onRedeployOrBackup.bind(this), disabled: false }
-            ]
-          }
           buttons={
             [
               <Basic.Button

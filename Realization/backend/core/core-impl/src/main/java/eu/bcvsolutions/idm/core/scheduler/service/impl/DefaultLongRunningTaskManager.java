@@ -174,7 +174,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					Class<? extends LongRunningTaskExecutor<?>>[] disallowConcurrentTaskTypes = 
 							disallowConcurrentExecution.taskTypes();	
 					
-					if (disallowConcurrentTaskTypes.length >= 0
+					if (disallowConcurrentTaskTypes.length > 0
 							&& CollectionUtils.containsAny(
 									processedTaskTypes, 
 									Arrays
@@ -391,7 +391,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					ImmutableMap.of(
 							"taskId", task.getId(),
 							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()), ex);
+							ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()), ex);
 		} finally {
 			LOG.debug("Executing task [{}] synchronously ended", task.getId());
 		}
@@ -409,7 +409,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					ImmutableMap.of(
 							"taskId", longRunningTaskId,
 							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId())
+							ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId())
 					);
 		}
 		//
@@ -439,7 +439,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					ImmutableMap.of(
 							"taskId", longRunningTaskId,
 							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));
+							ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
 		}
 		//
 		// interrupt thread
@@ -450,7 +450,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 						ImmutableMap.of(
 								"taskId", task.getId(),
 								"taskType", task.getTaskType(),
-								"instanceId", task.getInstanceId()));
+								ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
 				Exception ex = null;
 				try {
 					thread.interrupt();
@@ -666,7 +666,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					ImmutableMap.of(
 							"taskId", task.getId(),
 							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));
+							ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
 		} catch (ResultCodeException e) {
 			ex = e;
 			resultModel = ((ResultCodeException) e).getError().getError();
@@ -679,7 +679,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 						ImmutableMap.of(
 								"taskId", task.getId(),
 								"taskType", task.getTaskType(),
-								"instanceId", task.getInstanceId()));
+								ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
 			}
 			//
 			LOG.error(resultModel.toString(), ex);
@@ -698,7 +698,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				ImmutableMap.of(
 						"taskId", task.getId(),
 						"taskType", task.getTaskType(),
-						"instanceId", task.getInstanceId()));
+						ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 		service.saveInternal(task);
 	}

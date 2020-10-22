@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -69,7 +68,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	//
 	private DefaultIdmConfidentialStorage confidentalStorage;
 	
-	
 	@Before
 	public void initStorage() {
 		confidentalStorage = context.getAutowireCapableBeanFactory().createBean(DefaultIdmConfidentialStorage.class);
@@ -114,8 +112,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
 	@Transactional
+	@SuppressWarnings("unchecked")
 	public void testSaveValues() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		String storageKeyOne = getHelper().createName();
@@ -129,8 +127,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
 	@Transactional
+	@SuppressWarnings("unchecked")
 	public void testSaveMoreKeys() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 		String storageKeyOne = getHelper().createName();
@@ -506,9 +504,9 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		runChangeConfidentialStorageKeyTask(keyOne);
 	}
 
-	@Transactional
 	@Test
-	public void testChangeIvVector() {
+	@Transactional
+	public void testChangeVector() {
 		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
 		String keyOne = "1234567890abcdef";
 		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, keyOne);
@@ -535,8 +533,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		runChangeConfidentialStorageKeyTask(originalKey);
 	}
 
-	@Transactional
 	@Test
+	@Transactional
 	public void testCheckValueAfterChangeKey() {
 		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
 		String keyOne = "1234567890abcdef";
@@ -560,36 +558,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		runChangeConfidentialStorageKeyTask(originalKey);
 
 		serializable = confidentalStorage.get(identity, identity.getUsername());
-		assertEquals(password, serializable);
-	}
-
-	@Transactional
-	@Test
-	public void testRenewVector() {
-		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
-		assertFalse(StringUtils.isEmpty(originalKey));
-		assertEquals(originalKey, configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY));
-
-		IdmIdentityDto identity = getHelper().createIdentity(getHelper().createName(), null);
-		String password = "testPassword-" + getHelper().createName();
-		confidentalStorage.saveGuardedString(identity.getId(), IdmIdentity.class, identity.getUsername(), new GuardedString(password));
-
-		assertEquals(originalKey, configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY));
-
-		IdmConfidentialStorageValueDto valueDto = getConfidentialValueForIdentity(identity);
-		byte[] originalIV = valueDto.getIv();
-
-		Serializable serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
-		assertEquals(password, serializable);
-		confidentalStorage.renewVector(valueDto);
-		
-		assertEquals(originalKey, configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY));
-
-		valueDto = getConfidentialValueForIdentity(identity);
-		assertEquals(originalKey, configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY));
-		assertNotEquals(originalIV, valueDto.getIv());
-
-		serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
 		assertEquals(password, serializable);
 	}
 
@@ -630,7 +598,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		for (IdmAuditDto audit : audits) {
 			Assert.assertEquals(storageValueDto.getId(), audit.getEntityId());
 		}
-
 	}
 
 	@Test

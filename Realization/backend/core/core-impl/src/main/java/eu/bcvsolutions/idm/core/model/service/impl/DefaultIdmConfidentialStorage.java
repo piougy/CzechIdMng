@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
-import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.util.UUID;
 
@@ -67,11 +66,11 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 			storage.setKey(key);
 		}
 
-		byte[] newIV = generateIV();
+		byte[] vector = cryptService.generateVector();
 		// Set new IV vector
-		storage.setIv(newIV);
+		storage.setIv(vector);
 		// set storage value
-		storage.setValue(toStorageValue(value, newIV));
+		storage.setValue(toStorageValue(value, vector));
 		// persist
 		repository.save(storage);
 	}
@@ -94,38 +93,12 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		//
 		// decrypt value with old key
 		byte[] decryptedValue = cryptService.decryptWithKey(storage.getValue(), oldCryptKey, value.getIv());
-
-		// Create new IV
-		byte[] newIV = generateIV();
-		storage.setIv(newIV);
-
+		// create new IV
+		byte[] vector = cryptService.generateVector();
+		storage.setIv(vector);
 		// and crypt value with new key
-		storage.setValue(cryptService.encrypt(decryptedValue, newIV));
+		storage.setValue(cryptService.encrypt(decryptedValue, vector));
 		// persist new value
-		repository.save(storage);
-	}
-
-	@Override
-	@Transactional
-	public void renewVector(IdmConfidentialStorageValueDto value) {
-		Assert.notNull(value, "Value is required.");
-
-		IdmConfidentialStorageValue storage = getStorageValue(value.getOwnerId(), value.getOwnerType(), value.getKey());
-		Assert.notNull(storage, "Storage is required.");
-
-		byte[] decryptedValue = null;
-		// Vector may not exists inside value (behavior before version 10.6.0)
-		if (value.getIv() == null) {
-			decryptedValue = cryptService.decrypt(storage.getValue());
-		} else {
-			decryptedValue = cryptService.decrypt(storage.getValue(), value.getIv());
-		}
-
-		// Renew the vector
-		byte[] newIV = generateIV();
-		storage.setIv(newIV);
-
-		storage.setValue(cryptService.encrypt(decryptedValue, newIV));
 		repository.save(storage);
 	}
 	
@@ -321,7 +294,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	}
 
 	/**
-	 * Converts serializable to storage byte value
+	 * Converts serializable to storage byte value.
 	 * 
 	 * @param value
 	 * @param iv
@@ -329,6 +302,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	 */
 	private byte[] toStorageValue(Serializable value, byte[] iv) {
 		byte [] serializedValue = SerializationUtils.serialize(value);
+		//
 		return cryptService.encrypt(serializedValue, iv);
 	}
 	
@@ -358,17 +332,5 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 			lookupService = context.getBean(LookupService.class);
 		}
 		return lookupService;
-	}
-
-	/**
-	 * Generate new IV vector with 16 byte length
-	 *
-	 * @return
-	 */
-	private byte[] generateIV() {
-		byte[] newIV = new byte[16];
-		SecureRandom s = new SecureRandom();
-		s.nextBytes(newIV);
-		return newIV;
 	}
 }

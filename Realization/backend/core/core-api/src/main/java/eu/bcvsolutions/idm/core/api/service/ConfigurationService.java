@@ -45,6 +45,7 @@ public interface ConfigurationService {
 	String DEFAULT_APP_DATETIME_WITH_SECONDS_FORMAT = "dd.MM.yyyy HH:mm:ss";
 	//
 	// common properties
+	String PROPERTY_INSTANCE_ID = "instanceId"; // @since 10.6.0 server instance identifier
 	String PROPERTY_ORDER = "order"; // configurable component order (for overriding or order on FE)
 	String PROPERTY_ENABLED = "enabled"; // configurable component is enabled / disabled
 	String PROPERTY_IMPLEMENTATION = "impl"; // active component implementation

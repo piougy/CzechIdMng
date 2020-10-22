@@ -43,6 +43,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
@@ -163,12 +164,12 @@ public class DefaultSchedulerManager implements SchedulerManager {
 						Order orderForDescription = sort.getOrderFor(Task.PROPERTY_DESCRIPTION);
 						if (orderForDescription != null) {
 							asc = orderForDescription.isAscending();
-							compareAscValue = taskOne.getDescription().compareTo(taskTwo.getDescription());
+							compareAscValue = StringUtils.compare(taskOne.getDescription(), taskTwo.getDescription());
 						}
 						Order orderForInstance = sort.getOrderFor(Task.PROPERTY_INSTANCE_ID);
 						if (orderForInstance != null) {
 							asc = orderForInstance.isAscending();
-							compareAscValue = taskOne.getInstanceId().compareTo(taskTwo.getInstanceId());
+							compareAscValue = StringUtils.compare(taskOne.getInstanceId(), taskTwo.getInstanceId());
 						}
 						//
 						return asc ? compareAscValue : compareAscValue * -1;
@@ -231,8 +232,14 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			} catch (ResultCodeException ex) {
 				throw ex;
 			} catch (Exception ex) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
-						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType().getSimpleName(), "instanceId", task.getInstanceId()), ex);
+				throw new ResultCodeException(
+						CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
+						ImmutableMap.of(
+								"taskId", taskId, 
+								"taskType", task.getTaskType().getSimpleName(), 
+								ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()),
+						ex
+				);
 			}
 			// create job detail - job definition
 			JobDetail jobDetail = JobBuilder.newJob()
@@ -275,8 +282,14 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			} catch (ResultCodeException ex) {
 				throw ex;
 			} catch (Exception ex) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
-						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType().getSimpleName(), "instanceId", task.getInstanceId()), ex);
+				throw new ResultCodeException(
+						CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
+						ImmutableMap.of(
+								"taskId", taskId,
+								"taskType", task.getTaskType().getSimpleName(),
+								ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()),
+						ex
+				);
 			}
 			// create job detail - job definition
 			JobDetail jobDetail = JobBuilder.newJob().withIdentity(task.getId(), DEFAULT_GROUP_NAME)
@@ -569,6 +582,12 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			text = filter.getText().toLowerCase();
 			if (!task.getTaskType().getCanonicalName().toLowerCase().contains(text)
 					&& (StringUtils.isEmpty(task.getDescription()) || !task.getDescription().toLowerCase().contains(text))) {
+				return false;
+			}
+		}
+		String instanceId = filter.getInstanceId();
+		if (StringUtils.isNotEmpty(instanceId)) {
+			if (!StringUtils.equals(instanceId, task.getInstanceId())) {
 				return false;
 			}
 		}

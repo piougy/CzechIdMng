@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 
@@ -36,7 +37,7 @@ public class Task implements BaseDto {
 	//
 	public static final String PROPERTY_TASK_TYPE = "taskType";
 	public static final String PROPERTY_DESCRIPTION = "description";
-	public static final String PROPERTY_INSTANCE_ID = "instanceId";
+	public static final String PROPERTY_INSTANCE_ID = ConfigurationService.PROPERTY_INSTANCE_ID;
 	//
 	@JsonDeserialize(as = String.class)
 	private String id; // quartz job name

@@ -123,7 +123,7 @@ export class TemplateTable extends Advanced.AbstractTableContent {
             ref="table"
             uiKey={uiKey}
             manager={manager}
-            showRowSelection={SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_DELETE')}
+            showRowSelection
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -142,13 +142,6 @@ export class TemplateTable extends Advanced.AbstractTableContent {
               </Advanced.Filter>
             }
             filterOpened={filterOpened}
-            actions={
-              [
-                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
-                { value: 'redeploy', niceLabel: this.i18n('action.redeploy.action'), action: this.onRedeployOrBackup.bind(this), disabled: false },
-                { value: 'backup', niceLabel: this.i18n('action.backup.action'), action: this.onRedeployOrBackup.bind(this), disabled: false }
-              ]
-            }
             buttons={
               [
                 <Basic.Button

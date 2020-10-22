@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
@@ -311,7 +312,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 							ImmutableMap.of(
 									"taskId", getLongRunningTaskId(), 
 									"taskType", task.getTaskType(),
-									"instanceId", task.getInstanceId()));
+									ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
 					saveResult(resultModel, OperationState.EXCEPTION, O_o);
 				}
 			}

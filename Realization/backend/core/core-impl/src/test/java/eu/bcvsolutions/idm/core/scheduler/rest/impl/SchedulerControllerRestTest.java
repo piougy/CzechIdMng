@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,38 +37,57 @@ public class SchedulerControllerRestTest extends AbstractRestTest {
 	@Test
 	public void testFindByText() {
 		// create two tasks
-		Task taskOne = createTask(TestSchedulableTask.class, "mock" + getHelper().createName());
-		Task taskTwo = createTask(TestRegistrableSchedulableTask.class, "mock" + getHelper().createName());
+		Task taskOne = createTask(TestSchedulableTask.class, "mock", "mock" + getHelper().createName());
+		Task taskTwo = createTask(TestRegistrableSchedulableTask.class, "mock", "mock" + getHelper().createName());
 		
 		TaskFilter filter = new TaskFilter();
 		filter.setText("SchedulableTask");
-		List<Task> results = find(filter);
+		List<Task> results = find(filter, null);
 		//
 		Assert.assertFalse(results.isEmpty());
 		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskTwo.getId())));
 		//
 		filter.setText("mock");
-		results = find(filter);
+		results = find(filter, null);
 		Assert.assertFalse(results.isEmpty());
 		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskTwo.getId())));
 		//
 		filter.setText(TestRegistrableSchedulableTask.class.getSimpleName());
-		results = find(filter);
+		results = find(filter, null);
 		Assert.assertFalse(results.isEmpty());
 		Assert.assertTrue(results.stream().allMatch(t -> !t.getId().equals(taskOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskTwo.getId())));
 		//
 		filter.setText(taskOne.getDescription());
-		results = find(filter);
+		results = find(filter, null);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().allMatch(t -> t.getId().equals(taskOne.getId())));
 	}
 	
-	protected List<Task> find(TaskFilter filter) {
+	@Test
+	public void testSortByEmptyDescription() {
+		// create two tasks
+		String instanceId = getHelper().createName();
+		Task taskOne = createTask(TestSchedulableTask.class, instanceId, "mock" + getHelper().createName());
+		Task taskTwo = createTask(TestSchedulableTask.class, instanceId, null);
+		
+		TaskFilter filter = new TaskFilter();
+		filter.setInstanceId(instanceId);
+		List<Task> results = find(filter, "description,acs");
+		//
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.get(0).getId().equals(taskTwo.getId()));
+		Assert.assertTrue(results.get(1).getId().equals(taskOne.getId()));
+	}
+	
+	protected List<Task> find(TaskFilter filter, String sort) {
 		MultiValueMap<String, String> queryParams = toQueryParams(filter);
 		queryParams.set("size", "10000");
+		if (StringUtils.isNotEmpty(sort)) {
+			queryParams.set("sort", sort);
+		}
 		//
 		try {
 			String response = getMockMvc().perform(get(BaseController.BASE_PATH + "/scheduler-tasks")
@@ -86,9 +106,12 @@ public class SchedulerControllerRestTest extends AbstractRestTest {
 		}
 	}
 	
-	private Task createTask(Class<? extends SchedulableTaskExecutor<?>> taskType, String description) {
+	private Task createTask(
+			Class<? extends SchedulableTaskExecutor<?>> taskType, 
+					String instanceId,
+					String description) {
 		Task task = new Task();
-		task.setInstanceId("mock");
+		task.setInstanceId(instanceId);
 		task.setTaskType(taskType);
 		task.setDescription(description);
 		//

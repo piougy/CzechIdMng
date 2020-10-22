@@ -197,6 +197,7 @@
     },
     "redeploy": {
       "action": "Recover from disk (redeploy)",
+      "icon": "fa:upload",
       "header_0": "N/A",
       "header": "Recover record from disk",
       "header_plural": "Recover records from disk",
@@ -213,6 +214,7 @@
     },
     "backup": {
       "action": "Backup",
+      "icon": "fa:download",
       "header_0": "N/A",
       "header": "Backup record",
       "header_plural": "Backup records",
@@ -5840,6 +5842,36 @@
         "help": "$t(action.delete.action) selected form definitions.",
         "icon": "$t(action.delete.icon)"
       },
+      "script-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) script definitions",
+        "help": "$t(action.delete.action) selected script definitions.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "script-definition-backup-bulk-action": {
+        "label": "$t(action.backup.action) script definitions",
+        "help": "$t(action.backup.action) selected script definitions.",
+        "icon": "$t(action.backup.icon)"
+      },
+      "script-definition-redeploy-bulk-action": {
+        "label": "$t(action.redeploy.action) script definitions",
+        "help": "$t(action.redeploy.action) selected script definitions.",
+        "icon": "$t(action.redeploy.icon)"
+      },
+      "notification-template-delete-bulk-action": {
+        "label": "$t(action.delete.action) notification templates",
+        "help": "$t(action.delete.action) selected notification templates.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "notification-template-backup-bulk-action": {
+        "label": "$t(action.backup.action) notification templates",
+        "help": "$t(action.backup.action) selected notification templates.",
+        "icon": "$t(action.backup.icon)"
+      },
+      "notification-template-redeploy-bulk-action": {
+        "label": "$t(action.redeploy.action) notification templates",
+        "help": "$t(action.redeploy.action) selected notification templates.",
+        "icon": "$t(action.redeploy.icon)"
+      },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) configuration items",
         "help": "$t(action.delete.action) selected configuration items.",
@@ -6924,7 +6956,7 @@
       "message": "Recaptcha service is unavailable."
     },
     "BACKUP_FOLDER_NOT_FOUND": {
-      "title": "Folder for backup don't exists",
+      "title": "Backup folder doesn't exist",
       "message": "Please specify this property: [{{property}}] in configuration properties."
     },
     "ROLE_DELETE_FAILED_HAS_TREE_NODE": {

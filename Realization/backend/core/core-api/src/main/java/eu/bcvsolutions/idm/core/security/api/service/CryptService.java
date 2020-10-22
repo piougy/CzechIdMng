@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * Encrypt is based as AES with key from resources and IV (initialization vector).
  * 
  * @author Ondrej Kopr
+ * @author Radek Tomiška
  */
 public interface CryptService {
 	
@@ -31,6 +32,7 @@ public interface CryptService {
 	 * @param value
 	 * @param iv
 	 * @return
+	 * @since 10.6.0
 	 */
 	String encryptString(String value, byte[] iv);
 
@@ -50,6 +52,7 @@ public interface CryptService {
 	 * @param value
 	 * @param iv
 	 * @return
+	 * @since 10.6.0
 	 */
 	String decryptString(String value, byte[] iv);
 
@@ -69,6 +72,7 @@ public interface CryptService {
 	 * @param value
 	 * @param iv
 	 * @return
+	 * @since 10.6.0
 	 */
 	byte[] encrypt(byte[] value, byte[] iv);
 
@@ -88,6 +92,7 @@ public interface CryptService {
 	 * @param value
 	 * @param iv
 	 * @return
+	 * @since 10.6.0
 	 */
 	byte[] decrypt(byte[] value, byte[] iv);
 
@@ -111,6 +116,16 @@ public interface CryptService {
 	 * @param key
 	 * @param iv
 	 * @return
+	 * @since 10.6.0
 	 */
 	byte[] decryptWithKey(byte[] value, GuardedString key, byte[] iv);
+	
+	
+	/**
+	 * Generate new (~inicialization) vector with 16 byte length.
+	 *
+	 * @return inicialization vector
+	 * @since 10.6.0
+	 */
+	byte[] generateVector();
 }

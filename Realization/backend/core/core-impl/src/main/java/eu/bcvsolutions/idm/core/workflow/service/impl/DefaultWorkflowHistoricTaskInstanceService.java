@@ -172,7 +172,7 @@ public class DefaultWorkflowHistoricTaskInstanceService
 	public WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId) {
 		Assert.notNull(historicTaskInstanceId, "Identifier is required.");
 
-		return this.get(historicTaskInstanceId, null, null);
+		return this.get(historicTaskInstanceId, (WorkflowFilterDto) null);
 	}
 
 	@Override

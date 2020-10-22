@@ -312,7 +312,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 					ImmutableMap.of(
 							"taskId", longRunningTaskId, 
 							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));
+							ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
 			}
 			LOG.error(resultModel.toString(), ex);
 			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());

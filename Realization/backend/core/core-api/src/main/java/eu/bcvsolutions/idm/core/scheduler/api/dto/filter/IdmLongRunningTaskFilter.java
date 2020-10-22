@@ -8,6 +8,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 
@@ -25,7 +26,7 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 	public static final String PARAMETER_TILL = "till"; // => created till
 	public static final String PARAMETER_RUNNING = "running";
 	public static final String PARAMETER_STATEFUL = "stateful";
-	public static final String PARAMETER_INSTANCE_ID = "instanceId";
+	public static final String PARAMETER_INSTANCE_ID = ConfigurationService.PROPERTY_INSTANCE_ID;
 	public static final String PARAMETER_CREATOR_ID = "creatorId";
 	public static final String PARAMETER_INCLUDE_ITEM_COUNTS = "includeItemCounts"; // success, failed and warning count will be loaded.
 	
@@ -42,74 +43,84 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 	}
 
 	public OperationState getOperationState() {
-		return getParameterConverter().toEnum(data, PARAMETER_OPERATION_STATE, OperationState.class);
+		return getParameterConverter().toEnum(getData(), PARAMETER_OPERATION_STATE, OperationState.class);
 	}
 	
 	public void setOperationState(OperationState operationState) {
-		data.set(PARAMETER_OPERATION_STATE, operationState);
+		set(PARAMETER_OPERATION_STATE, operationState);
 	}
 
 	public String getTaskType() {
-		return getParameterConverter().toString(data, PARAMETER_TASK_TYPE);
+		return getParameterConverter().toString(getData(), PARAMETER_TASK_TYPE);
 	}
 
 	public void setTaskType(String taskType) {
-		data.set(PARAMETER_TASK_TYPE, taskType);
+		set(PARAMETER_TASK_TYPE, taskType);
 	}
 
 	public ZonedDateTime getFrom() {
-		return getParameterConverter().toDateTime(data, PARAMETER_FROM);
+		return getParameterConverter().toDateTime(getData(), PARAMETER_FROM);
 	}
 
 	public void setFrom(ZonedDateTime from) {
-		data.set(PARAMETER_FROM, from);
+		set(PARAMETER_FROM, from);
 	}
 
 	public ZonedDateTime getTill() {
-		return getParameterConverter().toDateTime(data, PARAMETER_TILL);
+		return getParameterConverter().toDateTime(getData(), PARAMETER_TILL);
 	}
 
 	public void setTill(ZonedDateTime till) {
-		data.set(PARAMETER_TILL, till);
+		set(PARAMETER_TILL, till);
 	}
 	
 	public Boolean getRunning() {
-		return getParameterConverter().toBoolean(data, PARAMETER_RUNNING);
+		return getParameterConverter().toBoolean(getData(), PARAMETER_RUNNING);
 	}
 	
 	public void setRunning(Boolean running) {
-		data.set(PARAMETER_RUNNING, running);
+		set(PARAMETER_RUNNING, running);
 	}
 	
 	public void setStateful(Boolean stateful) {
-		data.set(PARAMETER_STATEFUL, stateful);
+		set(PARAMETER_STATEFUL, stateful);
 	}
 	
 	public Boolean getStateful() {
-		return getParameterConverter().toBoolean(data, PARAMETER_STATEFUL);
+		return getParameterConverter().toBoolean(getData(), PARAMETER_STATEFUL);
 	}
 	
-	public void setInstanceId(String instanceId) {
-		data.set(PARAMETER_INSTANCE_ID, instanceId);
-	}
-	
+	/**
+	 * Filter by server instance identifier.
+	 *  
+	 * @return server instance identifier
+	 */
 	public String getInstanceId() {
-		return getParameterConverter().toString(data, PARAMETER_INSTANCE_ID);
+		return getParameterConverter().toString(getData(), PARAMETER_INSTANCE_ID);
+	}
+	
+	/**
+	 * Filter by server instance identifier.
+	 * 
+	 * @param instanceId server instance identifier
+	 */
+	public void setInstanceId(String instanceId) {
+		set(PARAMETER_INSTANCE_ID, instanceId);
 	}
 
 	public UUID getCreatorId() {
-		return getParameterConverter().toUuid(data, PARAMETER_CREATOR_ID);
+		return getParameterConverter().toUuid(getData(), PARAMETER_CREATOR_ID);
 	}
 
 	public void setCreatorId(UUID creatorId) {
-		data.set(PARAMETER_CREATOR_ID, creatorId);
+		set(PARAMETER_CREATOR_ID, creatorId);
 	}
 	
 	public boolean isIncludeItemCounts() {
-		return getParameterConverter().toBoolean(data, PARAMETER_INCLUDE_ITEM_COUNTS, false);
+		return getParameterConverter().toBoolean(getData(), PARAMETER_INCLUDE_ITEM_COUNTS, false);
 	}
 	
 	public void setIncludeItemCounts(boolean includeItemCounts) {
-		data.set(PARAMETER_INCLUDE_ITEM_COUNTS, includeItemCounts);
+		set(PARAMETER_INCLUDE_ITEM_COUNTS, includeItemCounts);
 	}
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
  * Entity content was deleted in the mean time.
@@ -21,7 +22,7 @@ public class EventContentDeletedException extends ContentDeletedException {
 				"eventId", String.valueOf(entityEvent.getId()), 
 				"eventType", String.valueOf(entityEvent.getEventType()),
 				"ownerId", String.valueOf(entityEvent.getOwnerId()),
-				"instanceId", String.valueOf(entityEvent.getInstanceId())));
+				ConfigurationService.PROPERTY_INSTANCE_ID, String.valueOf(entityEvent.getInstanceId())));
 		this.entityEvent = entityEvent;
 	}
 	

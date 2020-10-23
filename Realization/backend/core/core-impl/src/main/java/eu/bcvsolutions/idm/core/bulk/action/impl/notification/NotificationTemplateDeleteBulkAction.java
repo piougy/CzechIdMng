@@ -59,7 +59,7 @@ public class NotificationTemplateDeleteBulkAction extends AbstractRemoveBulkActi
 		ResultModels results = new ResultModels();
 
 		IdmNotificationTemplateFilter templateFilter = new IdmNotificationTemplateFilter();
-		templateFilter.setUnmodifiable(true);
+		templateFilter.setUnmodifiable(Boolean.TRUE);
 		List<IdmNotificationTemplateDto> unmodifiable = notificationService.find(templateFilter, null).getContent();
 		List<IdmNotificationTemplateDto> templatesToWarn = unmodifiable.stream().filter(dto -> {
 			return entities.contains(dto.getId());

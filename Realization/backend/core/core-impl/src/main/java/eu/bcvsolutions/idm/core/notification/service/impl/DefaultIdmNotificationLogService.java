@@ -3,6 +3,12 @@ package eu.bcvsolutions.idm.core.notification.service.impl;
 import java.util.Collections;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +21,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilte
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotification_;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
 
 /**
@@ -70,5 +77,50 @@ public class DefaultIdmNotificationLogService
 			dto.setState(NotificationState.NOT);
 		}	
 		return dto;
+	}
+	
+	/**
+	 * State filter predicate.
+	 * Filter is constructed differently for NotifictionLog 
+	 * (PARTLY is supported) and for other single notifications by channels (email, sms etc.).
+	 * 
+	 * @since 10.6.0
+	 */
+	@Override
+	protected Predicate getStatePredicate(Root<IdmNotificationLog> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, IdmNotificationFilter filter) {
+		
+		if (filter == null || filter.getState() == null) {
+			return null;
+		}
+		//
+		Subquery<IdmNotification> sent = query.subquery(IdmNotification.class);
+		Root<IdmNotification> sentRoot = sent.from(IdmNotification.class);
+		sent.select(sentRoot);
+		sent.where(
+                builder.and(
+                		builder.equal(sentRoot.get(IdmNotification_.parent), root), // correlation attr
+                		builder.isNotNull(sentRoot.get(IdmNotification_.sent))
+                		)
+        );
+		if (filter.getState() == NotificationState.NOT) {
+			return builder.not(builder.exists(sent));
+		}
+		
+		Subquery<IdmNotification> notSent = query.subquery(IdmNotification.class);
+		Root<IdmNotification> notSentRoot = notSent.from(IdmNotification.class);
+		notSent.select(notSentRoot);
+		notSent.where(
+                builder.and(
+                		builder.equal(notSentRoot.get(IdmNotification_.parent), root), // correlation attr
+                		builder.isNull(notSentRoot.get(IdmNotification_.sent))
+                		)
+        );
+		// partly
+		if (filter.getState() == NotificationState.PARTLY) {
+			return builder.and(builder.exists(notSent), builder.exists(sent));
+		}
+		// all
+		return builder.and(builder.not(builder.exists(notSent)), builder.exists(sent));
 	}
 }

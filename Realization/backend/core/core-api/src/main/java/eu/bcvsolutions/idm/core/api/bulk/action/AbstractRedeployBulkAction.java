@@ -34,8 +34,8 @@ public abstract class AbstractRedeployBulkAction<DTO extends AbstractDto, F exte
 	@Autowired
 	private ConfigurationService configurationService;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	protected OperationResult processDto(DTO dto) {
 		try {
 			Assert.notNull(dto, "Entity to redeploy is required!");

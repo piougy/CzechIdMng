@@ -1,6 +1,8 @@
 	package eu.bcvsolutions.idm.core.notification.rest.impl;
 
-	import javax.validation.constraints.NotNull;
+	import java.util.Set;
+
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
@@ -32,7 +34,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Read email logs
+ * Read email logs.
  * 
  * @author Radek Tomiška
  *
@@ -45,7 +47,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmEmailLogController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmEmailLogController extends AbstractReadDtoController<IdmEmailLogDto, IdmNotificationFilter> {
+public class IdmEmailLogController extends AbstractReadWriteDtoController<IdmEmailLogDto, IdmNotificationFilter> {
 	
 	protected static final String TAG = "Notification logs - email";
 	
@@ -112,5 +114,25 @@ public class IdmEmailLogController extends AbstractReadDtoController<IdmEmailLog
 			@ApiParam(value = "Email log's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	@ApiOperation(
+			value = "What logged identity can do with given record", 
+			nickname = "getPermissionsOnEmail", 
+			tags = { IdmEmailLogController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")})
+				})
+	public Set<String> getPermissions(
+			@ApiParam(value = "Email uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.getPermissions(backendId);
 	}
 }

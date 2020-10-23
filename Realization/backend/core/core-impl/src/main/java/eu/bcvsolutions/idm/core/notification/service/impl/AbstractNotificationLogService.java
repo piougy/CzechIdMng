@@ -157,34 +157,9 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
             );			
 			predicates.add(builder.exists(subquery));
 		}
-		if (filter.getState() != null) {
-			Subquery<IdmNotification> sent = query.subquery(IdmNotification.class);
-			Root<IdmNotification> sentRoot = sent.from(IdmNotification.class);
-			sent.select(sentRoot);
-			sent.where(
-                    builder.and(
-                    		builder.equal(sentRoot.get(IdmNotification_.parent), root), // correlation attr
-                    		builder.isNotNull(sentRoot.get(IdmNotification_.sent))
-                    		)
-            );
-			if (filter.getState() == NotificationState.NOT) {
-				predicates.add(builder.not(builder.exists(sent)));
-			} else {
-				Subquery<IdmNotification> notSent = query.subquery(IdmNotification.class);
-				Root<IdmNotification> notSentRoot = notSent.from(IdmNotification.class);
-				notSent.select(notSentRoot);
-				notSent.where(
-	                    builder.and(
-	                    		builder.equal(notSentRoot.get(IdmNotification_.parent), root), // correlation attr
-	                    		builder.isNull(notSentRoot.get(IdmNotification_.sent))
-	                    		)
-	            );
-				if (filter.getState() == NotificationState.PARTLY) {
-					predicates.add(builder.and(builder.exists(notSent), builder.exists(sent)));
-				} else { // all
-					predicates.add(builder.and(builder.not(builder.exists(notSent)), builder.exists(sent)));
-				}
-			}		
+		Predicate statePredicate = getStatePredicate(root, query, builder, filter);
+		if (statePredicate != null) {
+			predicates.add(statePredicate);
 		}
 		if (filter.getNotificationType() != null)  {
 			predicates.add(builder.equal(root.type(), builder.literal(filter.getNotificationType())));
@@ -213,5 +188,29 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 			predicates.add(builder.equal(root.get(IdmNotification_.identitySender).get(IdmIdentity_.id), identitySenderId));
 		}
 		return predicates;
+	}
+	
+	/**
+	 * State filter predicate.
+	 * Filter is constructed differently for NotifictionLog 
+	 * (PARTLY is supported) and for other single notifications by channels (email, sms etc.).
+	 * 
+	 * @since 10.6.0
+	 */
+	protected Predicate getStatePredicate(Root<E> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, F filter) {
+		
+		if (filter == null || filter.getState() == null) {
+			return null;
+		}
+		if (filter.getState() == NotificationState.PARTLY) {
+			// partly is supported for NotificationLog only
+			return builder.disjunction();
+		}
+		if (filter.getState() == NotificationState.NOT) {
+			return builder.isNull(root.get(IdmNotification_.sent));
+		}
+		// sent 
+		return builder.isNotNull(root.get(IdmNotification_.sent));
 	}
 }

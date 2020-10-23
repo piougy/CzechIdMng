@@ -273,7 +273,7 @@ public class DefaultIdmRoleRequestService
 		try {
 			IdmRoleRequestService service = this.getIdmRoleRequestService();
 			if (!(service instanceof DefaultIdmRoleRequestService)) {
-				throw new CoreException("We expects instace of DefaultIdmRoleRequestService!");
+				throw new CoreException("We expects instance of DefaultIdmRoleRequestService!");
 			}
 			return ((DefaultIdmRoleRequestService) roleRequestService).startRequestNewTransactional(event);
 		} catch (Exception ex) {
@@ -392,17 +392,18 @@ public class DefaultIdmRoleRequestService
 
 			// All concepts in progress state will be set on approved (we can
 			// execute it immediately)
-			request.getConceptRoles().stream().filter(concept -> {
-				return RoleRequestState.IN_PROGRESS == concept.getState();
-			}).forEach(concept -> {
-				if (!cancelInvalidConcept(null, concept, request)) {
-					concept.setState(RoleRequestState.APPROVED);
-					conceptRoleRequestService.save(concept);
-				} else {
-					// save request log, after concept was canceled
-					this.save(request);
-				}
-			});
+			request.getConceptRoles()
+					.stream()
+					.filter(concept -> RoleRequestState.IN_PROGRESS == concept.getState())
+					.forEach(concept -> {
+						if (!cancelInvalidConcept(null, concept, request)) {
+							concept.setState(RoleRequestState.APPROVED);
+							conceptRoleRequestService.save(concept);
+						} else {
+							// save request log, after concept was canceled
+							this.save(request);
+						}
+					});
 
 			// Execute request immediately
 			return true;
@@ -484,39 +485,41 @@ public class DefaultIdmRoleRequestService
 		// Add concepts for business roles.
 		List<IdmIdentityRoleDto> allAssignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		List<IdmConceptRoleRequestDto> allConcepts = appendBusinessRoleConcepts(concepts, allAssignedRoles);
-		
-		// Create new identity role.
-		allConcepts.stream().filter(concept -> {
-			return ConceptRoleRequestOperation.ADD == concept.getOperation();
-		}).filter(concept -> {
-			// Only approved concepts can be executed
-			// Concepts in concept state will be executed too (for situation, when will be
-			// approval event disabled)
-			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-		}).forEach(concept -> {
-			if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
-				// assign new role
-				createAssignedRole(allConcepts, concept, request, requestEvent);
-			}
 
-			flushHibernateSession();
-		});
+		// Create new identity role.
+		allConcepts.stream()
+				.filter(concept -> ConceptRoleRequestOperation.ADD == concept.getOperation())
+				.filter(concept -> {
+					// Only approved concepts can be executed
+					// Concepts in concept state will be executed too (for situation, when will be
+					// approval event disabled)
+					return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
+				})
+				.forEach(concept -> {
+					if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
+						// assign new role
+						createAssignedRole(allConcepts, concept, request, requestEvent);
+					}
+
+					flushHibernateSession();
+				});
 
 		// Update identity role
-		allConcepts.stream().filter(concept -> {
-			return ConceptRoleRequestOperation.UPDATE == concept.getOperation();
-		}).filter(concept -> {
-			// Only approved concepts can be executed
-			// Concepts in concept state will be executed too (for situation, when will be
-			// approval event disabled)
-			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-		}).forEach(concept -> {
-			if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
-				updateAssignedRole(allConcepts, concept, request, requestEvent);
-			}
+		allConcepts.stream()
+				.filter(concept -> ConceptRoleRequestOperation.UPDATE == concept.getOperation())
+				.filter(concept -> {
+					// Only approved concepts can be executed
+					// Concepts in concept state will be executed too (for situation, when will be
+					// approval event disabled)
+					return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
+				})
+				.forEach(concept -> {
+					if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
+						updateAssignedRole(allConcepts, concept, request, requestEvent);
+					}
 
-			flushHibernateSession();
-		});
+					flushHibernateSession();
+				});
 		
 		// Delete identity sub roles at first (prevent to delete sub roles by referential integrity)
 		allConcepts
@@ -705,9 +708,7 @@ public class DefaultIdmRoleRequestService
 		conceptFilter.setRoleRequestId(dto.getId());
 		conceptRoleRequestService.find(conceptFilter, null) //
 				.getContent() //
-				.forEach(concept -> {
-					conceptRoleRequestService.delete(concept);
-				});
+				.forEach(concept -> conceptRoleRequestService.delete(concept));
 		super.deleteInternal(dto);
 	}
 
@@ -787,7 +788,7 @@ public class DefaultIdmRoleRequestService
 					IdmFormInstanceDto formInstance = identityRoleService.getRoleAttributeValues(identityRoleDto);
 
 					List<IdmFormValueDto> values = formInstance.getValues();
-					List<IdmFormValueDto> finalValues = new ArrayList<IdmFormValueDto>(values);
+					List<IdmFormValueDto> finalValues = new ArrayList<>(values);
 					// Iterate over all values and find values that must be deep copied
 					for (IdmFormValueDto value : values) {
 						IdmFormAttributeDto attribute = DtoUtils.getEmbedded(value, IdmFormValue_.formAttribute, IdmFormAttributeDto.class, null);
@@ -869,39 +870,32 @@ public class DefaultIdmRoleRequestService
 
 		Set<IdmRoleDto> roles = new HashSet<>();
 		conceptsForCheck
-			.stream()
-			.filter(concept -> {
-				boolean isDelete = concept.getOperation() == ConceptRoleRequestOperation.REMOVE;
-				if (isDelete) {
-					// removed role fixes the incompatibility
-					removedIdentityRoleIds.add(concept.getIdentityRole());
-				}
-				return !isDelete;
-			})
-			.forEach(concept -> {
-				roles.add(DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role));
-			});
+				.stream()
+				.filter(concept -> {
+					boolean isDelete = concept.getOperation() == ConceptRoleRequestOperation.REMOVE;
+					if (isDelete) {
+						// removed role fixes the incompatibility
+						removedIdentityRoleIds.add(concept.getIdentityRole());
+					}
+					return !isDelete;
+				})
+				.forEach(concept -> roles.add(DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.role)));
+
 		identityRoles
-			.stream()
-			.filter(identityRole -> {
-				return !removedIdentityRoleIds.contains(identityRole.getId());
-			})
-			.forEach(identityRole -> {
-				roles.add(DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role));
-			});
+				.stream()
+				.filter(identityRole -> !removedIdentityRoleIds.contains(identityRole.getId()))
+				.forEach(identityRole -> roles.add(DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.role)));
 
 		// We want to returns only incompatibilities caused by new added roles
 	 	Set<ResolvedIncompatibleRoleDto> incompatibleRoles = incompatibleRoleService.resolveIncompatibleRoles(Lists.newArrayList(roles));
 		return incompatibleRoles.stream() //
 			.filter(incompatibleRole -> {
 				return conceptsForCheck.stream() //
-					.filter(concept -> concept.getOperation() == ConceptRoleRequestOperation.ADD
+					.anyMatch(concept -> concept.getOperation() == ConceptRoleRequestOperation.ADD
 						&& (concept.getRole().equals(incompatibleRole.getDirectRole().getId())
 								|| concept.getRole().equals(incompatibleRole.getIncompatibleRole().getSuperior())
 								|| concept.getRole().equals(incompatibleRole.getIncompatibleRole().getSub())
-							))
-					.findFirst() //
-					.isPresent(); //
+							)); //
 			}).collect(Collectors.toSet());
 	}
 
@@ -971,17 +965,13 @@ public class DefaultIdmRoleRequestService
 		// List of uuid's identity roles that will be removed in this concept
 		List<UUID> identityRolesForRemove = concepts //
 				.stream() //
-				.filter(concept -> {
-					return concept.getOperation() == ConceptRoleRequestOperation.REMOVE;
-				})
+				.filter(concept -> concept.getOperation() == ConceptRoleRequestOperation.REMOVE)
 				.map(IdmConceptRoleRequestDto::getIdentityRole) //
 				.collect(Collectors.toList()); //
 
 		// Filter identity roles for that exists concept for removing
 		List<IdmIdentityRoleDto> identityRoles = new ArrayList<>(identityRoleService.findAllByIdentity(identityId));
-		identityRoles.removeIf(identityRole -> {
-			return identityRolesForRemove.contains(identityRole.getId());
-		});
+		identityRoles.removeIf(identityRole -> identityRolesForRemove.contains(identityRole.getId()));
 
 		// Just mark duplicities
 		concepts = this.markDuplicates(concepts, identityRoles);
@@ -990,7 +980,7 @@ public class DefaultIdmRoleRequestService
 		concepts = this.removeDuplicitiesSubRole(concepts, identityRoles);
 
 		// Create final concepts and add non duplicities
-		List<IdmConceptRoleRequestDto> conceptRolesFinal = new ArrayList<IdmConceptRoleRequestDto>();
+		List<IdmConceptRoleRequestDto> conceptRolesFinal = new ArrayList<>();
 		for (IdmConceptRoleRequestDto concept : concepts) {
 			if (BooleanUtils.isNotTrue(concept.getDuplicate())) {
 				conceptRolesFinal.add(concept);
@@ -1124,7 +1114,9 @@ public class DefaultIdmRoleRequestService
 	private void removeAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
-		IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole.getName(), IdmIdentityRoleDto.class, (IdmIdentityRoleDto)null);
+
+		IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole.getName(),
+				IdmIdentityRoleDto.class, (IdmIdentityRoleDto) null);
 		if (identityRole == null) {
 			identityRole = identityRoleThinService.get(concept.getIdentityRole());
 		}
@@ -1353,7 +1345,7 @@ public class DefaultIdmRoleRequestService
 	 * @return
 	 */
 	private List<IdmConceptRoleRequestDto> removeDuplicitiesSubRole(List<IdmConceptRoleRequestDto> concepts, List<IdmIdentityRoleDto> allByIdentity) {
-		List<IdmConceptRoleRequestDto> conceptsToRemove = new ArrayList<IdmConceptRoleRequestDto>();
+		List<IdmConceptRoleRequestDto> conceptsToRemove = new ArrayList<>();
 		for (IdmConceptRoleRequestDto concept : concepts) {
 			// Only add or modification
 			if (concept.getOperation() != ConceptRoleRequestOperation.ADD &&

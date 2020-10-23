@@ -66,8 +66,6 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
-	private ConfigurationService configurationService;
-	@Autowired
 	private ObjectMapper mapper;
 	
 	@Override
@@ -180,6 +178,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		//
 		if (task.getCreatorId() != null) {
 			IdmIdentityDto identityDto = identityService.get(task.getCreatorId());
+			ConfigurationService configurationService = getConfigurationService();
 			if (identityDto != null) {
 				// TODO: coreModuleDescriptor is in impl
 				notificationManager.send("core:bulkActionEnd",

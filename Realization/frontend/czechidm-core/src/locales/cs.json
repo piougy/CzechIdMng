@@ -5906,7 +5906,7 @@
       },
       "script-definition-redeploy-bulk-action": {
         "label": "$t(action.redeploy.action) definice skriptů",
-        "help": "Obnoví vybrané definice skriptů.",
+        "help": "Obnoví vybrané definice skriptů. Aktuální skripty budou nejdříve zazálohovány a pak znovu načteny z aplikace či externího umístění.",
         "icon": "$t(action.redeploy.icon)"
       },
       "notification-template-delete-bulk-action": {
@@ -5916,12 +5916,12 @@
       },
       "notification-template-backup-bulk-action": {
         "label": "$t(action.backup.action) šablony notifikací",
-        "help": "$t(action.backup.action) vybrané šablony notifikací.",
+        "help": "Obnoví vybrané šablony notifikací. Aktuální šablony budou nejdříve zazálohovány a pak znovu načteny z aplikace či externího umístění.",
         "icon": "$t(action.backup.icon)"
       },
       "notification-template-redeploy-bulk-action": {
         "label": "$t(action.redeploy.action) šablony notifikací",
-        "help": "$t(action.redeploy.action) vybrané šablony notifikací.",
+        "help": "$t(action.redeploy.action) vybrané šablony notifikací. Aktuální skripty budou nejdříve zazálohovány a pak znovu načteny z aplikace či externího umístění.",
         "icon": "$t(action.redeploy.icon)"
       },
       "configuration-delete-bulk-action": {
@@ -7006,6 +7006,10 @@
     "RECAPTCHA_SERVICE_UNAVAILABLE": {
       "title": "Kontrola pro ochranu soukromí",
       "message": "Kontrola pro ochranu soukromí není dostupná."
+    },
+    "BACKUP_FOLDER_FOUND": {
+      "title": "Složka pro zálohování",
+      "message": "Složka pro zálohování je nastavena: [{{backupFolder}}]."
     },
     "BACKUP_FOLDER_NOT_FOUND": {
       "title": "Složka pro zálohování neexistuje",

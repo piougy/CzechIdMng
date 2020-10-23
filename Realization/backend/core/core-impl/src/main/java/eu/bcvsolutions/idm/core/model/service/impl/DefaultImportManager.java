@@ -1,12 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
-import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -60,11 +53,14 @@ import eu.bcvsolutions.idm.core.api.dto.EmbeddedDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmImportLogDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.ImportContext;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmImportLogFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
@@ -72,9 +68,11 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.IdmExportImportService;
 import eu.bcvsolutions.idm.core.api.service.IdmImportLogService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.ImportManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ZipUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -85,6 +83,7 @@ import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -121,8 +120,6 @@ public class DefaultImportManager implements ImportManager {
 	private EntityManager entityManager;
 	@Autowired
 	private IdmTreeNodeService treeNodeService;
-	@Autowired
-	private IdmTreeTypeService treeTypeService;
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultImportManager.class);
 

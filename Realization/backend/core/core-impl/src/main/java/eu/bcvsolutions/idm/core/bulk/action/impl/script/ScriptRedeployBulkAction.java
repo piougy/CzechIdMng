@@ -16,10 +16,10 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 
 /**
- * Redeploy given script definition
+ * Redeploy given script definition.
  *
  * @author Ondrej Husnik
- *
+ * @since 10.6.0
  */
 @Component(ScriptRedeployBulkAction.NAME)
 @Description("Redeploy given script definition.")

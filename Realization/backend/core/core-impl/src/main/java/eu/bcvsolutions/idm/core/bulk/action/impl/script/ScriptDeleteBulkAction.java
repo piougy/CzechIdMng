@@ -16,10 +16,10 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 
 /**
- * Delete given script definition
+ * Delete given script definition.
  *
  * @author Ondrej Husnik
- *
+ * @since 10.6.0
  */
 @Component(ScriptDeleteBulkAction.NAME)
 @Description("Delete given script definition.")

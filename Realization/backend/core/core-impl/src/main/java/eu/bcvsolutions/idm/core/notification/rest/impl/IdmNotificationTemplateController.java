@@ -354,8 +354,6 @@ public class IdmNotificationTemplateController extends AbstractEventableDtoContr
 	
 	@Override
 	protected IdmNotificationTemplateFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmNotificationTemplateFilter filter = new IdmNotificationTemplateFilter(parameters);
-		filter.setUnmodifiable(getParameterConverter().toBoolean(parameters, IdmNotificationTemplateFilter.PARAMETER_UNMODIFIABLE));
-		return filter;
+		return new IdmNotificationTemplateFilter(parameters, getParameterConverter());
 	}
 }

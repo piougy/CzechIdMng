@@ -1,10 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
-import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig_;
-import eu.bcvsolutions.idm.acc.entity.SysSyncTreeConfig_;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +32,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncTreeConfig;
@@ -45,6 +41,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;

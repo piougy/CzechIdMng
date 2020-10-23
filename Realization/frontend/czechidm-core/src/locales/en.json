@@ -6955,6 +6955,10 @@
       "title": "Recaptcha check",
       "message": "Recaptcha service is unavailable."
     },
+    "BACKUP_FOLDER_FOUND": {
+      "title": "Backup folder",
+      "message": "Configured backup folder: [{{backupFolder}}]."
+    },
     "BACKUP_FOLDER_NOT_FOUND": {
       "title": "Backup folder doesn't exist",
       "message": "Please specify this property: [{{property}}] in configuration properties."

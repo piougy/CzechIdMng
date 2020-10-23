@@ -4,6 +4,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 
 /**
@@ -23,11 +24,15 @@ public class IdmNotificationTemplateFilter extends DataFilter {
     }
 
     public IdmNotificationTemplateFilter(MultiValueMap<String, Object> data) {
-        super(IdmNotificationTemplateDto.class, data);
+        this(data, null);
+    }
+    
+    public IdmNotificationTemplateFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+        super(IdmNotificationTemplateDto.class, data, parameterConverter);
     }
 
 	public Boolean getUnmodifiable() {
-		return getParameterConverter().toBoolean(getData(),PARAMETER_UNMODIFIABLE);
+		return getParameterConverter().toBoolean(getData(), PARAMETER_UNMODIFIABLE);
 	}
 
 	public void setUnmodifiable(Boolean unmodifiable) {

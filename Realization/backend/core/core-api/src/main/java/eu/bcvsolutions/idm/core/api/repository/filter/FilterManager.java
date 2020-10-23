@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.api.repository.filter;
 
-import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -9,8 +7,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.exception.FilterSizeExceededException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**

@@ -16,10 +16,10 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 
 /**
- * Backup given script definition
+ * Backup given script definition.
  *
  * @author Ondrej Husnik
- *
+ * @since 10.6.0
  */
 @Component(ScriptBackupBulkAction.NAME)
 @Description("Backup given script definition.")

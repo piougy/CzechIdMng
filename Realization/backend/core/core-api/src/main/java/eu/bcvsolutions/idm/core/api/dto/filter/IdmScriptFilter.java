@@ -7,6 +7,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for search in scripts. Attributes:
@@ -26,13 +27,16 @@ public class IdmScriptFilter extends DataFilter {
 	public static final String PARAMETER_CATEGORY = "category";
 	public static final String PARAMETER_IN_CATEGORY = "inCategory";
 
-	
     public IdmScriptFilter() {
         this(new LinkedMultiValueMap<>());
     }
 
     public IdmScriptFilter(MultiValueMap<String, Object> data) {
-        super(IdmScriptDto.class, data);
+        this(data, null);
+    }
+    
+    public IdmScriptFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+        super(IdmScriptDto.class, data, parameterConverter);
     }
 
     public List<IdmScriptCategory> getInCategory() {

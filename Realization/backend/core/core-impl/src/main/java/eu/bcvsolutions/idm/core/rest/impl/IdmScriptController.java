@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
@@ -400,16 +399,8 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 		return super.prevalidateBulkAction(bulkAction);
 	}
 	
-	
 	@Override
 	protected IdmScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmScriptFilter filter = new IdmScriptFilter(parameters);
-		filter.setDescription(getParameterConverter().toString(parameters, IdmScriptFilter.PARAMETER_DESCRIPTION));
-		filter.setCode(getParameterConverter().toString(parameters, IdmScriptFilter.PARAMETER_CODE));
-		filter.setUsedIn(getParameterConverter().toString(parameters, IdmScriptFilter.PARAMETER_USED_IN));
-		filter.setCategory(getParameterConverter().toEnum(parameters, IdmScriptFilter.PARAMETER_CATEGORY, IdmScriptCategory.class));
-		filter.setInCategory(getParameterConverter().toEnums(parameters, IdmScriptFilter.PARAMETER_IN_CATEGORY, IdmScriptCategory.class));
-		//
-		return filter;
+		return new IdmScriptFilter(parameters, getParameterConverter());
 	}
 }

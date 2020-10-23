@@ -7293,7 +7293,7 @@
     },
     "FILTER_SIZE_EXCEEDED": {
       "title": "Počet položek filtru překročil maximum",
-      "message": "Count of filter for property [{{propertyName}}] values exceeded limit [{{maximum}}], given [{{currentSize}}]. Remove some filter values."
+      "message": "Count of filter values exceeded limit [{{maximum}}], given [{{currentSize}}]. Remove some filter values to fit limit."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Can not update form definition",

@@ -7345,7 +7345,7 @@
     },
     "FILTER_SIZE_EXCEEDED": {
       "title": "Počet položek filtru překročil maximum",
-      "message": "Zadaný počet položek [{{currentSize}}] ve filtru [{{propertyName}}] překročil limit [{{maximum}}]. Odeberte některé položky ve filtru."
+      "message": "Zadaný počet položek [{{currentSize}}] ve filtru překročil limit [{{maximum}}]. Odeberte položky ve filtru přesahující limit."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Definici formuláře nelze aktualizovat",

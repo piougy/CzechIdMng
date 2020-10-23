@@ -42,8 +42,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
@@ -88,6 +90,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	@Autowired private IdmProfileService profileService;
 	@Autowired private IdmFormProjectionService formProjectionService;
 	@Autowired private IdmIdentityContractService contractService;
+	@Autowired private ConfigurationService configurationService;
 	
 	@Override
 	protected AbstractReadWriteDtoController<IdmIdentityDto, ?> getController() {
@@ -757,6 +760,35 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		//
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(identityThree.getId())));
+	}
+	
+	@Test
+	public void testFindByRolesLimitExceeded() throws Exception {
+		int maximum = configurationService.getIntegerValue(
+				FilterManager.PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, 
+				FilterManager.DEFAULT_CHECK_FILTER_SIZE_MAXIMUM
+		);
+		try {
+			IdmRoleDto roleOne = getHelper().createRole();
+			IdmRoleDto roleTwo = getHelper().createRole();
+			IdmRoleDto roleThree = getHelper().createRole();
+			
+			configurationService.setValue(FilterManager.PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, String.valueOf(2));
+			IdmIdentityFilter filter = new IdmIdentityFilter();
+			// ok
+			filter.setRoles(Lists.newArrayList(roleOne.getId(), roleTwo.getId()));
+			Assert.assertTrue(find(filter).isEmpty());
+			// not ok
+			filter.setRoles(Lists.newArrayList(roleOne.getId(), roleTwo.getId(), roleThree.getId()));
+			getMockMvc().perform(get(getFindUrl(null))
+	        		.with(authentication(getAdminAuthentication()))
+	        		.params(toQueryParams(filter))
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isBadRequest());
+		} finally {
+			configurationService.setValue(FilterManager.PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, String.valueOf(maximum));
+		}
+		
 	}
 	
 	@Test

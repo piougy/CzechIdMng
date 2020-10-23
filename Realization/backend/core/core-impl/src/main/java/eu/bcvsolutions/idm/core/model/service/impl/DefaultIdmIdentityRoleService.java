@@ -189,13 +189,13 @@ public class DefaultIdmIdentityRoleService
 							"%" + text + "%")
 					);
 		}
-		List<UUID> identities = checkFilterSizeExceeded(IdmIdentityRoleFilter.PARAMETER_IDENTITY_ID, filter.getIdentities());
+		List<UUID> identities = filter.getIdentities();
 		if (!identities.isEmpty()) {
 			predicates.add(
 					root.get(IdmIdentityRole_.identityContract).get(IdmIdentityContract_.identity).get(IdmIdentity_.id).in(identities) 
 			);
 		}
-		List<UUID> roles = checkFilterSizeExceeded(IdmIdentityRoleFilter.PARAMETER_ROLE_ID, filter.getRoles());
+		List<UUID> roles = filter.getRoles();
 		if (!roles.isEmpty()) {
 			predicates.add(root.get(IdmIdentityRole_.role).get(IdmRole_.id).in(roles));
 		}

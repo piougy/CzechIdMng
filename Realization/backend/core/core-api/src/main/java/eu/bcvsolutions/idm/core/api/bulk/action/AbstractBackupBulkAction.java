@@ -39,11 +39,10 @@ public abstract class AbstractBackupBulkAction<DTO extends AbstractDto, F extend
 			// call backup
 			service.backup(dto);
 		} catch (Exception ex) {
-			OperationResult itemException = new OperationResult//
+			return new OperationResult//
 					.Builder(OperationState.EXCEPTION)//
 							.setCause(ex)//
 							.build();//
-			return itemException;
 		}
 		return new OperationResult(OperationState.EXECUTED);
 	}	

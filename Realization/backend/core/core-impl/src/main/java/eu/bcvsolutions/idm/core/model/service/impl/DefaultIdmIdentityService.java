@@ -181,7 +181,7 @@ public class DefaultIdmIdentityService
 			predicates.add(builder.equal(root.get(IdmIdentity_.lastName), filter.getLastName()));
 		}
 		// identity with any of given role (OR)
-		List<UUID> roles = checkFilterSizeExceeded(IdmIdentityFilter.PARAMETER_ROLE, filter.getRoles());
+		List<UUID> roles = filter.getRoles();
 		if (!roles.isEmpty()) {
 			Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
 			Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);

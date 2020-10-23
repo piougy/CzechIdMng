@@ -31,11 +31,10 @@ public abstract class AbstractRedeployBulkAction<DTO extends AbstractDto, F exte
 			// call redeploy
 			service.redeploy(dto);
 		} catch (Exception ex) {
-			OperationResult itemException = new OperationResult//
+			return new OperationResult//
 					.Builder(OperationState.EXCEPTION)//
 							.setCause(ex)//
 							.build();//
-			return itemException;
 		}
 		return new OperationResult(OperationState.EXECUTED);
 	}

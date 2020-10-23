@@ -20,6 +20,9 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.hibernate.query.criteria.internal.PathImplementor;
+import org.hibernate.query.criteria.internal.predicate.ExistsPredicate;
+import org.hibernate.query.criteria.internal.predicate.InPredicate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -49,7 +52,6 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
-import eu.bcvsolutions.idm.core.api.exception.FilterSizeExceededException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterKey;
@@ -438,6 +440,12 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 						predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permissions));
 					}
 				}
+				//
+				// check IN predicates limit
+				predicates.forEach(predicate -> {
+					checkFilterSizeExceeded(predicate);
+				});
+				//
 				// include referenced entity in "master" select  => reduces number of sub selects
 				if (applyFetchMode) {
 					// FIXME: is needed in new hibernate?
@@ -709,22 +717,29 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 	
 	/**
-     * Check count of values exceeded given maximum.
-     * 
-     * @param filterKey filter
-     * @param filterValues values
-     * @return values
-     * @throws FilterSizeExceededException when value size exceeded configured maximum
-     * @see FilterManager#PROPERTY_CHECK_FILTER_SIZE_MAXIMUM
-     * @since 10.6.0
-     */
-	protected <T> List<T> checkFilterSizeExceeded(String propertyName, List<T> filterValues) {
-		Assert.hasLength(propertyName, "Filter property name is required.");
-		//
-		return getFilterManager().checkFilterSizeExceeded(
-				new FilterKey(getEntityClass(), propertyName), 
-				filterValues
-		);
+	 * Check limit of values given for IN predicates.
+	 * 
+	 * @param predicate start predicate
+	 * @since 10.6.0
+	 */
+	private void checkFilterSizeExceeded(Predicate predicate) {
+		if (predicate instanceof InPredicate) {
+			InPredicate<?> in = (InPredicate<?>) predicate;
+			String propertyName = "filter"; // common property name => attribute is optional
+			if (in.getExpression() instanceof PathImplementor) {
+				// TODO: remove root path as 'null', but it is not fit to filter property name anyway => hidden in UI message
+				propertyName = ((PathImplementor<?>) in.getExpression()).getPathIdentifier();
+			}
+			getFilterManager().checkFilterSizeExceeded(new FilterKey(getEntityClass(), propertyName), in.getValues());
+		}
+		if (predicate instanceof ExistsPredicate) {
+			checkFilterSizeExceeded(((ExistsPredicate) predicate).getSubquery().getRestriction());
+		}
+		predicate.getExpressions().forEach(expression -> {
+			if (expression instanceof Predicate) {
+				checkFilterSizeExceeded((Predicate) expression);
+			}
+		});
 	}
 
 	/**

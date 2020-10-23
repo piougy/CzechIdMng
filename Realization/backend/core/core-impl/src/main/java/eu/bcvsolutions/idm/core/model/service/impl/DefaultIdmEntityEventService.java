@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterKey;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
@@ -86,7 +87,9 @@ public class DefaultIdmEntityEventService
 					OperationState.CREATED, 
 					executeDate, 
 					priority, 
-					checkFilterSizeExceeded(IdmEntityEventFilter.PARAMETER_OWNER_ID, exceptOwnerIds), 
+					getFilterManager().checkFilterSizeExceeded(
+							new FilterKey(getEntityClass(), IdmEntityEventFilter.PARAMETER_OWNER_ID), exceptOwnerIds
+					), 
 					pageable
 				)
 		);

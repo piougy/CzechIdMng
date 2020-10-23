@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
@@ -41,7 +42,7 @@ public interface IdmEntityEventService extends
 	 * @param exceptOwnerIds - [optional] exclude events for the given owners (e.g. events for owners, which already runs is not interesting - they cannot be processed anyway).
 	 * @param pageable
 	 * @return
-	 * @throws IllegalArgumentException if exceptOwnerIds is greater than 500 (sql limit).
+	 * @throws IllegalArgumentException if exceptOwnerIds is greater than {@link FilterManager#PROPERTY_CHECK_FILTER_SIZE_MAXIMUM} (sql limit).
 	 * @since 9.4.0
 	 */
 	Page<IdmEntityEventDto> findToExecute(

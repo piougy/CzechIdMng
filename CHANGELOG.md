@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - [#1981](https://redmine.czechidm.com/issues/1981) - Design of bulk actions used in tables was changed. Filter is now expanded to the top and quick buttons are shown for the first five actions (by default), next actions are in drop down menu. Bulk action order was changed too. Order, icon, level, enforce quick button or disable bulk action can be configured by application setting. Quick button count (or disable quick buttons) can be configured by application setting too.
 - [#2355](https://redmine.czechidm.com/issues/2355) - IdM now supports AES-256 key for encryption and decryption confidential storage. If you want use the new encryption please change key via long running task ``ChangeConfidentialStorageKeyTaskExecutor``.
 - [#2355](https://redmine.czechidm.com/issues/2355) - For every item in confidential storage will be generated new initial vector.
+- [#2519](https://redmine.czechidm.com/issues/2519) - Better exception is thrown, when count of filter parameters exceeded limit (e.g. when identities are find by roles filter). Default limit is ``500``. Limit is Related to database count of query parameters (e.g. ``Oracle = 1000, MSSql = 2100`` by default). You can [configure](https://wiki.czechidm.com/devel/documentation/application_configuration/dev/backend#entity_filters) limit by your environment if needed.
 
 ### Developer
 

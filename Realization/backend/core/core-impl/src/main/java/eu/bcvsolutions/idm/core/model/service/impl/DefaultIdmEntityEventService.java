@@ -80,10 +80,16 @@ public class DefaultIdmEntityEventService
 		if (CollectionUtils.isEmpty(exceptOwnerIds)) {
 			return toDtoPage(repository.findToExecute(instanceId, OperationState.CREATED, executeDate, priority, pageable));
 		}
-		if (exceptOwnerIds.size() > 500) {
-			throw new IllegalArgumentException(String.format("Except owners size exceeded, given [%s], max [%s]", exceptOwnerIds.size(), 500));
-		}
-		return toDtoPage(repository.findToExecute(instanceId, OperationState.CREATED, executeDate, priority, exceptOwnerIds, pageable));
+		return toDtoPage(
+				repository.findToExecute(
+					instanceId, 
+					OperationState.CREATED, 
+					executeDate, 
+					priority, 
+					checkFilterSizeExceeded(IdmEntityEventFilter.PARAMETER_OWNER_ID, exceptOwnerIds), 
+					pageable
+				)
+		);
 	}
 	
 	@Override

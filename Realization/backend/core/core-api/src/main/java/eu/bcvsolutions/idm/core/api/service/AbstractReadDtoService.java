@@ -49,8 +49,10 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.FilterSizeExceededException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterKey;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -704,6 +706,25 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			}
 		}
 		return entity;
+	}
+	
+	/**
+     * Check count of values exceeded given maximum.
+     * 
+     * @param filterKey filter
+     * @param filterValues values
+     * @return values
+     * @throws FilterSizeExceededException when value size exceeded configured maximum
+     * @see FilterManager#PROPERTY_CHECK_FILTER_SIZE_MAXIMUM
+     * @since 10.6.0
+     */
+	protected <T> List<T> checkFilterSizeExceeded(String propertyName, List<T> filterValues) {
+		Assert.hasLength(propertyName, "Filter property name is required.");
+		//
+		return getFilterManager().checkFilterSizeExceeded(
+				new FilterKey(getEntityClass(), propertyName), 
+				filterValues
+		);
 	}
 
 	/**

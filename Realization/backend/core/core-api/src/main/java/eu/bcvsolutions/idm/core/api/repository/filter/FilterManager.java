@@ -21,13 +21,25 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 public interface FilterManager {
 	
 	/**
-	 * Enable / disable check filter is properly registered, when filter is used (by entity and property name). Throw exeption, when unrecognised filter is used.
+	 * Enable / disable check filter is properly registered, when filter is used (by entity and property name). 
+	 * Throw exeption, when unrecognised filter is used.
 	 * 
 	 * @since 10.4.0
 	 */
 	String PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.filter.check.supported.enabled";
 	boolean DEFAULT_CHECK_SUPPORTED_FILTER_ENABLED = true;
+	
+	/**
+	 * Check count of values exceeded given maximum. 
+	 * Related to database count of query parameters (e.g. Oracle = {@code 1000}, MSSql = {@code 2100}).
+	 * Throw exception, when size is exceeded. Set to {@code -1} to disable this check.
+	 * 
+	 * @since 10.6.0
+	 */
+	String PROPERTY_CHECK_FILTER_SIZE_MAXIMUM = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.filter.check.size.maximum";
+	int DEFAULT_CHECK_FILTER_SIZE_MAXIMUM = 500;
 	
 	/**
 	 * Return filter registered / configured for given property name
@@ -75,4 +87,16 @@ public interface FilterManager {
      * @since 9.7.7
      */
     void enable(String filterBuilderId);
+    
+    /**
+     * Check count of values exceeded given maximum.
+     * 
+     * @param filterKey filter
+     * @param filterValues values
+     * @return values
+     * @throws FilterSizeExceededException when value size exceeded configured maximum
+     * @see FilterManager#PROPERTY_CHECK_FILTER_SIZE_MAXIMUM
+     * @since 10.6.0
+     */
+    <T> List<T> checkFilterSizeExceeded(FilterKey filterKey, List<T> filterValues);
 }

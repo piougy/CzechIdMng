@@ -7339,6 +7339,10 @@
       "title": "Filter nebyl nalezen",
       "message": "Filter pro atribut [{{propertyName}}] nebyl nalezen."
     },
+    "FILTER_SIZE_EXCEEDED": {
+      "title": "Počet položek filtru překročil maximum",
+      "message": "Zadaný počet položek [{{currentSize}}] ve filtru [{{propertyName}}] překročil limit [{{maximum}}]. Odeberte některé položky ve filtru."
+    },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Definici formuláře nelze aktualizovat",
       "message": "Definici formuláře [{{form}}][{{form1}}] nelze aktualizovat. Nelze automaticky aktualizovat vlastnost [{{property}}] atributu [{{attr}}]. Použijte change script pro aktualizaci formuláře nebo definujte nový."

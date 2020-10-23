@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.FilterNotSupportedException;
+import eu.bcvsolutions.idm.core.api.exception.FilterSizeExceededException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.filter.DisabledFilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
@@ -92,37 +93,6 @@ public class DefaultFilterManager implements FilterManager {
 		FilterKey key = new FilterKey(entityClass, propertyName);
 		//
 		return getBuilder(key);
-	}
-
-	@SuppressWarnings("unchecked")
-	private <E extends BaseEntity> FilterBuilder<E, DataFilter> getBuilder(FilterKey key) {
-		if (!builders.hasPluginFor(key)) {
-			return null;
-		}
-		//
-		// default plugin by ordered definition
-		FilterBuilder<E, DataFilter> builder = (FilterBuilder<E, DataFilter>) builders.getPluginFor(key);
-		if (builder.isDisabled()) {
-			return new DisabledFilterBuilder<E>(builder);
-		}
-		String implName = builder.getConfigurationValue(ConfigurationService.PROPERTY_IMPLEMENTATION);
-		if (StringUtils.isEmpty(implName)) {
-			// return default builder - configuration is empty
-			return builder;
-		}
-		//
-		try {
-			// returns bean by name from filter configuration
-			return (FilterBuilder<E, DataFilter>) context.getBean(implName);
-		} catch (Exception ex) {
-			throw new ResultCodeException(
-					CoreResultCode.FILTER_IMPLEMENTATION_NOT_FOUND,
-					ImmutableMap.of(
-						"implementation", implName,
-						"propertyName", key.getName(),
-						"configurationProperty", builder.getConfigurationPropertyName(ConfigurationService.PROPERTY_IMPLEMENTATION)
-						), ex);
-		}
 	}
 
 	@Override
@@ -217,6 +187,26 @@ public class DefaultFilterManager implements FilterManager {
 		configurationService.setValue(
 				defaultBuilder.getConfigurationPropertyName(ConfigurationService.PROPERTY_IMPLEMENTATION),
 				filterBuilderId);
+	}
+	
+	@Override
+	public <T> List<T> checkFilterSizeExceeded(FilterKey filterKey, List<T> filterValues) {
+		int maximum = configurationService.getIntegerValue(PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, DEFAULT_CHECK_FILTER_SIZE_MAXIMUM);
+		if (maximum <= 0) {
+			// check is disabled
+			return filterValues;
+		}
+		if (filterValues == null) {
+			// nothing to check
+			return filterValues;
+		}
+		int size = filterValues.size();
+		if (size <= maximum) {
+			// ok
+			return filterValues;
+		}
+		// not ok
+		throw new FilterSizeExceededException(filterKey, size, maximum);
 	}
 	
 	/**
@@ -333,6 +323,37 @@ public class DefaultFilterManager implements FilterManager {
 			}
 		}
 		return true;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <E extends BaseEntity> FilterBuilder<E, DataFilter> getBuilder(FilterKey key) {
+		if (!builders.hasPluginFor(key)) {
+			return null;
+		}
+		//
+		// default plugin by ordered definition
+		FilterBuilder<E, DataFilter> builder = (FilterBuilder<E, DataFilter>) builders.getPluginFor(key);
+		if (builder.isDisabled()) {
+			return new DisabledFilterBuilder<E>(builder);
+		}
+		String implName = builder.getConfigurationValue(ConfigurationService.PROPERTY_IMPLEMENTATION);
+		if (StringUtils.isEmpty(implName)) {
+			// return default builder - configuration is empty
+			return builder;
+		}
+		//
+		try {
+			// returns bean by name from filter configuration
+			return (FilterBuilder<E, DataFilter>) context.getBean(implName);
+		} catch (Exception ex) {
+			throw new ResultCodeException(
+					CoreResultCode.FILTER_IMPLEMENTATION_NOT_FOUND,
+					ImmutableMap.of(
+						"implementation", implName,
+						"propertyName", key.getName(),
+						"configurationProperty", builder.getConfigurationPropertyName(ConfigurationService.PROPERTY_IMPLEMENTATION)
+						), ex);
+		}
 	}
 
 	/**

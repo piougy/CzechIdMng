@@ -2,16 +2,23 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.context.ApplicationContext;
 
 import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
+import eu.bcvsolutions.idm.core.api.exception.FilterSizeExceededException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterKey;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
@@ -28,7 +35,8 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 public class DefaultFilterManagerUnitTest extends AbstractUnitTest {
 
 	@Mock private ApplicationContext context;
-	@Mock List<? extends FilterBuilder<?, ?>> builders;
+	@Mock private List<? extends FilterBuilder<?, ?>> builders;
+	@Mock private ConfigurationService configurationService;
 	//
 	@InjectMocks private DefaultFilterManager manager;
 	
@@ -150,5 +158,51 @@ public class DefaultFilterManagerUnitTest extends AbstractUnitTest {
 		dto.setFilterBuilderClass((new IdmIdentity() {}).getClass()); // inline classes with null cannonical name
 		filter.setFilterBuilderClass(IdmIdentity.class.getCanonicalName());
 		Assert.assertFalse(manager.passFilter(dto, filter));
+	}
+	
+	@Test
+	public void testCheckFilterSizeExceededDisabled() {
+		Mockito.when(configurationService.getIntegerValue(
+				FilterManager.PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, 
+				FilterManager.DEFAULT_CHECK_FILTER_SIZE_MAXIMUM)).thenReturn(-1);
+		//
+		List<UUID> values = Stream.generate(UUID::randomUUID).limit(11).collect(Collectors.toList());
+		//
+		Assert.assertEquals(values.size(), manager.checkFilterSizeExceeded(new FilterKey(IdmIdentity.class, "mockProperty"), values).size());
+	}
+	
+	@Test(expected = FilterSizeExceededException.class)
+	public void testCheckFilterSizeExceeded() {
+		Mockito.when(configurationService.getIntegerValue(
+				FilterManager.PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, 
+				FilterManager.DEFAULT_CHECK_FILTER_SIZE_MAXIMUM)).thenReturn(10);
+		//
+		List<UUID> values = Stream.generate(UUID::randomUUID).limit(11).collect(Collectors.toList());
+		//
+		Assert.assertEquals(values.size(), manager.checkFilterSizeExceeded(new FilterKey(IdmIdentity.class, "mockProperty"), values).size());
+	}
+	
+	@Test
+	public void testCheckFilterSizeNull() {
+		Mockito.when(configurationService.getIntegerValue(
+				FilterManager.PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, 
+				FilterManager.DEFAULT_CHECK_FILTER_SIZE_MAXIMUM)).thenReturn(10);
+		//
+		Assert.assertNull(manager.checkFilterSizeExceeded(new FilterKey(IdmIdentity.class, "mockProperty"), null));
+	}
+	
+	@Test
+	public void testCheckFilterSize() {
+		Mockito.when(configurationService.getIntegerValue(
+				FilterManager.PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, 
+				FilterManager.DEFAULT_CHECK_FILTER_SIZE_MAXIMUM)).thenReturn(10);
+		//
+		List<UUID> values = Stream.generate(UUID::randomUUID).limit(10).collect(Collectors.toList());
+		//
+		Assert.assertEquals(values.size(), manager.checkFilterSizeExceeded(new FilterKey(IdmIdentity.class, "mockProperty"), values).size());
+		//
+		values = Stream.generate(UUID::randomUUID).limit(9).collect(Collectors.toList());
+		//
+		Assert.assertEquals(values.size(), manager.checkFilterSizeExceeded(new FilterKey(IdmIdentity.class, "mockProperty"), values).size());
 	}
 }

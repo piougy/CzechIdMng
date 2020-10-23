@@ -629,7 +629,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		}
 
 		// System implementers
-		List<UUID> implementers = filter.getImplementers();
+		List<UUID> implementers = checkFilterSizeExceeded("implementers", filter.getImplementers());
 		if (!CollectionUtils.isEmpty(implementers)) {
 			Path<UUID> systemIdPath = root.get(VsRequest_.system).get(SysSystem_.id);
 			

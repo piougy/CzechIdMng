@@ -7292,7 +7292,7 @@
       "message": "Filter for attribute [{{propertyName}}] not found."
     },
     "FILTER_SIZE_EXCEEDED": {
-      "title": "Počet položek filtru překročil maximum",
+      "title": "The number of filter items exceeded the maximum",
       "message": "Count of filter values exceeded limit [{{maximum}}], given [{{currentSize}}]. Remove some filter values to fit limit."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {

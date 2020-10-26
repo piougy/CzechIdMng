@@ -1181,7 +1181,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testSaveEavWithIdentityTogether() {
 		// create owner
-		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto owner = new IdmIdentityDto();
 		//
 		// create definition with parameter
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
@@ -1199,9 +1199,10 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmFormValueDto value = new IdmFormValueDto(attribute);
 		value.setValue(FORM_VALUE_ONE);
 		// + change owner
+		owner.setUsername(getHelper().createName());
 		owner.setFirstName(FORM_VALUE_ONE);
 		owner.getEavs().add(new IdmFormInstanceDto(owner, formDefinitionOne, Lists.newArrayList(value)));
-		identityService.save(owner);
+		owner = identityService.save(owner);
 		//
 		// load saved
 		Map<String, List<IdmFormValueDto>> m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();

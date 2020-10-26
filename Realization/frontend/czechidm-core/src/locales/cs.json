@@ -7247,6 +7247,14 @@
       "title": "Nezdařené nahrání entity",
       "message": "Nepodařilo se nahrát entitu z umístění [{{path}}]."
     },
+    "DEPLOY_SCRIPT_FOLDER_FOUND": {
+      "title": "Složka pro obnovení z disku",
+      "message": "Složka pro obnovení z disku je nastavena: [{{redeployFolder}}]."
+    },
+    "DEPLOY_TEMPLATE_FOLDER_FOUND": {
+      "title": "Složka pro obnovení z disku",
+      "message": "Složka pro obnovení z disku je nastavena: [{{redeployFolder}}]."
+    },
     "FORM_VALUE_WRONG_TYPE": {
       "title": "Špatný formát atributu",
       "message": "Hodnota [{{value}}] atributu [{{formAttribute}}] musí být typu [{{persistentType}}] místo [{{valueType}}]."

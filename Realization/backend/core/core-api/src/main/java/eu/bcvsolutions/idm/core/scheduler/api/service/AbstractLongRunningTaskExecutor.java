@@ -316,10 +316,19 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 			}
 			LOG.error(resultModel.toString(), ex);
 			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-		} else if(OperationState.isRunnable(task.getResultState())) { 
+		} else if (OperationState.isRunnable(task.getResultState())) { 
 			// executed standardly
 			LOG.debug("Long running task ended [{}] standardly, previous state [{}], result [{}].", longRunningTaskId, task.getResultState(), result);
-			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
+			OperationResult operationResult;
+			if (result instanceof OperationResult) {
+				// operation result is prepared outside as LRT result
+				operationResult = (OperationResult) result;
+			} else {
+				operationResult = new OperationResult();
+			}
+			operationResult.setState(OperationState.EXECUTED);
+			//
+			task.setResult(operationResult);
 		}
 		// after update state is send notification with information about end of LRT
 		task = longRunningTaskService.save(task);

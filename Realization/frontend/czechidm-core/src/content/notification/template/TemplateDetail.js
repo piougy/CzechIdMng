@@ -6,13 +6,14 @@ import * as Basic from '../../../components/basic';
 import * as Utils from '../../../utils';
 import { NotificationTemplateManager, SecurityManager } from '../../../redux';
 
-/**
-* Basic detail for template detail,
-* this detail is also used for create entity
-*/
-
 const manager = new NotificationTemplateManager();
 
+/**
+* Notification emplate detail.
+*
+* @author Ondřej Kopr
+* @author Radek Tomiška
+*/
 export default class TemplateDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -122,7 +123,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
     }
     const entities = [];
     entities.push(entity);
-    this.refs['confirm-' + actionValue].show(
+    this.refs[`confirm-${ actionValue }`].show(
       this.i18n(`action.${actionValue}.message`, { count: 1, record: manager.getNiceLabel(entity), records: manager.getNiceLabel(entity) }),
       this.i18n(`action.${actionValue}.header`, { count: 1, records: manager.getNiceLabel(entity) })
     ).then(() => {
@@ -139,7 +140,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
     if (entity.parameter) {
       const suggestions = [];
       const parameters = _.split(entity.parameter, ',');
-      parameters.forEach( (parameter) => {
+      parameters.forEach((parameter) => {
         suggestions.push({ text: _.trim(parameter), value: _.trim(parameter) });
       });
       components = {
@@ -159,7 +160,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-backup" level="danger"/>
         <Basic.Confirm ref="confirm-redeploy" level="danger"/>
         <form onSubmit={this.save.bind(this)}>
@@ -170,23 +171,26 @@ export default class TemplateDetail extends Basic.AbstractContent {
             readOnly={ !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE') }
             style={{ padding: '15px 15px 0 15px' }}>
             <Basic.Row>
-              <div className="col-lg-3">
+              <Basic.Col lg={ 3 }>
                 <Basic.TextField
-                  ref="code" readOnly={entity.unmodifiable}
+                  ref="code"
+                  readOnly={entity.unmodifiable}
                   label={this.i18n('entity.NotificationTemplate.code')}
                   required
                   max={255}/>
-              </div>
-              <div className="col-lg-9">
+              </Basic.Col>
+              <Basic.Col lg={ 9 }>
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('entity.NotificationTemplate.name')}
                   required
-                  max={255}/>
-              </div>
+                  max={ 255 }/>
+              </Basic.Col>
             </Basic.Row>
             <Basic.TextField
-              ref="parameter" readOnly={entity.unmodifiable} max={255}
+              ref="parameter"
+              readOnly={entity.unmodifiable}
+              max={255}
               label={this.i18n('entity.NotificationTemplate.parameter.name')}
               helpBlock={this.i18n('entity.NotificationTemplate.parameter.help')} />
             <Basic.TextField
@@ -198,7 +202,8 @@ export default class TemplateDetail extends Basic.AbstractContent {
               label={this.i18n('entity.NotificationTemplate.subject')}
               required
               max={255}/>
-            <Basic.Checkbox readOnly={entity.unmodifiable}
+            <Basic.Checkbox
+              readOnly={entity.unmodifiable}
               ref="unmodifiable"
               label={this.i18n('entity.NotificationTemplate.unmodifiable.name')}
               helpBlock={this.i18n('entity.NotificationTemplate.unmodifiable.help')}/>
@@ -236,7 +241,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
           <input type="submit" className="hidden"/>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

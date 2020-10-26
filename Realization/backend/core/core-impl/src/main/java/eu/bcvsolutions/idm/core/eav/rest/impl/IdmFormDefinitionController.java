@@ -685,6 +685,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		String mimetype = attachment.getMimetype();
 		InputStream is = attachmentManager.getAttachmentData(attachment.getId());
 		try {
+			// FIXME: add filename regex - e.g. AttachmentManager.getValidFileName(text);
 			BodyBuilder response = ResponseEntity
 					.ok()
 					.contentLength(is.available())

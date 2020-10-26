@@ -11,7 +11,7 @@ import * as Utils from '../utils';
  */
 
 const DEFAULT_DOWNLOAD_LINK_PREFIX = '/attachments/';
-const DEFAULT_DOWNLOAD_LINK_SUFFIX = '/download/';
+const DEFAULT_DOWNLOAD_LINK_SUFFIX = '/download';
 
 export default class AttachmentService extends AbstractRequestService {
 
@@ -83,7 +83,7 @@ export default class AttachmentService extends AbstractRequestService {
         downloadUrl = `${ downloadUrl }/${ downloadUrlSuffix }`;
       }
     } else {
-      downloadUrl = `/${ DEFAULT_DOWNLOAD_LINK_PREFIX }/${ encodeURIComponent(attachmentId) }/${ DEFAULT_DOWNLOAD_LINK_SUFFIX }`;
+      downloadUrl = `${ DEFAULT_DOWNLOAD_LINK_PREFIX }${ encodeURIComponent(attachmentId) }${ DEFAULT_DOWNLOAD_LINK_SUFFIX }`;
     }
     if (downloadUrl.includes('?')) {
       downloadUrl = `${ downloadUrl }&cidmst=${ AuthenticateService.getTokenCIDMST() }`;

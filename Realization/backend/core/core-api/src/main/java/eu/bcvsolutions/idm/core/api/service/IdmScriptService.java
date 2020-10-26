@@ -15,4 +15,9 @@ public interface IdmScriptService extends
 		Recoverable<IdmScriptDto>,
 		AuthorizableService<IdmScriptDto>,
 		CodeableService<IdmScriptDto> {
+	
+	/**
+	 * Folder for scanning / initializing / redeploy scripts.
+	 */
+	String SCRIPT_FOLDER = "idm.sec.core.script.folder";
 }

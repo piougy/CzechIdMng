@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -36,7 +35,6 @@ import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -310,27 +308,22 @@ public class IdmLongRunningTaskController
 			@PathVariable @NotNull String attachmentId) {
 		
 		// check if user has permission for read the long running task
-		IdmLongRunningTaskDto longRunningTaskDto = super.getDto(backendId);
+		IdmLongRunningTaskDto longRunningTaskDto = getDto(backendId);
 		if (longRunningTaskDto == null) {
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
 		//
-		IdmAttachmentDto attachmentDto = longRunningTaskManager.getAttachment(
+		IdmAttachmentDto attachment = longRunningTaskManager.getAttachment(
 				longRunningTaskDto.getId(), 
 				DtoUtils.toUuid(attachmentId), 
 				IdmBasePermission.READ);
-		InputStream is = attachmentManager.getAttachmentData(attachmentDto.getId(), IdmBasePermission.READ);
-
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-		String attachmentName = String.format(
-				"%s-%s", 
-				SpinalCase.format(longRunningTaskDto.getTaskType()),
-				longRunningTaskDto.getCreated().format(formatter)
-		);
+		InputStream is = attachmentManager.getAttachmentData(attachment.getId(), IdmBasePermission.READ);
+		String attachmentName = attachment.getName();
+		//
 		return ResponseEntity.ok()
-				.contentLength(attachmentDto.getFilesize())
-				.contentType(MediaType.parseMediaType(attachmentDto.getMimetype()))
-				.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s.%s\"", attachmentName, attachmentDto.getAttachmentType()))
+				.contentLength(attachment.getFilesize())
+				.contentType(MediaType.parseMediaType(attachment.getMimetype()))
+				.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", attachmentName))
 				.body(new InputStreamResource(is));
 	}
 

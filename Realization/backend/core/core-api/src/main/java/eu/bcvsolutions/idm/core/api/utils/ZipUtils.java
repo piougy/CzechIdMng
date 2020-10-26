@@ -67,11 +67,20 @@ public class ZipUtils {
 	 * Compress given source file or directory (recursively) to destination file on given path.
 	 *
 	 * @param source file or folder. If folder is given, then children will be in destination zip file.
-	 * @param destinationFilePath zip file path
+	 * @param destinationFilePath zip file path, new file will be created or given can be used.
 	 * @throws IOException
 	 */
 	public static void compress(File source, String destinationFilePath) throws IOException {
-		Path zipFilePath = Files.createFile(Paths.get(destinationFilePath));
+		Path zipFile = Paths.get(destinationFilePath);
+		Path zipFilePath = null;
+		if (Files.exists(zipFile)) {
+			// given file will be used as target
+			zipFilePath = zipFile;
+		} else {
+			// ne file will be created
+			zipFilePath = Files.createFile(zipFile);
+		}
+		//
 	    try (ZipOutputStream zipStream = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
 	        Path pp = Paths.get(source.getPath());
 	        List<Path> children = Files

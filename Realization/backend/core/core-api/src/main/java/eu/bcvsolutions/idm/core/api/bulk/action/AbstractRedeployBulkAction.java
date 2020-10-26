@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.service.Recoverable;
  * for entities the service of which implements {@link Recoverable}.
  * 
  * @author Ondrej Husnik
+ * @author Radek Tomiška
  * @since 10.6.0
  */
 public abstract class AbstractRedeployBulkAction<DTO extends AbstractDto, F extends BaseFilter>
@@ -30,13 +31,14 @@ public abstract class AbstractRedeployBulkAction<DTO extends AbstractDto, F exte
 			Recoverable<DTO> service = (Recoverable<DTO>) getService();
 			// call redeploy
 			service.redeploy(dto);
+			//
+			return new OperationResult(OperationState.EXECUTED);
 		} catch (Exception ex) {
 			return new OperationResult//
 					.Builder(OperationState.EXCEPTION)//
 							.setCause(ex)//
 							.build();//
 		}
-		return new OperationResult(OperationState.EXECUTED);
 	}
 	
 	@Override

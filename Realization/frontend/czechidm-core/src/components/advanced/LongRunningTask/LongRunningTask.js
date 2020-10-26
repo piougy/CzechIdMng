@@ -240,7 +240,7 @@ class LongRunningTask extends Basic.AbstractContent {
     //
     const active = OperationStateEnum.findSymbolByKey(_entity.resultState) === OperationStateEnum.RUNNING;
     return (
-      <Basic.Panel showLoading={_showLoading}>
+      <Basic.Panel showLoading={ _showLoading }>
         <Basic.Confirm ref="confirm-cancel" level="warning"/>
         <Basic.Confirm ref="confirm-interrupt" level="danger"/>
         <Basic.PanelHeader text={
@@ -270,12 +270,18 @@ class LongRunningTask extends Basic.AbstractContent {
               { now: _entity.failedItemCount, bsStyle: 'danger' },
               { now: _entity.warningItemCount, bsStyle: 'warning' },
               {
-                now: (_entity.counter > 0 && !_entity.successItemCount && !_entity.warningItemCount && !_entity.failedItemCount)
+                now:
+                  (_entity.counter > 0 && !_entity.successItemCount && !_entity.warningItemCount && !_entity.failedItemCount)
                   ?
                   _entity.counter
                   :
                   _entity.successItemCount,
-                bsStyle: 'success'
+                bsStyle:
+                  _entity && _entity.result && _entity.result.state === 'EXCEPTION'
+                  ?
+                  'danger'
+                  :
+                  'success'
               }]
             }/>
           { this._renderInfoComponent(_entity ? _entity.result : null)}

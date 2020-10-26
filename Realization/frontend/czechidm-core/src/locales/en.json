@@ -7195,6 +7195,14 @@
       "title": "Deployment of entity failed",
       "message": "Deploying entity from path [{{path}}] failed."
     },
+    "DEPLOY_SCRIPT_FOLDER_FOUND": {
+      "title": "Recovery folder",
+      "message": "Configured recovery folder: [{{redeployFolder}}]."
+    },
+    "DEPLOY_TEMPLATE_FOLDER_FOUND": {
+      "title": "Recovery folder",
+      "message": "Configured recovery folder: [{{redeployFolder}}]."
+    },
     "FORM_VALUE_WRONG_TYPE": {
       "title": "Wrong format of attributes",
       "message": "Value [{{value}}] of attribute [{{formAttribute}}] must be type of [{{persistentType}}] instead of [{{valueType}}]."

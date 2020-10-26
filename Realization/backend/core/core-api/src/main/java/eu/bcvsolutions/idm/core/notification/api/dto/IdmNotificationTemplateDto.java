@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.api.dto;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import org.springframework.hateoas.core.Relation;
 
@@ -9,7 +10,7 @@ import org.springframework.hateoas.core.Relation;
  * @author Peter Sourek
  */
 @Relation(collectionRelation = "notificationTemplates")
-public class IdmNotificationTemplateDto extends AbstractDto {
+public class IdmNotificationTemplateDto extends AbstractDto implements Codeable {
 
     private static final long serialVersionUID = 1L;
 
@@ -47,6 +48,7 @@ public class IdmNotificationTemplateDto extends AbstractDto {
         this.name = name;
     }
 
+    @Override
     public String getCode() {
         return code;
     }

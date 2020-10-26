@@ -73,8 +73,6 @@ public class DefaultIdmScriptService
 		extends AbstractReadWriteDtoService<IdmScriptDto, IdmScript, IdmScriptFilter>
 		implements IdmScriptService {
 
-	// TODO: script + common template configuration
-	private static final String SCRIPT_FOLDER = "idm.sec.core.script.folder";
 	private static final String SCRIPT_FILE_SUFIX = "idm.sec.core.script.fileSuffix";
 	private static final String DEFAULT_SCRIPT_FILE_SUFIX = "**/**.xml";
 	private static final String SCRIPT_DEFAULT_BACKUP_FOLDER = "scripts/";
@@ -187,7 +185,7 @@ public class DefaultIdmScriptService
 	}
 
 	@Override
-	public void backup(IdmScriptDto dto) {
+	public File backup(IdmScriptDto dto) {
 		String directory = getDirectoryForBackup();
 		//
 		Marshaller jaxbMarshaller = initJaxbMarshaller();
@@ -212,6 +210,8 @@ public class DefaultIdmScriptService
 		LOG.info("Backup for script code: [{}] to file: [{}]", dto.getCode(), file.getAbsolutePath());
 		try {
 			jaxbMarshaller.marshal(type, file);
+			//
+			return file;
 		} catch (JAXBException e) {
 			LOG.error("Backup for script: {} failed, error message: {}", dto.getCode(),
 					e.getLocalizedMessage(), e);

@@ -7,8 +7,11 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -18,6 +21,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +35,23 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.api.service.Recoverable;
+import eu.bcvsolutions.idm.core.api.utils.ZipUtils;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Integration tests for {@link ScriptBackupBulkAction}
+ * Integration tests for {@link ScriptBackupBulkAction}.
+ * 
+ * FIXME: prevent to reuse test script.
  *
  * @author Ondrej Husnik
- *
+ * 
  */
-
 public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTest {
 	
 	private static final String TEST_SCRIPT_CODE_1 = "testScript1";
@@ -52,6 +62,10 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 
 	@Autowired
 	private IdmScriptService scriptService;
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
+	@Autowired
+	private AttachmentManager attachmentManager;
 	
 	@Before
 	public void login() {
@@ -67,14 +81,14 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 	}
 	
 	@Test
-	public void processBulkActionByIds() {
-		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
+	public void processBulkActionByIds() throws IOException {
+		IdmScriptDto script = scriptService.getByCode(TEST_SCRIPT_CODE_1);
 		Set<UUID> scripts = new HashSet<UUID>();
-		scripts.add(script1.getId());
+		scripts.add(script.getId());
 		
-		script1.setDescription(CHANGED_TEST_DESC);
-		script1 = scriptService.save(script1);
-		assertEquals(script1.getDescription(), CHANGED_TEST_DESC);
+		script.setDescription(CHANGED_TEST_DESC);
+		IdmScriptDto scriptOne = scriptService.save(script);
+		assertEquals(scriptOne.getDescription(), CHANGED_TEST_DESC);
 		
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmScript.class, ScriptBackupBulkAction.NAME);
 		bulkAction.setIdentifiers(scripts);
@@ -82,9 +96,27 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 		checkResultLrt(processAction, 1l, null, null);
 		
 		// test the file exits and contains set description
-		testBackupFileContent(script1, loggedUser.getUsername());
+		testBackupFileContent(scriptOne, loggedUser.getUsername());
+		
+		// test attachment is created for LRT
+		IdmLongRunningTaskDto task = longRunningTaskManager.getLongRunningTask(processAction.getLongRunningTaskId());
+		List<IdmAttachmentDto> attachments = attachmentManager.getAttachments(task, null).getContent();
+		Assert.assertEquals(1, attachments.size());
+		try (InputStream attachmentData = attachmentManager.getAttachmentData(attachments.get(0).getId())) {
+			Assert.assertNotNull(attachmentData);
+			// save
+			File zipFile = attachmentManager.createTempFile();
+			Files.copy(attachmentData, zipFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			// and extract file
+			Path zipFolder = attachmentManager.createTempDirectory(null);
+			ZipUtils.extract(zipFile, zipFolder.toString());
+			//
+			File[] listFiles = zipFolder.toFile().listFiles();
+			Assert.assertEquals(1, listFiles.length);
+			Assert.assertEquals(String.format("%s.xml", scriptOne.getCode()), listFiles[0].getName());
+		}
+		
 	}
-	
 	
 	@Test
 	public void prevalidationBulkActionByIds() {

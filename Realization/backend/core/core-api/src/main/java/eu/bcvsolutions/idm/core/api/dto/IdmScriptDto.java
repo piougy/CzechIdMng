@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 
 /**
@@ -11,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
  *
  */
 @Relation(collectionRelation = "scripts")
-public class IdmScriptDto extends AbstractDto {
+public class IdmScriptDto extends AbstractDto implements Codeable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -54,6 +55,7 @@ public class IdmScriptDto extends AbstractDto {
 		this.description = description;
 	}
 
+	@Override
 	public String getCode() {
 		return code;
 	}

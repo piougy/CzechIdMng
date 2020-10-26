@@ -37,6 +37,8 @@ export default class ScriptDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entity } = this.props;
     this._initForm(entity);
   }

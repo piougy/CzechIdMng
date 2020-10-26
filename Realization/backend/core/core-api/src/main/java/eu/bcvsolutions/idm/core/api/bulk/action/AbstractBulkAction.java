@@ -18,6 +18,7 @@ import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -180,16 +181,16 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 			IdmIdentityDto identityDto = identityService.get(task.getCreatorId());
 			ConfigurationService configurationService = getConfigurationService();
 			if (identityDto != null) {
-				// TODO: coreModuleDescriptor is in impl
-				notificationManager.send("core:bulkActionEnd",
+				notificationManager.send(
+						CoreModule.TOPIC_BULK_ACTION_END,
 						new IdmMessageDto.Builder()
-						.addParameter("action", getAction())
-						.addParameter("task", task)
-						.addParameter("owner", identityDto)
-						.addParameter("result", end)
-						.addParameter("detailUrl", configurationService.getFrontendUrl(String.format("scheduler/all-tasks/%s/detail", task.getId())))
-						.addParameter("processItemslUrl", configurationService.getFrontendUrl(String.format("scheduler/all-tasks/%s/items", task.getId())))
-						.build(),
+							.addParameter("action", getAction())
+							.addParameter("task", task)
+							.addParameter("owner", identityDto)
+							.addParameter("result", end)
+							.addParameter("detailUrl", configurationService.getFrontendUrl(String.format("scheduler/all-tasks/%s/detail", task.getId())))
+							.addParameter("processItemslUrl", configurationService.getFrontendUrl(String.format("scheduler/all-tasks/%s/items", task.getId())))
+							.build(),
 						identityDto);
 			}
 		}

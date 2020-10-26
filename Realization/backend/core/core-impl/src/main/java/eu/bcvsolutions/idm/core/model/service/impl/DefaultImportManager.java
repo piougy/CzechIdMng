@@ -1022,7 +1022,7 @@ public class DefaultImportManager implements ImportManager {
 	}
 
 	/**
-	 * Extract ZIP in attachment to the tamp directory
+	 * Extract ZIP in attachment to the temp directory.
 	 * 
 	 * @param attachment
 	 * @return

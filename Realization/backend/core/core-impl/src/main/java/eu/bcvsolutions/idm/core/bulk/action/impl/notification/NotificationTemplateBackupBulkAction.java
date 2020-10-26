@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
  * Backup given notification template
  *
  * @author Ondrej Husnik
- *
+ * @since 10.6.0
  */
 @Component(NotificationTemplateBackupBulkAction.NAME)
 @Description("Backup given notification template.")

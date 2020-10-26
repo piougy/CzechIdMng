@@ -10,13 +10,12 @@ import TemplateDetail from './TemplateDetail';
 const manager = new NotificationTemplateManager();
 
 /**
- * Notification template detail content
+ * Notification template detail content.
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 class TemplateContent extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.notificationTemplate';
@@ -43,14 +42,14 @@ class TemplateContent extends Basic.AbstractContent {
     const { template, showLoading } = this.props;
     const isNew = this._getIsNew();
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={
             isNew
             ?
             this.i18n('titleNew')
             :
             this.i18n('title')
-          } />
+        } />
 
         <Basic.PageHeader>
           <Basic.Icon value="fa:envelope-square"/>
@@ -64,15 +63,14 @@ class TemplateContent extends Basic.AbstractContent {
           }
         </Basic.PageHeader>
 
-        <Basic.Panel showLoading={showLoading} >
+        <Basic.Panel showLoading={ showLoading } >
           {
             !template
             ||
-            <TemplateDetail entity={template} isNew={isNew ? true : false} uiKey="templateDetail" />
+            <TemplateDetail entity={ template } isNew={ !!isNew } uiKey="templateDetail" />
           }
         </Basic.Panel>
-
-      </div>
+      </Basic.Div>
     );
   }
 }

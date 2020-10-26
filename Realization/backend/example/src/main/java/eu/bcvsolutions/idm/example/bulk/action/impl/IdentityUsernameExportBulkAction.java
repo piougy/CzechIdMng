@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import com.google.common.net.MediaType;
+
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
@@ -39,7 +41,7 @@ import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
  * Result will be able to download via long running task controller.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 
 @Enabled(ExampleModuleDescriptor.MODULE_ID)
@@ -90,41 +92,35 @@ public class IdentityUsernameExportBulkAction extends AbstractBulkAction<IdmIden
 	}
 
 	@Override
-	protected OperationResult end(OperationResult result, Exception ex) {
-		if (ex != null) {
-			return super.end(result, ex);
+	protected OperationResult end(OperationResult result, Exception exception) {
+		if (exception != null 
+				|| (result != null && OperationState.EXECUTED != result.getState())) {
+			return super.end(result, exception);
 		}
 
-		IdmLongRunningTaskDto runningTaskDto = this.getLongRunningTaskService().get(this.getLongRunningTaskId());
-		IdmAttachmentDto attachmentDto = new IdmAttachmentDto();
+		IdmLongRunningTaskDto task = this.getLongRunningTaskService().get(this.getLongRunningTaskId());
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
 		ByteArrayInputStream stream;
 		try {
 			stream = new ByteArrayInputStream(this.result.toString().getBytes(StandardCharsets.UTF_8.toString()));
-		} catch (UnsupportedEncodingException e) {
-			return new OperationResult.Builder(OperationState.EXCEPTION).setCause(e).build();
+		} catch (UnsupportedEncodingException ex) {
+			return super.end(result, ex);
 		}
 
-		attachmentDto.setAttachmentType("csv");
-		attachmentDto.setInputData(stream);
-		attachmentDto.setEncoding(AttachableEntity.DEFAULT_ENCODING);
-		attachmentDto.setMimetype(AttachableEntity.DEFAULT_MIMETYPE);
-		attachmentDto.setName(getName());
-		attachmentDto = attachmentManager.saveAttachment(runningTaskDto, attachmentDto);
+		attachment.setInputData(stream);
+		attachment.setEncoding(AttachableEntity.DEFAULT_ENCODING);
+		attachment.setMimetype(MediaType.CSV_UTF_8.toString());
+		attachment.setName(String.format("%s.csv", getName()));
+		attachment = attachmentManager.saveAttachment(task, attachment);
 
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put(AttachableEntity.PARAMETER_ATTACHMENT_ID, attachmentDto.getId());
-	
+		parameters.put(AttachableEntity.PARAMETER_DOWNLOAD_URL, String.format("long-running-tasks/%s/download/%s",
+				task.getId(), attachment.getId()));
+		
 		DefaultResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD, parameters);
 		OperationResult operationResult = new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build();
 
-		super.end(operationResult, ex);
-
-		// Save LRT with given operation result, because in parent end is resaved
-		runningTaskDto.setRunning(false);
-		runningTaskDto.setResult(operationResult);
-		runningTaskDto = this.getLongRunningTaskService().save(runningTaskDto);
-
-		return operationResult;
+		return super.end(operationResult, null);
 	}
 
 	@Override

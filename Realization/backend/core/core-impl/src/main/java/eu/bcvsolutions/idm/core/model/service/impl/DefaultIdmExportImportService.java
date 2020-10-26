@@ -54,8 +54,7 @@ public class DefaultIdmExportImportService
 			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
 	}
-	
-	
+
 	@Override
 	@Transactional
 	public void deleteInternal(IdmExportImportDto dto) {
@@ -127,7 +126,4 @@ public class DefaultIdmExportImportService
 		//
 		return predicates;
 	}
-	
-
-
 }

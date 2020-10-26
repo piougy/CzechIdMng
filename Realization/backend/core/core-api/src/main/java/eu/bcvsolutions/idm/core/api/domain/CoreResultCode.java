@@ -267,11 +267,13 @@ public enum CoreResultCode implements ResultCode {
 	WF_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Error occured during workflow execution: %s"),
 	MODEL_MAPPER_SERVICE_INIT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Service [%s] cannot be used, model mapper is wrongly inited, try to restart this application."),
 	//
-	// backup
-	BACKUP_FOLDER_FOUND(HttpStatus.OK, "Backup folder [%s] is configured application properties."),
+	// backup and redeploy
+	BACKUP_FOLDER_FOUND(HttpStatus.OK, "Backup folder [%s] is configured in application properties."),
 	BACKUP_FOLDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Backup folder doesn't exist in application properties, please specify this property: [%s]."),
 	BACKUP_FAIL(HttpStatus.BAD_REQUEST, "Backup for script code: [%s] failed. Error message: [%s]."),
 	DEPLOY_ERROR(HttpStatus.BAD_REQUEST, "Failed load entity from path [%s]."),
+	DEPLOY_SCRIPT_FOLDER_FOUND(HttpStatus.OK, "Folder (or classpath) setting for redeploy scripts [%s] is configured in application properties."),
+	DEPLOY_TEMPLATE_FOLDER_FOUND(HttpStatus.OK, "Folder (or classpath) setting for redeploy templates [%s] is configured in application properties."),
 	XML_JAXB_INIT_ERROR(HttpStatus.BAD_REQUEST, "Failed init JAXB instance."),
 	//
 	// Rest template

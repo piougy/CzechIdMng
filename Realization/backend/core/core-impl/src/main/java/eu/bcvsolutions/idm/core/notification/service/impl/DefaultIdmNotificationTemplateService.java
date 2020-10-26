@@ -296,7 +296,7 @@ public class DefaultIdmNotificationTemplateService extends
 	}
 
 	@Override
-	public void backup(IdmNotificationTemplateDto dto) {
+	public File backup(IdmNotificationTemplateDto dto) {
 		String directory = getDirectoryForBackup();
 		//
 		Marshaller jaxbMarshaller = initJaxbMarshaller();
@@ -318,6 +318,8 @@ public class DefaultIdmNotificationTemplateService extends
 		File file = new File(getBackupFileName(directory, dto));
 		try {
 			jaxbMarshaller.marshal(type, file);
+			//
+			return file;
 		} catch (JAXBException e) {
 			LOG.error("Backup for template: {} failed",
 					dto.getCode());

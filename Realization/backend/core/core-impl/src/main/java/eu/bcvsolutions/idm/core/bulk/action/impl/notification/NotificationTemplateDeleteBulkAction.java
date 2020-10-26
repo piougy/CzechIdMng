@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
  * Delete given notification template
  *
  * @author Ondrej Husnik
- *
+ * @since 10.6.0
  */
 @Component(NotificationTemplateDeleteBulkAction.NAME)
 @Description("Delete given notification template.")

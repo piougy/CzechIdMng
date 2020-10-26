@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.File;
+
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
 /**
@@ -36,8 +38,9 @@ public interface Recoverable<DTO extends AbstractDto> {
 	 * 
 	 * @param dto
 	 * @param folder
+	 * @retur backup file
 	 */
-	void backup(DTO dto);
+	File backup(DTO dto);
 
 	/**
 	 * Redeploy DTO. Redeployed will be only DTOs, that has pattern in resource.

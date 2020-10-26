@@ -7,8 +7,11 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -18,6 +21,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,20 +32,26 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.service.Recoverable;
+import eu.bcvsolutions.idm.core.api.utils.ZipUtils;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Integration tests for {@link RedeployBulkAction}
+ * Integration tests for {@link RedeployBulkAction}.
+ * 
+ * 
+ * FIXME: prevent to reuse test template.
  *
  * @author Ondrej Husnik
- *
  */
-
 public class NotificationTemplateBackupBulkActionIntegrationTest extends AbstractBulkActionTest {
 	
 	private static final String TEST_TEMPLATE = "testTemplate";
@@ -52,6 +62,10 @@ public class NotificationTemplateBackupBulkActionIntegrationTest extends Abstrac
 
 	@Autowired
 	private IdmNotificationTemplateService templateService;
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
+	@Autowired
+	private AttachmentManager attachmentManager;
 	
 	
 	@Before
@@ -68,21 +82,39 @@ public class NotificationTemplateBackupBulkActionIntegrationTest extends Abstrac
 	}
 	
 	@Test
-	public void processBulkActionByIds() {
-		IdmNotificationTemplateDto template1 = templateService.getByCode(TEST_TEMPLATE);
+	public void processBulkActionByIds() throws IOException {
+		IdmNotificationTemplateDto template = templateService.getByCode(TEST_TEMPLATE);
 		Set<UUID> templates = new HashSet<UUID>();
-		templates.add(template1.getId());
+		templates.add(template.getId());
 		
-		template1.setSubject(CHANGED_TEST_DESC);
-		template1 = templateService.save(template1);
-		assertEquals(template1.getSubject(), CHANGED_TEST_DESC);
+		template.setSubject(CHANGED_TEST_DESC);
+		IdmNotificationTemplateDto templateOne = templateService.save(template);
+		assertEquals(templateOne.getSubject(), CHANGED_TEST_DESC);
 		
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmNotificationTemplate.class,  NotificationTemplateBackupBulkAction.NAME);
 		bulkAction.setIdentifiers(templates);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 1l, null, null);
 		
-		testBackupFileContent(template1, loggedUser.getUsername());
+		testBackupFileContent(templateOne, loggedUser.getUsername());
+		
+		// test attachment is created for LRT
+		IdmLongRunningTaskDto task = longRunningTaskManager.getLongRunningTask(processAction.getLongRunningTaskId());
+		List<IdmAttachmentDto> attachments = attachmentManager.getAttachments(task, null).getContent();
+		Assert.assertEquals(1, attachments.size());
+		try (InputStream attachmentData = attachmentManager.getAttachmentData(attachments.get(0).getId())) {
+			Assert.assertNotNull(attachmentData);
+			// save
+			File zipFile = attachmentManager.createTempFile();
+			Files.copy(attachmentData, zipFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			// and extract file
+			Path zipFolder = attachmentManager.createTempDirectory(null);
+			ZipUtils.extract(zipFile, zipFolder.toString());
+			//
+			File[] listFiles = zipFolder.toFile().listFiles();
+			Assert.assertEquals(1, listFiles.length);
+			Assert.assertEquals(String.format("%s.xml", templateOne.getCode()), listFiles[0].getName());
+		}
 	}
 	
 	@Test

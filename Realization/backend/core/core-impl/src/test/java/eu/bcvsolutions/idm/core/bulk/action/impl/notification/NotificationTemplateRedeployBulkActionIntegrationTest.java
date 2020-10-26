@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,8 +118,9 @@ public class NotificationTemplateRedeployBulkActionIntegrationTest extends Abstr
 		// None info results
 		ResultModels resultModels = bulkActionManager.prevalidate(bulkAction);
 		List<ResultModel> results = resultModels.getInfos();
-		assertEquals(1, results.size());
-		assertEquals(results.get(0).getStatusEnum(), CoreResultCode.BACKUP_FOLDER_NOT_FOUND.toString());
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(n -> n.getStatusEnum().equals(CoreResultCode.BACKUP_FOLDER_NOT_FOUND.toString())));
+		Assert.assertTrue(results.stream().anyMatch(n -> n.getStatusEnum().equals(CoreResultCode.DEPLOY_TEMPLATE_FOLDER_FOUND.toString())));
 	}
 	
 

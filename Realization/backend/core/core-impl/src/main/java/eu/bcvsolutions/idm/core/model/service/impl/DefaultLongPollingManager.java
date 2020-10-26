@@ -151,6 +151,9 @@ public class DefaultLongPollingManager implements LongPollingManager{
 
 		}
 		// Try to find, if some from not finished entities were changed
+		
+		// TODO: For search SysSyncLogs the filter by modifiedFrom didn't work properly.
+		// I didn't found reason why, but I hope using sort by created and modified fields will be works better.
 		// filter.setModifiedFrom(timeStamp);
 		List<AbstractDto> changedRequestsFromLastChecks = service
 				.find(filter, PageRequest.of(0, 1,

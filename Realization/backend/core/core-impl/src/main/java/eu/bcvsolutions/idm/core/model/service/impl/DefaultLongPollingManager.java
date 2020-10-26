@@ -151,19 +151,21 @@ public class DefaultLongPollingManager implements LongPollingManager{
 
 		}
 		// Try to find, if some from not finished entities were changed
-		filter.setModifiedFrom(timeStamp);
+		// filter.setModifiedFrom(timeStamp);
 		List<AbstractDto> changedRequestsFromLastChecks = service
-				.find(filter, PageRequest.of(0, 1000,
+				.find(filter, PageRequest.of(0, 1,
 				Sort.by(Direction.DESC, AbstractEntity_.created.getName(), AbstractEntity_.modified.getName())))
 				.getContent();
 
 		if (!changedRequestsFromLastChecks.isEmpty()) {
 			AbstractDto changedRequestsFromLastCheck = changedRequestsFromLastChecks.get(0);
 			ZonedDateTime lastModified = this.getLastTimeStamp(changedRequestsFromLastCheck);
-			subscriber.setLastTimeStamp(lastModified);
-			// Notify FE -> Some of the role-request was changed (refresh must be executed)
-			deferredResult.setResult(new OperationResultDto(OperationState.RUNNING));
-			return;
+			if (lastModified.isAfter(timeStamp)) {
+				subscriber.setLastTimeStamp(lastModified);
+				// Notify FE -> Some of the role-request was changed (refresh must be executed)
+				deferredResult.setResult(new OperationResultDto(OperationState.RUNNING));
+				return;
+			}
 		}
 		// Nothing was changed
 	}

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import eu.bcvsolutions.idm.core.api.event.EntityEventLock;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -84,7 +85,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.model.event.DefaultEntityEventLock;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -113,7 +113,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Autowired private ModelMapper modelMapper;
 	@Autowired private ObjectMapper mapper;
 	@Autowired private IdmCacheManager cacheManager;
-	@Autowired private DefaultEntityEventLock lock;
+	@Autowired private EntityEventLock lock;
 	//
 	@Autowired @Lazy private EnabledEvaluator enabledEvaluator;
 	@Autowired @Lazy private IdmEntityEventService entityEventService;

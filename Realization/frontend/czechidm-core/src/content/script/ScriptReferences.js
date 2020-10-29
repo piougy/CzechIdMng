@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import * as Basic from '../../components/basic';
-import { ScriptManager } from '../../redux';
 import uuid from 'uuid';
 import Helmet from 'react-helmet';
+//
+import * as Basic from '../../components/basic';
+import { ScriptManager } from '../../redux';
 //
 import ScriptTable from './ScriptTable';
 
@@ -17,10 +18,6 @@ const scriptManager = new ScriptManager();
  * @author Patrik Stloukal
  */
 class ScriptReferences extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.scripts.references';
@@ -80,7 +77,7 @@ class ScriptReferences extends Basic.AbstractContent {
       </div>
     );
   }
-  }
+}
 
 ScriptReferences.propTypes = {
   _entity: PropTypes.object,

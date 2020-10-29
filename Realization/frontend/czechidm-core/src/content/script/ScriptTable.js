@@ -131,7 +131,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     //
     return (
       <Basic.Div>
-        <Basic.Panel style={{ margin: '5px 5px 0 5px' }}>
+        <Basic.Panel style={{ margin: '5px 5px 0 5px' }} rendered={ !disableAdd }>
           <Basic.Dropzone
             ref="dropzone"
             accept=".zip,text/xml"

@@ -613,34 +613,36 @@ public class DefaultIdmPasswordPolicyService
 				String controlledValue = null;
 				boolean containsSubstring = false;
 
-				if (IdmPasswordPolicyIdentityAttributes.EMAIL.name().equals(attributeToCheck)) {
-					value = identity.getEmail();
-					controlledValue = PASSWORD_SIMILAR_EMAIL;
-					containsSubstring = containsEmailSubstring(passwordWithAccents, value);
-				} else if (IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name().equals(attributeToCheck)) {
-					value = identity.getFirstName();
-					controlledValue = PASSWORD_SIMILAR_FIRSTNAME;
-					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
-				} else if (IdmPasswordPolicyIdentityAttributes.LASTNAME.name().equals(attributeToCheck)) {
-					value = identity.getLastName();
-					controlledValue = PASSWORD_SIMILAR_LASTNAME;
-					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
-				} else if (IdmPasswordPolicyIdentityAttributes.USERNAME.name().equals(attributeToCheck)) {
-					value = identity.getUsername();
-					controlledValue = PASSWORD_SIMILAR_USERNAME;
-					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
-				} else if (IdmPasswordPolicyIdentityAttributes.EXTERNALCODE.name().equals(attributeToCheck)) {
-					value = identity.getExternalCode();
-					controlledValue = PASSWORD_SIMILAR_EXTERNALCODE;
-					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
-				} else if (IdmPasswordPolicyIdentityAttributes.TITLESBEFORE.name().equals(attributeToCheck)) {
-					value = identity.getTitleBefore();
-					controlledValue = PASSWORD_SIMILAR_TITLESBEFORE;
-					containsSubstring = containsTitleSubstring(passwordWithAccents, value);
-				} else if (IdmPasswordPolicyIdentityAttributes.TITLESAFTER.name().equals(attributeToCheck)) {
-					value = identity.getTitleAfter();
-					controlledValue = PASSWORD_SIMILAR_TITLESAFTER;
-					containsSubstring = containsTitleSubstring(passwordWithAccents, value);
+				if (identity != null) {
+					if (IdmPasswordPolicyIdentityAttributes.EMAIL.name().equals(attributeToCheck)) {
+						value = identity.getEmail();
+						controlledValue = PASSWORD_SIMILAR_EMAIL;
+						containsSubstring = containsEmailSubstring(passwordWithAccents, value);
+					} else if (IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name().equals(attributeToCheck)) {
+						value = identity.getFirstName();
+						controlledValue = PASSWORD_SIMILAR_FIRSTNAME;
+						containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
+					} else if (IdmPasswordPolicyIdentityAttributes.LASTNAME.name().equals(attributeToCheck)) {
+						value = identity.getLastName();
+						controlledValue = PASSWORD_SIMILAR_LASTNAME;
+						containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
+					} else if (IdmPasswordPolicyIdentityAttributes.USERNAME.name().equals(attributeToCheck)) {
+						value = identity.getUsername();
+						controlledValue = PASSWORD_SIMILAR_USERNAME;
+						containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
+					} else if (IdmPasswordPolicyIdentityAttributes.EXTERNALCODE.name().equals(attributeToCheck)) {
+						value = identity.getExternalCode();
+						controlledValue = PASSWORD_SIMILAR_EXTERNALCODE;
+						containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
+					} else if (IdmPasswordPolicyIdentityAttributes.TITLESBEFORE.name().equals(attributeToCheck)) {
+						value = identity.getTitleBefore();
+						controlledValue = PASSWORD_SIMILAR_TITLESBEFORE;
+						containsSubstring = containsTitleSubstring(passwordWithAccents, value);
+					} else if (IdmPasswordPolicyIdentityAttributes.TITLESAFTER.name().equals(attributeToCheck)) {
+						value = identity.getTitleAfter();
+						controlledValue = PASSWORD_SIMILAR_TITLESAFTER;
+						containsSubstring = containsTitleSubstring(passwordWithAccents, value);
+					}
 				}
 
 				if (containsSubstring) {

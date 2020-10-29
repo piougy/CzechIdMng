@@ -277,9 +277,11 @@ public abstract class AbstractRecoverableService<T extends Codeable, DTO extends
 	public String getBackupFolder() {
 		String backupPath = configurationService.getValue(BACKUP_FOLDER_CONFIG);
 		if (backupPath == null) {
-			LOG.info("Backup files are saved under attachment storage [{}] path. "
-					+ "Configure different backup path by configuration property [{}] if needed", BACKUP_FOLDER_CONFIG);
 			backupPath = attachmentManager.getStoragePath();
+			LOG.info("Backup files are saved under attachment storage [{}] path. "
+					+ "Configure different backup path by configuration property [{}] if needed",
+					backupPath,
+					BACKUP_FOLDER_CONFIG);
 		}
 		// append script default backup folder
 		backupPath = String.format("%s/%s", backupPath, getBackupFolderName());

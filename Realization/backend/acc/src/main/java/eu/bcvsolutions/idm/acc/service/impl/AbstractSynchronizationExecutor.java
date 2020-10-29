@@ -217,35 +217,34 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
 		// Clear cache
 		idmCacheManager.evictCache(CACHE_NAME);
-
-		// Validate and create basic context
-		SynchronizationContext context = this.validate(synchronizationConfigId);
-
-		AbstractSysSyncConfigDto config = context.getConfig();
-		SystemEntityType entityType = context.getEntityType();
-		SysSystemDto system = context.getSystem();
-		IcConnectorConfiguration connectorConfig = context.getConnectorConfig();
-		SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
-		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
-		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
-		// Load last token
-		String lastToken = config.isReconciliation() ? null : config.getToken();
-		IcSyncToken lastIcToken = Strings.isNullOrEmpty(lastToken) ? null : new IcSyncTokenImpl(lastToken);
-
-		// Create basic synchronization log
 		SysSyncLogDto log = new SysSyncLogDto();
-		log.setSynchronizationConfig(config.getId());
+		// Create basic synchronization log
+		log.setSynchronizationConfig(synchronizationConfigId);
 		log.setStarted(ZonedDateTime.now());
-		log.setRunning(true);
-		log.setToken(lastToken != null ? lastToken : null);
-		log = syncStarted(log, context);
-
-		// List of all accounts keys (used in reconciliation)
-		Set<String> systemAccountsList = new HashSet<>();
-
-		longRunningTaskExecutor.setCounter(0L);
-
 		try {
+			// Validate and create basic context
+			SynchronizationContext context = this.validate(synchronizationConfigId);
+
+			AbstractSysSyncConfigDto config = context.getConfig();
+			SystemEntityType entityType = context.getEntityType();
+			SysSystemDto system = context.getSystem();
+			IcConnectorConfiguration connectorConfig = context.getConnectorConfig();
+			SysSystemMappingDto systemMapping = systemMappingService.get(config.getSystemMapping());
+			SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
+			IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
+			// Load last token
+			String lastToken = config.isReconciliation() ? null : config.getToken();
+			IcSyncToken lastIcToken = Strings.isNullOrEmpty(lastToken) ? null : new IcSyncTokenImpl(lastToken);
+
+			log.setToken(lastToken != null ? lastToken : null);
+			log.setRunning(true);
+			log = syncStarted(log, context);
+
+			// List of all accounts keys (used in reconciliation)
+			Set<String> systemAccountsList = new HashSet<>();
+
+			longRunningTaskExecutor.setCounter(0L);
+
 			log = synchronizationLogService.save(log);
 			List<SysSyncActionLogDto> actionsLog = new ArrayList<>();
 
@@ -292,13 +291,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			if (log.isRunning()) {
 				log = syncCorrectlyEnded(log, context);
 			}
-			config = synchronizationConfigService.save(config);
+			return synchronizationConfigService.save(config);
 		} catch (Exception e) {
 			String message = "Error during synchronization";
 			log.addToLog(message);
 			log.setContainsError(true);
 			log.addToLog(Throwables.getStackTraceAsString(e));
-			LOG.error(message, e);
+			throw e;
 		} finally {
 			log.setRunning(false);
 			log.setEnded(ZonedDateTime.now());
@@ -309,7 +308,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// Clear cache
 			idmCacheManager.evictCache(CACHE_NAME);
 		}
-		return config;
 	}
 
 	/**

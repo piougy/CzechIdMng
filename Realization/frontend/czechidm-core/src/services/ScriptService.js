@@ -75,6 +75,33 @@ class ScriptService extends AbstractService {
   _getScriptReferences(scriptId) {
     return RestApiService.get(`${ this.getApiPath() }/${ encodeURIComponent(scriptId) }/getScriptReferences`);
   }
+
+  /**
+   * Upload attachment.
+   *
+   * @param  {form} formData body
+   * @return {object} attachment metadata
+   * @since 10.6.0
+   */
+  deploy(formData) {
+    return RestApiService
+      .upload(`${ this.getApiPath() }/deploy`, formData)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        if (Utils.Response.hasInfo(json)) {
+          throw Utils.Response.getFirstInfo(json);
+        }
+        return json;
+      });
+  }
 }
 
 export default ScriptService;

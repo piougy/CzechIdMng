@@ -1,8 +1,9 @@
 package eu.bcvsolutions.idm.core.notification.api.dto;
 
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import org.springframework.hateoas.core.Relation;
+
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.RecoverableDto;
 
 /**
  * Notification template dto
@@ -10,7 +11,7 @@ import org.springframework.hateoas.core.Relation;
  * @author Peter Sourek
  */
 @Relation(collectionRelation = "notificationTemplates")
-public class IdmNotificationTemplateDto extends AbstractDto implements Codeable {
+public class IdmNotificationTemplateDto extends AbstractDto implements RecoverableDto {
 
     private static final long serialVersionUID = 1L;
 

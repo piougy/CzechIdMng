@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import { NotificationTemplateManager } from '../../../redux';
 import TemplateDetail from './TemplateDetail';
 
@@ -27,7 +28,8 @@ class TemplateContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItem('notification-templates');
+    super.componentDidMount();
+    //
     const { entityId } = this.props.match.params;
     const isNew = this._getIsNew();
     if (isNew) {
@@ -38,30 +40,29 @@ class TemplateContent extends Basic.AbstractContent {
     }
   }
 
+  getNavigationKey() {
+    return 'notification-templates';
+  }
+
   render() {
     const { template, showLoading } = this.props;
     const isNew = this._getIsNew();
     return (
       <Basic.Div>
-        <Helmet title={
-            isNew
-            ?
-            this.i18n('titleNew')
-            :
-            this.i18n('title')
-        } />
-
-        <Basic.PageHeader>
-          <Basic.Icon value="fa:envelope-square"/>
-          {' '}
+        <Advanced.DetailHeader
+          icon="fa:envelope-square"
+          entity={ template }
+          showLoading={ !template && showLoading }
+          back="/notification/templates">
           {
             isNew
             ?
             this.i18n('headerNew')
             :
-            this.i18n('header')
+            <span>{ manager.getNiceLabel(template)} <small> { this.i18n('edit.header') }</small></span>
           }
-        </Basic.PageHeader>
+
+        </Advanced.DetailHeader>
 
         <Basic.Panel showLoading={ showLoading } >
           {

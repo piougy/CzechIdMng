@@ -49,16 +49,16 @@ class TreeTypeService extends AbstractService {
    */
   getDefaultTreeType() {
     return RestApiService
-    .get(this.getApiPath() + '/search/default')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(this.getApiPath() + '/search/default')
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -69,16 +69,16 @@ class TreeTypeService extends AbstractService {
    */
   getConfigurations(treeTypeId) {
     return RestApiService
-    .get(this.getApiPath() + `/${treeTypeId}/configurations`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(this.getApiPath() + `/${treeTypeId}/configurations`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -89,19 +89,19 @@ class TreeTypeService extends AbstractService {
    */
   rebuildIndex(treeTypeId) {
     return RestApiService
-    .put(this.getApiPath() + `/${treeTypeId}/index/rebuild`)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .put(this.getApiPath() + `/${treeTypeId}/index/rebuild`)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }
 

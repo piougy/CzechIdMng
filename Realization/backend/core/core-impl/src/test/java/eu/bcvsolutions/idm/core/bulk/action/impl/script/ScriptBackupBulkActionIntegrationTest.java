@@ -130,7 +130,7 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 		ResultModels resultModels = bulkActionManager.prevalidate(bulkAction);
 		List<ResultModel> results = resultModels.getInfos();
 		assertEquals(1, results.size());
-		assertEquals(results.get(0).getStatusEnum(), CoreResultCode.BACKUP_FOLDER_NOT_FOUND.toString());
+		assertEquals(results.get(0).getStatusEnum(), CoreResultCode.BACKUP_FOLDER_FOUND.toString());
 	}
 	
 	@Test

@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - [#2355](https://redmine.czechidm.com/issues/2355) - Please check if your application server starting with the parameter ``java.security.egd=/dev/./urandom``. If not please add it into starting parameter for the application server.
 - [#2355](https://redmine.czechidm.com/issues/2355) - Generating initial vector may block as entropy is being gathered. Please check size of entropy in your operation system.
 - [#2519](https://redmine.czechidm.com/issues/2519) - Better exception is thrown, when count of filter parameters exceeded limit (e.g. when identities are find by roles filter). Default limit is ``500``. Limit is Related to database count of query parameters (e.g. ``Oracle = 1000, MSSql = 2100`` by default). You can [configure](https://wiki.czechidm.com/devel/documentation/application_configuration/dev/backend#entity_filters) limit by your environment if needed.
+- [#2493](https://redmine.czechidm.com/issues/2493) - Attachment [storage path](https://wiki.czechidm.com/devel/documentation/application_configuration/dev/backend#attachment_storage) is used as default [backup folder](https://wiki.czechidm.com/devel/documentation/application_configuration/dev/backend#backup), when backup folder is [not configured])(https://wiki.czechidm.com/devel/documentation/application_configuration/dev/backend#backup). Exception is not thrown by default anymore.
 
 
 ### Developer
@@ -23,6 +24,8 @@ All notable changes to this project will be documented in this file.
 - [#1636](https://redmine.czechidm.com/issues/1636) - Business role assignment was redesigned from the scratch - business roles are assigned by the standard role request now. **Prevent to assign identity role directly without role request - business roles will be assigned for compatibility reason (is deprecated and will be removed in future version) but full account manager occurs in this way**. Prevent to use deprecated methods ``IdmRoleCompositionService#assignSubRoles``, ``IdmRoleCompositionService#updateSubRoles``, ``IdmRoleCompositionService#removeSubRoles`` in your modules and use role request only.
 - [#2413](https://redmine.czechidm.com/issues/2413) - New caches were registered:
   - ``core:all-sub-roles`` - cache for business role sub roles. Cache is cleared automatically, when business role definition is changed. **Memory usage is 25KB per business role with 10 sub roles**.
+- [#2493](https://redmine.czechidm.com/issues/2493) - Service ``DefaultIdmScriptService`` constructor was simplified - check your module, if you are overriding this service.
+- [#2493](https://redmine.czechidm.com/issues/2493) - Method ``Recoverable#redeploy`` checks permission now - ``permission`` parameter was added to interface). Method usage is backward compatible. If you are creating new recoverable service or overriding ``Recoverable`` service from product, add ``permission`` parameter into method definition and implement checking permission properly.
 
 
 ## [10.5.0]

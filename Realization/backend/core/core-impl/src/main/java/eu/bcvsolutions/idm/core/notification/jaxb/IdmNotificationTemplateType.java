@@ -1,24 +1,28 @@
 package eu.bcvsolutions.idm.core.notification.jaxb;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.jaxb.CDATAAdapter;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 
 /**
- * Jaxb type for check schema {@link IdmNotificationTemplate}
+ * Jaxb type for check schema {@link IdmNotificationTemplateDto}.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @XmlRootElement(name = "template") // root element
 @XmlType(propOrder = { "code", "name", "subject", "bodyHtml", "bodyText", "parameter", "systemTemplate", "moduleId", "sender"}) // order
-public class IdmNotificationTemplateType {
+public class IdmNotificationTemplateType implements Codeable {
 
+	private static final long serialVersionUID = 1L;
+	//
 	private String code;
 	private String name;
 	private String subject;
@@ -29,8 +33,14 @@ public class IdmNotificationTemplateType {
 	private String moduleId;
 	private String sender;
 
+	@Override
 	@XmlElement(required = true, type = String.class)
 	public String getCode() {
+		return code;
+	}
+	
+	@Override
+	public Serializable getId() {
 		return code;
 	}
 

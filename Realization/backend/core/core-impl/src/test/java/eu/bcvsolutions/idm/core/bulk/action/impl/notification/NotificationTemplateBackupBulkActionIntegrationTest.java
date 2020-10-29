@@ -47,7 +47,6 @@ import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 /**
  * Integration tests for {@link RedeployBulkAction}.
  * 
- * 
  * FIXME: prevent to reuse test template.
  *
  * @author Ondrej Husnik

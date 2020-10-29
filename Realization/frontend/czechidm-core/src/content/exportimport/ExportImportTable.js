@@ -309,7 +309,7 @@ export class ExportImportTable extends Advanced.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-execute" level="success"/>
         <Basic.Confirm ref="confirm-execute-dry-run" level="info"/>
-        <Basic.Panel style={{margin: '5px'}}>
+        <Basic.Panel style={{ margin: '5px 5px 0 5px' }}>
           <Basic.Dropzone
             ref="dropzone"
             accept=".zip"

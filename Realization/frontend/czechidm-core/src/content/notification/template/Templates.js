@@ -7,7 +7,10 @@ import TemplateTable from './TemplateTable';
 const TABLE_UIKEY = 'NotificationTemplateTableUIKEY';
 
 /**
-* Content with notification templates
+* Content with notification templates.
+*
+* @author Ondřej Kopr
+* @author Radek Tomiška
 */
 class Templates extends Basic.AbstractContent {
 
@@ -30,13 +33,13 @@ class Templates extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        {this.renderPageHeader()}
+      <Basic.Div>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
-          <TemplateTable manager={this.notificationTemplateManager} uiKey={TABLE_UIKEY}/>
+          <TemplateTable manager={ this.getManager() } uiKey={ TABLE_UIKEY }/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

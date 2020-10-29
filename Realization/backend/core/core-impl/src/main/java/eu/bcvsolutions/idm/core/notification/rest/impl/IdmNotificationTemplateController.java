@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.core.notification.rest.impl;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -30,10 +33,14 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -59,6 +66,8 @@ public class IdmNotificationTemplateController extends AbstractEventableDtoContr
 	
 	protected static final String TAG = "Notification templates";
 	private final IdmNotificationTemplateService notificationTemplateService;
+	//
+	@Autowired private AttachmentManager attachmentManager;
 	
 	@Autowired
 	public IdmNotificationTemplateController(IdmNotificationTemplateService notificationTemplateService) {
@@ -229,6 +238,47 @@ public class IdmNotificationTemplateController extends AbstractEventableDtoContr
 		return super.delete(backendId);
 	}
 	
+	/**
+	 * Upload templates.
+	 * 
+	 * @param name
+	 * @param fileName
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 * @since 10.6.0
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/deploy", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_CREATE + "')"
+			+ " or hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE + "')")
+	@ApiOperation(
+			value = "Upload templates.", 
+			nickname = "uploadNotificationTemplates", 
+			tags = { IdmNotificationTemplateController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_CREATE, description = ""),
+							@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_CREATE, description = ""),
+							@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE, description = "")})
+					},
+			notes="Templates in archive (ZIP) or single templates (XML) can be uploaded.")
+	public ResponseEntity<?> deploy(String name, String fileName, MultipartFile data) throws IOException {
+		// save attachment
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		attachment.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);
+		attachment.setName(fileName);
+		attachment.setMimetype(StringUtils.isBlank(data.getContentType()) ? AttachableEntity.DEFAULT_MIMETYPE : data.getContentType());
+		attachment.setInputData(data.getInputStream());
+		attachment = attachmentManager.saveAttachment(null, attachment); // owner and version is resolved after attachment is saved
+		// deploy
+		notificationTemplateService.deploy(attachment, IdmBasePermission.UPDATE);
+		// more templates can be deployed => no content status (prevent to return large list)
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+	}
+	
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/redeploy", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_UPDATE + "')")
@@ -252,7 +302,8 @@ public class IdmNotificationTemplateController extends AbstractEventableDtoContr
 		if (template == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, backendId);
 		}
-		template = notificationTemplateService.redeploy(template);
+		//
+		template = notificationTemplateService.redeploy(template, IdmBasePermission.UPDATE);
 		return new ResponseEntity<>(toResource(template), HttpStatus.OK);
 	}
 	

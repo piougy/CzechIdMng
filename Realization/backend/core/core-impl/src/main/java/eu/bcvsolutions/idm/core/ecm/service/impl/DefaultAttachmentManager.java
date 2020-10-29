@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
@@ -295,6 +296,21 @@ public class DefaultAttachmentManager
 	}
 	
 	@Override
+	public String getValidFileName(String text) {
+		if (StringUtils.isBlank(text)) {
+			return DEFAULT_FILE_NAME;
+		}
+		String out = SpinalCase.normalize(text);
+		out = SpinalCase.removeDuplicateWhiteSpaces(out);
+		//
+		if (StringUtils.isBlank(out)) {
+			return DEFAULT_FILE_NAME;
+		}
+		//
+		return out;
+	}
+	
+	@Override
 	public File createTempFile() {
 		try {			
 			File tempFile = File.createTempFile(UUID.randomUUID().toString(), "." + DEFAULT_TEMP_FILE_EXTENSION, new File(getTempPath()));
@@ -320,6 +336,11 @@ public class DefaultAttachmentManager
 					"temp", attachmentConfiguration.getTempPath())
 					, ex);
 		}
+	}
+	
+	@Override
+	public String getStoragePath() {
+		return attachmentConfiguration.getStoragePath();
 	}
 	
 	/**
@@ -520,15 +541,6 @@ public class DefaultAttachmentManager
 		// remove data from FS
 		File targetFile = new File(getStoragePath() + path);
 		FileUtils.deleteQuietly(targetFile);
-	}
-
-	/**
-	 * Configured storage path
-	 * 
-	 * @return
-	 */
-	private String getStoragePath() {
-		return attachmentConfiguration.getStoragePath();
 	}
 	
 	/**

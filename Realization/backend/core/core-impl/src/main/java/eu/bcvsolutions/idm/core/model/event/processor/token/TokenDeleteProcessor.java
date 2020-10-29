@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.event.TokenEvent.TokenEventType;
 @Description("Deletes token from repository.")
 public class TokenDeleteProcessor
 		extends CoreEventProcessor<IdmTokenDto>
-		implements TokenProcessor{
+		implements TokenProcessor {
 	
 	public static final String PROCESSOR_NAME = "token-delete-processor";
 	@Autowired private IdmTokenService service;

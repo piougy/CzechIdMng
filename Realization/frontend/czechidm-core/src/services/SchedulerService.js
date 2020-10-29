@@ -59,16 +59,16 @@ export default class SchedulerService extends AbstractService {
    */
   getSupportedTasks() {
     return RestApiService
-    .get(this.getApiPath() + '/search/supported')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(this.getApiPath() + '/search/supported')
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -78,16 +78,16 @@ export default class SchedulerService extends AbstractService {
    */
   getTasks() {
     return RestApiService
-    .get(this.getApiPath())
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(this.getApiPath())
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -98,30 +98,30 @@ export default class SchedulerService extends AbstractService {
    */
   runTask(taskId) {
     return RestApiService
-    .post(this.getApiPath() + `/${taskId}/run`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .post(this.getApiPath() + `/${taskId}/run`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   dryRunTask(taskId) {
     return RestApiService
-    .post(this.getApiPath() + `/${taskId}/dry-run`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .post(this.getApiPath() + `/${taskId}/dry-run`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -133,19 +133,19 @@ export default class SchedulerService extends AbstractService {
    */
   deleteTrigger(trigger) {
     return RestApiService
-    .delete(this.getApiPath() + `/${trigger.taskId}/triggers/${trigger.id}`)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .delete(this.getApiPath() + `/${trigger.taskId}/triggers/${trigger.id}`)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -159,18 +159,18 @@ export default class SchedulerService extends AbstractService {
     trigger._type = TriggerTypeEnum.getTriggerType(trigger.type);
     //
     return RestApiService
-    .post(this.getApiPath() + `/${trigger.taskId}/triggers/${trigger.type.toLowerCase()}`, trigger)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .post(this.getApiPath() + `/${trigger.taskId}/triggers/${trigger.type.toLowerCase()}`, trigger)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }

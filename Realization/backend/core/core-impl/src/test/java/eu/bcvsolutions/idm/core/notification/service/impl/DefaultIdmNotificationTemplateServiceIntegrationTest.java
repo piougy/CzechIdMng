@@ -27,6 +27,7 @@ import org.springframework.context.ApplicationContext;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.Recoverable;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
@@ -121,10 +122,7 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 
 	@Test
 	public void redeployWithoutBackupFolder() {
-		String backupPath = configurationService.getValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG);
-		if (backupPath != null) {
-			configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, null);
-		}
+		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, "?/wrong/path");
 		//
 		IdmNotificationTemplateDto testTemplate = notificationTemplateService.getByCode(TEST_TEMPLATE);
 		Assert.assertNotNull(testTemplate);
@@ -137,7 +135,9 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 			assertTrue(e instanceof ResultCodeException);
 			ResultCodeException resultCode = (ResultCodeException) e;
 			assertEquals(resultCode.getError().getError().getStatusEnum(),
-					CoreResultCode.BACKUP_FOLDER_NOT_FOUND.name());
+					CoreResultCode.BACKUP_FAIL.name());
+		} finally {
+			configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, null);
 		}
 	}
 

@@ -66,8 +66,7 @@ public abstract class AbstractBackupBulkAction<DTO extends AbstractDto, F extend
 			// rename to zip folder
 			String fileName = dto.getId().toString();
 			if (dto instanceof Codeable) {
-				// FIXME: add filename regex - e.g. AttachmentManager.getValidFileName(text);
-				fileName = ((Codeable) dto).getCode();
+				fileName = attachmentManager.getValidFileName(((Codeable) dto).getCode());
 			}
 			File targetFile = new File(zipFolder.toString(), String.format("%s.xml", fileName));
 			// and copy file
@@ -83,10 +82,12 @@ public abstract class AbstractBackupBulkAction<DTO extends AbstractDto, F extend
 	}	
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public ResultModels prevalidate() {
 		ResultModels results = new ResultModels();
-		String backupFolder = getConfigurationService().getValue(Recoverable.BACKUP_FOLDER_CONFIG);
-		if (StringUtils.isEmpty(StringUtils.stripToEmpty(backupFolder))) {
+		Recoverable<DTO> service = (Recoverable<DTO>) getService();
+		String backupFolder = service.getBackupFolder();
+		if (StringUtils.isEmpty(backupFolder)) {
 			ResultModel result = new DefaultErrorModel(CoreResultCode.BACKUP_FOLDER_NOT_FOUND, ImmutableMap.of("property", Recoverable.BACKUP_FOLDER_CONFIG));
 			results.addInfo(result);
 		} else {
@@ -114,7 +115,6 @@ public abstract class AbstractBackupBulkAction<DTO extends AbstractDto, F extend
 			ZipUtils.compress(zipFolder, zipFile.getPath());
 			// create attachment
 			IdmAttachmentDto attachment = new IdmAttachmentDto();
-			attachment.setAttachmentType("xml");
 			attachment.setInputData(new FileInputStream(zipFile));
 			attachment.setEncoding(AttachableEntity.DEFAULT_ENCODING);
 			attachment.setMimetype(AttachableEntity.DEFAULT_MIMETYPE); // zip ~ octet stream

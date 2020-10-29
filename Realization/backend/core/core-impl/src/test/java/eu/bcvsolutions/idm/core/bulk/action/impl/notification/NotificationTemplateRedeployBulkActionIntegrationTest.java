@@ -119,7 +119,7 @@ public class NotificationTemplateRedeployBulkActionIntegrationTest extends Abstr
 		ResultModels resultModels = bulkActionManager.prevalidate(bulkAction);
 		List<ResultModel> results = resultModels.getInfos();
 		Assert.assertEquals(2, results.size());
-		Assert.assertTrue(results.stream().anyMatch(n -> n.getStatusEnum().equals(CoreResultCode.BACKUP_FOLDER_NOT_FOUND.toString())));
+		Assert.assertTrue(results.stream().anyMatch(n -> n.getStatusEnum().equals(CoreResultCode.BACKUP_FOLDER_FOUND.toString())));
 		Assert.assertTrue(results.stream().anyMatch(n -> n.getStatusEnum().equals(CoreResultCode.DEPLOY_TEMPLATE_FOLDER_FOUND.toString())));
 	}
 	

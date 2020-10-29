@@ -140,6 +140,13 @@ module.exports = {
       manager: require('./src/redux').NotificationTemplateManager
     },
     {
+      id: 'script-info',
+      type: 'entity-info',
+      entityType: ['script', 'IdmScript', 'IdmScriptDto'],
+      component: require('./src/components/advanced/ScriptInfo/ScriptInfo').default,
+      manager: require('./src/redux').ScriptManager
+    },
+    {
       id: 'tree-type-info',
       type: 'entity-info',
       entityType: ['treeType', 'IdmTreeType', 'IdmTreeTypeDto'],

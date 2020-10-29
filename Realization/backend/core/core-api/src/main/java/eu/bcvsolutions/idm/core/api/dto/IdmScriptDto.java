@@ -2,17 +2,16 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 
 /**
- * DTO for script
+ * DTO for script.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Relation(collectionRelation = "scripts")
-public class IdmScriptDto extends AbstractDto implements Codeable {
+public class IdmScriptDto extends AbstractDto implements RecoverableDto {
 
 	private static final long serialVersionUID = 1L;
 	

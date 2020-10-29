@@ -1,13 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { ScriptManager } from '../../redux';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { SecurityManager, ScriptAuthorityManager, DataManager } from '../../redux';
+import { SecurityManager, ScriptAuthorityManager, DataManager, ScriptManager } from '../../redux';
 import ScriptAuthorityTypeEnum from '../../enums/ScriptAuthorityTypeEnum';
 
 // const uiKey = 'script-authorities';
@@ -197,7 +196,7 @@ class ScriptAuthorities extends Basic.AbstractContent {
       event.preventDefault();
     }
     if (Utils.Entity.isNew(entity)) {
-      entity.type = ScriptAuthorityTypeEnum.findKeyBySymbol(ScriptAuthorityTypeEnum.SERVICE);
+      entity.type = ScriptAuthorityTypeEnum.findKeyBySymbol(ScriptAuthorityTypeEnum.CLASS_NAME);
     }
     let isService = false;
     if (entity.type === ScriptAuthorityTypeEnum.findKeyBySymbol(ScriptAuthorityTypeEnum.SERVICE)) {
@@ -245,11 +244,13 @@ class ScriptAuthorities extends Basic.AbstractContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs"
-                      onClick={this.showDetail.bind(this, {})}
-                      rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={ this.showDetail.bind(this, {}) }
+                rendered={ SecurityManager.hasAuthority('SCRIPT_CREATE') }
+                icon="fa:plus">
                 {this.i18n('button.add')}
               </Basic.Button>
             ]
@@ -268,9 +269,12 @@ class ScriptAuthorities extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="type"
+          <Advanced.Column
+            property="type"
             header={ this.i18n('entity.ScriptAuthority.type.label') }
-            sort face="enum" enumClass={ScriptAuthorityTypeEnum}/>
+            sort
+            face="enum"
+            enumClass={ScriptAuthorityTypeEnum}/>
           <Advanced.Column
             property="name"
             sort
@@ -282,19 +286,25 @@ class ScriptAuthorities extends Basic.AbstractContent {
                 return data[rowIndex].className;
               }
             }
-            />
+          />
         </Advanced.Table>
 
         <Basic.Modal
           bsSize="medium"
           show={ detail.show }
-          onHide={this.closeDetail.bind(this)}
+          onHide={ this.closeDetail.bind(this) }
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={ !_showLoading }>
 
-          <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header', { name: script.name })} rendered={Utils.Entity.isNew(detail.entity)}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: script.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+          <form onSubmit={ this.save.bind(this, {}) }>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header', { name: script.name }) }
+              rendered={ Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Header
+              closeButton={!_showLoading}
+              text={ this.i18n('edit.header', { name: script.name }) }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"

@@ -5,12 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.NotificationTemplateProcessor;
 import eu.bcvsolutions.idm.core.model.event.NotificationTemplateEvent.NotificationTemplateEventType;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
@@ -23,8 +22,9 @@ import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplate
  */
 @Component(NotificationTemplateSaveProcessor.PROCESSOR_NAME)
 @Description("Saves and updates notification template.")
-public class NotificationTemplateSaveProcessor extends CoreEventProcessor<IdmNotificationTemplateDto>
-		implements EntityEventProcessor<IdmNotificationTemplateDto> {
+public class NotificationTemplateSaveProcessor 
+		extends CoreEventProcessor<IdmNotificationTemplateDto>
+		implements NotificationTemplateProcessor {
 
 	public static final String PROCESSOR_NAME = "notification-template-save-processor";
 

@@ -41,6 +41,13 @@ public interface AttachmentManager extends
 	String TEMPORARY_ATTACHMENT_OWNER_TYPE = "TEMP";
 	
 	/**
+	 * Deafult valid file name, if desired file name is empty or invalid.
+	 * 
+	 * @since 10.6.0
+	 */
+	String DEFAULT_FILE_NAME = "file";
+	
+	/**
 	 * {@inheritDoc}.
 	 * <br/>
 	 * <b>Lookout</b>: saves attachment's metadata only. For saving attachment with data (filled input stream) 
@@ -187,6 +194,15 @@ public interface AttachmentManager extends
 	void deleteAttachments(UUID ownerId, String ownerType, BasePermission... permission);
 	
 	/**
+	 * Returns valid file name from given text (~ desired file name).
+	 * Returns {@link #DEFAULT_FILE_NAME}, if input is empty or not contains a valid character usable in file name. 
+	 * 
+	 * @param text input file name
+	 * @return normalized file name or {@link #DEFAULT_FILE_NAME}
+	 */
+	String getValidFileName(String text);
+	
+	/**
 	 *  Create temporary file with default ("bin") extension
 	 * 
 	 * @return
@@ -201,6 +217,14 @@ public interface AttachmentManager extends
 	 * @since 10.1.0
 	 */
 	Path createTempDirectory(String prefix);
+	
+	/**
+	 * Configured storage path.
+	 * 
+	 * @return
+	 * @since 10.6.0
+	 */
+	String getStoragePath();
 	
 	/**
 	 * Owner type has to be entity class - dto class can be given.

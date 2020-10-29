@@ -188,6 +188,12 @@ export default class TemplateDetail extends Basic.AbstractContent {
               </Basic.Col>
             </Basic.Row>
             <Basic.TextField
+              ref="module"
+              readOnly={ entity.unmodifiable }
+              max={ 255 }
+              label={ this.i18n('entity.NotificationTemplate.module.label') }
+              helpBlock={ this.i18n('entity.NotificationTemplate.module.help') } />
+            <Basic.TextField
               ref="parameter"
               readOnly={entity.unmodifiable}
               max={255}

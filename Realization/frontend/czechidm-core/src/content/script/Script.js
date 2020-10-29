@@ -8,9 +8,10 @@ import * as Advanced from '../../components/advanced';
 const manager = new ScriptManager();
 
 /**
- * Script's tab panel
+ * Script's tab panel.
  *
  * @author Patrik Stloukal
+ * @author Radek Tomiška
  */
 class Script extends Basic.AbstractContent {
 
@@ -26,17 +27,19 @@ class Script extends Basic.AbstractContent {
     const { entity, showLoading } = this.props;
 
     return (
-      <div>
-        <Basic.PageHeader showLoading={!entity && showLoading}>
-          <Basic.Icon value="component:script"/>
-          {' '}
-          { manager.getNiceLabel(entity)} <small> {this.i18n('content.scripts.edit.header') }</small>
-        </Basic.PageHeader>
+      <Basic.Div>
+        <Advanced.DetailHeader
+          icon="component:script"
+          entity={ entity }
+          showLoading={ !entity && showLoading }
+          back="/scripts">
+          { manager.getNiceLabel(entity)} <small> { this.i18n('content.scripts.edit.header') }</small>
+        </Advanced.DetailHeader>
 
         <Advanced.TabPanel parentId="scripts" match={ this.props.match }>
           { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

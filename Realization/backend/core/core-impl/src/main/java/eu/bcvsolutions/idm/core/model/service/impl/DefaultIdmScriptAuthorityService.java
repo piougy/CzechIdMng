@@ -99,11 +99,14 @@ public class DefaultIdmScriptAuthorityService
 
 	@Override
 	public void deleteAllByScript(UUID scriptId) {
+		Assert.notNull(scriptId, "Script identifier is required.");
+		//
 		IdmScriptAuthorityFilter filter = new IdmScriptAuthorityFilter();
 		filter.setScriptId(scriptId);
-		//
 		// remove internal by id each script authority
-		find(filter, null).getContent().forEach(scriptAuthority -> this.deleteInternalById(scriptAuthority.getId()));
+		find(filter, null)
+			.getContent()
+			.forEach(scriptAuthority -> this.deleteInternalById(scriptAuthority.getId()));
 	}
 
 	@Override

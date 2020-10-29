@@ -32,6 +32,7 @@ import IdentityRoleInfo from './IdentityRoleInfo/IdentityRoleInfo';
 import WorkflowProcessInfo from './WorkflowProcessInfo/WorkflowProcessInfo';
 import WorkflowTaskInfo from './WorkflowTaskInfo/WorkflowTaskInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
+import ScriptInfo from './ScriptInfo/ScriptInfo';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
 import IdentitySelect from './IdentitySelect/IdentitySelect';

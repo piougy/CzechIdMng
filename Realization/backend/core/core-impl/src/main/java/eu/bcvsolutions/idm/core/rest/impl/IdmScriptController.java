@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -7,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -36,7 +39,11 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -61,6 +68,8 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 	
 	protected static final String TAG = "Scripts";
 	private final IdmScriptService service;
+	//
+	@Autowired private AttachmentManager attachmentManager;
 	
 	@Autowired
 	public IdmScriptController(IdmScriptService service) {
@@ -216,7 +225,7 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/redeploy", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
 	@ApiOperation(
 			value = "Redeploy script", 
 			nickname = "redeployScript", 
@@ -224,9 +233,9 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 			tags = { IdmScriptController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_UPDATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_READ, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_UPDATE, description = "") })
 				},
 			notes = "Redeploy script. Redeployed will be only scripts, that has pattern in resource."
 					+ " Before save newly loaded DO will be backup the old script into backup directory.")
@@ -237,7 +246,7 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 		if (script == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, backendId);
 		}
-		script = service.redeploy(script);
+		script = service.redeploy(script, IdmBasePermission.UPDATE);
 		return new ResponseEntity<>(toResource(script), HttpStatus.OK);
 	}
 	
@@ -328,6 +337,46 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 		return super.getPermissions(backendId);
 	}
 
+	/**
+	 * Upload scripts.
+	 * 
+	 * @param name
+	 * @param fileName
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 * @since 10.6.0
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/deploy", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_CREATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.SCRIPT_UPDATE + "')")
+	@ApiOperation(
+			value = "Upload scripts.", 
+			nickname = "uploadScripts", 
+			tags = { IdmScriptController.TAG }, 
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_UPDATE, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_CREATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.SCRIPT_UPDATE, description = "")})
+					},
+			notes="Scripts in archive (ZIP) or single scripts (XML) can be uploaded.")
+	public ResponseEntity<?> deploy(String name, String fileName, MultipartFile data) throws IOException {
+		// save attachment
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		attachment.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);
+		attachment.setName(fileName);
+		attachment.setMimetype(StringUtils.isBlank(data.getContentType()) ? AttachableEntity.DEFAULT_MIMETYPE : data.getContentType());
+		attachment.setInputData(data.getInputStream());
+		attachment = attachmentManager.saveAttachment(null, attachment); // owner and version is resolved after attachment is saved
+		// deploy
+		service.deploy(attachment, IdmBasePermission.UPDATE);
+		// more scripts can be deployed => no content status (prevent to return large list)
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+	}
 	
 	/**
 	 * Get available bulk actions for script definition

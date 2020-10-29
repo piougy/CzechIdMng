@@ -15,6 +15,7 @@ const MAX_DESCRIPTION_LENGTH = 60;
  * Table with definitions of scripts
  *
  * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 export class ScriptTable extends Advanced.AbstractTableContent {
 
@@ -56,28 +57,6 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
-  onRedeployOrBackup(bulkActionValue, selectedRows) {
-    const { scriptManager, uiKey } = this.props;
-    const selectedEntities = scriptManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
-    // show confirm message for script operation redeploy/backup
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: scriptManager.getNiceLabel(selectedEntities[0]), records: scriptManager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: scriptManager.getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      this.context.store.dispatch(scriptManager.scriptBulkOperationForEntities(selectedEntities, bulkActionValue, uiKey, (entity, error, successEntities) => {
-        if (error) {
-          this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: scriptManager.getNiceLabel(entity) }) }, error);
-        }
-        if (!error && successEntities) {
-          // refresh data in table
-          this.refs.table.reload();
-        }
-      }));
-    }, () => {
-      // nothing
-    });
-  }
-
   /**
    * Recive new form for create new type else show detail for existing org.
    */
@@ -96,22 +75,78 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     }
   }
 
+  /**
+   * Dropzone component function called after select file
+   * @param  {array} files Array of selected files
+   */
+  _onDrop(files) {
+    if (this.refs.dropzone.state.isDragReject) {
+      this.addMessage({
+        message: this.i18n('filesRejected'),
+        level: 'warning'
+      });
+      return;
+    }
+    files.forEach((file) => {
+      const fileName = file.name.toLowerCase();
+      if (!fileName.endsWith('.zip') && !fileName.endsWith('.xml')) {
+        this.addMessage({
+          message: this.i18n('fileRejected', {name: file.name}),
+          level: 'warning'
+        });
+        return;
+      }
+      this.setState({
+        showLoading: true
+      }, () => {
+        const formData = new FormData();
+        formData.append('name', file.name);
+        formData.append('fileName', file.name);
+        formData.append('data', file);
+        //
+        this.getManager().getService().deploy(formData)
+          .then(() => {
+            this.setState({
+              showLoading: false
+            }, () => {
+              this.addMessage({
+                message: this.i18n('fileUploaded', { name: file.name })
+              });
+              this.refs.table.reload();
+            });
+          })
+          .catch(error => {
+            this.setState({
+              showLoading: false
+            });
+            this.addError(error);
+          });
+      });
+    });
+  }
+
   render() {
     const { uiKey, scriptManager, disableAdd, forceSearchParameters, className } = this.props;
-    const { filterOpened } = this.state;
+    const { filterOpened, showLoading } = this.state;
     //
     return (
-      <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Basic.Confirm ref="confirm-backup" level="danger"/>
-        <Basic.Confirm ref="confirm-redeploy" level="danger"/>
+      <Basic.Div>
+        <Basic.Panel style={{ margin: '5px 5px 0 5px' }}>
+          <Basic.Dropzone
+            ref="dropzone"
+            accept=".zip,text/xml"
+            onDrop={ this._onDrop.bind(this) }>
+            { this.i18n('dropzone.infoText') }
+          </Basic.Dropzone>
+        </Basic.Panel>
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={scriptManager}
+          uiKey={ uiKey }
+          manager={ scriptManager }
           showRowSelection
+          showLoading={ showLoading }
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-          forceSearchParameters={forceSearchParameters}
+          forceSearchParameters={ forceSearchParameters }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -149,12 +184,12 @@ export class ScriptTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                hidden={disableAdd}
-                onClick={this.showDetail.bind(this, {})}
-                rendered={SecurityManager.hasAuthority('SCRIPT_CREATE')}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+                hidden={ disableAdd }
+                showLoading={ showLoading }
+                onClick={ this.showDetail.bind(this, {}) }
+                rendered={ SecurityManager.hasAuthority('SCRIPT_CREATE') }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
@@ -167,15 +202,15 @@ export class ScriptTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 return (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
             }
-            sort={false}/>
+            sort={ false }/>
           <Advanced.ColumnLink to="/scripts/:id/detail" property="code" sort />
           <Advanced.Column property="name" sort />
-          <Advanced.Column property="category" sort face="enum" enumClass={ScriptCategoryEnum}/>
+          <Advanced.Column property="category" sort face="enum" enumClass={ ScriptCategoryEnum }/>
           <Advanced.Column
             property="description"
             cell={ ({ rowIndex, data }) => {
@@ -186,7 +221,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
               return '';
             }}/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

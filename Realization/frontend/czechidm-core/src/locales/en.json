@@ -2324,7 +2324,11 @@
       "references": {
         "header" : "Script usage",
         "title" : "Script usage"
-      }
+      },
+      "dropzone": {
+        "infoText": "Drag scripts in archive (ZIP) or single scripts (XML) here, or click to select files."
+      },
+      "fileUploaded": "File [{{name}}] was successfully uploaded."
     },
     "roles": {
       "menu-title": "Roles",
@@ -3616,9 +3620,16 @@
       "save": {
         "success": "Template [{{name}}] was successfully saved."
       },
+      "edit": {
+        "header": "template detail"
+      },
       "filter": {
         "text": "Name / Subject / Code"
-      }
+      },
+      "dropzone": {
+        "infoText": "Drag templates in archive (ZIP) or single templates (XML) here, or click to select files."
+      },
+      "fileUploaded": "File [{{name}}] was successfully uploaded."
     },
     "emails": {
       "header": "E-mails history",
@@ -4101,6 +4112,7 @@
       "creator": "$t(entity.creator)"
     },
     "Script": {
+      "_type": "Script",
       "name": "Script name",
       "category": "Category",
       "code": "Code",
@@ -4688,7 +4700,11 @@
         "name": "Message body (html)",
         "help": "For a list of available templates write character '$'"
       },
-      "bodyText": "Message body (text)"
+      "bodyText": "Message body (text)",
+      "module": {
+        "label": "Module",
+        "help": "Template is defined or used in given module. Module is used for example for resolving the localization. 'core' module is used as default."
+      }
     },
     "NotificationConfiguration": {
       "_type": "Configure notification",

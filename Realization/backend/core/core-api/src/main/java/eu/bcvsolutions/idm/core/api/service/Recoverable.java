@@ -1,8 +1,12 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.File;
+import java.util.List;
 
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Interface for services. Services that implement this interface allow backup
@@ -18,8 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
-public interface Recoverable<DTO extends AbstractDto> {
+public interface Recoverable<DTO extends BaseDto> {
 
 	String ENCODING_HANDLER = "com.sun.xml.bind.characterEscapeHandler";
 	String BACKUP_FOLDER_CONFIG = "idm.sec.core.backups.default.folder.path";
@@ -32,6 +35,15 @@ public interface Recoverable<DTO extends AbstractDto> {
 	 * 
 	 */
 	void init();
+	
+	/**
+	 * Return folder for backups. If isn't folder defined in configuration
+	 * properties use default folder from system property java.io.tmpdir.
+	 * 
+	 * @return
+	 * @since 10.6.0
+	 */
+	String getBackupFolder();
 
 	/**
 	 * Backup DTO to directory given in application properties.
@@ -44,11 +56,26 @@ public interface Recoverable<DTO extends AbstractDto> {
 
 	/**
 	 * Redeploy DTO. Redeployed will be only DTOs, that has pattern in resource.
-	 * Before save newly loaded DO will be backup the old DTO into backup
+	 * Before save newly loaded DTO will be backup the old DTO into backup
 	 * directory.
 	 * 
 	 * @param dto
+	 * @param permission permissions to evaluate (AND)
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	DTO redeploy(DTO dto);
+	DTO redeploy(DTO dto, BasePermission... permission);
+	
+	/**
+	 * Deploy from attachment. Deployed (created or updated) will be DTOs in attachment (.zip, .xml files are supported).
+	 * Before save newly loaded DTO will be backup the old DTO into backup
+	 * directory.
+	 * 
+	 * @param persisted attachment
+	 * @param permission permissions to evaluate (AND)
+	 * @return list of redeployed DTOs
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.6.0
+	 */
+	List<DTO> deploy(IdmAttachmentDto attachment, BasePermission... permission);
 }

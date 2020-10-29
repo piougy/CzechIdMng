@@ -12,8 +12,8 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.event.processor.NotificationTemplateProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.event.NotificationTemplateEvent.NotificationTemplateEventType;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
@@ -31,8 +31,9 @@ import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplate
  */
 @Component(NotificationTemplateDeleteProcessor.PROCESSOR_NAME)
 @Description("Deletes notification template.")
-public class NotificationTemplateDeleteProcessor extends CoreEventProcessor<IdmNotificationTemplateDto>
-		implements EntityEventProcessor<IdmNotificationTemplateDto> {
+public class NotificationTemplateDeleteProcessor 
+		extends CoreEventProcessor<IdmNotificationTemplateDto>
+		implements NotificationTemplateProcessor {
 
 	public static final String PROCESSOR_NAME = "notification-template-delete-processor";
 

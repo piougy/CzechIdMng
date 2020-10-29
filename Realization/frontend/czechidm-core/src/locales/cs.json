@@ -2372,9 +2372,13 @@
           }
       },
       "references": {
-        "header" : "Použití scriptu",
-        "title" : "Použití scriptu"
-      }
+        "header" : "Použití skriptu",
+        "title" : "Použití skriptu"
+      },
+      "dropzone": {
+        "infoText": "Přetáhněte skripty v archivu (ZIP) nebo jednotlivé skripty (XML) na tuto plochu a nebo na ní klikněte pro výběr souborů."
+      },
+      "fileUploaded": "Soubor [{{name}}] byl úspěšně nahrán."
     },
     "roles": {
       "menu-title": "Role",
@@ -3669,9 +3673,16 @@
       "save": {
         "success": "Šablona [{{name}}] byla úspěšně uložena."
       },
+      "edit": {
+        "header": "detail šablony"
+      },
       "filter": {
         "text": "Název / Předmět / Kód"
-      }
+      },
+      "dropzone": {
+        "infoText": "Přetáhněte šablony v archivu (ZIP) nebo jednotlivé šablony (XML) na tuto plochu a nebo na ní klikněte pro výběr souborů."
+      },
+      "fileUploaded": "Soubor [{{name}}] byl úspěšně nahrán."
     },
     "emails": {
       "header": "Emaily",
@@ -4154,6 +4165,7 @@
       "creator": "$t(entity.creator)"
     },
     "Script": {
+      "_type": "Skript",
       "name": "Název skriptu",
       "category": "Kategorie",
       "code": "Kód",
@@ -4740,7 +4752,11 @@
         "name": "Tělo zprávy (html)",
         "help": "Pro seznam dostupných parametrů šablony napište znak '$'"
       },
-      "bodyText": "Tělo zprávy (text)"
+      "bodyText": "Tělo zprávy (text)",
+      "module": {
+        "label": "Modul",
+        "help": "Šablona je učena nebo pochází z daného modulu. Modul je použit například pro definici lokalizace. Pokud není zadáno, je použit 'core' modul."
+      }
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",

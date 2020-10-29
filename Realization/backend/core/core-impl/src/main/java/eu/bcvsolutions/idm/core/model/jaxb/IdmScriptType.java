@@ -1,15 +1,39 @@
 package eu.bcvsolutions.idm.core.model.jaxb;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.jaxb.CDATAAdapter;
 
+/**
+ * Jaxb type for check schema {@link IdmScriptDto}.
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
+ */
 @XmlRootElement(name = "script") // root element
-public class IdmScriptType {
+@XmlType(propOrder = { 
+		"code", 
+		"name",
+		"category", 
+		"type", 
+		"parameters", 
+		"body", 
+		"services", 
+		"allowClasses", 
+		"description"
+})
+public class IdmScriptType implements Codeable {
 
+	private static final long serialVersionUID = 1L;
+	//
 	private String code;
 	private String name;
 	private IdmScriptCategory category;
@@ -19,6 +43,11 @@ public class IdmScriptType {
 	private String description;
 	private IdmScriptAllowClassesType allowClasses;
 	private IdmScriptServicesType services;
+	
+	@Override
+	public Serializable getId() {
+		return code;
+	}
 
 	@XmlElement(type = IdmScriptAllowClassesType.class)
 	public IdmScriptAllowClassesType getAllowClasses() {
@@ -38,6 +67,7 @@ public class IdmScriptType {
 		this.services = services;
 	}
 
+	@Override
 	@XmlElement(required = true, type = String.class)
 	public String getCode() {
 		return code;

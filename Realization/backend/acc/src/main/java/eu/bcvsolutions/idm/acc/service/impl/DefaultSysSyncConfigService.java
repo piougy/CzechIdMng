@@ -269,6 +269,7 @@ public class DefaultSysSyncConfigService
 		}
 		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, dto.getClass());
 		if (descriptorDto != null) {
+			descriptorDto.setOptional(true);
 			// Token will be excluded for the export. It means a token on the target IdM will be not changed.
 			// Or will be sets to the null, if sync does not exist yet.
 			descriptorDto.getExcludedFields().add(SysSyncConfig_.token.getName());

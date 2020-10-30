@@ -132,7 +132,9 @@ public class IdmIdentityProjectionController implements BaseDtoController<IdmIde
 		}
 		event.setPriority(PriorityType.HIGH);
 		//
-		return identityProjectionManager.publish(event, isNew ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE).getContent();
+		dto = identityProjectionManager.publish(event, isNew ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE).getContent();
+		// => load eav and permission is needed
+		return getDto(dto);
 	}
 	
 	protected ResourceSupport toResource(IdmIdentityProjectionDto dto) {

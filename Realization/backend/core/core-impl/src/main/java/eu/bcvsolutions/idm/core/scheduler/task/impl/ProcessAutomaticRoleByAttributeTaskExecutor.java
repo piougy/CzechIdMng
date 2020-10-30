@@ -113,7 +113,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
     	}
     	//
     	while (canContinue) {
-    		for(UUID contractId : newNotPassedContracts) {
+    		for (UUID contractId : newNotPassedContracts) {
     			try { 
     				if (async) {
     					automaticRoleAttributeService.removeAutomaticRoles(contractId, setWithAutomaticRole);

@@ -143,7 +143,6 @@ public class NotificationTemplateBackupBulkActionIntegrationTest extends Abstrac
 	
 	@Test
 	public void prevalidationBulkActionByIds() {
-		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, "");
 		IdmNotificationTemplateDto template1 = templateService.getByCode(TEST_TEMPLATE);
 		
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmNotificationTemplate.class, NotificationTemplateBackupBulkAction.NAME);
@@ -153,7 +152,7 @@ public class NotificationTemplateBackupBulkActionIntegrationTest extends Abstrac
 		ResultModels resultModels = bulkActionManager.prevalidate(bulkAction);
 		List<ResultModel> results = resultModels.getInfos();
 		assertEquals(1, results.size());
-		assertEquals(results.get(0).getStatusEnum(), CoreResultCode.BACKUP_FOLDER_NOT_FOUND.toString());
+		assertEquals(results.get(0).getStatusEnum(), CoreResultCode.BACKUP_FOLDER_FOUND.toString());
 	}
 
 	@Test

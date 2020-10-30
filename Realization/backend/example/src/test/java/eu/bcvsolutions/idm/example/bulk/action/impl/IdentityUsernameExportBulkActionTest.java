@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -26,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
-import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -79,11 +77,7 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 		assertEquals(206, model.getStatusCode());
 		assertEquals(CoreResultCode.LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD.getCode(), model.getStatusEnum());
 
-		Map<String, Object> parameters = model.getParameters();
-		assertNotNull(parameters);
-		Object object = parameters.get(AttachableEntity.PARAMETER_ATTACHMENT_ID);
-		assertNotNull(object);
-		UUID fromString = UUID.fromString(object.toString());
+		UUID fromString = attachmentManager.getAttachments(longRunningTask, null).getContent().get(0).getId();
 		assertNotNull(fromString);
 
 		IdmAttachmentDto attachmentDto = attachmentManager.get(fromString);
@@ -136,9 +130,9 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 		Assert.notNull(longRunningTask, "Task is required.");
 		Assert.notNull(longRunningTask2, "Task is required.");
 
-		UUID attachmentOneId = UUID.fromString(longRunningTask.getResult().getModel().getParameters().get(AttachableEntity.PARAMETER_ATTACHMENT_ID).toString());
+		UUID attachmentOneId = attachmentManager.getAttachments(longRunningTask, null).getContent().get(0).getId();
 		try {
-			longRunningTaskManager.getAttachment(longRunningTask2.getId(), attachmentOneId, IdmBasePermission.READ);
+			longRunningTaskManager.getAttachment(longRunningTask.getId(), attachmentOneId, IdmBasePermission.READ);
 			fail();
 		} catch (ForbiddenEntityException e) {
 			// Correct behavior
@@ -155,7 +149,7 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 			fail();
 		}
 
-		UUID attachmentTwoId = UUID.fromString(longRunningTask2.getResult().getModel().getParameters().get(AttachableEntity.PARAMETER_ATTACHMENT_ID).toString());
+		UUID attachmentTwoId = attachmentManager.getAttachments(longRunningTask2, null).getContent().get(0).getId();
 		IdmAttachmentDto attachmentDto = longRunningTaskManager.getAttachment(longRunningTask2.getId(), attachmentTwoId);
 		assertNotNull(attachmentDto);
 	}

@@ -90,7 +90,9 @@ public class LongRunningTaskExecuteDependentProcessor
 					// Check quartz.properties if you see this line in log.
 					LOG.warn("Task [{}] was deleted and will not be executed.", dependentTaskTrigger.getDependentTaskId());
 				} else {
-					schedulerManager.runTask(task.getId(), longRunningTask.isDryRun());
+					// new transaction - when some exception is thrown and properly catched in previous task,
+					// but task end ok (just some item fails), then dependent task should be started (prevent to rollback).
+					schedulerManager.runTaskNewTransactional(task.getId(), longRunningTask.isDryRun());
 				}
 			});
 

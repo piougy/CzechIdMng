@@ -109,7 +109,6 @@ public class NotificationTemplateRedeployBulkActionIntegrationTest extends Abstr
 	
 	@Test
 	public void prevalidationBulkActionByIds() {
-		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, "");
 		IdmNotificationTemplateDto template1 = templateService.getByCode(TEST_TEMPLATE);
 		
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmNotificationTemplate.class, NotificationTemplateRedeployBulkAction.NAME);

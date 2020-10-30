@@ -48,11 +48,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.state = {
+      identityProjection: null,
       generatePassword: false,
       generatePasswordShowLoading: false,
       activeKey: null,
-      editContracts: new Immutable.OrderedSet()
+      editContracts: new Immutable.OrderedSet(),
+      uiKeyId: uuid.v1()
     };
   }
 
@@ -235,7 +238,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       attributes: this.getAttributes(formProjection),
       isNew,
       activeKey: activeKey || 0,
-      editContracts
+      editContracts,
+      uiKeyId: uuid.v1()
     }, () => {
       if (this.refs.username && focusUsername) {
         this.refs.username.focus();
@@ -594,6 +598,9 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       });
     } else {
       const { isNew } = this.state;
+      // FIXME: why, why, why ... withou it refresh don't work
+      this._initProjection(identityProjection.id, identityProjection, this.state.formProjection, false);
+      this._initProjection(identityProjection.id, identityProjection, this.state.formProjection, false);
       this.addMessage({
         message: this.i18n('action.save.success', { record: identityProjection.identity.username, count: 1 })
       });
@@ -828,12 +835,13 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
    * Render identity eav attributes.
    */
   renderIdentityAttributes() {
-    const { attributes, identityProjection, isNew } = this.state;
+    const { attributes, identityProjection, isNew, uiKeyId } = this.state;
     const { entityId } = this.props.match.params;
     //
     return (
       <Advanced.EavContent
         ref="eav"
+        key={ `identity-projection-eav-${ uiKeyId }` }
         formableManager={ identityManager }
         contentKey="content.identity.eav"
         showSaveButton
@@ -929,7 +937,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
    * Render contract eav attributes by index.
    */
   renderContractAttributes(index, readOnly = false) {
-    const { attributes, identityProjection, isNew } = this.state;
+    const { attributes, identityProjection, isNew, uiKeyId } = this.state;
     const contract = identityProjection.allContracts[index];
     if (!contract) {
       return null;
@@ -938,6 +946,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     return (
       <Advanced.EavContent
         ref={ `contractEav-${ index }` }
+        key={ `identity-projection-contract-${ contract.id }-eav-${ uiKeyId }` }
         formableManager={ identityContractManager }
         contentKey="content.identity-contract.eav"
         showSaveButton={ !readOnly }

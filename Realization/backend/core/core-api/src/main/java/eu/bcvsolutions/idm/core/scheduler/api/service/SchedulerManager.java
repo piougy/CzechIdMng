@@ -78,6 +78,16 @@ public interface SchedulerManager {
 	AbstractTaskTrigger runTask(String taskId, boolean dryRun);
 	
 	/**
+	 * Run task manually in new transaction.
+	 *
+	 * @param taskId
+	 * @param dryRun
+	 * @return
+	 * @since 10.6.0
+	 */
+	AbstractTaskTrigger runTaskNewTransactional(String taskId, boolean dryRun);
+	
+	/**
 	 * Interrupt given task
 	 * 
 	 * @param taskId

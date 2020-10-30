@@ -331,13 +331,12 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AbstractTaskTrigger runTask(String taskId) {
 		return runTask(taskId, false);
 	}
 
+	// rt: @Transactional not work here form FE - user waits 30s (timeout?) to run task, why?
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AbstractTaskTrigger runTask(String taskId, boolean dryRun) {
  		// run job - add simple trigger
  		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
@@ -346,6 +345,12 @@ public class DefaultSchedulerManager implements SchedulerManager {
  		trigger.setFireTime(ZonedDateTime.now());
  		//
 		return createTrigger(taskId, trigger, dryRun);
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public AbstractTaskTrigger runTaskNewTransactional(String taskId, boolean dryRun) {
+		return runTask(taskId, dryRun);
 	}
 	
 	@Override

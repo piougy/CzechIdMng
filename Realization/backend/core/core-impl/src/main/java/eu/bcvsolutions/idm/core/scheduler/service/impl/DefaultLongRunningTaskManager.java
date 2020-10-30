@@ -315,6 +315,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			// task can be executed later, e.g. after previous task ends
 			if (ex.getStatus() == HttpStatus.ACCEPTED) {
 				markTaskAsCreated(persistTask);
+			} else {
+				// mark task as failed => prevent to stuck task type execution from queue
+				persistTask.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setException(ex).build());
+				service.save(persistTask);
 			}
 			//
 			throw ex;

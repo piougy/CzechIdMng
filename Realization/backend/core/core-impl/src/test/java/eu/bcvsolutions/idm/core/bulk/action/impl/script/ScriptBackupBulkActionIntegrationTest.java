@@ -120,7 +120,6 @@ public class ScriptBackupBulkActionIntegrationTest extends AbstractBulkActionTes
 	
 	@Test
 	public void prevalidationBulkActionByIds() {
-		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, "");
 		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
 		
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmScript.class, ScriptBackupBulkAction.NAME);

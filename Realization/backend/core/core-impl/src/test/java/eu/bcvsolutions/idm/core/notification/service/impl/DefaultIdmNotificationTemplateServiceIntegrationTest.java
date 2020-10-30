@@ -10,13 +10,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
+import java.time.ZonedDateTime;
+import java.util.List;
 
 import javax.validation.ConstraintViolationException;
 
 import org.apache.commons.io.FileUtils;
-import java.time.ZonedDateTime;
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +26,6 @@ import org.springframework.context.ApplicationContext;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.Recoverable;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
@@ -118,27 +116,6 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 		// after redeploy must be id same
 		assertEquals(testTemplateNew.getId(), testTemplate.getId());
 		configurationService.setValue(DefaultIdmNotificationTemplateService.BACKUP_FOLDER_CONFIG, null);
-	}
-
-	@Test
-	public void redeployWithoutBackupFolder() {
-		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, "?/wrong/path");
-		//
-		IdmNotificationTemplateDto testTemplate = notificationTemplateService.getByCode(TEST_TEMPLATE);
-		Assert.assertNotNull(testTemplate);
-		assertEquals(TEST_TEMPLATE, testTemplate.getCode());
-		//
-		try {
-			notificationTemplateService.redeploy(testTemplate);
-			fail();
-		} catch (Exception e) {
-			assertTrue(e instanceof ResultCodeException);
-			ResultCodeException resultCode = (ResultCodeException) e;
-			assertEquals(resultCode.getError().getError().getStatusEnum(),
-					CoreResultCode.BACKUP_FAIL.name());
-		} finally {
-			configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, null);
-		}
 	}
 
 	@Test

@@ -214,51 +214,6 @@ public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationT
 	}
 	
 	@Test
-	public void backupMissingFolderExistEntity() {
-		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, "?/wrong/path");
-		
-		IdmScriptDto script1 = scriptService.getByCode(TEST_SCRIPT_CODE_1);
-
-		assertNotNull(script1);
-		
-		try {
-			scriptService.backup(script1);
-			fail();
-		} catch (ResultCodeException e) {
-			ResultCodeException resultCode = (ResultCodeException) e;
-			assertEquals(resultCode.getError().getError().getStatusEnum(),
-					CoreResultCode.BACKUP_FAIL.name());
-		} finally {
-			configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, null);
-		}
-	}
-	
-	@Test
-	public void backupMissingFolderNewEntity() {
-		configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, "?/wrong/path");
-		
-		IdmScriptDto script = new IdmScriptDto();
-		script.setCategory(IdmScriptCategory.SYSTEM);
-		script.setCode(getHelper().createName());
-		script.setName(getHelper().createName());
-
-		script = scriptService.save(script);
-		assertNotNull(script);
-		assertNotNull(script.getId());
-
-		try {
-			scriptService.backup(script);
-			fail();
-		} catch (ResultCodeException e) {
-			ResultCodeException resultCode = (ResultCodeException) e;
-			assertEquals(resultCode.getError().getError().getStatusEnum(),
-					CoreResultCode.BACKUP_FAIL.name());
-		} finally {
-			configurationService.setValue(Recoverable.BACKUP_FOLDER_CONFIG, null);
-		}
-	}
-	
-	@Test
 	public void tryBackup() {
 		File directory = new File(TEST_BACKUP_FOLDER);
 		if (directory.exists() && directory.isDirectory()) {

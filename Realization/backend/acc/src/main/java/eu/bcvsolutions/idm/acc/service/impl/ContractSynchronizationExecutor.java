@@ -900,7 +900,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		}
 
 		Task defaultTask = tasks.stream().filter(task -> {
-			return task.getDescription().equals(DEFAULT_TASK);
+			return DEFAULT_TASK.equals(task.getDescription());
 		}).findFirst().orElse(null);
 		if (defaultTask != null) {
 			return defaultTask;

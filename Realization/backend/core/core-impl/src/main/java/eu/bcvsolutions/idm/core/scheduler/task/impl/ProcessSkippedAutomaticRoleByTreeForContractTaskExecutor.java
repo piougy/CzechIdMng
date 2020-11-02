@@ -141,7 +141,8 @@ public class ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor extends Ab
 				);
 			} else {			
 				EntityEvent<IdmIdentityContractDto> event = new IdentityContractEvent(IdentityContractEventType.NOTIFY, contract);
-				event.setOriginalSource((IdmIdentityContractDto) state.getResult().getModel().getParameters().get("idm:original-source"));
+				event.setOriginalSource((IdmIdentityContractDto) state
+						.getResult().getModel().getParameters().get(EntityEvent.EVENT_PROPERTY_ORIGINAL_SOURCE));
 				contractProcessor.process(event);
 				//
 				getItemService().createLogItem(

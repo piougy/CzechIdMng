@@ -61,15 +61,19 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
@@ -87,6 +91,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -124,6 +129,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	private ApplicationContext applicationContext;
 	@Autowired
 	private IdmIdentityService identityService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityContractService contractService;
 	@Autowired
@@ -205,7 +212,66 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 		// Delete log
 		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void testUpdateContractWithAutomaticRoles() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
 
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		
+		// create first contract with validity and automatic role
+		String positionCode = getHelper().createName();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createAutomaticRole(role, node);
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setValidFrom(LocalDate.now().minusMonths(1));
+		contract.setValidTill(LocalDate.now().plusMonths(1));
+		contract.setDescription(positionCode);
+		contract.setPosition(positionCode);
+		contract.setWorkPosition(node.getId());
+		contract = contractService.save(contract);		
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue(positionCode);
+		Assert.assertEquals(1, contractService.find(contractFilter, null).getTotalElements());
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityContractId(contract.getId());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertNotNull(assignedRoles.get(0).getValidFrom());
+		Assert.assertNotNull(assignedRoles.get(0).getValidTill());
+		Assert.assertEquals(contract.getValidFrom(), assignedRoles.get(0).getValidFrom());
+		Assert.assertEquals(contract.getValidTill(), assignedRoles.get(0).getValidTill());
+
+		// create target system entity
+		this.getBean().createContractData(positionCode, identity.getUsername(), null, Boolean.TRUE.toString(), node.getId().toString(), null, null);
+
+		helper.startSynchronization(config);
+	
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 1);
+
+		Assert.assertFalse(log.isRunning());
+		
+		List<IdmIdentityContractDto> contracts = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contracts.size());
+		Assert.assertEquals(contract.getId(), contracts.get(0).getId());
+		Assert.assertEquals(identity.getId(), contracts.get(0).getIdentity());
+		Assert.assertNull(contracts.get(0).getValidTill());
+		Assert.assertNull(contracts.get(0).getValidFrom());
+		//
+		assignedRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertNull(assignedRoles.get(0).getValidFrom());
+		Assert.assertNull(assignedRoles.get(0).getValidTill());
+		
+		// Delete log
+		syncLogService.delete(log);
 	}
 	
 	@Test
@@ -1119,7 +1185,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		syncConfigCustom.setCorrelationAttribute(uidAttribute.getId());
 		syncConfigCustom.setName(SYNC_CONFIG_NAME);
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
-		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
 		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
 		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
 

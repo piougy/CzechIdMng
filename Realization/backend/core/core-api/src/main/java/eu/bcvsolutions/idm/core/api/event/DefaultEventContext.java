@@ -35,7 +35,7 @@ public class DefaultEventContext<E extends Serializable> implements EventContext
 	
 	@Override
 	public E getContent() {
-		if(processed.isEmpty()) {
+		if (processed.isEmpty()) {
 			return null;
 		}
 		return getLastResult().getEvent().getContent();

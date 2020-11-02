@@ -35,6 +35,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
@@ -99,13 +102,21 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		}
 
 		// Save contract
-		IdmIdentityContractDto savedContract = contractService.publish(
+		EventContext<IdmIdentityContractDto> publishContext = contractService.publish(
 				new IdentityContractEvent(isNew ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
-						contract, ImmutableMap.copyOf(eventProperties)))
-				.getContent();
+						contract, ImmutableMap.copyOf(eventProperties)));
+		IdmIdentityContractDto savedContract = publishContext.getContent();
+		
 		// We need to flag recalculation for contract immediately to prevent e.g. synchronization ends before flag is created by NOTIFY event asynchronously.
 		if (getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, eventProperties)) {
-			entityStateManager.createState(savedContract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+			Map<String, Serializable> properties = new HashMap<>();
+			EventResult<IdmIdentityContractDto> lastResult = publishContext.getLastResult();
+			if (lastResult != null) {
+				// original contract as property
+				properties.put(EntityEvent.EVENT_PROPERTY_ORIGINAL_SOURCE, lastResult.getEvent().getOriginalSource());
+			}
+			
+			entityStateManager.createState(savedContract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, properties);
 		}
 
 		// Copy guarantees

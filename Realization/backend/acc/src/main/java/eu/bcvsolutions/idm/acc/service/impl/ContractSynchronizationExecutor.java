@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
@@ -647,10 +651,18 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// Recalculation will be started only once.
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
-		IdmIdentityContractDto contract = contractService.publish(event).getContent();
+		EventContext<IdmIdentityContractDto> publishContext = contractService.publish(event);
+		IdmIdentityContractDto contract = publishContext.getContent();
 		// We need to flag recalculation for contract immediately to prevent synchronization ends before flag is created by NOTIFY event asynchronously.
-		if (contract.isValidNowOrInFuture()) {				
-			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+		if (contract.isValidNowOrInFuture()) {	
+			Map<String, Serializable> properties = new HashMap<>();
+			EventResult<IdmIdentityContractDto> lastResult = publishContext.getLastResult();
+			if (lastResult != null) {
+				// original contract as property
+				properties.put(EntityEvent.EVENT_PROPERTY_ORIGINAL_SOURCE, lastResult.getEvent().getOriginalSource());
+			}
+			
+			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, properties);
 		}
 		//
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {

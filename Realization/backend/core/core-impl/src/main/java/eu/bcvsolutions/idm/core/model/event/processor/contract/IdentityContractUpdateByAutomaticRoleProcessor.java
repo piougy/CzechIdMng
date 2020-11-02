@@ -110,11 +110,10 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			properties.put(EntityEvent.EVENT_PROPERTY_ORIGINAL_SOURCE, event.getOriginalSource());
 			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, properties);
 			//
-			if (previous != null && EntityUtils.validableChanged(previous, contract)) {
-				// process validable change only
-				roleRequest.getConceptRoles().addAll(changeValidable(contract, getAssignedAutomaticRoles(contract.getId())));
-			}
-		} else if (previous == null || !Objects.equals(newPosition, previousPosition) || validityChangedToValid) {
+			return new DefaultEventResult<>(event, this);
+		}
+		//
+		if (previous == null || !Objects.equals(newPosition, previousPosition) || validityChangedToValid) {
 			// work positions has some difference or validity changes
 			List<IdmIdentityRoleDto> assignedRoles = getAssignedAutomaticRoles(contract.getId());
 			//

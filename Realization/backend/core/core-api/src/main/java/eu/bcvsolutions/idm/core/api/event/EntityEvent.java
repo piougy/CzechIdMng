@@ -35,6 +35,7 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	String EVENT_PROPERTY_PARENT_EVENT_TYPE = "idm:parent-event-type"; // parent event type
 	String EVENT_PROPERTY_SUPER_OWNER_ID = "idm:super-owner-id"; // entity event super owner id (e.g. identity (~super owner) - identityRole (event owner))
 	String EVENT_PROPERTY_PERMISSION = "idm:permission"; // permission to evaluate (AND)
+	String EVENT_PROPERTY_ORIGINAL_SOURCE = "idm:original-source"; // additional original source
 	//
 	// additional properties - are propagated automatically from parent to child event
 	String EVENT_PROPERTY_TRANSACTION_ID = "idm:transaction-id"; // transaction identifier - whole event tree will be under one transaction id.

@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -92,31 +93,30 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	@Override
 	public EventResult<IdmIdentityContractDto> process(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
-		//
-		// when automatic role recalculation is skipped, then flag for contract position is created only
-		// flag can be processed afterwards
-		if (getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, event.getProperties())) {
-			LOG.debug("Automatic roles are skipped for contract [{}], state [AUTOMATIC_ROLE_SKIPPED] for position will be created only.", contract.getId());
-			// 
-			Map<String, Serializable> properties = new HashMap<>();
-			// original contract as property
-			properties.put("idm:original-source", event.getOriginalSource());
-			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, properties);
-			//
-			return new DefaultEventResult<>(event, this);
-		}
-		//
-		// process automatic roles otherwise
 		IdmIdentityContractDto previous = event.getOriginalSource();
 		UUID previousPosition = previous == null ? null : previous.getWorkPosition();
 		UUID newPosition = contract.getWorkPosition();
 		boolean validityChangedToValid = previous == null ? false : contract.isValidNowOrInFuture() && previous.isValidNowOrInFuture() != contract.isValidNowOrInFuture();
-		//
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		//
-		if (previous == null || !Objects.equals(newPosition, previousPosition) || validityChangedToValid) {
+		// when automatic role recalculation is skipped, then flag for contract position is created only
+		// flag can be processed afterwards
+		if (getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, event.getProperties())) {
+			LOG.debug("Automatic roles are skipped for contract [{}], state [{}] "
+					+ "for position will be created only.", contract.getId(), CoreResultCode.AUTOMATIC_ROLE_SKIPPED.getCode());
+			// 
+			Map<String, Serializable> properties = new HashMap<>();
+			// original contract as property
+			properties.put(EntityEvent.EVENT_PROPERTY_ORIGINAL_SOURCE, event.getOriginalSource());
+			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, properties);
+			//
+			if (previous != null && EntityUtils.validableChanged(previous, contract)) {
+				// process validable change only
+				roleRequest.getConceptRoles().addAll(changeValidable(contract, getAssignedAutomaticRoles(contract.getId())));
+			}
+		} else if (previous == null || !Objects.equals(newPosition, previousPosition) || validityChangedToValid) {
 			// work positions has some difference or validity changes
-			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
+			List<IdmIdentityRoleDto> assignedRoles = getAssignedAutomaticRoles(contract.getId());
 			//
 			// remove all automatic roles by attribute and by other contract position
 			if (!assignedRoles.isEmpty()) {
@@ -235,7 +235,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			}			
 		} else if (previous != null && EntityUtils.validableChanged(previous, contract)) {
 			// process validable change only
-			roleRequest.getConceptRoles().addAll(changeValidable(contract, identityRoleService.findAllByContract(contract.getId())));
+			roleRequest.getConceptRoles().addAll(changeValidable(contract, getAssignedAutomaticRoles(contract.getId())));
 		}
 		// start request at end asynchronously
 		roleRequest.setApplicant(contract.getIdentity());
@@ -252,6 +252,14 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			}
 		}
 		return null;
+	}
+	
+	private List<IdmIdentityRoleDto> getAssignedAutomaticRoles(UUID contractId) {
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityContractId(contractId);
+		filter.setAutomaticRole(Boolean.TRUE);
+		//
+		return identityRoleService.find(filter, null).getContent();
 	}
 	
 	/**

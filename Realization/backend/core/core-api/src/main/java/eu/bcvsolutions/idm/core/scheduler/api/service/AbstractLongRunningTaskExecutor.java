@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -29,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.IdmCheckConcurrentExecution;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -183,23 +187,60 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		if (!OperationState.isRunnable(task.getResultState())) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
 		}
-		// 
+		//
+		// check concurrent task is not running (or waiting => operation state is used)
+		String taskType = task.getTaskType();
 		if (this.getClass().isAnnotationPresent(DisallowConcurrentExecution.class)) {
 			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-			filter.setTaskType(task.getTaskType());
+			filter.setTaskType(taskType);
 			filter.setOperationState(OperationState.RUNNING);
-			List<IdmLongRunningTaskDto> runningTasks = longRunningTaskService
-					.find(filter, null)
+			List<UUID> runningTasks = longRunningTaskService
+					.findIds(filter, null)
 					.getContent()
 					.stream()
 					.filter(t -> {
 						// not self
-						return !t.getId().equals(task.getId());
+						return !t.equals(task.getId());
 					})
 					.collect(Collectors.toList());			
 			if (!runningTasks.isEmpty()) {
 				throw new ConcurrentExecutionException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", getName()));
 			}
+		}
+		if (this.getClass().isAnnotationPresent(IdmCheckConcurrentExecution.class)) {
+			List<String> disallowConcurrentTaskTypes = new ArrayList<>();
+			IdmCheckConcurrentExecution disallowConcurrentExecution = this.getClass().getAnnotation(IdmCheckConcurrentExecution.class);
+			Class<? extends LongRunningTaskExecutor<?>>[] taskTypes = disallowConcurrentExecution.taskTypes();
+			if (taskTypes.length == 0) {
+				disallowConcurrentTaskTypes.add(taskType);
+			} else {
+				disallowConcurrentTaskTypes.addAll(
+						// TODO: move to utils somewhere - DRY manager
+						Arrays
+							.asList(taskTypes)
+							.stream()
+							.map(Class::getCanonicalName)
+							.collect(Collectors.toList())
+				);
+			}
+			// TODO: filter.setTaskTypes(...)
+			disallowConcurrentTaskTypes.forEach(concurrentTaskType -> {
+				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+				filter.setTaskType(concurrentTaskType);
+				filter.setOperationState(OperationState.RUNNING);
+				List<UUID> runningTasks = longRunningTaskService
+						.findIds(filter, null)
+						.getContent()
+						.stream()
+						.filter(t -> {
+							// not self
+							return !t.equals(task.getId());
+						})
+						.collect(Collectors.toList());			
+				if (!runningTasks.isEmpty()) {
+					throw new AcceptedException(CoreResultCode.LONG_RUNNING_TASK_ACCEPTED, ImmutableMap.of("taskId", getName()));
+				}
+			});
 		}
 	}
 	

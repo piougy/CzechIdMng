@@ -107,11 +107,11 @@ public class DefaultIdmRoleTreeNodeService
 		//
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
 		//
-		// FIXME: this should be in save internal or in save processor ... can be skipped by publishing raw create event
+		// FIXME: this should be in save processor ... can be skipped by publishing raw create event
 		if (isNew(roleTreeNode)) { // create
 			EventContext<IdmRoleTreeNodeDto> context = entityEventManager.process(new RoleTreeNodeEvent(RoleTreeNodeEventType.CREATE, roleTreeNode));
 			if (context.isSuspended()) {
-				throw new AcceptedException();
+				throw new AcceptedException(String.valueOf(context.getContent().getId()));
 			}
 			return context.getContent();
 		}

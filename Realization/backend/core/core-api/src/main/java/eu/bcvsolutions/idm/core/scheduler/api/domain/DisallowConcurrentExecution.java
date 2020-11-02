@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
  * 
  * @author Radek Tomiška
  * @deprecated @since 9.7.12 - unused, not supported from the beginning.
+ * @see IdmCheckConcurrentExecution
  */
 @Deprecated
 @Documented

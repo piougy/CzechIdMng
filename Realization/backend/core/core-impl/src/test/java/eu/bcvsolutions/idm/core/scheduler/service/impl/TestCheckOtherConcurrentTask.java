@@ -2,7 +2,10 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.IdmCheckConcurrentExecution;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
@@ -11,7 +14,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  *
  */
-public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String> {
+@Component
+@IdmCheckConcurrentExecution(taskTypes = { TestCheckConcurrentTask.class })
+public class TestCheckOtherConcurrentTask extends AbstractSchedulableTaskExecutor<String> {
 
 	private String result;
 	private Long count;
@@ -21,7 +26,6 @@ public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String>
 	public Long getCount() {
 		return count;
 	}
-	
 	@Override
 	public Long getCounter() {
 		return counter;

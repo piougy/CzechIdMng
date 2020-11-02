@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.stream.Collectors;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -44,6 +47,7 @@ import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.ecm.entity.IdmAttachment;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.IdmCheckConcurrentExecution;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -161,9 +165,30 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					if (futureTask != null) {
 						taskList.add(futureTask);
 						// prevent to persisted task starts twice
-						if (AutowireHelper.getTargetClass(futureTask.getExecutor()).isAnnotationPresent(DisallowConcurrentExecution.class)) {
+						Class<?> executorClass = AutowireHelper.getTargetClass(futureTask.getExecutor());
+						if (executorClass.isAnnotationPresent(DisallowConcurrentExecution.class)) {
 							processedTaskTypes.add(taskType);
 						}
+						if (executorClass.isAnnotationPresent(IdmCheckConcurrentExecution.class)) {
+							IdmCheckConcurrentExecution disallowConcurrentExecution = 
+									executorClass.getAnnotation(IdmCheckConcurrentExecution.class);
+							Class<? extends LongRunningTaskExecutor<?>>[] disallowConcurrentTaskTypes = 
+									disallowConcurrentExecution.taskTypes();	
+							
+							if (disallowConcurrentTaskTypes.length == 0) {
+								processedTaskTypes.add(taskType);
+							} else {
+								processedTaskTypes.addAll(
+										// TODO: move to utils somewhere  - see AbstractLRT
+										Arrays
+											.asList(disallowConcurrentTaskTypes)
+											.stream()
+											.map(Class::getCanonicalName)
+											.collect(Collectors.toList())
+								);
+							}
+						}
+						// task is processed => remove from failed tasks to log exception again, when task fails in future
 						failedLoggedTask.remove(taskId);
 					}
 				} catch (ResultCodeException ex) {
@@ -239,7 +264,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(noRollbackFor = AcceptedException.class)
 	public synchronized <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		if (!isAsynchronous()) {
 			V result = executeSync(taskExecutor);
@@ -592,7 +617,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 * @param task
 	 * @return
 	 */
-	private LongRunningTaskExecutor<?> createTaskExecutor(IdmLongRunningTaskDto task) {
+	protected LongRunningTaskExecutor<?> createTaskExecutor(IdmLongRunningTaskDto task) {
 		Assert.notNull(task, "Long running task instance is required!");
 		if (!OperationState.isRunnable(task.getResultState())) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));

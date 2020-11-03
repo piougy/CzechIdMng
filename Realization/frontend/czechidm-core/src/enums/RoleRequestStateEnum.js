@@ -102,4 +102,4 @@ RoleRequestStateEnum.APPROVED = Symbol('APPROVED');
 RoleRequestStateEnum.IN_PROGRESS = Symbol('IN_PROGRESS');
 RoleRequestStateEnum.EXCEPTION = Symbol('EXCEPTION');
 RoleRequestStateEnum.DUPLICATED = Symbol('DUPLICATED');
-RoleRequestStateEnum.DUPLICATED = Symbol('DISAPPROVED');
+RoleRequestStateEnum.DISAPPROVED = Symbol('DISAPPROVED');

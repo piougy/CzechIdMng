@@ -211,7 +211,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		// persist event if needed
 		// event is persisted automatically, when parent event is persisted
 		try {
-			if (content instanceof BaseDto && event.getId() == null && event.getParentId() != null) {
+			if (content instanceof BaseDto 
+					&& event.getId() == null 
+					&& event.getParentId() != null
+					&& lookupService.getEntityClass(((BaseDto) content).getClass()) != null) { // entity event can be persisted into queue only
 				BaseDto dto = (BaseDto) content;
 				if (dto.getId() == null) {
 					// prepare id for new content - event is persisted before entity is persisted.

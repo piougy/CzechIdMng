@@ -6,9 +6,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
@@ -29,7 +32,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
@@ -40,6 +45,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
@@ -59,6 +65,9 @@ import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -96,6 +105,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private Executor executor;
 	// FIXME: move to wf configuration / constants somewhere
 	private static final String APPROVE_BY_MANAGER_ENABLE = "idm.sec.core.wf.approval.manager.enabled";
+	private final static String IP = "IP";
 
 	@Before
 	public void init() {
@@ -868,6 +878,83 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		Assert.assertEquals(1, assignedRoles.size());
 		Assert.assertTrue(assignedRoles.stream().allMatch(ir -> ir.getAutomaticRole().equals(automaticRole.getId())));
 	}
+	
+	@Test
+	public void testExecuteRoleRequestValueAsync() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
+		IdmRoleDto role = createRoleWithAttributes(true);
+		IdmFormDefinitionDto definition = formService.getDefinition(role.getIdentityRoleAttributeDefinition());
+		IdmFormAttributeDto ipAttributeDto = definition.getFormAttributes().stream() //
+				.filter(attribute -> IP.equals(attribute.getCode())) //
+				.findFirst() //
+				.get(); //
+		//
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			// Add value
+			IdmFormValueDto formValue = new IdmFormValueDto(ipAttributeDto);
+			formValue.setStringValue(getHelper().createName());
+			formValue.setPersistentType(PersistentType.TEXT);
+			formValue.setFormAttribute(ipAttributeDto.getId());
+	
+			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+			formInstance.setFormDefinition(definition);
+			formInstance.getValues().add(formValue);
+			// Create request
+			IdmRoleRequestDto request = new IdmRoleRequestDto();
+			request.setApplicant(identity.getId());
+			request.setRequestedByType(RoleRequestedByType.MANUALLY);
+			request.setExecuteImmediately(true);
+			request = roleRequestService.save(request);
+			// Create concept
+			IdmConceptRoleRequestDto conceptRole = new IdmConceptRoleRequestDto();
+			conceptRole.setIdentityContract(identityContact.getId());
+			conceptRole.setRole(role.getId());
+			conceptRole.setOperation(ConceptRoleRequestOperation.ADD);
+			conceptRole.setRoleRequest(request.getId());
+			conceptRole.getEavs().add(formInstance);
+			conceptRole = conceptRoleRequestService.save(conceptRole);
+	
+			// Start request
+			Map<String, Serializable> variables = new HashMap<>();
+			variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, Boolean.FALSE);
+			RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, request, variables);
+			event.setPriority(PriorityType.HIGH);
+			//
+			request = roleRequestService.startRequest(event);
+			UUID requestId = request.getId();
+			
+			getHelper().waitForResult(res -> {
+				return roleRequestService.get(requestId).getState() != RoleRequestState.EXECUTED;
+			}, 500, 50);
+			
+			IdmRoleRequestDto roleRequestDto = roleRequestService.get(request);
+			assertEquals(RoleRequestState.EXECUTED, roleRequestDto.getState());
+			
+			conceptRole = conceptRoleRequestService.get(conceptRole.getId());
+			assertEquals(RoleRequestState.EXECUTED, conceptRole.getState());
+			IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+			identityRoleFilter.setIdentityContractId(identityContact.getId());
+			
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+			assertEquals(1, identityRoles.size());
+			
+			IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
+			IdmFormInstanceDto formInstanceDto = identityRoleService.getRoleAttributeValues(identityRoleDto);
+			assertNotNull(formInstanceDto);
+			List<IdmFormValueDto> values = formInstanceDto.getValues();
+			
+			assertEquals(1, values.size());
+			assertEquals(formValue.getValue(), values.get(0).getValue());
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			// cleanup form definition
+			getHelper().deleteIdentity(identity.getId());
+			getHelper().deleteRole(role.getId());
+			formService.deleteDefinition(definition);
+		}
+	}
 
 	private IdmAttachmentDto prepareAttachment(String content) {
 		IdmAttachmentDto attachment = new IdmAttachmentDto();
@@ -899,5 +986,26 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 			conceptRoleRequestService.save(conceptRoleRequest);
 		}
 		return roleRequest;
+	}
+	
+	private IdmRoleDto createRoleWithAttributes(boolean ipRequired ) {
+		IdmRoleDto role = getHelper().createRole();
+		assertNull(role.getIdentityRoleAttributeDefinition());
+		
+		IdmFormAttributeDto ipAttribute = new IdmFormAttributeDto(IP);
+		ipAttribute.setPersistentType(PersistentType.TEXT);
+		ipAttribute.setRequired(ipRequired);
+		
+		IdmFormDefinitionDto definition = formService.createDefinition(IdmIdentityRole.class, ImmutableList.of(ipAttribute));
+		role.setIdentityRoleAttributeDefinition(definition.getId());
+		role = roleService.save(role);
+		assertNotNull(role.getIdentityRoleAttributeDefinition());
+		IdmRoleDto roleFinal = role;
+		definition.getFormAttributes().forEach(attribute -> {
+			roleFormAttributeService.addAttributeToSubdefintion(roleFinal, attribute);
+		});
+
+		
+		return role;
 	}
 }

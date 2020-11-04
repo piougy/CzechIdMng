@@ -7,15 +7,14 @@ import _ from 'lodash';
 import * as Utils from '../../../utils';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import { SecurityManager, AutomaticRoleRequestManager, RoleManager } from '../../../redux';
+import { SecurityManager, AutomaticRoleRequestManager } from '../../../redux';
 import AutomaticRoleRequestTableComponent, { AutomaticRoleRequestTable } from '../../automaticrolerequest/AutomaticRoleRequestTable';
 import SearchParameters from '../../../domain/SearchParameters';
 
-
 const automaticRoleRequestManager = new AutomaticRoleRequestManager();
-const roleManager = new RoleManager();
+
 /**
- * Table with automatic roles
+ * Table with automatic roles by attribute.
  *
  * @author Ondřej Kopr
  */
@@ -66,12 +65,10 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
       } else {
         this.context.history.push(`/automatic-role/attributes/${uuidId}/new?new=1`);
       }
+    } else if (roleId) {
+      this.context.history.push(`/role/${roleId}/automatic-roles/attributes/${entityId}/detail`);
     } else {
-      if (roleId) {
-        this.context.history.push(`/role/${roleId}/automatic-roles/attributes/${entityId}/detail`);
-      } else {
-        this.context.history.push('/automatic-role/attributes/' + entity.id);
-      }
+      this.context.history.push(`/automatic-role/attributes/${ entity.id }`);
     }
   }
 
@@ -81,9 +78,16 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
   _onDeleteViaRequest(bulkActionValue, selectedRows) {
     const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
+    this.refs[`confirm-${ bulkActionValue }`].show(
+      this.i18n(`action.${ bulkActionValue }.message`, {
+        count: selectedEntities.length,
+        record: this.getManager().getNiceLabel(selectedEntities[0]),
+        records: this.getManager().getNiceLabels(selectedEntities).join(', ')
+      }),
+      this.i18n(`action.${bulkActionValue}.header`, {
+        count: selectedEntities.length,
+        records: this.getManager().getNiceLabels(selectedEntities).join(', ')
+      })
     ).then(() => {
       this.context.store.dispatch(this.getManager().deleteAutomaticRolesViaRequest(selectedEntities, this.getUiKey(), (entity, error) => {
         if (entity && error) {
@@ -126,9 +130,10 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
     if (roleId) {
       this._createNewRequest(event, roleId);
     } else {
+      const { detail } = this.state;
       this.setState({
         detail: {
-          ... this.state.detail,
+          ...detail,
           show: true
         }
       });
@@ -148,12 +153,14 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
   }
 
   /**
-   * Close modal dialog
+   * Close modal dialog.
    */
   _closeDetail() {
+    const { detail } = this.state;
+    //
     this.setState({
       detail: {
-        ... this.state.detail,
+        ...detail,
         show: false
       }
     });
@@ -176,7 +183,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
     requestForceSearch = requestForceSearch.setFilter('states', ['IN_PROGRESS', 'CONCEPT', 'EXCEPTION']);
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -207,18 +214,19 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs"
-                      onClick={this._showCreateDetail.bind(this)}
-                      rendered={SecurityManager.hasAuthority('AUTOMATIC_ROLE_CREATE')}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={ this._showCreateDetail.bind(this) }
+                rendered={ SecurityManager.hasAuthority('AUTOMATIC_ROLE_CREATE') }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
           forceSearchParameters={forceSearchParameters}
-          _searchParameters={ this.getSearchParameters() }
-          >
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -271,6 +279,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
                     </Basic.Tooltip>
                   );
                 }
+                return null;
               }
             }/>
         </Advanced.Table>
@@ -286,8 +295,8 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
               forceSearchParameters={requestForceSearch}
               columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
                  roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
-                        : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
-              ) }
+                        : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified'])
+              }
               showFilter={false}
               manager={automaticRoleRequestManager}/>
           </div>
@@ -304,12 +313,10 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('content.automaticRoleRequests.create.header')}/>
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="modalForm" showLoading={_showLoading}>
-                <Basic.SelectBox
+                <Advanced.RoleSelect
                   ref="role"
-                  manager={ roleManager }
                   label={ this.i18n('content.automaticRoleRequests.role') }
                   required/>
-
               </Basic.AbstractForm>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
@@ -329,7 +336,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

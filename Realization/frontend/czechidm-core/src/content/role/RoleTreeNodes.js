@@ -7,15 +7,11 @@ import SearchParameters from '../../domain/SearchParameters';
 import RoleTreeNodeTableComponent, { RoleTreeNodeTable } from './RoleTreeNodeTable';
 
 /**
- * Automatic roles - tab on role detail
+ * Automatic roles by tree structure - tab on role detail.
  *
  * @author Radek Tomiška
  */
 export default class RoleTreeNodes extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.role.tree-nodes';
@@ -29,13 +25,13 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
     const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.match.params.entityId);
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
-          <RoleTreeNodeTableComponent
-            uiKey="role-tree-nodes-table"
-            forceSearchParameters={ forceSearchParameters }
-            columns={ _.without(RoleTreeNodeTable.defaultProps.columns, 'role') }/>
-      </div>
+        <RoleTreeNodeTableComponent
+          uiKey="role-tree-nodes-table"
+          forceSearchParameters={ forceSearchParameters }
+          columns={ _.without(RoleTreeNodeTable.defaultProps.columns, 'role') }/>
+      </Basic.Div>
     );
   }
 }

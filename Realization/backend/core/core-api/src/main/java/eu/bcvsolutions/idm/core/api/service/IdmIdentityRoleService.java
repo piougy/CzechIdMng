@@ -26,9 +26,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmIdentityRoleService extends
-	EventableDtoService<IdmIdentityRoleDto, IdmIdentityRoleFilter>,
-	AuthorizableService<IdmIdentityRoleDto>,
-	ScriptEnabled {
+		EventableDtoService<IdmIdentityRoleDto, IdmIdentityRoleFilter>,
+		AuthorizableService<IdmIdentityRoleDto>,
+		ScriptEnabled {
 	
 	String SKIP_CHECK_AUTHORITIES = "skipCheckAuthorities";
 	

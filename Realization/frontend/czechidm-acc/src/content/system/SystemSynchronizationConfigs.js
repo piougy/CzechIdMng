@@ -22,6 +22,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     this.state = {
       configs: [],
       longPollingInprogress: false,
+      requestControllers: [], // Contains array of requests controllers for abort a request.
       automaticRefreshOn: true
     };
     this.canSendLongPollingRequest = false;
@@ -49,9 +50,14 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
   // }
 
   componentWillUnmount() {
+    const {requestControllers} = this.state;
     super.componentWillUnmount();
     // Stop rquest of check rquests (next long-polling request will be not created)
     this.canSendLongPollingRequest = false;
+    // Send abort signal to all registered requests in this component.
+    requestControllers.forEach(controller => {
+      controller.abort();
+    });
   }
 
   componentDidMount() {

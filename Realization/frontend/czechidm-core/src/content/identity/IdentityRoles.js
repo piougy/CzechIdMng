@@ -51,7 +51,8 @@ class IdentityRoles extends Basic.AbstractContent {
     this.state = {
       activeKey: 1,
       longPollingInprogress: false,
-      automaticRefreshOn: true
+      automaticRefreshOn: true,
+      requestControllers: [] // Contains array of requests controllers for abort a request.
     };
     this.canSendLongPollingRequest = false;
   }
@@ -92,9 +93,14 @@ class IdentityRoles extends Basic.AbstractContent {
   // }
 
   componentWillUnmount() {
+    const {requestControllers} = this.state;
     super.componentWillUnmount();
     // Stop rquest of check rquests (next long-polling request will be not created)
     this.canSendLongPollingRequest = false;
+    // Send abort signal to all registered requests in this component.
+    requestControllers.forEach(controller => {
+      controller.abort();
+    });
   }
 
   _initComponent(props) {

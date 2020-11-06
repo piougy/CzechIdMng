@@ -11,24 +11,24 @@ import ConfigLoader from '../utils/ConfigLoader';
  */
 export default class RestApiService {
 
-  static get(path, token = null) {
-    return this.action('get', path, null, token);
+  static get(path, token = null, signal) {
+    return this.action('get', path, null, token, signal);
   }
 
-  static post(path, json, token = null) {
-    return this.action('post', path, json, token);
+  static post(path, json, token = null, signal) {
+    return this.action('post', path, json, token, signal);
   }
 
-  static put(path, json, token = null) {
-    return this.action('put', path, json, token);
+  static put(path, json, token = null, signal) {
+    return this.action('put', path, json, token, signal);
   }
 
-  static patch(path, json, token = null) {
-    return this.action('PATCH', path, json, token);
+  static patch(path, json, token = null, signal) {
+    return this.action('PATCH', path, json, token, signal);
   }
 
-  static delete(path, token = null) {
-    return this.action('DELETE', path, null, token);
+  static delete(path, token = null, signal) {
+    return this.action('DELETE', path, null, token, signal);
   }
 
   static processHeaders(response) {
@@ -43,14 +43,15 @@ export default class RestApiService {
   /**
    * Dynamic fetch action, use it wisely
    *
-   * @param  {[type]} method http method - e.g PUT / POST / DELETE
-   * @param  {[type]} path  url path
-   * @param  {[type]} json  request data - (PUT / POST)
-   * @param  {[type]} token authentication token
+   * @param method http method - e.g PUT / POST / DELETE
+   * @param path  url path
+   * @param json  request data - (PUT / POST)
+   * @param token authentication token
+   * @param signal - Signal from AbortController. Allow abort of the request.
    * @return {promise}
    */
-  static action(method, path, json, token = null) {
-    const fetchConfig = this._getFetchConfig(method || 'put', json, token);
+  static action(method, path, json, token = null, signal = null) {
+    const fetchConfig = this._getFetchConfig(method || 'put', json, token, signal);
     return fetch(this.getUrl(path), fetchConfig).then(this.processHeaders);
   }
 
@@ -83,7 +84,7 @@ export default class RestApiService {
     return `${ ConfigLoader.getServerUrl() }${ path }`;
   }
 
-  static _getFetchConfig(methodType, body, token = null) {
+  static _getFetchConfig(methodType, body, token = null, signal) {
     if (token === null) {
       token = AuthenticateService.getTokenCIDMST();
     }
@@ -98,6 +99,10 @@ export default class RestApiService {
     };
     if (token) {
       fetchConfig.headers.CIDMST = token;
+    }
+    // Signal from AbortController. Allow abort of the request.
+    if (signal) {
+      fetchConfig.signal = signal;
     }
     if (body) {
       fetchConfig.body = JSON.stringify(body);

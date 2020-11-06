@@ -15,9 +15,15 @@ export default class LongPollingManager {
     if (!this.canSendLongPollingRequest) {
       this.setState({longPollingInprogress: false});
     } else {
+
+      // Abort controller send signal for cancel the request. Useful in situation when component is unmounted.
+      const controller = new AbortController();
+      if (this.state.requestControllers) {
+        this.state.requestControllers.push(controller);
+      }
       // I do not want wait to render, I need to send request ASAP
       this.setState({longPollingInprogress: true});
-      service.sendLongPollingRequest(entityId).then(result => {
+      service.sendLongPollingRequest(entityId, controller.signal).then(result => {
         if (this.canSendLongPollingRequest) {
           if (result && result.state === 'RUNNING') {
             // Change of entity was detected, we need to execute
@@ -43,6 +49,12 @@ export default class LongPollingManager {
         }
       })
         .catch(error => {
+          if (error.name === 'AbortError') {
+            // AbortError is OK. Component was probably unmounted -> request could be aborted.
+            this.canSendLongPollingRequest = false;
+            this.setState({longPollingInprogress: false});
+            return;
+          }
           this.addError(error);
           this.canSendLongPollingRequest = false;
           this.setState({longPollingInprogress: false});

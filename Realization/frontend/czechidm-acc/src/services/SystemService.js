@@ -387,10 +387,29 @@ class SystemService extends Services.AbstractService {
       });
   }
 
-  sendLongPollingRequest(systemId) {
+  sendLongPollingRequest(systemId, signal) {
     return Services.RestApiService
-      .get(`${ this.getApiPath() }/${ encodeURIComponent(systemId) }/check-running-sync`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(systemId) }/check-running-sync`, null, signal)
       .then(response => response.json())
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Loads all registered connector types.
+   *
+   * @return {promise}
+   */
+  getSupportedTypes() {
+    return Services.RestApiService
+      .get(`${ this.getApiPath() }/search/supported`)
+      .then(response => {
+        return response.json();
+      })
       .then(json => {
         if (Utils.Response.hasError(json)) {
           throw Utils.Response.getFirstError(json);

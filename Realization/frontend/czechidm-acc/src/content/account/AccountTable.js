@@ -40,10 +40,6 @@ export class AccountTable extends Advanced.AbstractTableContent {
     return 'acc:content.system.accounts';
   }
 
-  getNavigationKey() {
-    return 'system-accounts';
-  }
-
   showDetail(entity) {
     if (!Utils.Entity.isNew(entity)) {
       this.context.store.dispatch(this.getManager().fetchPermissions(entity.id, `${this.getUiKey()}-detail`));

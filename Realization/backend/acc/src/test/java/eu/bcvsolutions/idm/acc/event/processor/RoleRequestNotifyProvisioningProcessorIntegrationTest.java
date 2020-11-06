@@ -28,12 +28,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -55,6 +57,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 	@Autowired private AccAccountService accountService;
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private SysSystemMappingService systemMappingService;
+	@Autowired private IdmRoleCompositionService roleCompositionService;
 	
 	@Test
 	public void testAssignSubRolesByRequestAsync() {
@@ -188,7 +191,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			getHelper().createRoleSystem(subTwo, system);
 			// create composition at last
 			getHelper().createRoleComposition(superior, subOne);
-			getHelper().createRoleComposition(subOne, subTwo);
+			IdmRoleCompositionDto compositionWithSystem = getHelper().createRoleComposition(subOne, subTwo);
 			
 			IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
 			eventFilter.setSuperOwnerId(identity.getId());
@@ -202,13 +205,43 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			// and account created
 			AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
 			Assert.assertNotNull(account);
+			//
+			// remove role composition
+			roleCompositionService.delete(compositionWithSystem);
+			//
+			assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertEquals(2, assignedRoles.size());
+			//
+			// and account deleted
+			Assert.assertNull(accountService.getAccount(identity.getUsername(), system.getId()));
+			//
+			// create composition again nad remove assigned role by standard request
+			getHelper().createRoleComposition(subOne, subTwo);
+			getHelper().waitForResult(res -> {
+				return entityEventService.find(eventFilter, PageRequest.of(0, 1)).getTotalElements() != 0;
+			});
+			//
+			assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertEquals(3, assignedRoles.size());
+			Assert.assertNotNull(accountService.getAccount(identity.getUsername(), system.getId()));
+			//
+			IdmRoleRequestDto roleRequest = getHelper().createRoleRequest(identity, ConceptRoleRequestOperation.REMOVE, superior);
+			getHelper().executeRequest(roleRequest, false);
+			getHelper().waitForResult(res -> {
+				return roleRequestService.get(roleRequest).getState() != RoleRequestState.EXECUTED;
+			});
+			Assert.assertEquals(RoleRequestState.EXECUTED, roleRequestService.get(roleRequest).getState());
+			//
+			assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertTrue(assignedRoles.isEmpty());
+			Assert.assertNull(accountService.getAccount(identity.getUsername(), system.getId()));
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		}
 	}
 	
 	/**
-	 * Backward compatibily - request executed synchronously works the same as async with one exception
+	 * Backward compatibility - request executed synchronously works the same as async with one exception
 	 *  - account management is executed for every identity role => added identity roles are executed before deletions 
 	 *  => prevent to remove account from target system is implemented this way
 	 */

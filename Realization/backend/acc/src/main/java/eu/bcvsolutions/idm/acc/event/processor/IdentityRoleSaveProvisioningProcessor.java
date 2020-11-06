@@ -82,12 +82,12 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 			// parent event not exists - provisioning is needed.
 			return true;
 		}
-		// check parent event is role request and is running - we can skip provisioning. Provisioning occurs after role request is completely executed
-		IdmEntityEventDto parentEvent = entityEventManager.getEvent(event.getRootId());
 		if (!entityEventManager.isRunnable(event.getRootId())) {
 			// parent event is already executed - provisioning is needed.
 			return true;
 		}
+		// check parent event is role request and is running - we can skip provisioning. Provisioning occurs after role request is completely executed
+		IdmEntityEventDto parentEvent = entityEventManager.getEvent(event.getRootId());
 		if (parentEvent.getOwnerType().equals(entityEventManager.getOwnerType(IdmRoleRequestDto.class)))  {
 			// role request is processed
 			// prevent to skip provisioning for other events (e.g. sub roles are processed).

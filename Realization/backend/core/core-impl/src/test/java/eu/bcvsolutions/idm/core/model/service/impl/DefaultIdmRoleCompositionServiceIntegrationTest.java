@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.event.processor.ObserveRequestProcessor;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -115,6 +116,35 @@ public class DefaultIdmRoleCompositionServiceIntegrationTest extends AbstractInt
 	
 	@Test
 	@Transactional
+	public void testFindAllSuperiorWithCycles() {
+		// prepare role composition
+		IdmRoleDto superior = getHelper().createRole();
+		IdmRoleDto subOne = getHelper().createRole();
+		IdmRoleDto subTwo = getHelper().createRole();
+		getHelper().createRoleComposition(superior, subOne);
+		getHelper().createRoleComposition(subOne, subTwo);
+		getHelper().createRoleComposition(subTwo, superior);
+		//
+		List<IdmRoleCompositionDto> allSuperiorRoles = service.findAllSuperiorRoles(superior.getId());
+		Assert.assertEquals(2, allSuperiorRoles.size());
+		// ordered
+		Assert.assertEquals(subTwo.getId(), allSuperiorRoles.get(0).getSuperior());
+		Assert.assertEquals(subOne.getId(), allSuperiorRoles.get(1).getSuperior());
+	}
+	
+	@Test
+	@Transactional
+	public void testFindAllSuperiorWithSelf() {
+		// prepare role composition
+		IdmRoleDto superior = getHelper().createRole();
+		getHelper().createRoleComposition(superior, superior);
+		//
+		List<IdmRoleCompositionDto> allSuperiorRoles = service.findAllSuperiorRoles(superior.getId());
+		Assert.assertTrue(allSuperiorRoles.isEmpty());
+	}
+	
+	@Test
+	@Transactional
 	public void testAssignUpdateRemoveSubRoles() {
 		// prepare role composition
 		IdmRoleDto superior = getHelper().createRole();
@@ -158,9 +188,7 @@ public class DefaultIdmRoleCompositionServiceIntegrationTest extends AbstractInt
 	
 	@Test
 	@Transactional
-	public void testAssignRolesPreventCycles() {
-		// TODO: create invalid composition directly on repository - prevent cycles validation should be created in service.
-		
+	public void testAssignRolesPreventCycles() {		
 		// prepare role composition
 		IdmRoleDto superior = getHelper().createRole();
 		IdmRoleDto subOne = getHelper().createRole();
@@ -203,6 +231,160 @@ public class DefaultIdmRoleCompositionServiceIntegrationTest extends AbstractInt
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(1, assignedRoles.size());
 		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+	}
+	
+	@Test
+	@Transactional
+	public void testAssignRolesPreventCyclesSameSuperiorAsSubByRequest() {
+		IdmRoleDto superior = getHelper().createRole();
+		getHelper().createRoleComposition(superior, superior);
+		//
+		List<IdmRoleCompositionDto> allSubRoles = service.findAllSubRoles(superior.getId());
+		Assert.assertTrue(allSubRoles.isEmpty());
+		//
+		// assign superior role
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleRequestDto roleRequest = getHelper().createRoleRequest(identity, superior);
+		getHelper().executeRequest(roleRequest, false);
+		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+	}
+	
+	@Test
+	public void testAssignRolesPreventCyclesByRequest() {
+		IdmRoleDto superior = getHelper().createRole();
+		IdmRoleDto subOne = getHelper().createRole();
+		IdmRoleDto subTwo = getHelper().createRole();
+		IdmRoleCompositionDto subOneComposition = getHelper().createRoleComposition(superior, subOne);
+		IdmRoleCompositionDto subTwoComposition = getHelper().createRoleComposition(subOne, subTwo);
+		IdmRoleCompositionDto cyclicComposition = getHelper().createRoleComposition(subTwo, superior);
+		//
+		// find all sub roles
+		List<IdmRoleCompositionDto> allSubRoles = service.findAllSubRoles(superior.getId());
+		Assert.assertEquals(2, allSubRoles.size());
+		Assert.assertTrue(allSubRoles.stream().anyMatch(c -> c.getId().equals(subOneComposition.getId())));
+		Assert.assertTrue(allSubRoles.stream().anyMatch(c -> c.getId().equals(subTwoComposition.getId())));
+		//
+		// assign superior role
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleRequestDto roleRequest = getHelper().createRoleRequest(identity, superior);
+		//
+		getHelper().executeRequest(roleRequest, false);
+		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(3, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subTwo.getId())));
+		//
+		// remove role composition
+		service.delete(cyclicComposition);
+		//
+		allSubRoles = service.findAllSubRoles(superior.getId());
+		Assert.assertEquals(2, allSubRoles.size());
+		Assert.assertTrue(allSubRoles.stream().anyMatch(c -> c.getId().equals(subOneComposition.getId())));
+		Assert.assertTrue(allSubRoles.stream().anyMatch(c -> c.getId().equals(subTwoComposition.getId())));
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(3, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subTwo.getId())));
+		//
+		cyclicComposition = getHelper().createRoleComposition(subTwo, superior);
+		//
+		allSubRoles = service.findAllSubRoles(superior.getId());
+		Assert.assertEquals(2, allSubRoles.size());
+		Assert.assertTrue(allSubRoles.stream().anyMatch(c -> c.getId().equals(subOneComposition.getId())));
+		Assert.assertTrue(allSubRoles.stream().anyMatch(c -> c.getId().equals(subTwoComposition.getId())));
+		// role is asssigned in the middle => cycle is detected one step after
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(6, assignedRoles.size());
+		Assert.assertEquals(2, assignedRoles.stream().filter(ir -> ir.getRole().equals(superior.getId())).count());
+		Assert.assertEquals(2, assignedRoles.stream().filter(ir -> ir.getRole().equals(subOne.getId())).count());
+		Assert.assertEquals(2, assignedRoles.stream().filter(ir -> ir.getRole().equals(subTwo.getId())).count());
+		//
+		// remove role composition again
+		service.delete(cyclicComposition);
+		//
+		allSubRoles = service.findAllSubRoles(superior.getId());
+		Assert.assertEquals(2, allSubRoles.size());
+		Assert.assertTrue(allSubRoles.stream().anyMatch(c -> c.getId().equals(subOneComposition.getId())));
+		Assert.assertTrue(allSubRoles.stream().anyMatch(c -> c.getId().equals(subTwoComposition.getId())));
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(3, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subTwo.getId())));
+		
+	}
+	
+	@Test
+	public void testAssignRolesDuplicates() {
+		IdmRoleDto superior = getHelper().createRole();
+		IdmRoleDto subOne = getHelper().createRole();
+		IdmRoleDto subTwo = getHelper().createRole();
+		IdmRoleDto subOneOne = getHelper().createRole();
+		IdmRoleDto subSubOneOne = getHelper().createRole();
+		getHelper().createRoleComposition(superior, subOne);
+		getHelper().createRoleComposition(superior, subTwo);
+		getHelper().createRoleComposition(subOne, subOneOne);
+		IdmRoleCompositionDto cyclicComposition = getHelper().createRoleComposition(subTwo, subOneOne);
+		getHelper().createRoleComposition(subOneOne, subSubOneOne);
+		//
+		// find all sub roles
+		List<IdmRoleCompositionDto> allSubRoles = service.findAllSubRoles(superior.getId());
+		Assert.assertEquals(6, allSubRoles.size());
+		//
+		// assign superior role
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleRequestDto roleRequest = getHelper().createRoleRequest(identity, superior);
+		//
+		getHelper().executeRequest(roleRequest, false);
+		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(7, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subTwo.getId())));
+		Assert.assertEquals(2, assignedRoles.stream().filter(ir -> ir.getRole().equals(subOneOne.getId())).count());
+		Assert.assertEquals(2, assignedRoles.stream().filter(ir -> ir.getRole().equals(subSubOneOne.getId())).count());
+		//
+		// remove role composition
+		service.delete(cyclicComposition);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(5, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subTwo.getId())));
+		Assert.assertEquals(1, assignedRoles.stream().filter(ir -> ir.getRole().equals(subOneOne.getId())).count());
+		Assert.assertEquals(1, assignedRoles.stream().filter(ir -> ir.getRole().equals(subSubOneOne.getId())).count());
+		//
+		// create again
+		cyclicComposition = getHelper().createRoleComposition(subTwo, subOneOne);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(7, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subTwo.getId())));
+		Assert.assertEquals(2, assignedRoles.stream().filter(ir -> ir.getRole().equals(subOneOne.getId())).count());
+		Assert.assertEquals(2, assignedRoles.stream().filter(ir -> ir.getRole().equals(subSubOneOne.getId())).count());
+		//
+		// remove again
+		service.delete(cyclicComposition);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(5, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(superior.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subTwo.getId())));
+		Assert.assertEquals(1, assignedRoles.stream().filter(ir -> ir.getRole().equals(subOneOne.getId())).count());
+		Assert.assertEquals(1, assignedRoles.stream().filter(ir -> ir.getRole().equals(subSubOneOne.getId())).count());
 	}
 	
 	@Test

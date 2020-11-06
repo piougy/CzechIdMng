@@ -393,6 +393,23 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                   }>
                   <Basic.Alert
                     level="success"
+                    style={{ marginTop: 25, marginRight: 0, marginLeft: 0 }}
+                    title={ this.i18n('Přidat novou roli') }
+                    text={ this.i18n('Přidat do žádosti novou roli.') }
+                    rendered={ false }
+                    buttons={[
+                      <Basic.Button
+                        icon="fa:plus"
+                        level="success"
+                        disabled={ showLoading || _incompatibleRolesLoading }
+                        onClick={ () => this.refs.conceptTable._addConcept() }
+                        title={ this.i18n('button.createRequest.tooltip') }
+                        style={{ minWidth: 150 }}>
+                        { this.i18n('Přidat novou roli') }
+                      </Basic.Button>
+                    ]}/>
+                  <Basic.Alert
+                    level="success"
                     style={{marginTop: 25, marginRight: 0, marginLeft: 0}}
                     title={ this.i18n('button.createRequest.header') }
                     text={ this.i18n('button.createRequest.tooltip') }
@@ -402,7 +419,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                         level="success"
                         disabled={ showLoading || _incompatibleRolesLoading }
                         onClick={ this._confirmIncompatibleRoles.bind(this, _incompatibleRoles) }
-                        title={ this.i18n('button.createRequest.tooltip') }>
+                        title={ this.i18n('button.createRequest.tooltip') }
+                        style={{ minWidth: 150 }}>
                         { this.i18n('button.createRequest.label') }
                       </Basic.Button>
                     ]}/>
@@ -474,6 +492,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRoleHeader') }}/>
               </Basic.ContentHeader>
               <RequestIdentityRoleTable
+                ref="conceptTable"
                 request={request}
                 showEnvironment={showEnvironment}
                 incompatibleRoles={ _incompatibleRoles }

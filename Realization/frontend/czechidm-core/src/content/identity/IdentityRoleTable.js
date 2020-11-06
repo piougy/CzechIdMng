@@ -209,10 +209,9 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               level="success"
               className="btn-xs"
               onClick={ this.showDetail.bind(this, {}) }
-              rendered={ showAddButton && TEST_ADD_ROLE_DIRECTLY }>
-              <Basic.Icon value="fa:plus"/>
-              {' '}
-              {this.i18n('button.add')}
+              rendered={ showAddButton && TEST_ADD_ROLE_DIRECTLY }
+              icon="fa:plus">
+              { this.i18n('button.add') }
             </Basic.Button>,
             <Basic.Button
               level="warning"
@@ -221,9 +220,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               rendered={ showAddButton }
               disabled={ !this._canChangePermissions() }
               title={ this._canChangePermissions() ? null : this.i18n('security.access.denied') }
-              titlePlacement="bottom">
-              <Basic.Icon type="fa" icon="key"/>
-              {' '}
+              titlePlacement="bottom"
+              icon="component:role-request">
               { this.i18n('changePermissions') }
             </Basic.Button>
           ]}
@@ -519,23 +517,24 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                         <Basic.DateTimePicker
                           mode="date"
                           ref="validFrom"
-                          label={this.i18n('label.validFrom')}/>
+                          label={ this.i18n('label.validFrom') }/>
                       </Basic.Col>
                       <Basic.Col md={ 6 }>
                         <Basic.DateTimePicker
                           mode="date"
                           ref="validTill"
-                          label={this.i18n('label.validTill')}/>
+                          label={ this.i18n('label.validTill') }/>
                       </Basic.Col>
                     </Basic.Row>
                   </Basic.AbstractForm>
                   {
                     detail.entity.directRole !== null
                     ||
-                    <div>
-                      <Basic.ContentHeader style={{ marginBottom: 0 }} className="marginable">
-                        <Basic.Icon value="component:sub-roles"/>
-                        {' '}
+                    <Basic.Div>
+                      <Basic.ContentHeader
+                        style={{ marginBottom: 0 }}
+                        className="marginable"
+                        icon="component:sub-roles">
                         { this.i18n('detail.directRole.subRoles.header') }
                       </Basic.ContentHeader>
                       <IdentityRoleTable
@@ -546,7 +545,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                         match={ this.props.match }
                         columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['identityContract', 'directRole', 'automaticRole']) }
                         className="marginable"/>
-                    </div>
+                    </Basic.Div>
                   }
                 </Basic.Tab>
                 <Basic.Tab
@@ -572,9 +571,9 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={_showLoading}
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
+                showLoadingText={ this.i18n('button.saving') }
                 rendered={ TEST_ADD_ROLE_DIRECTLY }>
                 { this.i18n('button.save') }
               </Basic.Button>

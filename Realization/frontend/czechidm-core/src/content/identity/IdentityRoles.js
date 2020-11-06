@@ -279,7 +279,7 @@ class IdentityRoles extends Basic.AbstractContent {
           <Basic.Button
             level="warning"
             className="btn-xs"
-            icon="fa:key"
+            icon="component:role-request"
             rendered={ contracts.length > 0 }
             onClick={ this._changePermissions.bind(this) }
             disabled={ !this._canChangePermissions() }

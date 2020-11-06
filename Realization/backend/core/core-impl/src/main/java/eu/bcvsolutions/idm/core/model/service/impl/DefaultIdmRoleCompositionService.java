@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
@@ -73,6 +75,14 @@ public class DefaultIdmRoleCompositionService
 	}
 	
 	@Override
+	@Transactional
+	public void deleteInternal(IdmRoleCompositionDto dto) {
+		super.deleteInternal(dto);
+		// clear cache right here => delete is asynchronous
+		cacheManager.evictCache(IdmRoleCompositionService.ALL_SUB_ROLES_CACHE_NAME);
+	}
+	
+	@Override
 	public List<IdmRoleCompositionDto> findDirectSubRoles(UUID superiorId, BasePermission... permission) {
 		Assert.notNull(superiorId, "Superior role identifier is required.");
 		//
@@ -94,7 +104,7 @@ public class DefaultIdmRoleCompositionService
 		}
 		//
 		List<IdmRoleCompositionDto> results = new ArrayList<>();
-		findAllSubRoles(results, superiorId, permission);
+		findAllSubRoles(results, new ArrayList<>(), superiorId, permission);
 		cacheManager.cacheValue(ALL_SUB_ROLES_CACHE_NAME, superiorId, results);
 		//
 		return results;
@@ -106,7 +116,7 @@ public class DefaultIdmRoleCompositionService
 		//
 		List<IdmRoleCompositionDto> results = new ArrayList<>();
 		//
-		findAllSuperiorRoles(results, subId, permission);
+		findAllSuperiorRoles(results, subId, subId, permission);
 		//
 		return results;
 	}
@@ -317,32 +327,48 @@ public class DefaultIdmRoleCompositionService
 		descriptorDto.getAdvancedParingFields().add(IdmRoleComposition_.superior.getName());
 	}
 	
-	private void findAllSuperiorRoles(List<IdmRoleCompositionDto> results, UUID subId, BasePermission... permission) {
+	/**
+	 * 
+	 * @param results found parents
+	 * @param subId original role, for which parent are found => used for prevent cycles
+	 * @param subChildId curently processed sub role
+	 * @param permission
+	 */
+	private void findAllSuperiorRoles(List<IdmRoleCompositionDto> results, UUID subId, UUID subChildId, BasePermission... permission) {
 		IdmRoleCompositionFilter filter = new IdmRoleCompositionFilter();
-		filter.setSubId(subId);
+		filter.setSubId(subChildId);
 		//
 		find(filter, null, permission)
+			.filter(superiorRole -> !superiorRole.getSuperior().equals(superiorRole.getSub())) // cyclic composition in the first level is ignored
+			.filter(superiorRole -> !superiorRole.getSuperior().equals(subId)) // cyclic to original
 			.forEach(superiorRole -> {
 				if (!results.contains(superiorRole)) {
 					results.add(superiorRole);
 					//
-					findAllSuperiorRoles(results, superiorRole.getSuperior(), permission);
+					findAllSuperiorRoles(results, subId, superiorRole.getSuperior(), permission);
 				}				
 			});
 	}
 	
-	private void findAllSubRoles(List<IdmRoleCompositionDto> results, UUID superiorId, BasePermission... permission) {
+	private void findAllSubRoles(List<IdmRoleCompositionDto> results, List<IdmRoleCompositionDto> parents, UUID superiorId, BasePermission... permission) {
 		IdmRoleCompositionFilter filter = new IdmRoleCompositionFilter();
 		filter.setSuperiorId(superiorId);
 		//
 		find(filter, null, permission)
+			.stream()
+			.filter(subRole -> !subRole.getSuperior().equals(subRole.getSub())) // cyclic composition in the first level is ignored
 			.forEach(subRole -> {
-				if (!results.contains(subRole)) {
+				if (!parents // duplicate composition is enabled, but from different superior role => is not cycle, is duplicate but ok
+						.stream() // cycle is, when sub role of processed composition is already in processed superiors
+						.map(IdmRoleCompositionDto::getSuperior)
+						.anyMatch(superior -> superior.equals(subRole.getSub()))) {
 					results.add(subRole);
+					List<IdmRoleCompositionDto> lineParents = Lists.newArrayList(parents);
+					lineParents.add(subRole);
 					//
 					IdmRoleDto subRoleDto = DtoUtils.getEmbedded(subRole, IdmRoleComposition_.sub);
 					if (subRoleDto.getChildrenCount() > 0) {
-						findAllSubRoles(results, subRole.getSub(), permission);
+						findAllSubRoles(results, lineParents, subRole.getSub(), permission);
 					}
 				}				
 			});

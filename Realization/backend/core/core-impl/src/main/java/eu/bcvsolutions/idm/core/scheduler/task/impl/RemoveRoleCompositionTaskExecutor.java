@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +40,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.IdmCheckConcurrentExecution;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -51,7 +51,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.0.0
  */
-@DisallowConcurrentExecution
+@IdmCheckConcurrentExecution
 @Component(RemoveRoleCompositionTaskExecutor.TASK_NAME)
 public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityRoleDto> {
 
@@ -91,18 +91,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		}
 		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		filter.setTaskType(this.getClass().getCanonicalName());
-		filter.setRunning(Boolean.TRUE);
-		//
-		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-			throw new AcceptedException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
-					ImmutableMap.of(
-							"taskId", longRunningTaskId.toString(),
-							"roleCompositionId", roleCompositionId.toString()
-					)
-			);
-		}
-		//
+		filter.setOperationState(OperationState.RUNNING);
 		filter.setTaskType(AddNewRoleCompositionTaskExecutor.class.getCanonicalName());
 		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
 			throw new AcceptedException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
@@ -132,7 +121,11 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	@Override
 	public Optional<OperationResult> processItem(IdmIdentityRoleDto identityRole) {
 		try {
-			removeAssignedRoles(new ArrayList<>(), identityRole);
+			List<IdmConceptRoleRequestDto> preparedConcepts = prepareConcepts(new ArrayList<>(), identityRole);
+			
+			IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract);
+			// TODO: async? it's delete, what about referential integrity?
+			roleRequestService.executeConceptsImmediate(contract.getIdentity(), Lists.newArrayList(preparedConcepts));
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch (Exception ex) {
@@ -233,34 +226,51 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
     	return true;
     }
 	
-	private void removeAssignedRoles(List<UUID> processedIdentityRoles, IdmIdentityRoleDto identityRole) {
-		IdmRoleCompositionFilter compositionFilter = new IdmRoleCompositionFilter();
-		compositionFilter.setSuperiorId(identityRole.getRole());
-		processedIdentityRoles.add(identityRole.getId()); // prevent cycles ...
-		roleCompositionService.find(compositionFilter, null)
-			.forEach(composition -> {
-				IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-				filter.setRoleId(composition.getSub());
-				filter.setDirectRoleId(identityRole.getDirectRole());
-				identityRoleService
-					.find(filter, null)
-					.forEach(subIdentityRole -> {
-						// remove all sub
-						if (!processedIdentityRoles.contains(subIdentityRole.getId())) {
-							removeAssignedRoles(processedIdentityRoles, subIdentityRole);
-						}
-					});
-			});
-		//
-		// remove superior at last by role request
+	/**
+	 * Identity role => one applicant => one request can be executed from prepared contracts.
+	 * 
+	 * @param preparedConcepts cumulative concepts => will be used to execute request at end
+	 * @param identityRole assigned role
+	 * @return concepts to remove assigned roles
+	 */
+	private List<IdmConceptRoleRequestDto> prepareConcepts(
+			List<IdmConceptRoleRequestDto> preparedConcepts, 
+			IdmIdentityRoleDto identityRole) {
+		// remove assigned role by concept
 		IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
 		conceptRoleRequest.setIdentityRole(identityRole.getId());
 		conceptRoleRequest.setRole(identityRole.getRole());
 		conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
 		conceptRoleRequest.setIdentityContract(identityRole.getIdentityContract());
-		IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract);
+		conceptRoleRequest.setContractPosition(identityRole.getContractPosition());
+		conceptRoleRequest.setAutomaticRole(identityRole.getAutomaticRole());
+		conceptRoleRequest.setDirectRole(identityRole.getDirectRole());
+		conceptRoleRequest.setRoleComposition(identityRole.getRoleComposition());
+		
+		
+		IdmRoleCompositionFilter compositionFilter = new IdmRoleCompositionFilter();
+		compositionFilter.setSuperiorId(identityRole.getRole());
+		preparedConcepts.add(conceptRoleRequest); // prevent cycles ...
+		roleCompositionService.find(compositionFilter, null)
+			.forEach(composition -> {
+				IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+				filter.setRoleId(composition.getSub());
+				filter.setRoleCompositionId(composition.getId());
+				filter.setDirectRoleId(identityRole.getDirectRole());
+				identityRoleService
+					.find(filter, PageRequest.of(0, 1)) // just one sub role can be removed => other completely same sub roles will be preserved.
+					.forEach(subIdentityRole -> {
+						// remove all sub
+						if (!preparedConcepts
+								.stream()
+								.map(IdmConceptRoleRequestDto::getIdentityRole)
+								.anyMatch(ir -> ir.equals(subIdentityRole.getId()))) {
+							prepareConcepts(preparedConcepts, subIdentityRole);
+						}
+					});
+			});
 		//
-		roleRequestService.executeConceptsImmediate(contract.getIdentity(), Lists.newArrayList(conceptRoleRequest));
+		return preparedConcepts;
 	}
 	
 	private void saveResult(ResultModel resultModel, OperationState state, Exception ex) {

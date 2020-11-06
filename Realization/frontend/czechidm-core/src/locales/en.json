@@ -537,7 +537,12 @@
           }
         },
         "moreRecords": "<span title='Load next records'>Shown <strong>{{counter}}</strong> of <strong>{{total}}</strong> records ...</span>",
-        "noData": "No results found"
+        "noData": "No results found",
+        "expand": {
+          "expand": "Expand",
+          "collapse": "Collapse",
+          "cycle": "Node is already expanded"
+        }
       },
       "EavForm": {
         "multiple": {

@@ -665,11 +665,22 @@ class Tree extends Basic.AbstractContextComponent {
   /**
    * Render parent's child nodes
    *
-   * @param  {[type]} parentId node id (null is root)
+   * @param  {uuid} parentId node id (null is root)
+   * @param {int} level - node depth
+   * @param {array(uuid)} renderedNodes - prevent to render cyclic nodes (when composition is rendered)
    */
-  _renderNodes(parentId = null, level = 0) {
+  _renderNodes(parentId = null, level = 0, renderedNodes = null) {
     const { traverse, nodeContent } = this.props;
     const { nodes, ui, selected } = this.state;
+    //
+    // prevent to render cyclic compositions
+    if (renderedNodes === null) {
+      renderedNodes = new Immutable.OrderedSet();
+    }
+    if (renderedNodes.has(parentId)) {
+      return null;
+    }
+    renderedNodes = renderedNodes.add(parentId);
     //
     if (!nodes.has(parentId)) {
       return null;
@@ -688,7 +699,7 @@ class Tree extends Basic.AbstractContextComponent {
     const allRootLeafs = level === 0 ? this.isLeafs(levelNodeIds) : false;
     //
     return (
-      <div>
+      <Basic.Div>
         {
           levelNodeIds.map(nodeId => {
             const node = this._getNode(nodeId);
@@ -756,6 +767,19 @@ class Tree extends Basic.AbstractContextComponent {
               );
             }
             //
+            let expandIcon = 'fa:plus-square-o';
+            let expandAction = this.onExpand.bind(this, node.id);
+            let expandTitle = this.i18n('expand.expand');
+            if (renderedNodes.has(node.id)) {
+              expandIcon = 'fa:arrow-up';
+              expandAction = null;
+              expandTitle = this.i18n('expand.cycle');
+            } else if (nodes.has(node.id)) {
+              expandIcon = 'fa:minus-square-o';
+              expandAction = this.onCollapse.bind(this, node.id);
+              expandTitle = this.i18n('expand.collapse');
+            }
+            //
             return (
               <div>
                 <div className={ nodeClassNames } style={ this._getNodeStyle(node) }>
@@ -764,23 +788,13 @@ class Tree extends Basic.AbstractContextComponent {
                   {/* - or undefined (children is unknown and has to be loaded at first) */}
                   <Basic.Icon
                     rendered={ !traverse && !allRootLeafs }
-                    value={
-                      !nodes.has(node.id)
-                      ?
-                      'fa:plus-square-o'
-                      :
-                      'fa:minus-square-o'
-                    }
-                    onClick={
-                      !nodes.has(node.id)
-                      ?
-                      this.onExpand.bind(this, node.id)
-                      :
-                      this.onCollapse.bind(this, node.id)
-                    }
+                    value={ expandIcon }
+                    onClick={ expandAction }
+                    title={ expandTitle }
                     className={ classNames(
                       'expand-icon',
-                      { visible: node.childrenCount > 0 || node.childrenCount === undefined }
+                      { disabled: renderedNodes.has(node.id) },
+                      { visible: (node.childrenCount > 0 || node.childrenCount === undefined) }
                     )}
                     style={{ marginLeft: 2 + (level * BASE_ICON_WIDTH) }}/> {/* dynamic margin by node level */}
 
@@ -796,7 +810,7 @@ class Tree extends Basic.AbstractContextComponent {
                 {
                   traverse
                   ||
-                  this._renderNodes(node.id, level + 1)
+                  this._renderNodes(node.id, level + 1, renderedNodes)
                 }
               </div>
             );
@@ -821,7 +835,7 @@ class Tree extends Basic.AbstractContextComponent {
             </small>
           </Basic.Button>
         }
-      </div>
+      </Basic.Div>
     );
   }
 
@@ -884,7 +898,7 @@ class Tree extends Basic.AbstractContextComponent {
               </div>
               <div className="tree-header-buttons">
                 <DetailButton
-                  rendered={ selectedNode !== null && onDetail ? true : false }
+                  rendered={ !!(selectedNode !== null && onDetail) }
                   onClick={ this.onDetail.bind(this, activeNodeId) }
                   title={ this.i18n('detail.link.title') }/>
 
@@ -920,7 +934,7 @@ class Tree extends Basic.AbstractContextComponent {
                     <Basic.TextField
                       ref="filter"
                       label={ null }
-                      placeholder={ 'Search ...' }
+                      placeholder={ this.i18n('component.basic.SelectBox.searchingText') }
                       className="small"
                       style={{ marginBottom: 0 }}/>
                   </div>

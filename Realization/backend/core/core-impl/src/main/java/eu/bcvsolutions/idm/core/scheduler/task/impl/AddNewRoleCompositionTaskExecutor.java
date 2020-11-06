@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,7 +30,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -43,6 +41,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.domain.IdmCheckConcurrentExecution;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -54,7 +53,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.0.0
  */
-@DisallowConcurrentExecution
+@IdmCheckConcurrentExecution
 @Component(AddNewRoleCompositionTaskExecutor.TASK_NAME)
 public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmRoleDto> {
 
@@ -88,21 +87,10 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		super.validate(task);
 		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		filter.setTaskType(this.getClass().getCanonicalName());
-		filter.setRunning(Boolean.TRUE);
-		//
+		filter.setOperationState(OperationState.RUNNING);
+		filter.setTaskType(RemoveRoleCompositionTaskExecutor.class.getCanonicalName());
 		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
 			throw new AcceptedException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
-					ImmutableMap.of(
-							"taskId", longRunningTaskId.toString(),
-							"roleCompositionId", roleCompositionId.toString()
-					)
-			);
-		}
-		//
-		filter.setTaskType(AddNewRoleCompositionTaskExecutor.class.getCanonicalName());
-		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-			throw new ResultCodeException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
 					ImmutableMap.of(
 							"taskId", longRunningTaskId.toString(),
 							"roleCompositionId", roleCompositionId.toString()

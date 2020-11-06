@@ -56,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -357,7 +358,10 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Assert.notNull(identityRole, "Identity role identifier is required.");
 		//
 		boolean skipPropagate = event.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE);
-		boolean bulk = event.getRootId() != null && entityEventManager.isRunnable(event.getRootId());
+		boolean bulk = event.getRootId() != null 
+				&& entityEventManager.isRunnable(event.getRootId())
+				&& !entityEventManager.getEvent(event.getRootId()).getOwnerType() // check parent event is not role request
+					.equals(entityEventManager.getOwnerType(IdmRoleRequestDto.class)); 
 		
 		if (!skipPropagate && !bulk) {
 			// role is deleted without request or without any parent ... we need to remove account synchronously
@@ -378,7 +382,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 					// Set relation on identity-role to null
 					identityAccount.setIdentityRole(null);
 
-					if(bulk) {
+					if (bulk) {
 						// For bulk create entity state for identity account.
 						IdmEntityStateDto stateDeleted = new IdmEntityStateDto();
 						stateDeleted.setSuperOwnerId(identityAccount.getIdentity());

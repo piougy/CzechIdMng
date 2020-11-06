@@ -570,7 +570,12 @@
           }
         },
         "moreRecords": "<span title='Načíst další záznamy'>Zobrazeno <strong>{{counter}}</strong> z <strong>{{total}}</strong> záznamů ...</span>",
-        "noData": "Nenalezeny žádné záznamy"
+        "noData": "Nenalezeny žádné záznamy",
+        "expand": {
+          "expand": "Rozbalit",
+          "collapse": "Sbalit",
+          "cycle": "Prvek již je rozbalen výše"
+        }
       },
       "EavForm": {
         "multiple": {

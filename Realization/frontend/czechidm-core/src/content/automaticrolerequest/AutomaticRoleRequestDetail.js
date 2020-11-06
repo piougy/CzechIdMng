@@ -342,7 +342,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     }
     return (
       <div>
-        <Basic.ContentHeader rendered={request}>
+        <Basic.ContentHeader rendered={request} className="marginable">
           <Basic.Icon value="list"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptHeader') }}/>
@@ -447,7 +447,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
           text={ this.i18n('rulesIsAnd.text') }
           className="no-margin"
         />
-        <Basic.ContentHeader>
+        <Basic.ContentHeader className="marginable">
           <Basic.Icon value="list"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('conceptWithCurrentRulesHeader') }}/>
@@ -480,7 +480,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     }
     return (
       <div>
-        <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') }/>
+        <Basic.ContentHeader text={ this.i18n('content.scheduler.all-tasks.detail.result') } className="marginable"/>
         <div style={{ marginBottom: 15 }}>
           <Basic.EnumValue value={ request.result.state } enum={ OperationStateEnum }/>
           {

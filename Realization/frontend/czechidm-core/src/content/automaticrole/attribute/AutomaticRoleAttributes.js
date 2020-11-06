@@ -6,7 +6,7 @@ import { AutomaticRoleAttributeManager } from '../../../redux';
 import AutomaticRoleAttributeTable from './AutomaticRoleAttributeTable';
 
 /**
- * List of automatic roles by tree nodes
+ * List of automatic roles by attribute.
  *
  * @author Ondrej Kopr
  */
@@ -28,8 +28,8 @@ export default class AutomaticRoleAttributes extends Basic.AbstractContent {
   render() {
     return (
       <Basic.Div>
-        <Helmet title={this.i18n('title')} />
-        <AutomaticRoleAttributeTable uiKey="automatic-role-attribute-table" manager={this.manager}/>
+        <Helmet title={ this.i18n('title') } />
+        <AutomaticRoleAttributeTable uiKey="automatic-role-attribute-table" manager={ this.manager }/>
       </Basic.Div>
     );
   }

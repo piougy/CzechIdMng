@@ -503,12 +503,18 @@ class SelectBox extends AbstractFormComponent {
 
     let itemFullKey = _niceLabel;
     if (inputLower) {
-      if (_niceLabel !== null && !_niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
+      if (_niceLabel !== null && _niceLabel.toLowerCase().indexOf(inputLower) < 0) {
+        let appended = false;
         for (const field of this.props.searchInFields) {
           if (!Utils.Ui.isEmpty(item[field]) && item[field].toLowerCase().indexOf(inputLower) >= 0) {
             itemFullKey = `${ itemFullKey } (${ item[field] })`;
-            continue;
+            appended = true;
+            break;
           }
+        }
+        if (!appended) {
+          // append given text as wildcard
+          itemFullKey = `${ itemFullKey } (${ input })`;
         }
       }
     }

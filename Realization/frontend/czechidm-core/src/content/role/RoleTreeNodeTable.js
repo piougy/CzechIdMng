@@ -7,16 +7,15 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import RecursionTypeEnum from '../../enums/RecursionTypeEnum';
-import { RoleManager, RoleTreeNodeManager, AutomaticRoleRequestManager, SecurityManager} from '../../redux';
+import { RoleTreeNodeManager, AutomaticRoleRequestManager, SecurityManager} from '../../redux';
 import AutomaticRoleRequestTableComponent, { AutomaticRoleRequestTable } from '../automaticrolerequest/AutomaticRoleRequestTable';
 import SearchParameters from '../../domain/SearchParameters';
 
 const manager = new RoleTreeNodeManager();
-const roleManager = new RoleManager();
 const automaticRoleRequestManager = new AutomaticRoleRequestManager();
 
 /**
-* Table of automatic roles
+* Table of automatic roles by tree structure.
 *
 * @author Radek Tomiška
 */
@@ -283,9 +282,8 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                 ref="form"
                 showLoading={ _showLoading }
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
-                <Basic.SelectBox
+                <Advanced.RoleSelect
                   ref="role"
-                  manager={ roleManager }
                   label={ this.i18n('entity.RoleTreeNode.role') }
                   readOnly={ !Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'role') }
                   required/>

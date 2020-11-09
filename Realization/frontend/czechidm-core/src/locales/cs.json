@@ -3025,7 +3025,7 @@
         "title": "Přihlásit se jako jiný uživatel",
         "username": {
           "label": "Uživatel",
-          "help": "Uživatel, za kterého se chcete přihásit."
+          "help": "Uživatel, za kterého se chcete přihlásit."
         },
         "switched": {
           "label": "Přihlášení za jiného uživatele",

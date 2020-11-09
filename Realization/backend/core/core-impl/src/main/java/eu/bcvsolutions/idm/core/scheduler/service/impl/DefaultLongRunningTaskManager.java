@@ -370,7 +370,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(noRollbackFor = AcceptedException.class)
 	public <V> V executeSync(LongRunningTaskExecutor<V> taskExecutor) {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);

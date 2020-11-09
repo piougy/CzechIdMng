@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.RoleCompositionProcessor;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.event.RoleCompositionEvent.RoleCompositionEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -50,10 +51,17 @@ public class RoleCompositionAfterCreateProcessor
 		//
 		AddNewRoleCompositionTaskExecutor addRoleCompositionTask = AutowireHelper.createBean(AddNewRoleCompositionTaskExecutor.class);
 		addRoleCompositionTask.setRoleCompositionId(roleComposition.getId());
-		if (event.getPriority() == PriorityType.IMMEDIATE) {
-			longRunningTaskManager.executeSync(addRoleCompositionTask);
-		} else {
-			longRunningTaskManager.execute(addRoleCompositionTask);
+		try {
+			if (event.getPriority() == PriorityType.IMMEDIATE) {
+				longRunningTaskManager.executeSync(addRoleCompositionTask);
+			} else {
+				longRunningTaskManager.execute(addRoleCompositionTask);
+			}
+		} catch (AcceptedException ex) {
+			DefaultEventResult<IdmRoleCompositionDto> result = new DefaultEventResult<>(event, this);
+			result.setSuspended(true);
+			//
+			return result;
 		}
 		//
 		return new DefaultEventResult<>(event, this);

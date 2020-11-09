@@ -653,9 +653,17 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	public void deleteEvent(IdmEntityEventDto entityEvent) {
 		entityEventService.delete(entityEvent);
+		// clear running event
 		if (entityEvent.getResult().getState() == OperationState.RUNNING) {
 			removeRunningEvent(entityEvent);
 		}
+		// clear waiting LRTs
+		if (entityEvent.getResult().getState() == OperationState.RUNNING
+				|| entityEvent.getResult().getState() == OperationState.CREATED) {
+			// remove event from queue
+			completeEvent(entityEvent.getId(), entityEvent.getTransactionId());
+		}
+		
 	}
 	
 	@Override
@@ -949,7 +957,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 					IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
 					eventFilter.setParentId(olderEvent.getId());
 					if (entityEventService.find(eventFilter, PageRequest.of(0, 1)).getTotalElements() == 0) {
-						entityEventService.delete(olderEvent);
+						deleteEvent(olderEvent);
 					}
 				}
 			}
@@ -1157,6 +1165,11 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		// persist event - asynchronous processing
 		entityEvent = entityEventService.save(entityEvent);
+		System.out.println("xxx - " 
+				+ entityEvent.getId() + " - " 
+				+ entityEvent.getResult().getState() + " - " 
+				+ entityEvent.getEventType() + " - " 
+				+ entityEvent.getContent());
 		addEventCache(entityEvent.getId(), entityEvent.getTransactionId());
 		// not processed - persisted into queue
 		return null;
@@ -1336,18 +1349,32 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * @return
 	 */
 	private <E extends Serializable> EventContext<E> completeEvent(EntityEvent<E> event) {
+		UUID eventId = event.getId();
+		if (eventId == null) {
+			// synchronous event without id
+			return event.getContext();
+		}
+		//
+		// transaction cache
+		UUID transactionId = event.getTransactionId();
+		//
+		completeEvent(eventId, transactionId);
+		//
+		return event.getContext();
+	}
+	
+	/**
+	 * Complete event - check all event in the same transaction is completely processed.
+	 * 
+	 * @param <E>
+	 * @param event
+	 * @return
+	 */
+	private void completeEvent(UUID eventId, UUID transactionId) {
 		lock.lock();
 		try {
-			UUID eventId = event.getId();
-			if (eventId == null) {
-				// synchronous event without id
-				return event.getContext();
-			}
-			//
-			// transaction cache
-			UUID transactionId = event.getTransactionId();
 			if (removeEventCache(eventId, transactionId)) {				
-				LOG.info("Event [{}] with transaction id [{}] is processed completely", event, transactionId);
+				LOG.error("Event [{}] with transaction id [{}] is processed completely", eventId, transactionId);
 				if (lrts.containsKey(transactionId) 
 						&& lrts.get(transactionId).stream().allMatch(lrt -> lrt.getResult() != null)) {
 					List<LongRunningTaskExecutor<?>> longRunningTaskExecutors = lrts.remove(transactionId);
@@ -1358,8 +1385,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 					});
 				}
 			}
-			//
-			return event.getContext();
 		} finally {
 			lock.unlock();
 		}
@@ -1405,28 +1430,23 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 */
 	@SuppressWarnings("unchecked")
 	private boolean removeEventCache(UUID eventId, UUID transactionId) {
-		lock.lock();
-		try {
-			if (transactionId == null) {
-				return false;
-			}
-			//
-			ValueWrapper value = cacheManager.getValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
-			if (value == null) {
-				// transaction was not registered (~ synchronous processing)
-				return false;
-			}
-			Set<UUID> events = (Set<UUID>) value.get();
-			events.remove(eventId);
-			if (!events.isEmpty()) {
-				cacheManager.cacheValue(TRANSACTION_EVENT_CACHE_NAME, transactionId, events);
-				return false;
-			}
-			//
-			cacheManager.evictValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
-			return true; // => asynchronous transaction is processed completely
-		} finally {
-			lock.unlock();
+		if (transactionId == null) {
+			return false;
 		}
+		//
+		ValueWrapper value = cacheManager.getValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
+		if (value == null) {
+			// transaction was not registered (~ synchronous processing)
+			return false;
+		}
+		Set<UUID> events = (Set<UUID>) value.get();
+		events.remove(eventId);
+		if (!events.isEmpty()) {
+			cacheManager.cacheValue(TRANSACTION_EVENT_CACHE_NAME, transactionId, events);
+			return false;
+		}
+		//
+		cacheManager.evictValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
+		return true; // => asynchronous transaction is processed completely
 	}
 }

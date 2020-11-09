@@ -19,8 +19,22 @@ const identityManager = new IdentityManager();
  */
 class IdentityEvents extends Basic.AbstractContent {
 
-  componentDidMount() {
-    super.componentDidMount();
+  getManager() {
+    return identityManager;
+  }
+
+  getContentKey() {
+    return 'content.entityEvents';
+  }
+
+  getNavigationKey() {
+    return 'profile-events';
+  }
+
+  _onReload(data, error) {
+    if (error) {
+      return;
+    }
     //
     // fetch counts
     const forceSearchParameters = new SearchParameters()
@@ -38,18 +52,6 @@ class IdentityEvents extends Basic.AbstractContent {
         `entity-event-error-count-${ this.props.match.params.entityId }`
       )
     );
-  }
-
-  getManager() {
-    return identityManager;
-  }
-
-  getContentKey() {
-    return 'content.entityEvents';
-  }
-
-  getNavigationKey() {
-    return 'profile-events';
   }
 
   render() {
@@ -94,7 +96,8 @@ class IdentityEvents extends Basic.AbstractContent {
             filterOpened={false}
             forceSearchParameters={ forceSearchParameters }
             showDeleteAllButton={ false }
-            className="no-margin"/>
+            className="no-margin"
+            onReload={ this._onReload.bind(this) }/>
         </Basic.Panel>
       </Basic.Div>
     );

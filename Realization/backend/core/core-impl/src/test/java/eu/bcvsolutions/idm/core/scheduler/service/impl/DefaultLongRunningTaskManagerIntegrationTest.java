@@ -53,7 +53,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Long running tasks test
+ * Long running tasks test.
  * 
  * @author Radek Tomiška
  *
@@ -69,7 +69,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 	private DefaultLongRunningTaskManager manager;
 	
 	@Before
-	public void init() {		
+	public void init() {
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultLongRunningTaskManager.class);
 		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 	}
@@ -250,11 +250,11 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 	@Test(expected = AcceptedException.class)
 	public void testCheckConcurrentExecution() {
 		TestCheckConcurrentTaskOne executorOne = new TestCheckConcurrentTaskOne();
-		executorOne.setSleep(500L);
+		executorOne.setSleep(1500L);
 		LongRunningFutureTask<String> longRunningFutureTask = manager.execute(executorOne);
 		getHelper().waitForResult(res -> {
 			return !service.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
-		});		
+		}, 150, 100);		
 		TestCheckConcurrentTaskOne executorTwo = new TestCheckConcurrentTaskOne();
 		manager.executeSync(executorTwo);
 	}

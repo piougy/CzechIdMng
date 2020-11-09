@@ -16,8 +16,18 @@ const manager = new EntityEventManager();
  */
 class EntityEvents extends Basic.AbstractContent {
 
-  componentDidMount() {
-    super.componentDidMount();
+  getContentKey() {
+    return 'content.entityEvents';
+  }
+
+  getNavigationKey() {
+    return 'entity-events';
+  }
+
+  _onReload(data, error) {
+    if (error) {
+      return;
+    }
     //
     // fetch counts
     this.context.store.dispatch(
@@ -32,14 +42,6 @@ class EntityEvents extends Basic.AbstractContent {
         `entity-event-error-count`
       )
     );
-  }
-
-  getContentKey() {
-    return 'content.entityEvents';
-  }
-
-  getNavigationKey() {
-    return 'entity-events';
   }
 
   render() {
@@ -70,7 +72,8 @@ class EntityEvents extends Basic.AbstractContent {
           <EntityEventTable
             ref="table"
             uiKey="entity-event-table"
-            filterOpened/>
+            filterOpened
+            onReload={ this._onReload.bind(this) }/>
         </Basic.Panel>
       </Basic.Div>
     );

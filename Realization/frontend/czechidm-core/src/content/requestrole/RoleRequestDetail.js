@@ -396,7 +396,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                     style={{ marginTop: 25, marginRight: 0, marginLeft: 0 }}
                     title={ this.i18n('Přidat novou roli') }
                     text={ this.i18n('Přidat do žádosti novou roli.') }
-                    rendered={ false }
+                    rendered={ this.isDevelopment() }
                     buttons={[
                       <Basic.Button
                         icon="fa:plus"

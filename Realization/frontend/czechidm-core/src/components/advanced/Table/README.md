@@ -7,8 +7,9 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | manager | object.isRequired | EntityManager subclass, which provides data fetching | |
 | uiKey | string  | optional table identifier - it's used as key in store  | if isn't filled, then manager.getEntityType() is used |
 | pagination | bool | If pagination is shown | true |
-| onRowClick  | func   | Callback that is called when a row is clicked |  |
-| onRowDoubleClick  | func   | Callback that is called when a row is double clicked. | |
+| onRowClick  | func  | Callback that is called when a row is clicked |  |
+| onRowDoubleClick  | func  | Callback that is called when a row is double clicked. | |
+| onReload  | func  | Callback that is called table is reload (e.g. when refresh button is clicked and data are loaded). | |
 | defaultSearchParameters | object | "Default filter" - its useful for default sorting etc. ||
 | forceSearchParameters | object | "Hard filter" - sometimes is useful show just some data (e.q. data filtered by logged user) |   |
 | rowClass | oneOfType([string,func]) | ccs class added for row ||

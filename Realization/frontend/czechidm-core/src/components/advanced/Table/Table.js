@@ -383,16 +383,25 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   fetchEntities(searchParameters, props = null) {
     const _props = props || this.props;
     searchParameters = this._mergeSearchParameters(searchParameters, _props);
+    const { onReload } = _props;
     //
     if (!_props.hideTableShowLoading) {
-      this._fetchEntities(searchParameters, _props, () => {});
+      this._fetchEntities(searchParameters, _props, (data, error) => {
+        if (onReload) {
+          onReload(data, error);
+        }
+      });
     } else {
       this.setState({
         hideTableShowLoading: _props.hideTableShowLoading
       }, () => {
-        this._fetchEntities(searchParameters, _props, () => {
+        this._fetchEntities(searchParameters, _props, (data, error) => {
           this.setState({
             hideTableShowLoading: null
+          }, () => {
+            if (onReload) {
+              onReload(data, error);
+            }
           });
         });
       });
@@ -407,13 +416,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         this.addErrorMessage({
           key: `error-${ manager.getEntityType() }-load`
         }, error);
-        cb();
+        cb(null, error);
       // remove selection for unpresent records
       } else if (json && json._embedded) {
         const { selectedRows } = this.state;
         const newSelectedRows = [];
+        let data = null;
         if (json._embedded[manager.getCollectionType()]) {
-          json._embedded[manager.getCollectionType()].forEach(entity => {
+          data = json._embedded[manager.getCollectionType()];
+          data.forEach(entity => {
             if (_.includes(selectedRows, entity.id)) { // TODO: custom identifier - move to manager
               newSelectedRows.push(entity.id);
             }
@@ -421,9 +432,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         }
         this.setState({
           selectedRows: newSelectedRows
-        }, cb);
+        }, () => {
+          cb(data, null);
+        });
       } else {
-        cb();
+        cb(null, null); // no data, no error
       }
     }));
   }
@@ -1426,6 +1439,12 @@ AdvancedTable.propTypes = {
    * Callback that is called when a row is selected.
    */
   onRowSelect: PropTypes.func,
+  /**
+   * Callback that is called table is refreshed (after refresh button is clicked and data are refreshed).
+   *
+   * @since 10.7.0
+   */
+  onReload: PropTypes.func,
   /**
    * Enable row selection - checkbox in first cell
    */

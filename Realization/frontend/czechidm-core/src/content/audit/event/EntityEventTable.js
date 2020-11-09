@@ -149,7 +149,8 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
       className,
       showDeleteAllButton,
       showTransactionId,
-      auditedEntities
+      auditedEntities,
+      onReload
     } = this.props;
     const { filterOpened, detail, entityType } = this.state;
     //
@@ -258,7 +259,8 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
               icon="fa:trash">
               { this.i18n('action.deleteAll.button.label') }
             </Basic.Button>
-          ]}>
+          ]}
+          onReload={ onReload }>
           <Advanced.Column
             property=""
             header=""
@@ -522,7 +524,13 @@ EntityEventTable.propTypes = {
   /**
    * Rendered
    */
-  rendered: PropTypes.bool
+  rendered: PropTypes.bool,
+  /**
+   * Callback that is called table is refreshed (after refresh button is clicked and data are refreshed).
+   *
+   * @since 10.7.0
+   */
+  onReload: PropTypes.func
 };
 
 EntityEventTable.defaultProps = {

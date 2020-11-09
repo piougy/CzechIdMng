@@ -1165,11 +1165,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		// persist event - asynchronous processing
 		entityEvent = entityEventService.save(entityEvent);
-		System.out.println("xxx - " 
-				+ entityEvent.getId() + " - " 
-				+ entityEvent.getResult().getState() + " - " 
-				+ entityEvent.getEventType() + " - " 
-				+ entityEvent.getContent());
 		addEventCache(entityEvent.getId(), entityEvent.getTransactionId());
 		// not processed - persisted into queue
 		return null;

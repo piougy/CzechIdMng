@@ -653,13 +653,16 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	public void deleteEvent(IdmEntityEventDto entityEvent) {
 		entityEventService.delete(entityEvent);
+		//
+		if (entityEvent.getResult() == null) {
+			return;
+		}
 		// clear running event
 		if (entityEvent.getResult().getState() == OperationState.RUNNING) {
 			removeRunningEvent(entityEvent);
 		}
 		// clear waiting LRTs
-		if (entityEvent.getResult().getState() == OperationState.RUNNING
-				|| entityEvent.getResult().getState() == OperationState.CREATED) {
+		if (entityEvent.getResult().getState().isRunnable()) {
 			// remove event from queue
 			completeEvent(entityEvent.getId(), entityEvent.getTransactionId());
 		}
@@ -1369,7 +1372,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		lock.lock();
 		try {
 			if (removeEventCache(eventId, transactionId)) {				
-				LOG.error("Event [{}] with transaction id [{}] is processed completely", eventId, transactionId);
+				LOG.info("Event [{}] with transaction id [{}] is processed completely", eventId, transactionId);
 				if (lrts.containsKey(transactionId) 
 						&& lrts.get(transactionId).stream().allMatch(lrt -> lrt.getResult() != null)) {
 					List<LongRunningTaskExecutor<?>> longRunningTaskExecutors = lrts.remove(transactionId);

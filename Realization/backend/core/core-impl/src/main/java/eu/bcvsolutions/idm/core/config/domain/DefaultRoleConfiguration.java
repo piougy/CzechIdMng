@@ -210,4 +210,9 @@ public class DefaultRoleConfiguration extends AbstractConfiguration implements R
 	public String getCodeEnvironmentSeperator() {
 		return getConfigurationService().getValue(PROPERTY_CODE_ENVIRONMENT_SEPARATOR, DEFAULT_CODE_ENVIRONMENT_SEPARATOR);
 	}
+	
+	@Override
+	public boolean isShowEnvironment() {
+		return getConfigurationService().getBooleanValue(PROPERTY_SHOW_ENVIRONMENT, DEFAULT_SHOW_ENVIRONMENT);
+	}
 }

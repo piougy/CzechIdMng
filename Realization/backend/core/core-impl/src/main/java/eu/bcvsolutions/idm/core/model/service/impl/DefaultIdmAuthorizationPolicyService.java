@@ -127,7 +127,7 @@ public class DefaultIdmAuthorizationPolicyService
 		}
 		if (filter.getAuthorizableType() != null) {
 			predicates.add(builder.or(
-					// wildcard policy - usagble for all authorizable types
+					// wildcard policy - usable for all authorizable types
 					builder.and(
 							builder.isNull(root.get(IdmAuthorizationPolicy_.authorizableType)),
 							builder.isNull(root.get(IdmAuthorizationPolicy_.groupPermission))

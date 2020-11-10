@@ -72,7 +72,7 @@ public class DuplicateRoleFormAttributeProcessor
 
 	@Override
 	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
-		IdmRoleDto duplicate = event.getContent(); // newly setted role
+		IdmRoleDto duplicate = event.getContent(); // newly set role
 		IdmRoleDto originalSource = event.getOriginalSource(); // cloned role
 		Assert.notNull(originalSource.getId(), "Original source identifier is required."); // just for sure
 		//

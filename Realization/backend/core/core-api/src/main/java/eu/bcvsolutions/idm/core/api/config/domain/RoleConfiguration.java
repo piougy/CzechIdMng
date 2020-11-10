@@ -75,10 +75,10 @@ public interface RoleConfiguration extends Configurable {
 	String PROPERTY_SHOW_ROLE_REQUEST_DESCRIPTION =  ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "app.show.roleRequest.description";
 	
 	/**
-	 * Show role environment in frontend application for roles (table, role detail, niceLabel, info components, role select).
+	 * Show role environment in application for roles (table, role detail, niceLabel, info components, role select, bulk actions).
 	 */
 	String PROPERTY_SHOW_ENVIRONMENT = ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "app.show.environment";
-	boolean SHOW_ENVIRONMENT = true;
+	boolean DEFAULT_SHOW_ENVIRONMENT = true;
 	
 	/**
 	 * Show role baseCode in frontend application for roles (table, role detail, niceLabel, info components, role select).
@@ -248,4 +248,11 @@ public interface RoleConfiguration extends Configurable {
 	 * @return
 	 */
 	String getCodeEnvironmentSeperator();
+	
+	/**
+	 * Show role environment in application for roles (table, role detail, niceLabel, info components, role select, bulk actions).
+	 * 
+	 * @return true - environment is shown
+	 */
+	boolean isShowEnvironment();
 }

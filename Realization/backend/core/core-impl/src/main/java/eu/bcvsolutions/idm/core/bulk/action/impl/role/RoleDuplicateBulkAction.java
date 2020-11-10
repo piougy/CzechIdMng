@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
@@ -57,6 +58,7 @@ public class RoleDuplicateBulkAction extends AbstractBulkAction<IdmRoleDto, IdmR
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private EntityStateManager entityStateManager;
 	@Autowired private LookupService lookupService;
+	@Autowired private RoleConfiguration roleConfiguration;
 
 	@Override
 	public String getName() {
@@ -77,8 +79,10 @@ public class RoleDuplicateBulkAction extends AbstractBulkAction<IdmRoleDto, IdmR
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		Set<String> distinctAttributes = new HashSet<>();
 		List<IdmFormAttributeDto> formAttributes = super.getFormAttributes();
-		formAttributes.add(new IdmFormAttributeDto(PROPERTY_ENVIRONMENT, "Environment", PersistentType.CODELIST, BaseCodeList.ENVIRONMENT));
-		distinctAttributes.add(PROPERTY_ENVIRONMENT);
+		if (roleConfiguration.isShowEnvironment()) {
+			formAttributes.add(new IdmFormAttributeDto(PROPERTY_ENVIRONMENT, "Environment", PersistentType.CODELIST, BaseCodeList.ENVIRONMENT));
+			distinctAttributes.add(PROPERTY_ENVIRONMENT);
+		}
 		// check registered processors and use the setting
 		EntityEvent<IdmRoleDto> mockEvent = new RoleEvent(RoleEventType.DUPLICATE, new IdmRoleDto(UUID.randomUUID()));
 		entityEventManager

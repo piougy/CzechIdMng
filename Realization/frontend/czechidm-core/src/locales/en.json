@@ -5953,6 +5953,10 @@
           "include-role-form-attribute": {
             "label": "Duplicate role attributes",
             "help": "Creates (or updates) configured role attributes."
+          },
+          "include-role-authorization-policy": {
+            "label": "Duplicate permissions",
+            "help": "Creates (or updates) configured authorization policies."
           }
         }
       },

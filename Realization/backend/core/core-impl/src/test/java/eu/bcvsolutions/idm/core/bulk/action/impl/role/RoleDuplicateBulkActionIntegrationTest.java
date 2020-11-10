@@ -14,8 +14,10 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
@@ -28,10 +30,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
@@ -41,18 +45,25 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.bulk.action.impl.role.RoleDuplicateBulkAction;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmCodeList;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.event.processor.role.DuplicateRoleAuthorizationPolicyProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.role.DuplicateRoleAutomaticByTreeProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.role.DuplicateRoleCompositionProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.role.DuplicateRoleFormAttributeProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.evaluator.CodeableEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
@@ -73,6 +84,7 @@ public class RoleDuplicateBulkActionIntegrationTest extends AbstractBulkActionTe
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmIdentityContractService contractService;
 	@Autowired private IdmEntityStateService entityStateService;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	
 	@Before
 	public void login() {
@@ -570,6 +582,170 @@ public class RoleDuplicateBulkActionIntegrationTest extends AbstractBulkActionTe
 		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRoleAttribute.getId().equals(ir.getAutomaticRole())));
 	}
 	
+	@Test
+	public void testCreateAndUpdateAuthorizationPolicies() {
+		// create role with policies
+		IdmRoleDto role = getHelper().createRole();
+		ConfigurationMap properties = new ConfigurationMap();
+		properties.put("mockOne", "mockOne");
+		IdmAuthorizationPolicyDto policyOne = getHelper().createAuthorizationPolicy(
+				role.getId(), 
+				CoreGroupPermission.IDENTITY, 
+				IdmIdentity.class, 
+				CodeableEvaluator.class, 
+				properties, 
+				IdmBasePermission.ADMIN);
+		IdmAuthorizationPolicyDto policyTwo = getHelper().createAuthorizationPolicy(
+				role.getId(), 
+				CoreGroupPermission.ROLE, 
+				IdmRole.class, 
+				CodeableEvaluator.class, 
+				properties, 
+				IdmBasePermission.ADMIN);
+		IdmAuthorizationPolicyDto policyThree = getHelper().createAuthorizationPolicy(
+				role.getId(), 
+				CoreGroupPermission.TREENODE, 
+				IdmTreeNode.class, 
+				CodeableEvaluator.class, 
+				properties, 
+				IdmBasePermission.ADMIN);
+		IdmAuthorizationPolicyDto policyFour = getHelper().createAuthorizationPolicy(
+				role.getId(), 
+				CoreGroupPermission.TREETYPE, 
+				IdmTreeType.class, 
+				CodeableEvaluator.class, 
+				properties, 
+				IdmBasePermission.READ);
+		//
+		// duplicate role
+		String targetEnvironment = getHelper().createName();
+		IdmBulkActionDto bulkAction = findBulkAction(IdmRole.class, RoleDuplicateBulkAction.NAME);
+		bulkAction.setIdentifiers(Sets.newHashSet(role.getId()));
+		bulkAction.getProperties().put(RoleDuplicateBulkAction.PROPERTY_ENVIRONMENT, targetEnvironment);
+		bulkAction.getProperties().put(DuplicateRoleAuthorizationPolicyProcessor.PARAMETER_INCLUDE_ROLE_AUTHORIZATION_POLICY, true);
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		checkResultLrt(processAction, 1l, null, null);
+		//
+		IdmRoleDto duplicate = roleService.getByBaseCodeAndEnvironment(role.getBaseCode(), targetEnvironment);
+		//
+		IdmAuthorizationPolicyFilter filter = new IdmAuthorizationPolicyFilter();
+		filter.setRoleId(duplicate.getId());
+		List<IdmAuthorizationPolicyDto> duplicatePolicies = authorizationPolicyService.find(filter, null).getContent();
+		Assert.assertEquals(4, duplicatePolicies.size());
+		IdmAuthorizationPolicyDto duplicatePolicyOne = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.IDENTITY.getName()))
+				.findFirst()
+				.get();
+		IdmAuthorizationPolicyDto duplicatePolicyTwo = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.ROLE.getName()))
+				.findFirst()
+				.get();
+		IdmAuthorizationPolicyDto duplicatePolicyThree = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.TREENODE.getName()))
+				.findFirst()
+				.get();
+		IdmAuthorizationPolicyDto duplicatePolicyFour = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.TREETYPE.getName()))
+				.findFirst()
+				.get();
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyOne, duplicatePolicyOne));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyTwo, duplicatePolicyTwo));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyThree, duplicatePolicyThree));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyFour, duplicatePolicyFour));
+		UUID duplicatePolicyOneId = duplicatePolicyOne.getId();
+		UUID duplicatePolicyTwoId = duplicatePolicyTwo.getId();
+		UUID duplicatePolicyThreeId = duplicatePolicyThree.getId();
+		UUID duplicatePolicyFourId = duplicatePolicyFour.getId();
+		//
+		// duplicate role again => no change => id preserved
+		processAction = bulkActionManager.processAction(bulkAction);
+		checkResultLrt(processAction, 1l, null, null);
+		duplicatePolicies = authorizationPolicyService.find(filter, null).getContent();
+		Assert.assertEquals(4, duplicatePolicies.size());
+		duplicatePolicyOne = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.IDENTITY.getName()))
+				.findFirst()
+				.get();
+		duplicatePolicyTwo = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.ROLE.getName()))
+				.findFirst()
+				.get();
+		duplicatePolicyThree = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.TREENODE.getName()))
+				.findFirst()
+				.get();
+		duplicatePolicyFour = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.TREETYPE.getName()))
+				.findFirst()
+				.get();
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyOne, duplicatePolicyOne));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyTwo, duplicatePolicyTwo));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyThree, duplicatePolicyThree));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyFour, duplicatePolicyFour));
+		Assert.assertEquals(duplicatePolicyOneId, duplicatePolicyOne.getId());
+		Assert.assertEquals(duplicatePolicyTwoId, duplicatePolicyTwo.getId());
+		Assert.assertEquals(duplicatePolicyThreeId, duplicatePolicyThree.getId());
+		Assert.assertEquals(duplicatePolicyFourId, duplicatePolicyFour.getId());
+		//
+		// remove and update duplicated polices
+		properties = new ConfigurationMap();
+		properties.put("mockOne", "mockUpdate");
+		duplicatePolicyOne.setEvaluatorProperties(properties);
+		authorizationPolicyService.save(duplicatePolicyOne);
+		authorizationPolicyService.delete(duplicatePolicyTwo);
+		//
+		// add / delete and update source policies
+		IdmAuthorizationPolicyDto policyFive = getHelper().createAuthorizationPolicy(
+				role.getId(), 
+				CoreGroupPermission.CODELIST, 
+				IdmCodeList.class, 
+				CodeableEvaluator.class, 
+				properties, 
+				IdmBasePermission.READ);
+		authorizationPolicyService.delete(policyThree);
+		//
+		// duplicate again
+		processAction = bulkActionManager.processAction(bulkAction);
+		checkResultLrt(processAction, 1l, null, null);
+		duplicatePolicies = authorizationPolicyService.find(filter, null).getContent();
+		Assert.assertEquals(4, duplicatePolicies.size());
+		//
+		duplicatePolicyOne = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.IDENTITY.getName()))
+				.findFirst()
+				.get();
+		duplicatePolicyTwo = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.ROLE.getName()))
+				.findFirst()
+				.get();
+		duplicatePolicyFour = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.TREETYPE.getName()))
+				.findFirst()
+				.get();
+		IdmAuthorizationPolicyDto duplicatePolicyFive = duplicatePolicies
+				.stream()
+				.filter(p -> p.getGroupPermission().equals(CoreGroupPermission.CODELIST.getName()))
+				.findFirst()
+				.get();
+		//
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyOne, duplicatePolicyOne));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyTwo, duplicatePolicyTwo));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyFour, duplicatePolicyFour));
+		Assert.assertTrue(authorizationPolicyService.hasSameConfiguration(policyFive, duplicatePolicyFive));
+		Assert.assertEquals(duplicatePolicyFourId, duplicatePolicyFour.getId()); // others are recreated
+	}
+	
 	private IdmRoleDto createRole() {
 		String environment = getHelper().createName();
 		IdmRoleDto role = getHelper().createRole(null, null, environment);
@@ -658,6 +834,5 @@ public class RoleDuplicateBulkActionIntegrationTest extends AbstractBulkActionTe
 	
 	private List<IdmRoleCompositionDto> findAllSubRoles(IdmRoleDto role) {
 		return roleCompositionService.findAllSubRoles(role.getId());
-	}
-	
+	}	
 }

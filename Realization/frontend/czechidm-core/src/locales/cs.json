@@ -6005,6 +6005,10 @@
           "include-role-form-attribute": {
             "label": "Duplikovat attributy role",
             "help": "Vytvoří (či aktializuje) nakonfigurované attributy role."
+          },
+          "include-role-authorization-policy": {
+            "label": "Duplikovat oprávění",
+            "help": "Vytvoří (či aktualizuje) nakonfigurované autorizační politiky."
           }
         }
       },

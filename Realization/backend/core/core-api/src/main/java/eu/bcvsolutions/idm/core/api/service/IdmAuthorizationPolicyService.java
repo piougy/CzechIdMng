@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
@@ -19,12 +21,12 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmAuthorizationPolicyService extends
-		ReadWriteDtoService<IdmAuthorizationPolicyDto,
+		EventableDtoService<IdmAuthorizationPolicyDto,
 		IdmAuthorizationPolicyFilter>,
 		AuthorizableService<IdmAuthorizationPolicyDto> {
 	
 	/**
-	 * Returns all enabled policies for given identity and entity type
+	 * Returns all enabled policies for given identity and entity type.
 	 * 
 	 * @param identityId identity's id
 	 * @param entityType
@@ -33,7 +35,7 @@ public interface IdmAuthorizationPolicyService extends
 	List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends Identifiable> entityType);
 	
 	/**
-	 * Returns active role's authorities by configured policies for given identity
+	 * Returns active role's authorities by configured policies for given identity.
 	 * 
 	 * @param identityId
 	 * @param role
@@ -78,4 +80,26 @@ public interface IdmAuthorizationPolicyService extends
 	 * @return
 	 */
 	Set<GrantedAuthority> getGrantedAuthorities(UUID identityId, List<IdmAuthorizationPolicyDto> policies);
+	
+	/**
+	 * Policy is configured the same way by configured properties (~ equals on properties configurable and related to evaluating access).
+	 * 
+	 * @param policyOne first - not null
+	 * @param policyTwo second - not null
+	 * @return true - policies are configured the same way
+	 * @since 10.7.0
+	 */
+	default boolean hasSameConfiguration(IdmAuthorizationPolicyDto policyOne, IdmAuthorizationPolicyDto policyTwo) {		
+		Assert.notNull(policyOne, "Policy one is required.");
+		Assert.notNull(policyTwo, "Policy two is required.");
+		//
+		return Objects.equals(policyOne.getAuthorizableType(), policyTwo.getAuthorizableType())
+				&& Objects.equals(policyOne.getEvaluatorType(), policyTwo.getEvaluatorType())
+				&& Objects.equals(policyOne.getGroupPermission(), policyTwo.getGroupPermission())
+				&& Objects.equals(policyOne.getPermissions(), policyTwo.getPermissions())
+				&& Objects.equals(policyOne.getEvaluatorProperties(), policyTwo.getEvaluatorProperties())
+				&& Objects.equals(policyOne.getSeq(), policyTwo.getSeq())
+				&& Objects.equals(policyOne.isDisabled(), policyTwo.isDisabled())
+				&& Objects.equals(policyOne.getDescription(), policyTwo.getDescription());
+	}
 }

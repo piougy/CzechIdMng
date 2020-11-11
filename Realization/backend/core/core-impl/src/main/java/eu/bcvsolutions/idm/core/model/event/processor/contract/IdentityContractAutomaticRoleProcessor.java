@@ -24,11 +24,12 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
@@ -59,7 +60,7 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
 		// skip recalculation
 		return super.conditional(event)
-				&& !getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties())
+				&& !getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, event.getProperties())
 				&& event.getContent().isValidNowOrInFuture();  // invalid contracts cannot have roles (roles for disabled contracts are removed by different process)
 	}
 
@@ -68,8 +69,8 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 		IdmIdentityContractDto identityContract = event.getContent();
 		UUID contractId = identityContract.getId();
 		//
-		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.CONTRACT;
-		// get original event type
+		AutomaticRoleAttributeRuleType type = null; // both by default - contract can be saved together with identity => we need to recalculate all rules
+		// just contract eav save
 		if (CoreEventType.EAV_SAVE.name().equals(event.getParentType())) {
 			type = AutomaticRoleAttributeRuleType.CONTRACT_EAV;
 		}

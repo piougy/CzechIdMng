@@ -30,7 +30,10 @@ public interface IdmAutomaticRoleAttributeService extends
 	
 	/**
 	 * Property in event. If is value TRUE, then will be recalculation skipped.
+	 * 
+	 * @deprecated @since 10.6.3 use {@link AutomaticRoleManager#SKIP_RECALCULATION}
 	 */
+	@Deprecated
 	String SKIP_RECALCULATION = AutomaticRoleManager.SKIP_RECALCULATION;
 	
 	/**

@@ -25,12 +25,13 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
@@ -39,7 +40,6 @@ import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventTyp
  * @author Ondrej Kopr
  *
  */
-
 @Component
 @Description("Recalculate automatic roles by attribute after save identity.")
 public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdentityDto> implements IdentityProcessor {
@@ -70,7 +70,7 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
 		// skip recalculation
 		return super.conditional(event)
-				&& !getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties());
+				&& !getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, event.getProperties());
 	}
 	
 	@Override
@@ -79,7 +79,10 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 		IdmIdentityDto identity = event.getContent();
 		UUID identityId = identity.getId();
 		//
-		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.IDENTITY;
+		AutomaticRoleAttributeRuleType type = null; // both by default
+		if (identity.getEavs().isEmpty()) { // identity is saved together with eavs.
+			type = AutomaticRoleAttributeRuleType.IDENTITY;
+		}
 		if (CoreEventType.EAV_SAVE.name().equals(event.getParentType())) {
 			type = AutomaticRoleAttributeRuleType.IDENTITY_EAV;
 		}

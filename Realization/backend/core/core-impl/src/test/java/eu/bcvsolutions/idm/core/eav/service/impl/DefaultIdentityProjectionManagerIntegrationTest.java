@@ -23,15 +23,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.projection.IdmIdentityProjectionDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -68,7 +72,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Radek Tomiška
  *
  */
-@Transactional
 public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRestTest {
 
 	@Autowired private ApplicationContext context;
@@ -103,6 +106,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testSaveAndGetSimpleIdentity() {
 		IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
 		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
@@ -122,6 +126,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testSaveAndGetFullProjectionGreenLine() {
 		loginAsAdmin(); // role request implementer is needed
 		Assert.assertFalse(eventConfiguration.isAsynchronous());
@@ -398,6 +403,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testSaveAndGetSimpleIdentityByRest() throws Exception {
 		IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
 		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
@@ -448,6 +454,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testDeleteOtherContractAndPosition() {
 		//
 		IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
@@ -539,6 +546,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testGetProjectionEavReadOnly() {		
 		// create identity with read permission only
 		IdmIdentityDto identityLogged = getHelper().createIdentity(); // with password
@@ -670,6 +678,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testGetProjectionWithoutContractAuthority() {
 		String defaultRoleCode = roleConfiguration.getDefaultRoleCode();
 		// create identity with update identity permission only
@@ -746,6 +755,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 		}
 	}
 	
+	@Transactional
 	@Test(expected = ForbiddenEntityException.class)
 	public void testSaveProjectionWithoutContractAuthority() {
 		String defaultRoleCode = roleConfiguration.getDefaultRoleCode();
@@ -782,6 +792,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testSaveProjectionEavSecuredException() {
 		//
 		// create definition with two attributes
@@ -959,6 +970,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testLoadProjectionDefinedEavsOnly() throws Exception {
 		//
 		// create definition with two attributes
@@ -1003,6 +1015,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testProjectionDontSaveOtherContractsAndPositions() {
 		IdmFormProjectionDto formProjection = new IdmFormProjectionDto();
 		formProjection.setCode(getHelper().createName());
@@ -1052,6 +1065,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testPreventToDeleteOtherContractWhenPrimeContractIsChanged() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
@@ -1075,6 +1089,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testDeleteOtherContractWhenPrimeContractIsChanged() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
@@ -1096,6 +1111,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
+	@Transactional
 	public void testLoadAssignedRoles() {
 		IdmFormProjectionDto projection = new IdmFormProjectionDto();
 		projection.setCode(getHelper().createName());
@@ -1116,5 +1132,227 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 		projectionService.save(projection);
 		identityProjection = manager.get(identity.getId());
 		Assert.assertTrue(identityProjection.getIdentityRoles().isEmpty());
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleIdentityEav() throws Exception {
+		UUID identityId = null;
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			// create form definition, roles, automatic role etc.
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleDto subRole = getHelper().createRole();
+			getHelper().createRoleComposition(role, subRole);
+			//
+			IdmFormAttributeDto formAttributeOne = new IdmFormAttributeDto(getHelper().createName());
+			IdmFormDefinitionDto formDefinition = formService.createDefinition(
+					IdmIdentityDto.class, 
+					getHelper().createName(), 
+					Lists.newArrayList(formAttributeOne));
+			formAttributeOne = formDefinition.getMappedAttributeByCode(formAttributeOne.getCode());
+			//
+			IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+			getHelper().createAutomaticRoleRule(
+					automaticRole.getId(), 
+					AutomaticRoleAttributeRuleComparison.EQUALS, 
+					AutomaticRoleAttributeRuleType.IDENTITY_EAV, 
+					null, 
+					formAttributeOne.getId(), 
+					"mockOne");
+			//
+			// prepare identity projection with two contract
+			IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
+			IdmFormValueDto formValue = new IdmFormValueDto(formAttributeOne);
+			formValue.setValue("mockOne");
+			identity.getEavs().add(new IdmFormInstanceDto(
+					identity, 
+					formDefinition, 
+					Lists.newArrayList(formValue)));
+			
+			IdmIdentityContractDto contractOne = new IdmIdentityContractDto();
+			contractOne.setPosition(getHelper().createName());
+			IdmIdentityContractDto contractTwo = new IdmIdentityContractDto();
+			contractTwo.setPosition(getHelper().createName());
+			IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
+			projection.setContract(contractOne);
+			projection.setOtherContracts(Lists.newArrayList(contractTwo));
+			//
+			// create by projection
+			projection = manager
+					.publish(new IdentityProjectionEvent(IdentityProjectionEventType.CREATE, projection))
+					.getContent();
+			IdmIdentityProjectionDto createdProjection = manager.get(projection);
+			identityId = createdProjection.getId();
+			Assert.assertEquals(identity.getUsername(), createdProjection.getIdentity().getUsername());
+			IdmIdentityContractDto primeContract = createdProjection.getContract();
+			Assert.assertNotNull(primeContract);
+			Assert.assertEquals(contractOne.getPosition(), primeContract.getPosition());
+			Assert.assertEquals(1, createdProjection.getOtherContracts().size());
+			IdmIdentityContractDto otherContract = createdProjection.getOtherContracts().get(0);
+			Assert.assertEquals(contractTwo.getPosition(), otherContract.getPosition());
+			//
+			// 4 roles on each contract (2x role + sub) => role is assigned to each contract
+			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+			filter.setIdentityId(createdProjection.getIdentity().getId());
+			getHelper().waitForResult(res -> {
+				return identityRoleService.find(filter, null).getContent().size() != 4;
+			});
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+			Assert.assertEquals(4, identityRoles.size());
+			Assert.assertEquals(2, identityRoles.stream().filter(ir -> ir.getRole().equals(role.getId())).count());
+			Assert.assertEquals(2, identityRoles.stream().filter(ir -> ir.getRole().equals(subRole.getId())).count());
+			//
+			// change eav value => remove all automatic roles
+			formValue.setValue("mockUpdate");
+			createdProjection.getIdentity().getEavs().clear();
+			createdProjection.getIdentity().getEavs().add(new IdmFormInstanceDto(
+					identity, 
+					formDefinition, 
+					Lists.newArrayList(formValue)));
+			manager.publish(new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, createdProjection)).getContent();
+			getHelper().waitForResult(res -> {
+				return !identityRoleService.find(filter, null).getContent().isEmpty();
+			});
+			//
+			identityRoles =  Lists.newArrayList(identityRoleService.find(filter, null).getContent());
+			Assert.assertTrue(identityRoles.isEmpty());
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().deleteIdentity(identityId);
+		}
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleIdentityAndContractEav() throws Exception {
+		UUID identityId = null;
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			// create form definition, roles, automatic role etc.
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleDto subRole = getHelper().createRole();
+			getHelper().createRoleComposition(role, subRole);
+			IdmRoleDto roleContract = getHelper().createRole();
+			IdmRoleDto subRoleContract = getHelper().createRole();
+			getHelper().createRoleComposition(roleContract, subRoleContract);
+			//
+			IdmFormAttributeDto formAttributeOne = new IdmFormAttributeDto(getHelper().createName());
+			IdmFormDefinitionDto formDefinition = formService.createDefinition(
+					IdmIdentityDto.class, 
+					getHelper().createName(), 
+					Lists.newArrayList(formAttributeOne));
+			formAttributeOne = formDefinition.getMappedAttributeByCode(formAttributeOne.getCode());
+			//
+			IdmFormAttributeDto formAttributeContract = new IdmFormAttributeDto(getHelper().createName());
+			IdmFormDefinitionDto formDefinitionContract = formService.createDefinition(
+					IdmIdentityDto.class, 
+					getHelper().createName(), 
+					Lists.newArrayList(formAttributeContract));
+			formAttributeContract = formDefinitionContract.getMappedAttributeByCode(formAttributeContract.getCode());
+			//
+			IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+			getHelper().createAutomaticRoleRule(
+					automaticRole.getId(), 
+					AutomaticRoleAttributeRuleComparison.EQUALS, 
+					AutomaticRoleAttributeRuleType.IDENTITY_EAV, 
+					null, 
+					formAttributeOne.getId(), 
+					"mockOne");
+			IdmAutomaticRoleAttributeDto automaticRoleContract = getHelper().createAutomaticRole(roleContract.getId());
+			getHelper().createAutomaticRoleRule(
+					automaticRoleContract.getId(), 
+					AutomaticRoleAttributeRuleComparison.EQUALS, 
+					AutomaticRoleAttributeRuleType.CONTRACT_EAV, 
+					null, 
+					formAttributeContract.getId(), 
+					"mockContract");
+			// form projection
+			IdmFormProjectionDto formProjection = new IdmFormProjectionDto();
+			formProjection.setCode(getHelper().createName());
+			formProjection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+			formProjection.getProperties().put(IdentityFormProjectionRoute.PARAMETER_LOAD_ASSIGNED_ROLES, false);
+			formProjection.getProperties().put(IdentityFormProjectionRoute.PARAMETER_ALL_CONTRACTS, true);
+			FormDefinitionAttributes attributes = new FormDefinitionAttributes();
+			attributes.setDefinition(formDefinition.getId());
+			attributes.getAttributes().add(formAttributeOne.getId());
+			FormDefinitionAttributes attributesContract = new FormDefinitionAttributes();
+			attributesContract.setDefinition(formDefinitionContract.getId());
+			attributesContract.getAttributes().add(formAttributeContract.getId());
+			formProjection.setCode(getHelper().createName());
+			formProjection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+			formProjection.setFormDefinitions(mapper.writeValueAsString(Lists.newArrayList(attributes, attributesContract)));
+			formProjection = projectionService.save(formProjection);
+			//
+			// prepare identity projection with two contract
+			IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
+			identity.setFormProjection(formProjection.getId());
+			IdmFormValueDto formValue = new IdmFormValueDto(formAttributeOne);
+			formValue.setValue("mockOne");
+			identity.getEavs().add(new IdmFormInstanceDto(
+					identity, 
+					formDefinition, 
+					Lists.newArrayList(formValue)));
+			
+			IdmIdentityContractDto contractOne = new IdmIdentityContractDto();
+			contractOne.setPosition(getHelper().createName());
+			IdmIdentityContractDto contractTwo = new IdmIdentityContractDto();
+			contractTwo.setPosition(getHelper().createName());
+			IdmFormValueDto formValueContract = new IdmFormValueDto(formAttributeContract);
+			formValueContract.setValue("mockContract");
+			contractTwo.getEavs().add(new IdmFormInstanceDto(
+					contractTwo, 
+					formDefinitionContract, 
+					Lists.newArrayList(formValueContract)));
+			IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
+			projection.setContract(contractOne);
+			projection.setOtherContracts(Lists.newArrayList(contractTwo));
+			//
+			// create by projection
+			projection = manager
+					.publish(new IdentityProjectionEvent(IdentityProjectionEventType.CREATE, projection))
+					.getContent();
+			IdmIdentityProjectionDto createdProjection = manager.get(projection);
+			identityId = createdProjection.getIdentity().getId();
+			Assert.assertEquals(identity.getUsername(), createdProjection.getIdentity().getUsername());
+			IdmIdentityContractDto primeContract = createdProjection.getContract();
+			Assert.assertNotNull(primeContract);
+			Assert.assertEquals(contractOne.getPosition(), primeContract.getPosition());
+			Assert.assertEquals(1, createdProjection.getOtherContracts().size());
+			IdmIdentityContractDto otherContract = createdProjection.getOtherContracts().get(0);
+			Assert.assertEquals(contractTwo.getPosition(), otherContract.getPosition());
+			//
+			// 6 roles 
+			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+			filter.setIdentityId(createdProjection.getIdentity().getId());
+			getHelper().waitForResult(res -> {
+				return identityRoleService.find(filter, null).getContent().size() != 6;
+			});
+			List<IdmIdentityRoleDto> identityRoles =  Lists.newArrayList(identityRoleService.find(filter, null).getContent());
+			
+			Assert.assertEquals(6, identityRoles.size());
+			Assert.assertEquals(2, identityRoles.stream().filter(ir -> ir.getRole().equals(role.getId())).count());
+			Assert.assertEquals(2, identityRoles.stream().filter(ir -> ir.getRole().equals(subRole.getId())).count());
+			Assert.assertEquals(1, identityRoles.stream().filter(ir -> ir.getRole().equals(roleContract.getId())).count());
+			Assert.assertEquals(1, identityRoles.stream().filter(ir -> ir.getRole().equals(subRoleContract.getId())).count());
+			//
+			// change eav value => remove all automatic roles
+			formValue.setValue("mockUpdate");
+			createdProjection.getIdentity().getEavs().clear();
+			createdProjection.getIdentity().getEavs().add(new IdmFormInstanceDto(
+					identity, 
+					formDefinition, 
+					Lists.newArrayList(formValue)));
+			manager.publish(new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, createdProjection)).getContent();
+			getHelper().waitForResult(res -> {
+				return identityRoleService.find(filter, null).getContent().size() != 2;
+			});
+			//
+			identityRoles =  Lists.newArrayList(identityRoleService.find(filter, null).getContent());
+			Assert.assertEquals(2, identityRoles.size());
+			Assert.assertEquals(1, identityRoles.stream().filter(ir -> ir.getRole().equals(roleContract.getId())).count());
+			Assert.assertEquals(1, identityRoles.stream().filter(ir -> ir.getRole().equals(subRoleContract.getId())).count());			
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().deleteIdentity(identityId);
+		}
 	}
 }

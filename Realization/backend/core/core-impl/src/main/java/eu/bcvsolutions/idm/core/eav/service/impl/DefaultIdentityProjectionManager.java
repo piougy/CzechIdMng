@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
@@ -153,17 +154,16 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		// other positions
 		dto.setOtherPositions(saveOtherPositions(event, permission));
 		event.setContent(dto);
-		//
 		// assigned roles - new identity only
 		saveIdentityRoles(event, permission);
 		//
-		// reload all
 		return event.getContent();
 	}
 	
 	protected IdmIdentityDto saveIdentity(EntityEvent<IdmIdentityProjectionDto> event, BasePermission... permission) {
 		IdentityEventType eventType = IdentityEventType.CREATE;
-		IdmIdentityDto identity = event.getContent().getIdentity();
+		IdmIdentityProjectionDto dto = event.getContent();
+		IdmIdentityDto identity = dto.getIdentity();
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
 		//
 		if (previousProjection != null) {
@@ -176,6 +176,26 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		EntityEvent<IdmIdentityDto> identityEvent = new IdentityEvent(eventType, identity);
 		// disable default contract creation
 		identityEvent.getProperties().put(IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, Boolean.TRUE);
+		// if contract is saved with identity => automatic roles for identity has to be skipped, 
+		// will be recount with contract together
+		// check contract has to be saved
+		IdmIdentityContractDto contract = dto.getContract();
+		if (contract != null ) {
+			if (identity.getFormProjection() == null) {
+				LOG.debug("Automatic roles will be recount with contract together. Projection s not defined.");
+				//
+				identityEvent.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+			} else {
+				IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(dto.getIdentity(), IdmIdentity_.formProjection);
+				if (formProjection.getProperties().getBooleanValue(IdentityFormProjectionRoute.PARAMETER_ALL_CONTRACTS)
+						|| formProjection.getProperties().getBooleanValue(IdentityFormProjectionRoute.PARAMETER_PRIME_CONTRACT)) {
+					LOG.debug("Automatic roles will be recount with contract together. Projection [{}] saves contracts.", 
+							formProjection.getCode());
+					//
+					identityEvent.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+				}
+			}
+		}
 		// publish
 		return identityService.publish(identityEvent, event, permission).getContent();
 	}
@@ -199,6 +219,16 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 				return null;
 			}
 			return contracts.get(0); // ~ prime contract
+		}
+		//
+		// check contract has to be saved
+		if (identity.getFormProjection() != null) {
+			IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(dto.getIdentity(), IdmIdentity_.formProjection);
+			if (!formProjection.getProperties().getBooleanValue(IdentityFormProjectionRoute.PARAMETER_ALL_CONTRACTS)
+					&& !formProjection.getProperties().getBooleanValue(IdentityFormProjectionRoute.PARAMETER_PRIME_CONTRACT)) {
+				LOG.debug("Projection [{}] doesn't save prime contract.", formProjection.getCode());
+				return contract;
+			}
 		}
 		contract.setIdentity(identity.getId());
 		IdentityContractEventType contractEventType = IdentityContractEventType.CREATE;

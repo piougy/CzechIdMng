@@ -436,6 +436,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		if (BooleanUtils.isTrue(executed)) {
 			log.addToLog(MessageFormat.format("Recalculation of automatic roles by attribute ended in [{0}].",
 					ZonedDateTime.now()));
+		} else if (executed == null) {
+			log.addToLog(MessageFormat.format("Recalculation of automatic roles ended in [{0}], role requests will be processed asynchronously.",
+					ZonedDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation of automatic roles by attribute was not executed correctly.");
 		}

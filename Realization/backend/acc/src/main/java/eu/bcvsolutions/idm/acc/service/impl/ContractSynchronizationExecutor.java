@@ -61,8 +61,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -205,7 +205,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// We don't want recalculate automatic role by attribute recalculation for every
 		// contract.
 		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
 
 		entityEventManager.process(event);
 	}
@@ -649,7 +649,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		// We don't want recalculate automatic role by attribute recalculation for every
 		// contract.
 		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
 
 		EventContext<IdmIdentityContractDto> publishContext = contractService.publish(event);
 		IdmIdentityContractDto contract = publishContext.getContent();
@@ -697,7 +697,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 						ContractPositionEventType.CREATE, contractPosition,
 						ImmutableMap.of(
 								ProvisioningService.SKIP_PROVISIONING, skipProvisioning,
-								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE
+								AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE
 						));
 				contractPosition = contractPositionService.publish(positionEvent).getContent();
 				// We need to flag recalculation for contract immediately to prevent synchronization ends before flag is created by NOTIFY event asynchronously.
@@ -712,7 +712,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 						ContractPositionEventType.DELETE, position,
 						ImmutableMap.of(
 								ProvisioningService.SKIP_PROVISIONING, skipProvisioning,
-								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE
+								AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE
 						));
 				contractPositionService.publish(positionEvent);
 			});

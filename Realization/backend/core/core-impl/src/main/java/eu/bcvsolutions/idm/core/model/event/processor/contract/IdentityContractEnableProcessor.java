@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -85,7 +85,7 @@ public class IdentityContractEnableProcessor
 		}
 		//
 		IdmIdentityContractDto contract = event.getContent();
-		OperationResult result = process(contract, (Boolean) event.getProperties().get(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION));
+		OperationResult result = process(contract, (Boolean) event.getProperties().get(AutomaticRoleManager.SKIP_RECALCULATION));
 		return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
 	}
 	
@@ -107,9 +107,9 @@ public class IdentityContractEnableProcessor
 				LOG.info("Change identity [{}] state [{}]", identity.getUsername(), IdentityState.VALID);
 				//
 				identity.setState(IdentityState.VALID);
-				// is neccessary publish new event with skip recalculation automatic roles
+				// is necessary publish new event with skip recalculation automatic roles
 				IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
-				event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skipRecalculation);
+				event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, skipRecalculation);
 		    	identityService.publish(event);
 			}
 		}

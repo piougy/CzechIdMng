@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
@@ -83,7 +83,7 @@ public class IdentityContractExclusionProcessor extends AbstractWorkflowEventPro
 		}
 		//
 		IdmIdentityContractDto contract = event.getContent();
-		OperationResult result = process(contract, (Boolean) event.getProperties().get(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION));
+		OperationResult result = process(contract, (Boolean) event.getProperties().get(AutomaticRoleManager.SKIP_RECALCULATION));
 		return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
 	}
 	
@@ -104,7 +104,7 @@ public class IdentityContractExclusionProcessor extends AbstractWorkflowEventPro
 			identity.setState(newState);
 			// is necessary publish new event with skip recalculation automatic roles
 			IdentityEvent identityEvent = new IdentityEvent(IdentityEventType.UPDATE, identity);
-			identityEvent.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skipRecalculation);
+			identityEvent.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, skipRecalculation);
 			identityService.publish(identityEvent);
 		}
 		return new OperationResult.Builder(OperationState.EXECUTED).build();

@@ -56,8 +56,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -500,7 +500,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		// We don't want recalculate automatic role by attribute recalculation for every
 		// contract.
 		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
 		//
 		// Set dirty state during recalculation, the process of recalculation will be solved in ClearDirtyStateForContractSliceTaskExecutor
 		// ClearDirtyStateForContractSliceTaskExecutor will be started with HR processes.
@@ -596,7 +596,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		// We don't want recalculate automatic role by attribute recalculation for every
 		// contract.
 		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
 		getService().publish(event);
 	}
 	
@@ -672,7 +672,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		// We don't want recalculate automatic role by attribute recalculation for every
 		// contract.
 		// Recalculation will be started only once.
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
 		//
 		// Skip recalculation, now isn't needed
 		event.getProperties().put(IdmContractSliceService.SKIP_RECALCULATE_CONTRACT_SLICE, Boolean.TRUE);

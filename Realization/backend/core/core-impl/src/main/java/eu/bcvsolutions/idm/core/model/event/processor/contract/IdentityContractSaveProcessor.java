@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -66,7 +66,7 @@ public class IdentityContractSaveProcessor
 				
 				// publish new save event for identity with skip recalculation
 				IdentityEvent identityEvent = new IdentityEvent(IdentityEventType.UPDATE, identity);
-				identityEvent.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+				identityEvent.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
 				identityService.publish(identityEvent);
 			}					
 		}

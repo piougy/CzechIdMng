@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.AbstractWorkflowStatefulExecutor;
 
 /**
@@ -41,7 +41,7 @@ public abstract class AbstractHrProcess extends AbstractWorkflowStatefulExecutor
 	@Override
 	protected Map<String, Object> getVariables() {
 		Map<String, Object> variables = super.getVariables();
-		variables.put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, this.skipAutomaticRoleRecalculation);
+		variables.put(AutomaticRoleManager.SKIP_RECALCULATION, this.skipAutomaticRoleRecalculation);
 		return variables;
 	}
 	

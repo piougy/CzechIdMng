@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
@@ -62,7 +63,7 @@ public class IdentityStateAutomaticRoleProcessor extends CoreEventProcessor<IdmI
 		}
 
 		// There is recalculate for all auto role, add skip for another processor. It is useless recalculate automatic roles again
-		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
 
 		return new DefaultEventResult<>(event, this);
 	}
@@ -70,7 +71,7 @@ public class IdentityStateAutomaticRoleProcessor extends CoreEventProcessor<IdmI
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
 		return changeStateToValid(event.getContent(), event.getOriginalSource())
-				&& !getBooleanProperty(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, event.getProperties());
+				&& !getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, event.getProperties());
 	}
 
 	@Override

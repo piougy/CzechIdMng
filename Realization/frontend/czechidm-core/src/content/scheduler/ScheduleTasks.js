@@ -17,7 +17,7 @@ const manager = new SchedulerManager();
 const formAttributeManager = new FormAttributeManager();
 
 /**
- * Unlimited description in task selectbox (used for select dependent task) with task parameters
+ * Unlimited description in task selectbox (used for select dependent task) with task parameters.
  *
  * @author Radek Tomiška
  * @since 9.6.0
@@ -453,10 +453,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, _supportedTasks.length === 0 ? {} : { name: _supportedTasks[0], instanceId }) }
-                rendered={ _supportedTasks.length > 0 && SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE'])}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+                rendered={ _supportedTasks.length > 0 && SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE']) }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
@@ -517,7 +516,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
             cell={
               ({ rowIndex, data }) => (
                 <Advanced.LongRunningTaskProperties
-                  key={ `lrt-eav-${ data[rowIndex].id }` }
+                  key={ `lrt-${ Utils.Ui.getComponentKey(data[rowIndex]) }` }
                   entity={ data[rowIndex] }
                   supportedTasks={ supportedTasks }
                   condensed/>

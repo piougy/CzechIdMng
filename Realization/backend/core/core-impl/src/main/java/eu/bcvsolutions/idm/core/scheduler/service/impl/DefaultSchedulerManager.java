@@ -40,6 +40,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -222,6 +223,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			// job properties
 			JobDataMap jobDataMap = new JobDataMap();
 			jobDataMap.put(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID, task.getInstanceId());
+			jobDataMap.put(Auditable.PROPERTY_MODIFIED, ZonedDateTime.now());
 			task.getParameters().entrySet().forEach(entry -> {
 				jobDataMap.put(entry.getKey(), entry.getValue());
 			});
@@ -275,6 +277,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 				jobDataMap.put(entry.getKey(), entry.getValue());
 			});
 			jobDataMap.put(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID, newTask.getInstanceId());
+			jobDataMap.put(Auditable.PROPERTY_MODIFIED, ZonedDateTime.now());
 			// validate init method
 			try {
 				LongRunningTaskExecutor<?> taskExecutor = AutowireHelper.createBean(task.getTaskType());
@@ -461,11 +464,13 @@ public class DefaultSchedulerManager implements SchedulerManager {
 					.createBean(jobDetail.getJobClass());
 			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) AutowireHelper.getTargetClass(taskExecutor));
 			task.setDescription(jobDetail.getDescription());
-			task.setInstanceId(jobDetail.getJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
+			JobDataMap jobDataMap = jobDetail.getJobDataMap();
+			task.setInstanceId(jobDataMap.getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
+			task.setModified((ZonedDateTime) jobDataMap.get(Auditable.PROPERTY_MODIFIED));
 			task.setTriggers(new ArrayList<>());
 			// task properties
 			// TODO: deprecated since 9.2.0 - remove in 10.x
-			for (Entry<String, Object> entry : jobDetail.getJobDataMap().entrySet()) {
+			for (Entry<String, Object> entry : jobDataMap.entrySet()) {
 				task.getParameters().put(entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString());
 			}
 			task.setDisabled(taskExecutor.isDisabled());

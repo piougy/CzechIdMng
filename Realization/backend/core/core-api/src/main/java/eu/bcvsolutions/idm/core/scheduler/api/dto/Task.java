@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +21,8 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty.AccessMode;
 
 /**
  * Scheduled task with unique id 
@@ -54,6 +57,8 @@ public class Task implements BaseDto {
 	private IdmFormDefinitionDto formDefinition;
 	private boolean supportsDryRun;
 	private boolean recoverable;
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
+	private ZonedDateTime modified;
 
 	public Task() {
 	}
@@ -214,5 +219,26 @@ public class Task implements BaseDto {
 	 */
 	public void setRecoverable(boolean recoverable) {
 		this.recoverable = recoverable;
+	}
+	
+	
+	/**
+	 * Last modified date.
+	 * 
+	 * @return date
+	 * @since 10.7.0
+	 */
+	public ZonedDateTime getModified() {
+		return modified;
+	}
+
+	/**
+	 * Last modified date.
+	 * 
+	 * @param modified date
+	 * @since 10.7.0
+	 */
+	public void setModified(ZonedDateTime modified) {
+		this.modified = modified;
 	}
 }

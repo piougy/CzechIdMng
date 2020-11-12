@@ -56,7 +56,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
+import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -78,6 +81,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -149,6 +154,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	private AccContractAccountService contractAccountService;
 	@Autowired
 	private AccAccountService accountService;
+	@Autowired 
+	private FormService formService;
 
 	@Before
 	public void init() {
@@ -269,6 +276,86 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, assignedRoles.size());
 		Assert.assertNull(assignedRoles.get(0).getValidFrom());
 		Assert.assertNull(assignedRoles.get(0).getValidTill());
+		
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void testCreateContractWithAutomaticRoleByEavAttribute() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+		//
+		// create form definition, roles, automatic role etc.
+		IdmRoleDto roleContract = getHelper().createRole();
+		IdmRoleDto subRoleContract = getHelper().createRole();
+		getHelper().createRoleComposition(roleContract, subRoleContract);
+		// sync supports default definition only
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
+		IdmFormAttributeDto formAttributeContract = formService.saveAttribute(IdmIdentityContractDto.class, formAttribute);
+		//
+		IdmAutomaticRoleAttributeDto automaticRoleContract = getHelper().createAutomaticRole(roleContract.getId());
+		getHelper().createAutomaticRoleRule(
+				automaticRoleContract.getId(), 
+				AutomaticRoleAttributeRuleComparison.EQUALS, 
+				AutomaticRoleAttributeRuleType.CONTRACT_EAV, 
+				null, 
+				formAttributeContract.getId(), 
+				"mockContract");
+		//
+		// create mapping to eav attribute - leader = eav
+		SysSystemMappingDto syncSystemMapping = systemMappingService.get(config.getSystemMapping());
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(syncSystemMapping.getId());
+		SysSystemAttributeMappingDto leaderAttributeMapping = schemaAttributeMappingService
+				.findBySystemMappingAndName(syncSystemMapping.getId(), "leader");
+		leaderAttributeMapping.setEntityAttribute(false);
+		leaderAttributeMapping.setExtendedAttribute(true);
+		leaderAttributeMapping.setIdmPropertyName(formAttributeContract.getCode());
+		schemaAttributeMappingService.save(leaderAttributeMapping);
+		//
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		String positionCode = getHelper().createName();
+		this.getBean().createContractData(positionCode, identity.getUsername(), "mockContract", Boolean.TRUE.toString(), null, null, null);
+		//
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityId(identity.getId());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		helper.startSynchronization(config);
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1);
+
+		Assert.assertFalse(log.isRunning());
+		
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setIdentity(identity.getId());
+		contractFilter.setAddEavMetadata(Boolean.TRUE);
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue(positionCode);
+		List<IdmIdentityContractDto> contracts = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contracts.size());
+		Assert.assertEquals("mockContract", contracts
+				.get(0)
+				.getEavs()
+				.stream()
+				.filter(fi -> fi.getFormDefinition().isMain())
+				.findFirst()
+				.get()
+				.getValues()
+				.stream()
+				.filter(v -> v.getFormAttribute().equals(formAttributeContract.getId()))
+				.findFirst()
+				.get()
+				.getShortTextValue());
+		
+		assignedRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(roleContract.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subRoleContract.getId())));
 		
 		// Delete log
 		syncLogService.delete(log);
@@ -1320,7 +1407,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 			} else if ("leader".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setIdmPropertyName(ContractSynchronizationExecutor.CONTRACT_GUARANTEES_FIELD);
-				attributeHandlingName.setName(schemaAttr.getName());
+				attributeHandlingName.setName(schemaAttr.getName().toLowerCase());
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());

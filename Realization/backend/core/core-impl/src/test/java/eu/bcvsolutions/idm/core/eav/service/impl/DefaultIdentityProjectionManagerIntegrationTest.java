@@ -1244,7 +1244,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			//
 			IdmFormAttributeDto formAttributeContract = new IdmFormAttributeDto(getHelper().createName());
 			IdmFormDefinitionDto formDefinitionContract = formService.createDefinition(
-					IdmIdentityDto.class, 
+					IdmIdentityContractDto.class, 
 					getHelper().createName(), 
 					Lists.newArrayList(formAttributeContract));
 			formAttributeContract = formDefinitionContract.getMappedAttributeByCode(formAttributeContract.getCode());

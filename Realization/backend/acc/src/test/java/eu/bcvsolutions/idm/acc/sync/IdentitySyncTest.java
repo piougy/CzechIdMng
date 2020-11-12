@@ -1,6 +1,32 @@
 package eu.bcvsolutions.idm.acc.sync;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.transaction.Transactional;
+
+import org.activiti.engine.ProcessEngine;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+
 import com.beust.jcommander.internal.Lists;
+
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -64,6 +90,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -72,6 +99,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -85,27 +113,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.transaction.Transactional;
-import org.activiti.engine.ProcessEngine;
-import org.junit.After;
-import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
 
 /**
  * Identity synchronization tests (basic tests for identity sync are in
@@ -2801,6 +2808,81 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 		syncConfigService.delete(config);
 	}
+	
+	@Test
+	public void testCreateIdentityWithAutomaticRoleByEavAttribute() {
+		String username = getHelper().createName();
+		SysSystemDto system = initData(username, "mockIdentity@idm.eu");
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		config.setCreateDefaultContract(true);
+		config.setStartAutoRoleRec(true);
+		syncConfigService.save(config);
+		//
+		// create form definition, roles, automatic role etc.
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto subRole = getHelper().createRole();
+		getHelper().createRoleComposition(role, subRole);
+		// sync supports default definition only
+		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
+		IdmFormAttributeDto formAttributeIdentity = formService.saveAttribute(IdmIdentityDto.class, formAttribute);
+		//
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+		getHelper().createAutomaticRoleRule(
+				automaticRole.getId(), 
+				AutomaticRoleAttributeRuleComparison.EQUALS, 
+				AutomaticRoleAttributeRuleType.IDENTITY_EAV, 
+				null, 
+				formAttributeIdentity.getId(), 
+				"mockIdentity@idm.eu");
+		//
+		// create mapping to eav attribute - leader = eav
+		SysSystemMappingDto syncSystemMapping = systemMappingService.get(config.getSystemMapping());
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(syncSystemMapping.getId());
+		SysSystemAttributeMappingDto lastnameAttributeMapping = schemaAttributeMappingService
+				.findBySystemMappingAndName(syncSystemMapping.getId(), ATTRIBUTE_EMAIL);
+		lastnameAttributeMapping.setEntityAttribute(false);
+		lastnameAttributeMapping.setExtendedAttribute(true);
+		lastnameAttributeMapping.setIdmPropertyName(formAttributeIdentity.getCode());
+		schemaAttributeMappingService.save(lastnameAttributeMapping);
+		//
+		helper.startSynchronization(config);
+		
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(username);
+		identityFilter.setAddEavMetadata(Boolean.TRUE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals("mockIdentity@idm.eu", identities
+				.get(0)
+				.getEavs()
+				.stream()
+				.filter(fi -> fi.getFormDefinition().isMain())
+				.findFirst()
+				.get()
+				.getValues()
+				.stream()
+				.filter(v -> v.getFormAttribute().equals(formAttributeIdentity.getId()))
+				.findFirst()
+				.get()
+				.getShortTextValue());
+		
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityId(identities.get(0).getId());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(role.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subRole.getId())));
+		
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
 
 	private Task createSyncTask(UUID syncConfId) {
 		Task task = new Task();
@@ -2970,7 +3052,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName("lastName");
-				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setName(schemaAttr.getName().toLowerCase());
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
@@ -2978,7 +3060,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 			} else if (ATTRIBUTE_EMAIL.equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setIdmPropertyName(ATTRIBUTE_EMAIL);
-				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setName(schemaAttr.getName().toLowerCase());
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);

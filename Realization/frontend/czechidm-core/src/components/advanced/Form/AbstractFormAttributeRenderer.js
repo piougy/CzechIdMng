@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 //
 import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
 import { FormAttributeManager } from '../../../redux';
 
 const formAttributeManager = new FormAttributeManager();
@@ -310,7 +311,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
       return (
         <span>
           <Basic.Label level="success" text={this.i18n('component.advanced.EavForm.showChanges.newValue')}/>
-          {' ' + label}
+          { ' ' }
+          { label }
         </span>
       );
     }
@@ -318,7 +320,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     return (
       <span>
         <Basic.Label level="warning" text={this.i18n('component.advanced.EavForm.showChanges.originalValue')}/>
-        {' ' + label}
+        { ' ' }
+        { label }
       </span>
     );
   }
@@ -424,7 +427,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   }
 
   render() {
-    const { attribute } = this.props;
+    const { attribute, values } = this.props;
     // check confidential support
     if (attribute.confidential && !this.supportsConfidential()) {
       return (
@@ -441,6 +444,8 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
         </Basic.LabelWrapper>
       );
     }
+    // ui key by values latest modified date and id
+    const key = Utils.Ui.getComponentKey(values);
     // multiple module is disabled, even when renderMultipleInput is overriden
     if (!this.supportsMultiple() && attribute.multiple) {
       return this._unsupportedMode('multiple');
@@ -452,16 +457,20 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
       const originalValues = this.getOriginalValues();
       componentOriginal = (attribute.multiple) ? this.renderMultipleInput(originalValues) : this.renderSingleInput(originalValues);
     } else {
-      return component;
+      return (
+        <span key={ key }>
+          { component }
+        </span>
+      );
     }
-
+    //
     return (
-      <div style={{ display: 'flex'}}>
+      <div style={{ display: 'flex' }} key={ key }>
         <div style={{ flex: 1}}>
-          {componentOriginal}
+          { componentOriginal }
         </div>
-        <div style={{marginLeft: 5, flex: 1 }}>
-          {component}
+        <div style={{ marginLeft: 5, flex: 1 }}>
+          { component }
         </div>
       </div>
     );

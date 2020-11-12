@@ -1,5 +1,7 @@
 import Joi from 'joi';
 import _ from 'lodash';
+import moment from 'moment';
+import uuid from 'uuid';
 //
 import EntityUtils from './EntityUtils';
 
@@ -479,6 +481,41 @@ export default class UiUtils {
     }
     //
     return route;
+  }
+
+  /**
+   * Returns component key as 'id-latestModified'. Usable as component key.
+   *
+   * @param  {AuditableDto || arrayOf(AuditableDto)} dtos single dto or array of auditable dtos -
+   * @return {string}      component key
+   * @since 10.7.0
+   */
+  static getComponentKey(dtos) {
+    if (!dtos) {
+      return null;
+    }
+    let latestDto = null;
+
+    if (_.isArray(dtos)) {
+      if (dtos.length === 0) {
+        return null;
+      }
+      dtos.forEach(dto => {
+        const modified = dto.modified || dto.created;
+        if (modified && (!latestDto || moment(modified).isAfter(moment(latestDto.modified || latestDto.created)))) {
+          latestDto = dto;
+        }
+      });
+    } else {
+      // single dto
+      latestDto = dtos;
+    }
+    //
+    if (!latestDto || (!latestDto.modified && !latestDto.created)) { // if last change is not defined, can be dangerous return "static key"
+      return null;
+    }
+    //
+    return `${ latestDto.id || uuid.v1() }-${ this.spinalCase(latestDto.modified || latestDto.created) }`;
   }
 }
 

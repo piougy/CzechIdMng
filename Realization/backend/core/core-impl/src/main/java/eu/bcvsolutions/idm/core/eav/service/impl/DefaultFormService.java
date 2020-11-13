@@ -1416,6 +1416,12 @@ public class DefaultFormService implements FormService {
 						.collect(Collectors.toList()); //
 				InvalidFormAttributeDto result = this.validateAttribute(formDefinition, formAttribute, formValueForAttributes);
 				if (!result.isValid()) {
+					// Invalid attributes for owner => more owners can be saved together (e.g. from projection).
+					result.setOwnerId(formInstance.getOwnerId()); // ~ identifiable
+					Class<? extends Identifiable> ownerType = formInstance.getOwnerType();
+					if (ownerType != null) {
+						result.setOwnerType(lookupService.getOwnerType(ownerType));
+					}					
 					results.add(result);
 				}
 			});

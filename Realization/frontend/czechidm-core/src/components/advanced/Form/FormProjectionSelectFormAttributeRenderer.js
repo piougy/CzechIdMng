@@ -63,6 +63,7 @@ export default class FormProjectionSelectFormAttributeRenderer extends SelectBox
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }
         validationErrors={ validationErrors }
+        validationMessage={ attribute.validationMessage }
         className={ className }
         style={ style}/>
     );

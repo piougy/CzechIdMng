@@ -134,6 +134,7 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }
         validationErrors={ validationErrors }
+        validationMessage={ attribute.validationMessage }
         className={ className }
         style={ style}/>
     );

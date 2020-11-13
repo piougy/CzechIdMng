@@ -179,14 +179,14 @@ class AbstractFormComponent extends AbstractContextComponent {
     });
   }
 
-/**
- * Localization validation errors
- * @param  {string} type   type of validation
- * @param  {json} params (key-value of validation params)
- * @return {string}        localized message
- */
+  /**
+   * Localization validation errors
+   * @param  {string} type   type of validation
+   * @param  {json} params (key-value of validation params)
+   * @return {string}        localized message
+   */
   _localizationValidation(type, params) {
-    return this.i18n('validationError.' + type, params);
+    return this.i18n(`validationError.${ type }`, params);
   }
 
   validate(showValidationError, cb) {
@@ -352,7 +352,7 @@ class AbstractFormComponent extends AbstractContextComponent {
    * @return {string}
    */
   getTitle() {
-    const { label, placeholder, tooltip, validationErrors } = this.props;
+    const { label, placeholder, tooltip, validationErrors, validationMessage } = this.props;
     const propertyName = label || placeholder;
     const validationResult = this.getValidationResult();
     //
@@ -367,7 +367,7 @@ class AbstractFormComponent extends AbstractContextComponent {
         title += `${ this._toValidationType(validationError) }`;
       });
     } else if (validationResult && validationResult.message) {
-      title = `${validationResult.message}`;
+      title = validationMessage ? this.i18n(validationMessage) : `${ validationResult.message }`;
     } else if (!label) {
       title = propertyName;
     }
@@ -409,7 +409,7 @@ class AbstractFormComponent extends AbstractContextComponent {
       validationClass = 'has-error has-feedback';
     }
     return (
-      <div className={ _className + ' ' + validationClass } style={ this.props.style }>
+      <div className={ `${ _className } ${ validationClass }` } style={ this.props.style }>
         { this.getBody(feedback) }
       </div>
     );
@@ -434,6 +434,10 @@ AbstractFormComponent.propTypes = {
    * List of InvalidFormAttributeDto
    */
   validationErrors: PropTypes.arrayOf(PropTypes.object),
+  /**
+   * If message is not defined, then default message by invalid validation type will be shown.
+   */
+  validationMessage: PropTypes.string,
   validate: PropTypes.func, // function for custom validation (input is value and result from previous validations)
   style: PropTypes.object, // form-group element style
   notControlled: PropTypes.bool // if true, then is component not controlled by AbstractForm

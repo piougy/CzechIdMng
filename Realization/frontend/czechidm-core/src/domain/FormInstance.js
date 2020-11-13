@@ -9,24 +9,36 @@ import Immutable from 'immutable';
  */
 export default class FormInstance {
 
-  constructor(formDefinition, formValues = null, validationErrors = null) {
-    this.definition = formDefinition;
+  constructor(formInstance, formValues = null, validationErrors = null) {
+    let _formValues = formValues;
+    if (formInstance.formDefinition) {
+      // ~ form instance
+      this.formInstance = formInstance;
+      this.definition = formInstance.formDefinition;
+      if (_formValues === null) { // values from parameter has highr priority
+        _formValues = this.formInstance.values;
+      }
+    } else {
+      // ~ form definition only
+      this.formInstance = null;
+      this.definition = formInstance;
+    }
     //
     // prepare attributes from given definition
     this.attributes = new Immutable.OrderedMap();
-    if (formDefinition._embedded && formDefinition._embedded.formAttributes) {
-      formDefinition._embedded.formAttributes.forEach(formAttribute => {
+    if (this.definition._embedded && this.definition._embedded.formAttributes) {
+      this.definition._embedded.formAttributes.forEach(formAttribute => {
         this.attributes = this.attributes.set(formAttribute.code, formAttribute);
       });
     }
-    if (formDefinition.formAttributes) {
-      formDefinition.formAttributes.forEach(formAttribute => {
+    if (this.definition.formAttributes) {
+      this.definition.formAttributes.forEach(formAttribute => {
         this.attributes = this.attributes.set(formAttribute.code, formAttribute);
       });
     }
     //
     // prepare values
-    this._setValues(formValues);
+    this._setValues(_formValues);
     //
     //  set validation errors
     this.validationErrors = validationErrors;
@@ -56,6 +68,20 @@ export default class FormInstance {
 
   getValidationErrors() {
     return this.validationErrors;
+  }
+
+  /**
+   * Form instance owner.
+   *
+   * @return {string} owner identifier - UUID in most cases
+   * @since 10.7.0
+   */
+  getOwnerId() {
+    if (!this.formInstance) {
+      return null;
+    }
+    //
+    return this.formInstance.ownerId;
   }
 
   /**

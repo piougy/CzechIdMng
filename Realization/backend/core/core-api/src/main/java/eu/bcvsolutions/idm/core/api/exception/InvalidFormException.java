@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 
 /**
- * Form doesn't pass validation for given attributes
+ * Form doesn't pass validation for given attributes.
  * 
  * @author Radek Tomiška
  * @since 9.4.0

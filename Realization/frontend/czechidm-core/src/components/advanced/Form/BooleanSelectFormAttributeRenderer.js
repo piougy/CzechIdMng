@@ -42,7 +42,7 @@ export default class BooleanSelectFormAttributeRenderer extends BooleanFormAttri
   }
 
   renderSingleInput(originalValues) {
-    const { values, validationErrors, className, style } = this.props;
+    const { attribute, values, validationErrors, className, style } = this.props;
     const showOriginalValue = !!originalValues;
     //
     return (
@@ -55,6 +55,7 @@ export default class BooleanSelectFormAttributeRenderer extends BooleanFormAttri
         required={ this.isRequired() }
         placeholder={ this.getPlaceholder() }
         validationErrors={ validationErrors }
+        validationMessage={ attribute.validationMessage }
         className={ className }
         style={ style}/>
     );

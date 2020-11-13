@@ -15,7 +15,7 @@ const attachmentService = new AttachmentService();
  * Attachment form value component
  * - supports single file only for now
  * - TODO: support multiple files
- * - TODO: validation support (now is validation on input - title is missing)
+ * - TODO: validation support (now is validation on input - title is missing), custom validationMessage={ attribute.validationMessage }
  *
  * @author Radek Tomiška
  */
@@ -48,7 +48,10 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
     if (!formableManager || !formableManager.supportsAttachment()) {
       return;
     }
-    if (!formValue || !formValue.id || !formValue.ownerId || formValue.persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ATTACHMENT)) {
+    if (!formValue
+      || !formValue.id
+      || !formValue.ownerId
+      || formValue.persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ATTACHMENT)) {
       return;
     }
     // download preview
@@ -313,7 +316,7 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
   renderSingleInput(originalValues) {
     const { values, validationErrors, className, style } = this.props;
     const { isLoading, showValidationError } = this.state;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     const dropyoneStyle = {};
     const _showError = showValidationError || (validationErrors && validationErrors.length > 0);
@@ -324,7 +327,8 @@ export default class AttachmentFormAttributeRenderer extends UuidFormAttributeRe
       className, {
         'has-feedback': _showError,
         'has-error': _showError
-      });
+      }
+    );
     //
     return (
       <Basic.LabelWrapper

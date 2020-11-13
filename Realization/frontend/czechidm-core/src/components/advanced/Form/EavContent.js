@@ -56,10 +56,9 @@ class EavContent extends Basic.AbstractContent {
         }
       }));
     } else {
-      // TODO: receive ... _eav to FormInstances
       let _formInstances = new Immutable.Map();
       formInstances.forEach(formInstance => {
-        _formInstances = _formInstances.set(formInstance.formDefinition.code, new FormInstance(formInstance.formDefinition, formInstance.values));
+        _formInstances = _formInstances.set(formInstance.formDefinition.code, new FormInstance(formInstance));
       });
       this.context.store.dispatch(dataManager.receiveData(this.getUiKey(), _formInstances));
     }
@@ -176,7 +175,8 @@ class EavContent extends Basic.AbstractContent {
       _showLoading,
       showDefinitions
     } = this.props;
-    const { error, validationErrors } = this.state;
+    const { error } = this.state;
+    const validationErrors = this.state.validationErrors || this.props.validationErrors;
     //
     if (!rendered) {
       return null;
@@ -239,12 +239,13 @@ class EavContent extends Basic.AbstractContent {
               showAttributes={ _renderAttributes }/>
           );
         }
+        index += 1;
         //
         return (
           <form className="abstract-form" onSubmit={ this.save.bind(this, _formInstance.getDefinition().code) }>
             <Basic.Panel className={
               classnames({
-                last: ++index === _formInstances.size
+                last: index === _formInstances.size
               })}>
 
               {/* RT: back compatibilty header */}
@@ -318,6 +319,10 @@ EavContent.propTypes = {
    * Render given definitions and attributes only. Render all definitions and atributes otherwise.
    */
   showDefinitions: PropTypes.arrayOf(PropTypes.object),
+  /**
+   * List of InvalidFormAttributeDto
+   */
+  validationErrors: PropTypes.arrayOf(PropTypes.object),
   /**
    * Internal properties (loaded by redux)
    */

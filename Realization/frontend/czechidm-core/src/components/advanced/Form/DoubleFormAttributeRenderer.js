@@ -19,8 +19,8 @@ export default class DoubleFormAttributeRenderer extends TextFormAttributeRender
    */
   getInputValidation() {
     const { attribute } = this.props;
-    const min = attribute.min || -Math.pow(10, 33);
-    const max = attribute.max || Math.pow(10, 33);
+    const min = attribute.min || -(10 ** 33);
+    const max = attribute.max || (10 ** 33);
     //
     let validation = Joi.number().min(min).max(max);
     if (!this.isRequired()) {

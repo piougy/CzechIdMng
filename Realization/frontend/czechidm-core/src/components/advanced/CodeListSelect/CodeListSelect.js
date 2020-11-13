@@ -272,7 +272,17 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { hidden, required, rendered, validationErrors, multiSelect, onChange, showOnlyIfOptionsExists, searchable } = this.props;
+    const {
+      hidden,
+      required,
+      rendered,
+      validationErrors,
+      validationMessage,
+      multiSelect,
+      onChange,
+      showOnlyIfOptionsExists,
+      searchable
+    } = this.props;
     const { options, value, disabled, readOnly } = this.state;
     const showLoading = this.props.showLoading || this.state.showLoading;
     //
@@ -293,6 +303,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           readOnly={ readOnly || disabled }
           required={ required }
           validationErrors={ validationErrors }
+          validationMessage={ validationMessage }
           hidden={ localHidden || (options.length === 0 && !showLoading) }
           showLoading={ showLoading }
           options={ options }
@@ -309,6 +320,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           readOnly={ readOnly || disabled }
           required={ required }
           validationErrors={ validationErrors }
+          validationMessage={ validationMessage }
           hidden={ showLoading || localHidden || options.length > 0 }
           onChange={ onChange }
         />

@@ -54,7 +54,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       generatePassword: false,
       generatePasswordShowLoading: false,
       activeKey: null,
-      editContracts: new Immutable.OrderedSet()
+      editContracts: new Immutable.OrderedSet(),
+      validationErrors: null
     };
   }
 
@@ -586,7 +587,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
   afterSave(identityProjection, error) {
     if (error) {
       this.setState({
-        validationError: error,
+        validationError: error, // from password
+        validationErrors: error.statusEnum === 'FORM_INVALID' && error.parameters ? error.parameters.attributes : null, // form eav forms
         validationDefinition: false
       }, () => {
         this.addError(error);
@@ -595,21 +597,25 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         }
       });
     } else {
-      const { isNew } = this.state;
-      //
-      this._initProjection(identityProjection.id, identityProjection, this.state.formProjection, false);
-      this.addMessage({
-        message: this.i18n('action.save.success', { record: identityProjection.identity.username, count: 1 })
+      this.setState({
+        validationErrors: null
+      }, () => {
+        const { isNew } = this.state;
+        //
+        this._initProjection(identityProjection.id, identityProjection, this.state.formProjection, false);
+        this.addMessage({
+          message: this.i18n('action.save.success', { record: identityProjection.identity.username, count: 1 })
+        });
+        this.context.history.replace(identityManager.getDetailLink(identityProjection.identity));
+        if (this.refs.form) {
+          // form show loading
+          this.refs.form.processEnded();
+        }
+        // reload role requests, if new
+        if (isNew && this.refs.identityRolesTable) {
+          this.refs.identityRolesTable._refreshAll();
+        }
       });
-      this.context.history.replace(identityManager.getDetailLink(identityProjection.identity));
-      if (this.refs.form) {
-        // form show loading
-        this.refs.form.processEnded();
-      }
-      // reload role requests, if new
-      if (isNew && this.refs.identityRolesTable) {
-        this.refs.identityRolesTable._refreshAll();
-      }
     }
   }
 
@@ -832,7 +838,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
    * Render identity eav attributes.
    */
   renderIdentityAttributes() {
-    const { attributes, identityProjection, isNew } = this.state;
+    const { attributes, identityProjection, isNew, validationErrors } = this.state;
     const { entityId } = this.props.match.params;
     //
     return (
@@ -844,7 +850,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         showAttributesOnly
         showDefinitions={ attributes }
         entityId={ isNew ? null : entityId }
-        formInstances={ isNew ? null : identityProjection._eav } />
+        formInstances={ isNew ? null : identityProjection._eav }
+        validationErrors={ validationErrors }/>
     );
   }
 
@@ -933,7 +940,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
    * Render contract eav attributes by index.
    */
   renderContractAttributes(index, readOnly = false) {
-    const { attributes, identityProjection, isNew } = this.state;
+    const { attributes, identityProjection, isNew, validationErrors } = this.state;
     const contract = identityProjection.allContracts[index];
     if (!contract) {
       return null;
@@ -948,7 +955,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         showAttributesOnly
         showDefinitions={ attributes }
         entityId={ isNew ? null : contract.id }
-        formInstances={ isNew ? null : contract._eav }/>
+        formInstances={ isNew ? null : contract._eav }
+        validationErrors={ validationErrors }/>
     );
   }
 

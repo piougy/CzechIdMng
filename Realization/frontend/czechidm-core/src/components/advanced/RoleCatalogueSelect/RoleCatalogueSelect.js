@@ -236,6 +236,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
       rendered,
       required,
       validationErrors,
+      validationMessage,
       value,
       multiSelect,
       onChange,
@@ -261,6 +262,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               readOnly={ readOnly }
               required={ required }
               validationErrors={ validationErrors }
+              validationMessage={ validationMessage }
               value={ value }
               multiSelect={ multiSelect }
               onChange={ onChange }

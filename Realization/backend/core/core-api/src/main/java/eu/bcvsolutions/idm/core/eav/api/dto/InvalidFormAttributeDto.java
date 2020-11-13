@@ -1,13 +1,15 @@
 package eu.bcvsolutions.idm.core.eav.api.dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 
 /**
- * DTO for keep informations about invalidate attribute
+ * DTO for keep informations about invalidate attribute.
  * 
  * @author Vít Švanda
  *
@@ -17,6 +19,8 @@ public class InvalidFormAttributeDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 
+	private Serializable ownerId; // UUID in most cases, but Identifiable is supported.
+	private String ownerType;
 	private String attributeCode;
 	//
 	// error states - filled, when validation not pass
@@ -105,5 +109,47 @@ public class InvalidFormAttributeDto extends AbstractDto {
 	
 	public void setMessage(String message) {
 		this.message = message;
+	}
+	
+	/**
+	 * Owner identifier.
+	 * 
+	 * @return owner identifier
+	 * @since 10.7.0
+	 */
+	public Serializable getOwnerId() {
+		return ownerId;
+	}
+	
+	/**
+	 * Owner identifier.
+	 * 
+	 * @param ownerId owner identifier
+	 * @since 10.7.0
+	 */
+	public void setOwnerId(Serializable ownerId) {
+		this.ownerId = ownerId;
+	}
+	
+	/**
+	 * Owner type.
+	 * 
+	 * @see LookupService#getOwnerType(Class)
+	 * @return owner type
+	 * @since 10.7.0
+	 */
+	public String getOwnerType() {
+		return ownerType;
+	}
+	
+	/**
+	 * Owner type.
+	 * 
+	 * @see LookupService#getOwnerType(Class)
+	 * @param ownerType owner type
+	 * @since 10.7.0
+	 */
+	public void setOwnerType(String ownerType) {
+		this.ownerType = ownerType;
 	}
 }

@@ -88,6 +88,7 @@ export default class CodeListSelectFormAttributeRenderer extends SelectBoxFormAt
         required={ this.isRequired() }
         confidential={ attribute.confidential }
         validationErrors={ validationErrors }
+        validationMessage={ attribute.validationMessage }
         className={ className }
         style={ style}/>
     );

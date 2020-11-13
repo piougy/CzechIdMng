@@ -19,6 +19,8 @@ This component is not designed for separate usage. Use children components (etc.
 | onChange  | func |  |  |
 | validation  | object | joi validation |  |
 | validate  | func | function for custom validation (input is value and result from previous validations) |  |
+| validationErrors | arrayOf(object) | BE validation errors - List of InvalidFormAttributeDto. | |
+| validationMessage | string | If message is not defined, then default message by invalid validation type will be shown. | |
 | style  | string | element style |  |
 | helpBlock  | string | help under input |  |
 | notControlled  | bool | If true, then isn't component controlled by the AbstractForm |false | |

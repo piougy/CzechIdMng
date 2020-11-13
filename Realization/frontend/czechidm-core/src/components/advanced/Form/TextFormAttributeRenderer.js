@@ -167,6 +167,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         warnIfTrimmable
         confidential={ attribute.confidential }
         validationErrors={ validationErrors }
+        validationMessage={ attribute.validationMessage }
         className={ className }
         style={ style }/>
     );

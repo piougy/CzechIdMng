@@ -38,7 +38,7 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
 
   renderSingleInput(originalValues) {
     const { attribute, values, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <Basic.DateTimePicker
@@ -51,6 +51,7 @@ export default class DateTimeFormAttributeRenderer extends AbstractFormAttribute
         helpBlock={ this.getHelpBlock() }
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         validationErrors={ validationErrors }
+        validationMessage={ attribute.validationMessage }
         className={ className }
         style={ style}/>
     );

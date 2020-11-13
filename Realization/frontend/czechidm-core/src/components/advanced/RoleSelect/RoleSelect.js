@@ -471,6 +471,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       hidden,
       required,
       validationErrors,
+      validationMessage,
       value,
       rendered,
       forceSearchParameters,
@@ -516,6 +517,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               entityType="role"
               required={ required }
               validationErrors={ validationErrors }
+              validationMessage={ validationMessage }
               value={ value }
               optionComponent={ RoleOptionDecorator }
               clearable={ clearable }

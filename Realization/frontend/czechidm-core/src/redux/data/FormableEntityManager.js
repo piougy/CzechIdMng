@@ -65,7 +65,7 @@ export default class FormableEntityManager extends EntityManager {
           Promise.all(formValuesPromises)
             .then((jsons) => {
               jsons.forEach(jsonA => {
-                formInstances = formInstances.set(jsonA.formDefinition.code, new FormInstance(jsonA.formDefinition, jsonA.values));
+                formInstances = formInstances.set(jsonA.formDefinition.code, new FormInstance(jsonA));
               });
               //
               dispatch(this.dataManager.receiveData(uiKey, formInstances));

@@ -37,6 +37,7 @@ export default class TextAreaFormAttributeRenderer extends TextFormAttributeRend
         validation={ this.getInputValidation() }
         required={ this.isRequired() }
         validationErrors={ validationErrors }
+        validationMessage={ attribute.validationMessage }
         className={ className }
         style={ style}/>
     );

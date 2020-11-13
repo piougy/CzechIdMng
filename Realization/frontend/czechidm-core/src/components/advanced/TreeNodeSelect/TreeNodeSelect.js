@@ -361,6 +361,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       hidden,
       multiSelect,
       validationErrors,
+      validationMessage,
       disableable,
       additionalOptions,
       onChange
@@ -426,6 +427,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
                 useFirst={ useFirstType && !selectedTreeType }
                 required={ required }
                 validationErrors={ validationErrors }
+                validationMessage={ validationMessage }
                 readOnly={ readOnly }
                 disableable={ disableable }/>
             </Basic.Div>
@@ -446,6 +448,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               readOnly={ readOnly || (treeTypeId === null && showTreeType) }
               required={ required }
               validationErrors={ validationErrors }
+              validationMessage={ validationMessage }
               value={ value }
               multiSelect={ multiSelect }
               disableable={ disableable }

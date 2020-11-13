@@ -29,8 +29,8 @@ export default class RichTextAreaFormAttributeRenderer extends TextFormAttribute
   }
 
   renderSingleInput(originalValues) {
-    const { values, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const { attribute, values, validationErrors, className, style } = this.props;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <RichTextArea
@@ -42,6 +42,7 @@ export default class RichTextAreaFormAttributeRenderer extends TextFormAttribute
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
         validationErrors={ validationErrors }
+        validationMessage={ attribute.validationMessage }
         className={ className }
         style={ style}/>
     );

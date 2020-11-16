@@ -25,30 +25,45 @@ class Monitorings extends Advanced.AbstractTableContent {
       detail: {
         show: false,
         entity: {}
-      }
+      },
+      _showLoading: true
     };
   }
 
   componentDidMount() {
     super.componentDidMount();
     this.initData();
-    this.selectNavigationItem('monitoring');
   }
 
   initData() {
     manager.getService().getMonitoringType('monitoring-database')
       .then(json => {
-        this.setState({monitoringDatabase: json});
+        this.setState({
+          monitoringDatabase: json,
+          _showLoading: true,
+        }, () => {
+          manager.getService().getMonitoringType('monitoring-sync')
+            .then(jsonTwo => {
+              this.setState({
+                monitoringSync: jsonTwo,
+                _showLoading: false
+              });
+            })
+            .catch(error => {
+              this.setState({
+                _showLoading: false
+              }, () => {
+                this.addError(error);
+              });
+            });
+        });
       })
       .catch(error => {
-        this.addError(error);
-      });
-    manager.getService().getMonitoringType('monitoring-sync')
-      .then(json => {
-        this.setState({monitoringSync: json});
-      })
-      .catch(error => {
-        this.addError(error);
+        this.setState({
+          _showLoading: false
+        }, () => {
+          this.addError(error);
+        });
       });
   }
 
@@ -64,6 +79,10 @@ class Monitorings extends Advanced.AbstractTableContent {
     return 'content.monitoring';
   }
 
+  getNavigationKey() {
+    return 'monitoring';
+  }
+
   /**
   * Method get last string of split string by dot.
   * Used for get niceLabel for type entity.
@@ -72,7 +91,7 @@ class Monitorings extends Advanced.AbstractTableContent {
     return Utils.Ui.getSimpleJavaType(name);
   }
 
-  _renderType(monitoringType) {
+  _renderType(monitoringType, showLoading = false) {
     return (
       <Basic.Div rendered={!!monitoringType}>
         <Basic.ContentHeader>
@@ -83,7 +102,8 @@ class Monitorings extends Advanced.AbstractTableContent {
         <Basic.Panel>
           <Basic.Table
             data={ monitoringType ? monitoringType.results : null }
-            noData={ this.i18n('component.basic.Table.noData') }>
+            noData={ this.i18n('component.basic.Table.noData') }
+            showLoading={ showLoading }>
             <Basic.Column
               property="level"
               header={ this.i18n('entity.IdmMonitoringType.level') }
@@ -136,8 +156,10 @@ class Monitorings extends Advanced.AbstractTableContent {
     //
     const {
       monitoringDatabase,
-      monitoringSync
+      monitoringSync,
+      _showLoading
     } = this.state;
+    const loadingMore = !monitoringDatabase || !monitoringSync;
     //
     return (
       <Basic.Div>
@@ -149,8 +171,15 @@ class Monitorings extends Advanced.AbstractTableContent {
               title={this.i18n('button.refresh')}/>
           </div>
         </Basic.Toolbar>
-        {this._renderType(monitoringDatabase)}
-        {this._renderType(monitoringSync)}
+        { this._renderType(monitoringDatabase, loadingMore ? false : _showLoading) }
+        { this._renderType(monitoringSync, loadingMore ? false : _showLoading) }
+        {
+          loadingMore
+          ?
+          <Basic.Loading isStatic show/>
+          :
+          null
+        }
       </Basic.Div>
     );
   }

@@ -645,7 +645,11 @@
           "WORKFLOW-DEFINITION-SELECT": "Výběr definice workflow (SelectBox)"
         },
         "attributes": {
-          "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
+          "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat.",
+          "link": {
+            "label": "Upravit definici formuláře",
+            "title": "Upravit nastavení atributů v definici formuláře"
+          }
         },
         "showChanges":{
           "newValue": "(Nová hodnota)",
@@ -4251,7 +4255,7 @@
           }
         },
         "attributes": {
-          "placeholder": "Všechny attributy v dané definici nebo vyberte ..."
+          "placeholder": "Všechny atributy v dané definici nebo vyberte ..."
         }
       },
       "basicFields": {
@@ -6003,11 +6007,11 @@
             "help": "Vytvoří (či aktializuje) podřazené role dle definice business role (rekurzivně)."
           },
           "include-role-form-attribute": {
-            "label": "Duplikovat attributy role",
-            "help": "Vytvoří (či aktializuje) nakonfigurované attributy role."
+            "label": "Duplikovat atributy role",
+            "help": "Vytvoří (či aktializuje) nakonfigurované atributy role."
           },
           "include-role-authorization-policy": {
-            "label": "Duplikovat oprávění",
+            "label": "Duplikovat oprávnění",
             "help": "Vytvoří (či aktualizuje) nakonfigurované autorizační politiky."
           }
         }
@@ -7134,7 +7138,7 @@
     },
     "BULK_ACTION_IDENTITY_REMOVE_ROLE_FAILED": {
       "title": "Role nebyly odebrány",
-      "message": "Role pro identitu [{{identity}}] nebyly odebrány. Role nebyly nalezeny nebo nemohou býti odebrány - jednalo o roli automackou, business roli nebo na odebrání role nepostačovalo Vaše oprávění."
+      "message": "Role pro identitu [{{identity}}] nebyly odebrány. Role nebyly nalezeny nebo nemohou býti odebrány - jednalo o roli automackou, business roli nebo na odebrání role nepostačovalo Vaše oprávnění."
     },
     "BULK_ACTION_CONTRACT_NOT_FOUND": {
       "title": "Nebyl nalezen kontrakt",

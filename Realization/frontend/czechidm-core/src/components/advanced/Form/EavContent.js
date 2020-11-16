@@ -6,7 +6,7 @@ import Immutable from 'immutable';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
-import { DataManager, FormDefinitionManager } from '../../../redux';
+import { DataManager, FormDefinitionManager, SecurityManager } from '../../../redux';
 import FormInstance from '../../../domain/FormInstance';
 import EavForm from './EavForm';
 
@@ -25,6 +25,7 @@ class EavContent extends Basic.AbstractContent {
     this.state = {
       error: null,
       validationErrors: null,
+      showLoadingKeys: new Immutable.Set() // currenrt save form
     };
   }
 
@@ -64,6 +65,38 @@ class EavContent extends Basic.AbstractContent {
     }
   }
 
+  /**
+   * Focus attribute (or first attribute) in eav form of given owner (or first).
+   *
+   * @param  {string} [attributeCode=null] [optional] - attribute code in form definition
+   * @param  {string} [ownerId=null]       [optional] - form instance of given owner
+   * @since 10.7.0
+   */
+  focus(attributeCode = null, ownerId = null) {
+    const { _formInstances } = this.props;
+    if (!_formInstances || _formInstances.length === 0) {
+      return;
+    }
+    //
+    let focusFormInstance = null;
+    for (const formInstance of _formInstances.values()) {
+      if (ownerId == null) {
+        focusFormInstance = formInstance;
+        break;
+      } else if (formInstance.getOwnerId() === ownerId) {
+        focusFormInstance = formInstance;
+        break;
+      }
+    }
+    //
+    if (focusFormInstance) {
+      const eavFormRef = this._createFormRef(focusFormInstance.getDefinition().code);
+      if (eavFormRef) {
+        this.refs[eavFormRef].focus(attributeCode);
+      }
+    }
+  }
+
   _createFormRef(definitionCode) {
     return `eav-form-${definitionCode}`;
   }
@@ -78,43 +111,57 @@ class EavContent extends Basic.AbstractContent {
     }
     //
     const { entityId, formableManager, _formInstances } = this.props;
+    const { showLoadingKeys } = this.state;
     //
     const filledFormValues = this.refs[eavFormRef].getValues();
     this.getLogger().debug(`[EavContent]: Saving form [${ definitionCode }]`);
-    //
-    // push new values int redux - prevent to lost new values after submit
-    const formInstance = _formInstances.get(definitionCode).setValues(filledFormValues);
-    this.context.store.dispatch(dataManager.receiveData(this.getUiKey(), _formInstances.set(definitionCode, formInstance)));
-    // save values
-    this.context.store.dispatch(
-      formableManager.saveFormValues(
-        entityId,
-        definitionCode,
-        filledFormValues,
-        this.getUiKey(),
-        (savedFormInstance, error) => {
-          if (error) {
-            if (error.statusEnum === 'FORM_INVALID') {
+
+    this.setState({
+      showLoadingKeys: showLoadingKeys.add(definitionCode)
+    }, () => {
+      //
+      // push new values int redux - prevent to lost new values after submit
+      const formInstance = _formInstances.get(definitionCode).setValues(filledFormValues);
+      this.context.store.dispatch(dataManager.receiveData(this.getUiKey(), _formInstances.set(definitionCode, formInstance)));
+      // save values
+      this.context.store.dispatch(
+        formableManager.saveFormValues(
+          entityId,
+          definitionCode,
+          filledFormValues,
+          this.getUiKey(),
+          (savedFormInstance, error) => {
+            const _showLoadingKeys = this.state.showLoadingKeys;
+            if (error) {
+              let validationErrors = null;
+              if (error.statusEnum === 'FORM_INVALID') {
+                validationErrors = error.parameters ? error.parameters.attributes : null;
+              }
               this.setState({
-                validationErrors: error.parameters ? error.parameters.attributes : null
+                validationErrors,
+                showLoadingKeys: _showLoadingKeys.delete(definitionCode)
               }, () => {
+                // focus the first invalid component
+                if (validationErrors && validationErrors.length > 0) {
+                  const firstValidationError = validationErrors[0];
+                  this.refs[eavFormRef].focus(firstValidationError.attributeCode);
+                }
                 this.addError(error);
               });
             } else {
-              this.addError(error);
+              this.setState({
+                validationErrors: null,
+                showLoadingKeys: _showLoadingKeys.delete(definitionCode)
+              }, () => {
+                const entity = formableManager.getEntity(this.context.store.getState(), entityId);
+                this.addMessage({ message: this.i18n('save.success', { name: formableManager.getNiceLabel(entity) }) });
+                this.getLogger().debug(`[EavForm]: Form [${definitionCode}] saved`);
+              });
             }
-          } else {
-            this.setState({
-              validationErrors: null
-            }, () => {
-              const entity = formableManager.getEntity(this.context.store.getState(), entityId);
-              this.addMessage({ message: this.i18n('save.success', { name: formableManager.getNiceLabel(entity) }) });
-              this.getLogger().debug(`[EavForm]: Form [${definitionCode}] saved`);
-            });
           }
-        }
-      )
-    );
+        )
+      );
+    });
   }
 
   isValid() {
@@ -172,10 +219,10 @@ class EavContent extends Basic.AbstractContent {
       showSaveButton,
       showAttributesOnly,
       _formInstances,
-      _showLoading,
-      showDefinitions
+      showDefinitions,
+      userContext
     } = this.props;
-    const { error } = this.state;
+    const { error, showLoadingKeys } = this.state;
     const validationErrors = this.state.validationErrors || this.props.validationErrors;
     //
     if (!rendered) {
@@ -190,8 +237,8 @@ class EavContent extends Basic.AbstractContent {
           <Basic.Alert level="info" text={ this.i18n('error.notFound') } className="no-margin"/>
         </div>
       );
-    } else if (!_formInstances || _showLoading) {
-      // connector eav form is loaded from BE
+    } else if (!_formInstances) {
+      // eav form is loaded from BE
       content = (
         <Basic.Loading isStatic showLoading/>
       );
@@ -205,6 +252,8 @@ class EavContent extends Basic.AbstractContent {
       // form instances are ready
       let index = 0;
       content = [..._formInstances.map(_formInstance => {
+        const definitionCode = _formInstance.getDefinition().code;
+        //
         let _showSaveButton = false; // some attribute is editable
         _formInstance.getAttributes().forEach(attribute => {
           if (!attribute.readonly) { // TODO: hidden
@@ -215,8 +264,8 @@ class EavContent extends Basic.AbstractContent {
         let _renderAttributes = null;
         let renderDefinition = true;
         if (showDefinitions) {
-          if (showDefinitions.has(_formInstance.getDefinition().code)) {
-            _renderAttributes = showDefinitions.get(_formInstance.getDefinition().code);
+          if (showDefinitions.has(definitionCode)) {
+            _renderAttributes = showDefinitions.get(definitionCode);
           } else if (showDefinitions.has(_formInstance.getDefinition().id)) {
             _renderAttributes = showDefinitions.get(_formInstance.getDefinition().id);
           } else {
@@ -227,44 +276,70 @@ class EavContent extends Basic.AbstractContent {
           // form definition is not rendered
           return null;
         }
-
+        // resolve definition name
+        let formDefinitionName = this.i18n('header'); //  RT: back compatibilty header
+        if (_formInstance.getDefinition().name !== 'default') {
+          // by locale
+          formDefinitionName = formDefinitionManager.getLocalization(_formInstance.getDefinition(), 'label', _formInstance.getDefinition().name);
+        }
+        //
         if (showAttributesOnly) {
-          return (
+          const eavForm = (
             <EavForm
-              ref={ this._createFormRef(_formInstance.getDefinition().code) }
+              ref={ this._createFormRef(definitionCode) }
               formInstance={ _formInstance }
               readOnly={ !showSaveButton }
               validationErrors={ validationErrors }
               formableManager={ formableManager }
-              showAttributes={ _renderAttributes }/>
+              showAttributes={ _renderAttributes }
+              showLoading={ showLoadingKeys.has(definitionCode) }/>
+          );
+          if (!SecurityManager.hasAllAuthorities(['FORMDEFINITION_UPDATE', 'FORMATTRIBUTE_UPDATE'], userContext)
+              || !this.isDevelopment()
+              || !_formInstance.getDefinition()
+              || !_formInstance.getDefinition().id) {
+            return eavForm;
+          }
+          //
+          return (
+            <Basic.Panel style={{ border: '1px dashed #ccc' }}>
+              <Basic.PanelHeader
+                text={ formDefinitionName }
+                style={{ color: '#ccc', borderBottom: '1px dashed #ccc' }}/>
+              <Basic.PanelBody>
+                { eavForm }
+              </Basic.PanelBody>
+              <Basic.PanelFooter style={{ color: '#ccc', borderTop: '1px dashed #ccc' }}>
+                <Basic.Button
+                  type="button"
+                  level="link"
+                  onClick={ () => this.context.history.push(`/form-definitions/${ _formInstance.getDefinition().id }/attributes`) }
+                  title={ this.i18n('component.advanced.EavForm.attributes.link.title') }>
+                  { this.i18n('component.advanced.EavForm.attributes.link.label') }
+                </Basic.Button>
+              </Basic.PanelFooter>
+            </Basic.Panel>
           );
         }
         index += 1;
         //
         return (
-          <form className="abstract-form" onSubmit={ this.save.bind(this, _formInstance.getDefinition().code) }>
+          <form className="abstract-form" onSubmit={ this.save.bind(this, definitionCode) }>
             <Basic.Panel className={
               classnames({
                 last: index === _formInstances.size
               })}>
 
-              {/* RT: back compatibilty header */}
-              <Basic.PanelHeader
-                text={
-                  _formInstance.getDefinition().name === 'default'
-                  ?
-                  this.i18n('header')
-                  :
-                  formDefinitionManager.getLocalization(_formInstance.getDefinition(), 'label', _formInstance.getDefinition().name) }/>
+              <Basic.PanelHeader text={ formDefinitionName }/>
 
               <Basic.Alert
                 icon="info-sign"
                 text={ formDefinitionManager.getLocalization(_formInstance.getDefinition(), 'help', _formInstance.getDefinition().description) }
                 style={{ marginBottom: 0 }}/>
 
-              <Basic.PanelBody>
+              <Basic.PanelBody showLoading={ showLoadingKeys.has(definitionCode) }>
                 <EavForm
-                  ref={ this._createFormRef(_formInstance.getDefinition().code) }
+                  ref={ this._createFormRef(definitionCode) }
                   formInstance={ _formInstance }
                   readOnly={ !showSaveButton }
                   validationErrors={ validationErrors }
@@ -274,11 +349,24 @@ class EavContent extends Basic.AbstractContent {
 
               <Basic.PanelFooter rendered={ _showSaveButton && showSaveButton && _formInstance.getAttributes().size > 0 }>
                 <Basic.Button
+                  type="button"
+                  level="link"
+                  rendered={
+                    SecurityManager.hasAllAuthorities(['FORMDEFINITION_UPDATE', 'FORMATTRIBUTE_UPDATE'], userContext)
+                    &&
+                    this.isDevelopment()
+                  }
+                  onClick={ () => this.context.history.push(`/form-definitions/${ _formInstance.getDefinition().id }/attributes`) }
+                  title={ this.i18n('component.advanced.EavForm.attributes.link.title') }>
+                  { this.i18n('component.advanced.EavForm.attributes.link.label') }
+                </Basic.Button>
+                <Basic.Button
                   type="submit"
                   level="success"
                   rendered={ _formInstance.getAttributes().size > 0 }
                   showLoadingIcon
-                  showLoadingText={ this.i18n('button.saving') }>
+                  showLoadingText={ this.i18n('button.saving') }
+                  showLoading={ showLoadingKeys.has(definitionCode) }>
                   { this.i18n('button.save') }
                 </Basic.Button>
               </Basic.PanelFooter>
@@ -342,6 +430,7 @@ function select(state, component) {
   const uiKey = component.uiKey ? `${component.uiKey}-${entityId}` : component.formableManager.getFormableUiKey(null, entityId);
   //
   return {
+    userContext: state.security.userContext,
     _showLoading: Utils.Ui.isShowLoading(state, uiKey),
     _formInstances: DataManager.getData(state, uiKey)
   };

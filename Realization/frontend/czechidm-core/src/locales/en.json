@@ -612,7 +612,11 @@
           "WORKFLOW-DEFINITION-SELECT": "Select workflow definition (SelectBox)"
         },
         "attributes": {
-          "empty": "Form definition was found, but doesn't contain editable attributes."
+          "empty": "Form definition was found, but doesn't contain editable attributes.",
+          "link": {
+            "label": "Edit form definition",
+            "title": "Edit attributes setting in form definition"
+          }
         },
         "showChanges":{
           "newValue": "(New value)",

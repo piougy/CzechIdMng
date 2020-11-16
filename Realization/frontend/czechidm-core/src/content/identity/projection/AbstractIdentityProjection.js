@@ -586,9 +586,39 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
   */
   afterSave(identityProjection, error) {
     if (error) {
+      let validationErrors = null;
+      if (error.statusEnum === 'FORM_INVALID' && error.parameters) {
+        validationErrors = error.parameters.attributes;
+        // focus the first invalid component
+        if (validationErrors && validationErrors.length > 0) {
+          // identity owner
+          const firstValidationError = validationErrors[0];
+          if (firstValidationError.ownerType === 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity') {
+            if (this.refs.eav) {
+              this.refs.eav.focus(firstValidationError.attributeCode);
+            }
+          } else {
+            // get contract index by uuid
+            const _identityProjection = this.state.identityProjection;
+            const allContracts = _identityProjection.allContracts;
+            let contractIndex = null;
+            if (allContracts.length > 0) {
+              contractIndex = allContracts.findIndex((contract) => contract.id === firstValidationError.ownerId);
+            }
+            if (contractIndex !== null && this.refs[`contractEav-${ contractIndex }`]) {
+              this.setState({
+                activeKey: contractIndex
+              }, () => {
+                this.refs[`contractEav-${ contractIndex }`].focus(firstValidationError.attributeCode, firstValidationError.ownerId);
+              });
+            }
+          }
+        }
+      }
+      //
       this.setState({
         validationError: error, // from password
-        validationErrors: error.statusEnum === 'FORM_INVALID' && error.parameters ? error.parameters.attributes : null, // form eav forms
+        validationErrors, // from eav forms
         validationDefinition: false
       }, () => {
         this.addError(error);

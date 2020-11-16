@@ -45,6 +45,15 @@ class DateTimePicker extends AbstractFormComponent {
     }
   }
 
+  /**
+   * Focus input field
+   */
+  focus() {
+    if (this.refs.input) {
+      // FIXME: react-datetime focus() is not available now
+    }
+  }
+
   getFormat() {
     const { mode, dateFormat, timeFormat } = this.props;
     //

@@ -33,6 +33,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
   isValid() {
     const { formInstance } = this.props;
     let isAllValid = true;
+    let firstInvalidComponent = null;
     formInstance.getAttributes().forEach(attribute => {
       const formComponent = this.refs[attribute.code];
       if (!formComponent) {
@@ -42,12 +43,45 @@ export default class EavForm extends Basic.AbstractContextComponent {
       // we need to call validate method on all component (break is not needed)
       if (!formComponent.isValid()) {
         isAllValid = false;
+        if (!firstInvalidComponent) {
+          firstInvalidComponent = formComponent;
+        }
         return false;
       }
       return true;
     });
     //
+    if (firstInvalidComponent) {
+      firstInvalidComponent.focus(); // all eav renderers supports focus
+    }
+    //
     return isAllValid;
+  }
+
+  /**
+   * Focus form.
+   *
+   * @param  {string} [attributeCode=null] attribute by given code ~ ref is focused or the first form attribute by default
+   * @since 10.7.0
+   */
+  focus(attributeCode = null) {
+    const { formInstance } = this.props;
+    let formComponent = null;
+    //
+    if (attributeCode) {
+      formComponent = this.refs[attributeCode];
+    } else {
+      for (const attribute of formInstance.getAttributes()) {
+        formComponent = this.refs[attribute.code];
+        if (formComponent) {
+          break;
+        }
+      }
+    }
+    //
+    if (formComponent) {
+      formComponent.focus();
+    }
   }
 
   /**

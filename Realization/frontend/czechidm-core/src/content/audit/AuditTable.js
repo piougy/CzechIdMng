@@ -23,6 +23,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
     super(props, context);
     this.state = {
       transactionId: this._getTransactionId(props._searchParameters),
+      entityId: this._getEntityId(props._searchParameters),
       entityType: props._searchParameters && props._searchParameters.getFilters().has('type')
         ? props._searchParameters.getFilters().get('type')
         : null
@@ -39,9 +40,12 @@ export class AuditTable extends Advanced.AbstractTableContent {
     //  filters from redux
     if (nextProps._searchParameters) {
       const newTransactionId = this._getTransactionId(nextProps._searchParameters);
-      if (newTransactionId && this.state.transactionId !== newTransactionId) {
+      const newEntityId = this._getEntityId(nextProps._searchParameters);
+      if ((newTransactionId && this.state.transactionId !== newTransactionId)
+          || (newEntityId && this.state.entityId !== newEntityId)) {
         this.setState({
-          transactionId: newTransactionId
+          transactionId: newTransactionId,
+          entityId: newEntityId
         }, () => {
           //
           const filterData = {};
@@ -94,6 +98,13 @@ export class AuditTable extends Advanced.AbstractTableContent {
       return null;
     }
     return searchParameters.getFilters().get('transactionId');
+  }
+
+  _getEntityId(searchParameters) {
+    if (!searchParameters || !searchParameters.getFilters().has('entityId')) {
+      return null;
+    }
+    return searchParameters.getFilters().get('entityId');
   }
 
   /**

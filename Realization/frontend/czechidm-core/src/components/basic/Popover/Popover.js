@@ -100,7 +100,7 @@ export default class BasicPopover extends AbstractContextComponent {
                 // because React-bootstrap Popover uses for generating value new instance of React.
                 // So Redux and Router wrapping doesn't work!
               <Provider store={ this.context.store }>
-                <IdmContext.Provider value={{ store: this.context.store }}>
+                <IdmContext.Provider value={{ ...this.context }}>
                   <Router>
                     { _value }
                   </Router>

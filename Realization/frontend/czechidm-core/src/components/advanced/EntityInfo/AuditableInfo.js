@@ -11,7 +11,6 @@ import DateValue from '../DateValue/DateValue';
 const auditManager = new AuditManager();
 const dataManager = new DataManager();
 
-
 /**
  * Auditable system information (info card).
  *
@@ -238,7 +237,6 @@ AuditableInfo.propTypes = {
   face: PropTypes.oneOf(['popover', 'content', 'full']),
   /**
    * Shows links to audit.
-   * FIXME: embedded content in info component doesn't have context.history ...  why?
    */
   showAuditLink: PropTypes.bool,
   /**

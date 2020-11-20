@@ -444,7 +444,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         {
           showAuditableInfo
           ?
-          <AuditableInfo entity={ _entity } face="content" showAuditLink={ false }/>
+          <AuditableInfo entity={ _entity } face="content"/>
           :
           <Basic.Table
             condensed

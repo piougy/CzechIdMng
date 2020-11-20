@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 //
 import AbstractContextComponent from '../../basic/AbstractContextComponent/AbstractContextComponent';
 import * as Basic from '../../basic';
+import * as Domain from '../../../domain';
 
 /**
  * Button for closable filter mainly for advanced table.
@@ -29,38 +30,15 @@ export default class FilterToogleButton extends AbstractContextComponent {
     });
   }
 
-  /**
-   * Returns true, if some search parameters filter is filled excluding force search parameters.
-   *
-   * TODO: can be improved to ignore null filter values
-   *
-   * @return {Boolean}
-   */
-  _isFilterEmpty() {
-    const { searchParameters, forceSearchParameters } = this.props;
-    if (!searchParameters) {
-      // search paramters are empty
-      return false;
-    }
-    if (!forceSearchParameters || forceSearchParameters.getFilters().size === 0) {
-      return searchParameters.getFilters().reduce((result, filter) => {
-        return filter === null;
-      }, true);
-    }
-    return searchParameters.getFilters().reduce((result, filter, key) => {
-      return result && (forceSearchParameters.getFilters().has(key) || filter === null);
-    }, true);
-  }
-
   render() {
-    const { rendered, showLoading, searchParameters, ...others } = this.props;
+    const { rendered, showLoading, searchParameters, forceSearchParameters, ...others } = this.props;
     const { filterOpened } = this.state;
     if (!rendered) {
       return null;
     }
     let level = 'default';
     let tooltip = this.i18n('component.advanced.Table.filter.empty');
-    if (!this._isFilterEmpty()) {
+    if (!Domain.SearchParameters.isEmptyFilter(searchParameters, forceSearchParameters)) {
       level = 'info';
       tooltip = this.i18n('component.advanced.Table.filter.notEmpty');
     }

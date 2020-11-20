@@ -5,6 +5,7 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import { SecurityManager, FormAttributeManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
@@ -12,7 +13,7 @@ import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 const attributeManager = new FormAttributeManager();
 
 /**
-* Table of forms attributes
+* Table of forms attributes.
 *
 * @author Ondřej Kopr
 * @author Radek Tomiška
@@ -64,11 +65,11 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, definitionId, className } = this.props;
+    const { uiKey, definitionId, className, _showLoadingOrder } = this.props;
     const { filterOpened } = this.state;
-
+    //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -76,16 +77,17 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
           showRowSelection={ SecurityManager.hasAuthority('FORMATTRIBUTE_DELETE') }
           manager={ attributeManager }
           forceSearchParameters={ new SearchParameters().setFilter('definitionId', definitionId) }
-          rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
+          showLoading={ _showLoadingOrder }
           className={ className }
           filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.text.placeholder')}/>
+                      placeholder={ this.i18n('filter.text.placeholder') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -105,15 +107,15 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, { })}
-                rendered={SecurityManager.hasAuthority('FORMATTRIBUTE_CREATE')}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+                onClick={ this.showDetail.bind(this, { }) }
+                rendered={ SecurityManager.hasAuthority('FORMATTRIBUTE_CREATE') }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
-          filterOpened={!filterOpened}>
+          filterOpened={ !filterOpened }
+          draggable={ SecurityManager.hasAuthority('FORMATTRIBUTE_UPDATE') }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -121,16 +123,16 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 return (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
             }
-            sort={false}
+            sort={ false }
             _searchParameters={ this.getSearchParameters() }/>
           <Advanced.Column property="code" header={ this.i18n('entity.FormAttribute.code.label') } sort/>
           <Advanced.Column property="name" header={ this.i18n('entity.FormAttribute.name.label') } sort/>
-          <Advanced.Column property="persistentType" sort face="enum" enumClass={ PersistentTypeEnum } />
+          <Advanced.Column property="persistentType" sort face="enum" enumClass={ PersistentTypeEnum }/>
           <Advanced.Column
             property="faceType"
             cell={
@@ -143,7 +145,12 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
                     <Basic.Label
                       level="warning"
                       value={ faceType }
-                      title={ this.i18n('component.advanced.EavForm.persistentType.unsupported.title', { name: data[rowIndex].persistentType, face: faceType }) } />
+                      title={
+                        this.i18n('component.advanced.EavForm.persistentType.unsupported.title', {
+                          name: data[rowIndex].persistentType,
+                          face: faceType
+                        })
+                      }/>
                   );
                 }
                 if (formComponent.persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST)) {
@@ -167,7 +174,8 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             property="unique"
             face="bool"
-            header={ this.i18n('entity.FormAttribute.unique.short') }/>
+            header={ this.i18n('entity.FormAttribute.unique.short') }
+            width={ 75 }/>
           <Advanced.Column
             property="min"
             face="text"
@@ -180,11 +188,11 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
             property="regex"
             face="text"
             header={ this.i18n('entity.FormAttribute.regex.short') }/>
-          <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort />
+          <Advanced.Column property="unmodifiable" header={this.i18n('entity.FormAttribute.unmodifiable.label')} face="bool" sort rendered={ false }/>
           <Advanced.Column property="seq" header={ this.i18n('entity.FormAttribute.seq.label') } sort width="5%"/>
         </Advanced.Table>
-      </div>
-      );
+      </Basic.Div>
+    );
   }
 }
 
@@ -200,7 +208,7 @@ FormAttributeTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : null
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
   };
 }
 

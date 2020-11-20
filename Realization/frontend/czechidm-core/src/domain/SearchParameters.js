@@ -436,6 +436,33 @@ export default class SearchParameters {
     }
     return searchParameters;
   }
+
+  /**
+   * Returns true, if some search parameters filter is filled excluding force search parameters.
+   *
+   * @TODO: can be improved to ignore null filter values
+   *
+   * @return {Boolean}
+   * @since 10.7.0
+   */
+  static isEmptyFilter(searchParameters, forceSearchParameters) {
+    if (!searchParameters) {
+      // search paramters are empty
+      return false;
+    }
+    if (!forceSearchParameters || forceSearchParameters.getFilters().size === 0) {
+      return searchParameters
+        .getFilters()
+        .reduce((result, filter) => {
+          return filter === null;
+        }, true);
+    }
+    return searchParameters
+      .getFilters()
+      .reduce((result, filter, key) => {
+        return result && (forceSearchParameters.getFilters().has(key) || filter === null);
+      }, true);
+  }
 }
 
 /**

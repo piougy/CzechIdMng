@@ -385,7 +385,15 @@
           "add": "Select record",
           "addAll": "Select records"
         },
-        "noData": "No results found"
+        "noData": "No results found",
+        "draggable": {
+          "button": {
+            "title": "Change order"
+          },
+          "message": {
+            "success": "Order of records successfully changed"
+          }
+        }
       },
       "ProgressBar": {
         "start": "Processing",

@@ -1,7 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Draggable from 'react-draggable';
+//
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Cell from './Cell';
+import Icon from '../Icon/Icon';
+
+// TODO: implement dynamic row height
+const DRAGABLE_ROW_HEIGHT = 64;
 
 /**
  * Component that renders the row for <Table />.
@@ -38,6 +44,10 @@ class Row extends AbstractContextComponent {
     return this.i18n('component.basic.Table.select.addAll', { defaultValue: 'Select records' });
   }
 
+  _getDraggableTitle() {
+    return this.i18n('component.basic.Table.draggable.button.title', { defaultValue: 'Change order' });
+  }
+
   _showRowSelection({ rowIndex, data, showRowSelection }) {
     if (typeof showRowSelection === 'function') {
       return showRowSelection({
@@ -48,8 +58,43 @@ class Row extends AbstractContextComponent {
     return showRowSelection;
   }
 
+  handleStart(event, dndData) {
+    const { handleStart } = this.props;
+    //
+    if (handleStart) {
+      return handleStart(event, dndData);
+    }
+    return null;
+  }
+
+  handleDrag(event, dndData) {
+    const { handleDrag } = this.props;
+    //
+    if (handleDrag) {
+      return handleDrag(event, dndData);
+    }
+    return null;
+  }
+
+  handleStop(event, dndData) {
+    const { handleStop } = this.props;
+    //
+    if (handleStop) {
+      return handleStop(event, dndData);
+    }
+    return null;
+  }
+
   render() {
-    const { rowIndex, columns, selected, rowClass, onRowSelect, data } = this.props;
+    const {
+      rowIndex,
+      columns,
+      selected,
+      rowClass,
+      onRowSelect,
+      data,
+      draggable
+    } = this.props;
     const cells = new Array(columns.length);
     for (let i = 0, j = columns.length; i < j; i++) {
       const columnProps = columns[i].props;
@@ -77,12 +122,31 @@ class Row extends AbstractContextComponent {
     } else {
       _rowClass = rowClass;
     }
-
-    return (
+    if (draggable) {
+      _rowClass += ` draggable`;
+    }
+    //
+    const content = (
       <tr
         onClick={ this.props.onClick ? this._onClick.bind(this) : null }
         onDoubleClick={ this.props.onDoubleClick ? this._onDoubleClick.bind(this) : null }
-        className={ _rowClass }>
+        className={ _rowClass }
+        style={ draggable ? { height: DRAGABLE_ROW_HEIGHT, position: 'relative' } : null }>
+        {
+          !draggable
+          ||
+          <td className="table-action-draggable">
+            {
+              rowIndex < 0
+              ?
+              null
+              :
+              <div className="handle" title={ this._getDraggableTitle(this.props) }>
+                <Icon value="fa:ellipsis-v"/>
+              </div>
+            }
+          </td>
+        }
         {
           !onRowSelect
           ||
@@ -98,12 +162,28 @@ class Row extends AbstractContextComponent {
         { cells }
       </tr>
     );
+    if (!draggable || rowIndex < 0) {
+      return content;
+    }
+    //
+    return (
+      <Draggable
+        axis="y"
+        onStart={ this.handleStart.bind(this) }
+        onDrag={ this.handleDrag.bind(this) }
+        onStop={ this.handleStop.bind(this) }
+        handle=".handle"
+        bounds=".basic-table-body"
+        defaultClassNameDragging="dragging">
+        { content }
+      </Draggable>
+    );
   }
 }
 
 Row.propTypes = {
   rowIndex: PropTypes.number.isRequired,
-  columns: PropTypes.array.isRequired,
+  columns: PropTypes.arrayOf(PropTypes.any).isRequired,
   /**
    * loadinig indicator
    */
@@ -139,11 +219,20 @@ Row.propTypes = {
   rowClass: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.func
-  ])
+  ]),
+  /**
+   * DnD support - table will not be orderable, pagination support will not be available.
+   *
+   * @since 10.7.0
+   */
+  draggable: PropTypes.bool
 };
 Row.defaultProps = {
   showLoading: false,
-  selected: false
+  selected: false,
+  draggable: false
 };
+
+Row.DRAGABLE_ROW_HEIGHT = DRAGABLE_ROW_HEIGHT;
 
 export default Row;

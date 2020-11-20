@@ -3,7 +3,7 @@ import SearchParameters from '../domain/SearchParameters';
 import FormDefinitionService from './FormDefinitionService';
 
 /**
- * Eav form attributes
+ * Eav form attributes.
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška
@@ -48,7 +48,8 @@ class FormAttributeService extends AbstractService {
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters()
       .setName(SearchParameters.NAME_QUICK)
-      .setSize(100).clearSort()
+      .setSize(100)
+      .clearSort()
       .setSort('seq', 'asc')
       .setSort('code', 'asc');
   }

@@ -19,7 +19,7 @@ class About extends Basic.AbstractContent {
     const { version, buildNumber, buildTimestamp } = this.props;
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={ this.i18n('content.about.title') } />
 
         <Basic.Row>
@@ -27,8 +27,8 @@ class About extends Basic.AbstractContent {
             <Basic.Panel>
               <Basic.PanelHeader text={ this.i18n('content.about.header') } />
               <Basic.PanelBody className="text-center">
-                <div className="about-logo" />
-                <div className="about-text">
+                <Basic.Div className="about-logo" />
+                <Basic.Div className="about-text">
                   <big>
                     { this.i18n('app.version.frontend') }
                     :
@@ -62,12 +62,12 @@ class About extends Basic.AbstractContent {
                     {' '}
                     <Basic.Link href="https://github.com/bcvsolutions/CzechIdMng" isExternal text="GitHub" />
                   </big>
-                </div>
+                </Basic.Div>
               </Basic.PanelBody>
             </Basic.Panel>
           </Basic.Col>
         </Basic.Row>
-      </div>
+      </Basic.Div>
     );
   }
 }

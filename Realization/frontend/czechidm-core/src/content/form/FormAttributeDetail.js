@@ -296,7 +296,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                           .number()
                           .required()
                           .integer()
-                          .min(0)
+                          .min(-99999)
                           .max(99999)
                       }/>
                   </Basic.Col>

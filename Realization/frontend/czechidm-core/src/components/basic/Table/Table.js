@@ -6,6 +6,7 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import Waypoint from 'react-waypoint';
 //
+import * as Utils from '../../../utils';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Loading from '../Loading/Loading';
 import Alert from '../Alert/Alert';
@@ -26,9 +27,13 @@ const FE_PAGE_SIZE = 20;
  */
 class Table extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
+    //
+    this.tableBodyRef = React.createRef();
+    //
     this.state = {
+      startRowIndex: null,
       selectedRows: this.props.selectedRows ? new Immutable.Set(this.props.selectedRows) : new Immutable.Set(),
       showMax: FE_PAGE_SIZE
     };
@@ -229,7 +234,7 @@ class Table extends AbstractComponent {
   }
 
   renderHeader(columns) {
-    const { showLoading, showRowSelection, noHeader, data } = this.props;
+    const { showLoading, showRowSelection, noHeader, data, draggable } = this.props;
     if (noHeader) {
       return null;
     }
@@ -245,13 +250,126 @@ class Table extends AbstractComponent {
           showRowSelection={ showRowSelection }
           onRowSelect={ showRowSelection ? this.selectRow.bind(this) : null }
           selected={ this._isAllRowsSelected() }
-          data={ data }/>
+          data={ data }
+          draggable={ draggable }/>
       </thead>
     );
   }
 
+  handleStart(event, dnd) {
+    const rowTableIndex = dnd.node.rowIndex;
+    const { noHeader } = this.props;
+    const startIndex = noHeader ? rowTableIndex : rowTableIndex - 1;
+    //
+    this.setState({
+      startIndex,
+      differenceIndex: 0
+    });
+  }
+
+  handleDrag(event, dnd) {
+    const { startIndex } = this.state;
+    const { data } = this.props;
+    const tableBody = $(this.tableBodyRef.current);
+    const curentRowIndex = startIndex + 1;
+    //
+    let differenceIndex;
+    if (dnd.y > 0) {
+      differenceIndex = parseInt((dnd.y + (Row.DRAGABLE_ROW_HEIGHT / 2)) / Row.DRAGABLE_ROW_HEIGHT, 10);
+      //
+      // move down
+      for (let index = 1; index < curentRowIndex; index++) {
+        // rest => unchanged
+      }
+      //
+      for (let index = curentRowIndex; index <= startIndex + differenceIndex + 1; index++) {
+        if (index === curentRowIndex) {
+          continue;
+        }
+        const rowBefore = tableBody.find(`tr:nth-child(${ index })`);
+        rowBefore.css({
+          transform: `translate(0px, ${ -Row.DRAGABLE_ROW_HEIGHT }px)`
+        });
+      }
+      //
+      // current row
+      // const currentRow = tableBody.find(`tr:nth-child(${ curentRowIndex })`);
+      //
+      // next
+      for (let index = startIndex + differenceIndex + 2; index <= data.length; index++) {
+        const rowAfter = tableBody.find(`tr:nth-child(${ index })`);
+        rowAfter.css({
+          transform: 'translate(0px, 0px)'
+        });
+      }
+    } else {
+      differenceIndex = parseInt((dnd.y - (Row.DRAGABLE_ROW_HEIGHT / 2)) / Row.DRAGABLE_ROW_HEIGHT, 10);
+      // move up
+      for (let index = 1; index <= startIndex + differenceIndex; index++) {
+        const rowAfter = tableBody.find(`tr:nth-child(${ index })`);
+        rowAfter.css({
+          transform: 'translate(0px, 0px)'
+        });
+      }
+      //
+      // current row
+      // const currentRow = tableBody.find(`tr:nth-child(${ curentRowIndex })`);
+      //
+      for (let index = startIndex + differenceIndex + 1; index <= startIndex; index++) {
+        if (index === (curentRowIndex)) {
+          continue;
+        }
+        if (index !== data.length) {
+          const rowBefore = tableBody.find(`tr:nth-child(${ index })`);
+          rowBefore.css({
+            transform: `translate(0px, ${ Row.DRAGABLE_ROW_HEIGHT }px)`
+          });
+        }
+      }
+      // rest => unchanged
+      for (let index = startIndex + 1; index <= data.length; index++) {
+        // rest => unchanged
+      }
+    }
+    //
+    // console.log('differenceIndex', differenceIndex);
+    this.setState({
+      differenceIndex
+    });
+  }
+
+  handleStop(event, dnd) {
+    const { data, onDraggableStop } = this.props;
+    const { startIndex, differenceIndex } = this.state;
+    const tableBody = $(this.tableBodyRef.current); // internal content elemet to enable jquery integration
+    const currentRow = tableBody.find(`tr:nth-child(${ startIndex + 1 })`);
+    //
+    if (dnd.y > 0) { // move down
+      const remain = dnd.y % Row.DRAGABLE_ROW_HEIGHT;
+      currentRow.css({
+        top: (parseInt(dnd.y / Row.DRAGABLE_ROW_HEIGHT, 10) + (remain < (Row.DRAGABLE_ROW_HEIGHT / 2) ? 0 : 1)) * Row.DRAGABLE_ROW_HEIGHT,
+        transform: 'translate(0px, 0px)'
+      });
+    } else { // move up
+      const remain = dnd.y % Row.DRAGABLE_ROW_HEIGHT;
+      currentRow.css({
+        top: (parseInt(dnd.y / Row.DRAGABLE_ROW_HEIGHT, 10) - (remain > -(Row.DRAGABLE_ROW_HEIGHT / 2) ? 0 : 1)) * Row.DRAGABLE_ROW_HEIGHT,
+        transform: 'translate(0px, 0px)'
+      });
+    }
+    // console.log('cb', startIndex, ' -> ', differenceIndex);
+    if (differenceIndex !== 0 && onDraggableStop) {
+      onDraggableStop({
+        data,
+        startIndex,
+        differenceIndex
+      });
+    }
+  }
+
+
   renderBody(columns) {
-    const { data, showLoading, supportsPagination } = this.props;
+    const { data, showLoading, supportsPagination, draggable } = this.props;
     const { showMax } = this.state;
     if (!data || data.length === 0) {
       return null;
@@ -261,7 +379,7 @@ class Table extends AbstractComponent {
       rows.push(this.renderRow(columns, i));
     }
     return (
-      <tbody key="basic-table-body">
+      <tbody ref={ this.tableBodyRef } className="basic-table-body" style={ draggable ? { position: 'relative' } : null }>
         { rows }
         {
           !supportsPagination
@@ -290,12 +408,20 @@ class Table extends AbstractComponent {
   }
 
   renderRow(columns, rowIndex) {
-    const { onRowClick, onRowDoubleClick, showRowSelection, rowClass, isRowSelectedCb } = this.props;
+    const {
+      data,
+      onRowClick,
+      onRowDoubleClick,
+      showRowSelection,
+      rowClass,
+      isRowSelectedCb,
+      draggable
+    } = this.props;
     const key = `row-${ rowIndex }`;
     return (
       <Row
-        key={key}
-        data={this.props.data}
+        key={ key }
+        data={ data }
         columns={ columns }
         rowIndex={ rowIndex }
         showRowSelection={ showRowSelection }
@@ -309,7 +435,11 @@ class Table extends AbstractComponent {
         }
         onClick={ onRowClick }
         onDoubleClick={ onRowDoubleClick }
-        rowClass={ rowClass }/>
+        rowClass={ rowClass }
+        draggable={ draggable }
+        handleStart={ this.handleStart.bind(this) }
+        handleDrag={ this.handleDrag.bind(this) }
+        handleStop={ this.handleStop.bind(this) }/>
     );
   }
 
@@ -319,6 +449,7 @@ class Table extends AbstractComponent {
 
   render() {
     const {
+      uiKey,
       data,
       noData,
       rendered,
@@ -329,7 +460,8 @@ class Table extends AbstractComponent {
       header,
       noHeader,
       supportsPagination,
-      style
+      style,
+      draggable
     } = this.props;
     //
     if (!rendered) {
@@ -373,7 +505,10 @@ class Table extends AbstractComponent {
     }
     //
     return (
-      <div className={ classNames(className, 'basic-table') } style={ supportsPagination ? {} : { overflowX: 'auto' } } >
+      <div
+        key={ uiKey && draggable ? `${ uiKey }-${ Utils.Ui.getComponentKey(data) }` : null }
+        className={ classNames(className, 'basic-table') }
+        style={ supportsPagination ? {} : { overflowX: 'auto' } }>
         <Loading showLoading={ showLoading && data && data.length > 0 }>
           <table className={ classNamesTable } style={ style }>
             {
@@ -463,7 +598,22 @@ Table.propTypes = {
   /**
    * Supports frontend pagination
    */
-  supportsPagination: PropTypes.bool
+  supportsPagination: PropTypes.bool,
+  /**
+   * DnD support - table will not be orderable, pagination support will not be available.
+   *
+   * @since 10.7.0
+   */
+  draggable: PropTypes.bool,
+  /**
+   * Callback after dragable ends. Available parameters:
+   * - data - table data
+   * - startIndex - dragged row index (start from 0)
+   * - differenceIndex - index difference (+ down, - up)
+   *
+   * @since 10.7.0
+   */
+  onDraggableStop: PropTypes.func
 };
 Table.defaultProps = {
   ...AbstractComponent.defaultProps,
@@ -477,7 +627,8 @@ Table.defaultProps = {
   selectRowCb: null,
   isRowSelectedCb: null,
   isAllRowsSelectedCb: null,
-  supportsPagination: false
+  supportsPagination: false,
+  draggable: false
 };
 
 Table.SELECT_ALL = 'select-all-rows';

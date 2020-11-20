@@ -20,12 +20,6 @@ const identityManager = new IdentityManager();
 
 class Dashboard extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-    };
-  }
-
   getContentKey() {
     return 'content.dashboard';
   }
@@ -39,7 +33,7 @@ class Dashboard extends Basic.AbstractContent {
     this.props.match.params = { ...this.props.match.params, entityId: userContext.username };
     //
     return (
-      <div>
+      <Basic.Div>
         <IdentityDashboard dashboard match={ this.props.match }/>
         <Basic.Div rendered={ !!identity }>
           {
@@ -53,7 +47,7 @@ class Dashboard extends Basic.AbstractContent {
             }).values()]
           }
         </Basic.Div>
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -362,11 +362,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
    */
   _mergeSearchParameters(searchParameters, props = null) {
     const _props = props || this.props;
-    const { defaultSearchParameters, forceSearchParameters, manager, defaultPageSize } = _props;
+    const { defaultSearchParameters, forceSearchParameters, manager, defaultPageSize, pagination, draggable } = _props;
     //
     let _forceSearchParameters = null;
     if (forceSearchParameters) {
-      _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
+      // we dont want override setted pagination, if pagination is enabled
+      _forceSearchParameters = forceSearchParameters.setSize(pagination && !draggable ? null : 10000).setPage(null);
     }
     let _searchParameters = manager.mergeSearchParameters(
       searchParameters || defaultSearchParameters || manager.getDefaultSearchParameters(), _forceSearchParameters
@@ -677,6 +678,94 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return one.order - two.order;
   }
 
+  /**
+   * Default implementation - based on entity.seq field and patch method on service.
+   *
+   * @param  {object} dndProps data, startIndex, differenceIndex
+   * @since 10.7.0
+   */
+  _onDraggableStop(dndProps) {
+    const { manager, uiKey, onDraggableStop } = this.props;
+
+    if (onDraggableStop) {
+      onDraggableStop(dndProps);
+      return;
+    }
+    //
+    // default implementation - based on entity.seq field
+    const { data, startIndex, differenceIndex } = dndProps;
+    const patchEntities = [];
+    // console.log(startIndex, differenceIndex);
+    if (differenceIndex > 0) { // move down
+      // startIndex => increment for difference
+      // last index
+      const lastIndexSeq = data[startIndex + differenceIndex].seq;
+      const currentRow = data[startIndex];
+      // console.log(currentRow.id, ' -> ', lastIndexSeq);
+      if (lastIndexSeq !== currentRow.seq) { // 0 by default => no change is needed
+        patchEntities.push({ id: currentRow.id, seq: lastIndexSeq });
+      }
+      // decrement others
+      for (let index = startIndex + 1; index <= startIndex + differenceIndex; index++) {
+        const decrementRow = data[index];
+        // console.log(decrementRow.id, ' -> ', data[index].seq - 1);
+        patchEntities.push({ id: decrementRow.id, seq: decrementRow.seq - 1 });
+      }
+    } else { // move up
+      // start index => decrement by difference
+      const firstIndexSeq = data[startIndex + differenceIndex].seq;
+      const currentRow = data[startIndex];
+      if (firstIndexSeq !== currentRow.seq) { // 0 by default => no change is needed
+        patchEntities.push({ id: currentRow.id, seq: firstIndexSeq });
+      }
+      // increment others
+      let lastOrder = null;
+      for (let index = startIndex + differenceIndex; index < startIndex; index++) {
+        const incrementRow = data[index];
+        if (lastOrder >= incrementRow.seq + 1) {
+          // 0 by default => change is needed
+          lastOrder += 1;
+        } else {
+          lastOrder = incrementRow.seq + 1;
+        }
+        patchEntities.push({ id: incrementRow.id, seq: lastOrder });
+      }
+    }
+    //
+    let hasError = false;
+    if (patchEntities.length > 0) {
+      this.context.store.dispatch(dataManager.startRequest(uiKey));
+      patchEntities.reduce((sequence, entity) => {
+        return sequence
+          .then(() => {
+            // we need raw promise
+            return manager.getService().patchById(entity.id, entity);
+          })
+          .catch(error => {
+            this.addError(error);
+            hasError = true;
+            //
+            throw error;
+          });
+      }, Promise.resolve())
+        .catch((error) => {
+          // nothing - message is propagated before
+          // catch is before then - we want execute next then clausule
+          return error;
+        })
+        .then(() => {
+          if (!hasError) {
+            this.addMessage({
+              key: 'basic-table-draggable-message',
+              level: 'success',
+              message: this.i18n('component.basic.Table.draggable.message.success')
+            });
+          }
+          this.reload(); // ~ stop request
+        });
+    }
+  }
+
   _renderPrevalidateMessages(backendBulkAction) {
     if (!backendBulkAction.prevalidateResult) {
       return null;
@@ -854,6 +943,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       _error,
       _quickButtonCount,
       _menuIncluded,
+      uiKey,
       manager,
       pagination,
       onRowClick,
@@ -881,7 +971,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       uuidEnd,
       hover,
       sizeOptions,
-      quickButtonCount
+      quickButtonCount,
+      draggable,
+      noHeader
     } = this.props;
     const {
       filterOpened,
@@ -936,7 +1028,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         columnHeader = (
           <Basic.BasicTable.SortHeaderCell
             header={ columnHeader }
-            sortHandler={ this._handleSort.bind(this) }
+            sortHandler={ draggable ? null : this._handleSort.bind(this) }
             sortProperty={ column.props.sortProperty || column.props.property }
             searchParameters={ _searchParameters }
             className={ commonProps.className }
@@ -1283,6 +1375,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           <Basic.Div>
             <Basic.BasicTable.Table
               ref="table"
+              uiKey={ uiKey ? `sub-basic-table-${ uiKey }` : null }
               header={ header }
               data={ _entities }
               hover={ hover }
@@ -1297,7 +1390,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               noData={ this.getNoData(noData) }
               selectRowCb={ manager.supportsBulkAction() ? this.selectRowForBulkAction.bind(this) : null }
               isRowSelectedCb={ manager.supportsBulkAction() ? this.isRowSelected.bind(this) : null }
-              isAllRowsSelectedCb={ manager.supportsBulkAction() ? this.isAllRowSelected.bind(this) : null }>
+              isAllRowsSelectedCb={ manager.supportsBulkAction() ? this.isAllRowSelected.bind(this) : null }
+              draggable={ draggable && Domain.SearchParameters.isEmptyFilter(_searchParameters, forceSearchParameters)}
+              onDraggableStop={ this._onDraggableStop.bind(this) }
+              noHeader={ noHeader }>
 
               { renderedColumns }
 
@@ -1389,7 +1485,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <Basic.BasicTable.Pagination
               ref="pagination"
               showPageSize={ showPageSize }
-              paginationHandler={ pagination ? this._handlePagination.bind(this) : null }
+              paginationHandler={ pagination && !draggable ? this._handlePagination.bind(this) : null }
               total={ pagination ? _total : _entities.length }
               sizeOptions={ sizeOptions }
               { ...range } />
@@ -1554,7 +1650,20 @@ AdvancedTable.propTypes = {
    * @since 10.6.0
    */
   quickButtonCount: PropTypes.number,
-
+  /**
+   * DnD support - table will not be orderable, pagination support, sort support will not be available.
+   *
+   * @since 10.7.0
+   */
+  draggable: PropTypes.bool,
+  /**
+   * Callback after dragable ends. Available parameters:
+   * - startIndex - dragged row index (start from 0)
+   * - differenceIndex - index difference (+ down, - up)
+   *
+   * @since 10.7.0
+   */
+  onDraggableStop: PropTypes.func,
   //
   // Private properties, which are used internally for async data fetching
   //
@@ -1596,7 +1705,8 @@ AdvancedTable.defaultProps = {
   initialReload: true,
   hover: true,
   prohibitedActions: [],
-  quickButtonCount: null
+  quickButtonCount: null,
+  draggable: false
 };
 
 const makeMapStateToProps = () => {

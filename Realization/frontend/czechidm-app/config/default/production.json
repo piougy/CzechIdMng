@@ -2,15 +2,27 @@
   "app": {
     "name": "CzechIdM"
   },
-  "env": "production",
-  "serverUrl": "/idm/api/v1",
+  "env": "development",
+  "serverUrl": "http://localhost:8080/idm-backend/api/v1",
   "theme": "czechidm-core/themes/default",
+  "overrideModuleDescriptor": {
+    "core":{
+      "navigation": {
+        "items": [
+          {
+            "id": "tasks",
+            "disabled": false
+          }
+        ]
+      }
+    }
+  },
   "logger": {
-    "level": "WARN"
+    "level": "DEBUG"
   },
   "recaptcha": {
-    "enabled": false,
-    "siteKey": "todo"
+    "enabled": true,
+    "siteKey": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
   },
   "locale": {
     "supported": ["cs", "en"],

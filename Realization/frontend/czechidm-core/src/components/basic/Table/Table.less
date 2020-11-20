@@ -68,6 +68,38 @@
         filter: alpha(opacity=50);
       }
     }
+    &.draggable {
+      td {
+        vertical-align: middle;
+        overflow: hidden;
+        white-space: nowrap;
+
+        .handle {
+          cursor: move;
+          color: #ddd;
+
+          &:hover {
+            color: @idm-text-color;
+          }
+        }
+
+        &.table-action-draggable {
+          padding: 0px 3px 0px 3px;
+          width: 10px;
+        }
+      }
+
+      &.dragging {
+        z-index: 999;
+        background-color: #ddd;
+
+        td {
+          .handle {
+            color: @idm-text-color;
+          }
+        }
+      }
+    }
 
     td.bulk-selection {
       padding-right: 0;
@@ -151,6 +183,32 @@
     color: @idm-text-color;
     text-decoration: none;
     white-space: nowrap;
+
+    &.disabled {
+      cursor: text;
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      .sort-icons {
+        .sort-icon {
+          display: none;
+          &.active {
+            display: inline-block;
+            color: @idm-border-color;
+          }
+
+          &.sort-asc {
+            top: 0px;
+          }
+
+          &.sort-desc {
+            top: 0px;
+          }
+        }
+      }
+    }
 
     &:visited {
       color: @idm-text-color;

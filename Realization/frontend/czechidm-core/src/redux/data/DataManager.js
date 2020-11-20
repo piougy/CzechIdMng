@@ -24,10 +24,20 @@ export default class DataManager {
    * Request data from store - simply sets loading flag fot given uiKey
    *
    * @param  {string} uiKey - access ui key
-   * @param  {any} data - stored data
    * @return {action} - action
    */
   requestData(uiKey) {
+    return this.startRequest(uiKey);
+  }
+
+  /**
+   * Request data from store - simply sets loading flag fot given uiKey.
+   *
+   * @param  {string} uiKey - access ui key
+   * @return {action} - action
+   * @since 10.7.0
+   */
+  startRequest(uiKey) {
     return {
       type: REQUEST_DATA,
       uiKey

@@ -381,7 +381,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
           className={ className }
           filterOpened
           rowClass={
-            ({rowIndex, data}) => {
+            ({ rowIndex, data }) => {
               if (!data[rowIndex].groupPermission) { // wildcard permission
                 return Utils.Ui.getDisabledRowClass(data[rowIndex]);
               }

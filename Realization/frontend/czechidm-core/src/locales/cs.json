@@ -417,6 +417,14 @@
           "remove": "Zrušit výběr",
           "add": "Vybrat záznam",
           "addAll": "Vybrat záznamy"
+        },
+        "draggable": {
+          "button": {
+            "title": "Změnit pořadí záznamu"
+          },
+          "message": {
+            "success": "Pořadí záznamů úspěsně změněno"
+          }
         }
       },
       "ProgressBar": {

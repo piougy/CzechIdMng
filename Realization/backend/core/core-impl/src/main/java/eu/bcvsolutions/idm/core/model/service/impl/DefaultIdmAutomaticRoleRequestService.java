@@ -532,7 +532,9 @@ public class DefaultIdmAutomaticRoleRequestService extends
 	 */
 	private void fillAuditFields(IdmAutomaticRoleRequestDto request, AbstractDto automaticRole) {
 		automaticRole.setOriginalCreator(request.getOriginalCreator());
+		automaticRole.setOriginalCreatorId(request.getOriginalCreatorId());
 		automaticRole.setOriginalModifier(request.getOriginalModifier());
+		automaticRole.setOriginalModifierId(request.getOriginalModifierId());
 	}
 
 	/**
@@ -620,7 +622,9 @@ public class DefaultIdmAutomaticRoleRequestService extends
 		// Fill the audit fields. We want to use original creator from request,
 		// otherwise the creator from the last approver would be used.
 		rule.setOriginalCreator(conceptRule.getOriginalCreator());
+		rule.setOriginalCreatorId(conceptRule.getOriginalCreatorId());
 		rule.setOriginalModifier(conceptRule.getOriginalModifier());
+		rule.setOriginalModifierId(conceptRule.getOriginalModifierId());
 		return rule;
 	}
 

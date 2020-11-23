@@ -1716,8 +1716,13 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		getHelper().createIdentityRole(adminSwitched, adminRole);
 		IdmRoleDto helpdeskRole = getHelper().createRole();
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, true);
+		getHelper().setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, false);
 		getHelper().createIdentityRole(adminHelpdesk, helpdeskRole);
 		IdmRoleRequestDto request = createRoleRequest(identity);
+		IdmConceptRoleRequestDto concept = null;
 		//
 		try {
 			getHelper().login(adminOriginal);
@@ -1725,7 +1730,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			//
 			IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
 			request = roleRequestService.save(request);
-			IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+			concept = createRoleConcept(adminRole, contract, request);
 			concept = conceptRoleRequestService.save(concept);
 			roleRequestService.startRequestInternal(request.getId(), true);
 			request = roleRequestService.get(request.getId());
@@ -1743,6 +1748,12 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			getHelper().login(adminOriginal);
 			loginService.switchUser(adminHelpdesk);
 			//
+			// change concept - modify dates
+			concept.setValidTill(LocalDate.now().minusDays(10));
+			concept = conceptRoleRequestService.save(concept);
+			Assert.assertEquals(adminHelpdesk.getId(), concept.getModifierId());
+			Assert.assertEquals(adminOriginal.getId(), concept.getOriginalModifierId());
+			//
 			// complete the first task (~helpdesk)
 			WorkflowFilterDto taskFilter = new WorkflowFilterDto();
 			taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
@@ -1758,6 +1769,103 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		} finally {
 			logout();
 		}
+		//
+		// request has to be approved
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		//
+		// check created identity role audit fields
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		//
+		Assert.assertEquals(1, assignedRoles.size());
+		IdmIdentityRoleDto assignedRole = assignedRoles.get(0);
+		Assert.assertEquals(adminHelpdesk.getId(), assignedRole.getCreatorId());
+		Assert.assertEquals(adminOriginal.getId(), assignedRole.getOriginalCreatorId());
+	}
+	
+	@Test
+	public void testSwitchUserAuditVariablesModify() {
+		IdmIdentityDto adminOriginal = getHelper().createIdentity();
+		IdmIdentityDto adminSwitched = getHelper().createIdentity();
+		IdmIdentityDto adminHelpdesk = getHelper().createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto adminRole = roleConfiguration.getAdminRole();
+		getHelper().createIdentityRole(adminOriginal, adminRole);
+		getHelper().createIdentityRole(adminSwitched, adminRole);
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, true);
+		getHelper().setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, false);
+		getHelper().createIdentityRole(adminHelpdesk, helpdeskRole);
+		IdmRoleRequestDto request = createRoleRequest(identity);
+		IdmConceptRoleRequestDto concept = null;
+		getHelper().createIdentityRole(identity, adminRole);
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		IdmIdentityRoleDto assignedRole = assignedRoles.get(0);
+		//
+		try {
+			getHelper().login(adminOriginal);
+			loginService.switchUser(adminSwitched);
+			//
+			IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+			request = roleRequestService.save(request);
+			concept = createRoleConcept(adminRole, contract, request);
+			concept.setIdentityRole(assignedRole.getId());
+			concept.setOperation(ConceptRoleRequestOperation.UPDATE);
+			concept.setValidFrom(LocalDate.now().minusDays(20));
+			concept = conceptRoleRequestService.save(concept);
+			roleRequestService.startRequestInternal(request.getId(), true);
+			request = roleRequestService.get(request.getId());
+			assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+			//
+			// check original identity is filled in process variables
+			WorkflowProcessInstanceDto workflowProcessInstanceDto = workflowProcessInstanceService.get(request.getWfProcessId());
+			Assert.assertEquals(adminSwitched.getId().toString(), workflowProcessInstanceDto.getProcessVariables().get(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER));
+			Assert.assertEquals(adminOriginal.getId().toString(), workflowProcessInstanceDto.getProcessVariables().get(WorkflowProcessInstanceService.ORIGINAL_IMPLEMENTER_IDENTIFIER));
+		} finally {
+			logout();
+		}		
+		//
+		try {
+			getHelper().login(adminOriginal);
+			loginService.switchUser(adminHelpdesk);
+			//
+			// change concept - modify dates
+			concept.setValidFrom(LocalDate.now().minusDays(10));
+			concept = conceptRoleRequestService.save(concept);
+			Assert.assertEquals(adminHelpdesk.getId(), concept.getModifierId());
+			Assert.assertEquals(adminOriginal.getId(), concept.getOriginalModifierId());
+			//
+			// complete the first task (~helpdesk)
+			WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+			taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+			List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+			Assert.assertEquals(1, tasks.size());
+			Assert.assertEquals(identity.getId().toString(), tasks.get(0).getApplicant());
+			workflowTaskInstanceService.completeTask(tasks.get(0).getId(), "approve");
+			//
+			// check original identity is filled in task variables
+			WorkflowHistoricTaskInstanceDto workflowHistoricTaskInstanceDto = workflowHistoricTaskInstanceService.get(tasks.get(0).getId());
+			Assert.assertEquals(adminHelpdesk.getId().toString(), workflowHistoricTaskInstanceDto.getAssignee());
+			Assert.assertEquals(adminOriginal.getId(), workflowHistoricTaskInstanceDto.getVariables().get(WorkflowProcessInstanceService.ORIGINAL_IMPLEMENTER_IDENTIFIER));
+		} finally {
+			logout();
+		}
+		//
+		// request has to be approved
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.EXECUTED, request.getState());
+		//
+		// check created identity role audit fields
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		//
+		Assert.assertEquals(1, assignedRoles.size());
+		assignedRole = assignedRoles.get(0);
+		Assert.assertEquals(adminHelpdesk.getId(), assignedRole.getModifierId());
+		Assert.assertEquals(adminOriginal.getId(), assignedRole.getOriginalModifierId());
 	}
 	
 	@Test

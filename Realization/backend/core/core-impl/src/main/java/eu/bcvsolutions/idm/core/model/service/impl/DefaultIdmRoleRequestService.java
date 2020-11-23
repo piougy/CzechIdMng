@@ -1294,7 +1294,9 @@ public class DefaultIdmRoleRequestService
 		identityRole.setValidFrom(conceptRole.getValidFrom());
 		identityRole.setValidTill(conceptRole.getValidTill());
 		identityRole.setOriginalCreator(conceptRole.getOriginalCreator());
+		identityRole.setOriginalCreatorId(conceptRole.getOriginalCreatorId());
 		identityRole.setOriginalModifier(conceptRole.getOriginalModifier());
+		identityRole.setOriginalModifierId(conceptRole.getOriginalModifierId());
 		identityRole.setAutomaticRole(conceptRole.getAutomaticRole());
 		// fill directly assigned role by superior concept
 		UUID directRole = conceptRole.getDirectRole();

@@ -2,12 +2,11 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
-import classNames from 'classnames';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { SecurityManager, TreeTypeManager, IdentityManager } from '../../../redux';
+import { SecurityManager, TreeTypeManager, IdentityManager, ConfigurationManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import IdentityTable from '../../identity/IdentityTable';
 import TypeConfiguration from '../type/TypeConfiguration';
@@ -25,6 +24,7 @@ class NodeTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.state = {
       selectedNodeId: null, // selected node
       filterOpened: true,
@@ -39,10 +39,6 @@ class NodeTable extends Advanced.AbstractTableContent {
 
   getManager() {
     return this.props.treeNodeManager;
-  }
-
-  componentDidMount() {
-    super.componentDidMount();
   }
 
   getDefaultSearchParameters() {
@@ -229,8 +225,20 @@ class NodeTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { treeNodeManager, uiKey, showTreeTypeSelect, showLoading, rendered } = this.props;
-    const { filterOpened, type, activeTab } = this.state;
+    const {
+      treeNodeManager,
+      uiKey,
+      showTreeTypeSelect,
+      showLoading,
+      rendered,
+      treePaginationRootSize,
+      treePaginationNodeSize
+    } = this.props;
+    const {
+      filterOpened,
+      type,
+      activeTab
+    } = this.state;
     const showTree = !showLoading;
     const forceSearchParameters = new SearchParameters().setFilter('treeTypeId', type.id).setSort('name', true);
     //
@@ -270,6 +278,8 @@ class NodeTable extends Advanced.AbstractTableContent {
                     style={{ marginBottom: 0 }}
                     tooltip={ this.i18n('entity.TreeNode.treeType.label') }/>
                 }
+                paginationRootSize={ treePaginationRootSize }
+                paginationNodeSize={ treePaginationNodeSize }
               />
             </Basic.Col>
             <Basic.Col
@@ -438,7 +448,9 @@ NodeTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    treePaginationRootSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.treeNode.tree.pagination.root.size'),
+    treePaginationNodeSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.treeNode.tree.pagination.node.size')
   };
 }
 

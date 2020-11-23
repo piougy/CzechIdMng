@@ -339,7 +339,12 @@ class Tree extends Basic.AbstractContextComponent {
 
   _loadNodes(nodeId = null, props = null, filter = null) {
     const _props = props || this.props;
-    const { roots, forceSearchParameters } = _props;
+    const {
+      roots,
+      forceSearchParameters,
+      paginationRootSize,
+      paginationNodeSize
+    } = _props;
     if (!_props.rendered) {
       // component is not rendered ... loading is not needed
       return;
@@ -362,8 +367,14 @@ class Tree extends Basic.AbstractContextComponent {
     } else if (nodeId === null) {
       // load roots
       searchParameters = this.getManager().getService().getRootSearchParameters();
+      if (paginationRootSize) { // only if given, default will be used from underlying service by default otherwise
+        searchParameters = searchParameters.setSize(paginationRootSize);
+      }
     } else {
       searchParameters = this.getManager().getService().getTreeSearchParameters().setFilter('parent', nodeId);
+      if (paginationNodeSize) { // only if given, default will be used from underlying service by default otherwise
+        searchParameters = searchParameters.setSize(paginationNodeSize);
+      }
     }
     if (filter) {
       searchParameters = searchParameters.setFilter('text', filter);
@@ -1111,7 +1122,19 @@ Tree.propTypes = {
   /**
    * If disabled option can be selected.
    */
-  disableable: PropTypes.bool
+  disableable: PropTypes.bool,
+  /**
+   * Pagination - number of items for roots.
+   *
+   * @since 10.7.0
+   */
+  paginationRootSize: PropTypes.number,
+  /**
+   * Pagination - number of items for nodes (children).
+   *
+   * @since 10.7.0
+   */
+  paginationNodeSize: PropTypes.number
 };
 
 Tree.defaultProps = {

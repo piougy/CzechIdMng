@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 //
 import * as Basic from '../../basic';
-import { RoleCatalogueManager } from '../../../redux';
+import { RoleCatalogueManager, ConfigurationManager } from '../../../redux';
 import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
 import Tree from '../Tree/Tree';
 
@@ -24,7 +24,21 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     this.state = {
       ...this.state,
       selected: null, // modal
-      showTree: false
+      showTree: false,
+      treePaginationRootSize: (
+        context && context.store
+        ?
+        ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size')
+        :
+        null
+      ),
+      treePaginationNodeSize: (
+        context && context.store
+        ?
+        ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size')
+        :
+        null
+      )
     };
   }
 
@@ -216,7 +230,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     const { readOnly } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.LabelWrapper label={ this.getLabel() ? (<span style={{ visibility: 'hidden' }}>T</span>) : null }>
           <Basic.Button
             level="default"
@@ -227,7 +241,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
             titlePlacement="bottom"
             disabled={ readOnly }/>
         </Basic.LabelWrapper>
-      </div>
+      </Basic.Div>
     );
   }
 
@@ -242,7 +256,13 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
       onChange,
       additionalOptions
     } = this.props;
-    const { showTree, selected, readOnly } = this.state;
+    const {
+      showTree,
+      selected,
+      readOnly,
+      treePaginationRootSize,
+      treePaginationNodeSize
+    } = this.state;
     //
     if (!rendered) {
       return null;
@@ -287,6 +307,8 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               clearable={ false }
               multiSelect={ multiSelect }
               selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
+              paginationRootSize={ treePaginationRootSize }
+              paginationNodeSize={ treePaginationNodeSize }
             />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>

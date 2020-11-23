@@ -56,6 +56,20 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
         ConfigurationManager.getPublicValueAsBoolean(context.store.getState(), 'idm.pub.app.show.role.baseCode', true)
         :
         true
+      ),
+      treePaginationRootSize: (
+        context && context.store
+        ?
+        ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size')
+        :
+        null
+      ),
+      treePaginationNodeSize: (
+        context && context.store
+        ?
+        ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size')
+        :
+        null
       )
     };
   }
@@ -485,7 +499,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       showRoleCatalogue,
       readOnly,
       showEnvironment,
-      showBaseCode
+      showBaseCode,
+      treePaginationRootSize,
+      treePaginationNodeSize
     } = this.state;
     //
     if (!rendered) {
@@ -553,7 +569,9 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   onChange={ this._filterByRoleCatalogue.bind(this) }
                   header={ this.i18n('content.roles.select.chooseFolder') }
                   rendered={ showTree }
-                  bodyStyle={{ overflow: 'auto', maxHeight: 600 }}/>
+                  bodyStyle={{ overflow: 'auto', maxHeight: 600 }}
+                  paginationRootSize={ treePaginationRootSize }
+                  paginationNodeSize={ treePaginationNodeSize }/>
               </Basic.Col>
               <Basic.Col
                 lg={ showTree ? 8 : 12 }

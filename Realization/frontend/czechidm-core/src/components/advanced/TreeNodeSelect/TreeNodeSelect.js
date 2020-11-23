@@ -5,7 +5,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import * as Domain from '../../../domain';
-import { TreeNodeManager, TreeTypeManager } from '../../../redux';
+import { TreeNodeManager, TreeTypeManager, ConfigurationManager } from '../../../redux';
 import EntitySelectBox from '../EntitySelectBox/EntitySelectBox';
 import Tree from '../Tree/Tree';
 
@@ -21,13 +21,28 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.state = {
       ...this.state,
       defaultTreeType: props.defaultTreeType,
       treeTypeId: null,
       selectedTreeType: null, // modal
       selected: null, // modal
-      showTree: false
+      showTree: false,
+      treePaginationRootSize: (
+        context && context.store
+        ?
+        ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.treeNode.tree.pagination.root.size')
+        :
+        null
+      ),
+      treePaginationNodeSize: (
+        context && context.store
+        ?
+        ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.treeNode.tree.pagination.node.size')
+        :
+        null
+      )
     };
   }
 
@@ -371,7 +386,9 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       showTree,
       selected,
       defaultTreeType,
-      readOnly
+      readOnly,
+      treePaginationRootSize,
+      treePaginationNodeSize
     } = this.state;
     //
     // resolve selected tree type from given tree node
@@ -499,6 +516,8 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               onChange={ this.onModalSelect.bind(this) }
               onDoubleClick={ (nodeId) => this.onSelect(nodeId) }
               disableable={ disableable }
+              paginationRootSize={ treePaginationRootSize }
+              paginationNodeSize={ treePaginationNodeSize }
             />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>

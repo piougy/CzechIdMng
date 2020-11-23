@@ -6,10 +6,10 @@ import uuid from 'uuid';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { SecurityManager } from '../../redux';
+import { SecurityManager, ConfigurationManager } from '../../redux';
 
 /**
-* Table of roles catalogues
+* Table of roles catalogues.
 *
 * @author Ondřej Kopr
 * @author Radek Tomiška
@@ -18,6 +18,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.state = {
       filterOpened: props.filterOpened,
       selectedNodeId: null // selected node
@@ -108,27 +109,30 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
   }
 
   render() {
+    const { treePaginationRootSize, treePaginationNodeSize } = this.props;
     const { filterOpened } = this.state;
     const showTree = SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
     //
     return (
-      <Basic.Row>{/* FIXME: resposive design - wrong wrapping on mobile */}
+      <Basic.Row className={ showTree ? 'tree-select-wrapper' : '' }>
         <Basic.Col
           lg={ 3 }
-          style={{ paddingRight: 0 }}
-          rendered={ showTree === true }>
+          rendered={ showTree === true }
+          className="tree-select-tree-container">
           <Advanced.Tree
             ref="roleCatalogueTree"
             uiKey="role-catalogue-tree"
             manager={ this.getManager() }
             onChange={ this._useFilterByTree.bind(this) }
             header={ this.i18n('header') }
-            rendered={ showTree }/>
+            rendered={ showTree }
+            paginationRootSize={ treePaginationRootSize }
+            paginationNodeSize={ treePaginationNodeSize }/>
         </Basic.Col>
 
         <Basic.Col
           lg={ showTree ? 9 : 12 }
-          style={ showTree ? { paddingLeft: 0 } : {} }>
+          className="tree-select-table-container">
           <Basic.Confirm ref="confirm-delete" level="danger"/>
 
           { this._renderSelectedNode() }
@@ -137,10 +141,10 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
             ref="table"
             uiKey={ this.getUiKey() }
             manager={ this.getManager() }
+            className={ showTree ? 'show-tree' : '' }
             rowClass={ ({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); } }
             filterOpened={filterOpened}
             showRowSelection={ SecurityManager.hasAuthority('ROLECATALOGUE_DELETE') }
-            style={ showTree ? { borderLeft: '1px solid #ddd' } : {} }
             filter={
               <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
                 <Basic.AbstractForm ref="filterForm">
@@ -241,7 +245,9 @@ RoleCatalogueTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    treePaginationRootSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size'),
+    treePaginationNodeSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size')
   };
 }
 

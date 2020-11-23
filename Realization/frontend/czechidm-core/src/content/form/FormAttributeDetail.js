@@ -256,7 +256,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       useSymbol={ false }
                       required
                       clearable={ false }
-                      value={{ value: persistentType, niceLabel: PersistentTypeEnum.getNiceLabel(persistentType) }}/>
+                      value={{ value: persistentType, niceLabel: PersistentTypeEnum.getNiceLabel(persistentType) }}
+                      searchable/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField
@@ -274,7 +275,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       helpBlock={ this.i18n('entity.FormAttribute.faceType.help') }
                       placeholder={ this.i18n('entity.FormAttribute.faceType.placeholder') }
                       hidden={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }
-                      required={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ENUMERATION) }/>
+                      required={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ENUMERATION) }
+                      searchable/>
                     <Basic.SelectBox
                       ref="codeList"
                       manager={ codeListManager }

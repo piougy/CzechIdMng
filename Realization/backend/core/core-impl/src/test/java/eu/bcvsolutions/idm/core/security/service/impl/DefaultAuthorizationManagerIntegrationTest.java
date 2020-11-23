@@ -312,8 +312,6 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluato
 		Set<String> permissions = manager.getPermissions(role);
 		Assert.assertTrue(permissions.isEmpty());
 		//
-		
-		//
 		try {
 			getHelper().login(identity);
 			//
@@ -374,6 +372,80 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluato
 		Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
 		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
 		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
+	}
+	
+	@Test
+	@Transactional
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testCacheAfterContractIsChanged() {
+		// create and login identity
+		IdmIdentityDto identity = getHelper().createIdentity();
+		UUID mockIdentity = UUID.randomUUID();
+		// prepare role
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+		getHelper().createIdentityRole(identity, role);
+		//
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
+		//
+		cacheManager.cacheValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity, new HashMap<>());
+		cacheManager.cacheValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity, new HashMap<>());
+		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
+		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
+		//
+		// without login
+		Set<String> permissions = manager.getPermissions(role);
+		Assert.assertTrue(permissions.isEmpty());
+		//
+		try {
+			getHelper().login(identity);
+			//
+			// new entity is not supported with cache, but permissions are evaluated
+			permissions = manager.getPermissions(new IdmRoleDto());
+			Assert.assertEquals(2, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+			//
+			// load from db
+			permissions = manager.getPermissions(role);
+			Assert.assertEquals(2, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+			// load from cache
+			permissions = manager.getPermissions(role);
+			Assert.assertEquals(2, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+			// check cache content - one
+			ValueWrapper cacheValue = cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId());
+			List<IdmAuthorizationPolicyDto> cachedPolicies = (List) ((Map) cacheValue.get()).get(role.getClass());
+			Assert.assertEquals(1, cachedPolicies.size());
+			Assert.assertEquals(BasePermissionEvaluator.class.getCanonicalName(), cachedPolicies.get(0).getEvaluatorType());
+			cacheValue = cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId());
+			permissions = (Set) ((Map) cacheValue.get()).get(role.getId());
+			Assert.assertEquals(2, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			//
+			// change contract => evict cache of logged identity
+			getHelper().createContract(identity);
+			//
+			// check cache is evicted only for logged identity
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+			Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
+		} finally {
+			logout();
+		}
 	}
 	
 	@Test

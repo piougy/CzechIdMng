@@ -59,7 +59,7 @@ public class AbstractScheduledTaskInitializerTest extends AbstractIntegrationTes
 				// assertEquals(InitTestScheduledTask.TEST_MODULE, task.getModule()); // module not working in Task
 				
 				Map<String, String> parameters = task.getParameters();
-				assertEquals(3, parameters.size());
+				assertEquals(4, parameters.size());
 				
 				String value1 = parameters.get(KEY_1);
 				assertEquals(VALUE_1, value1);

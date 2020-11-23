@@ -40,7 +40,6 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
  * @since 10.3.0
  *
  */
-
 @Component(IdentityByTreeNodeEvaluator.EVALUATOR_NAME)
 @Description("Permissions for identities by tree node.")
 public class IdentityByTreeNodeEvaluator extends AbstractAuthorizationEvaluator<IdmIdentity> {

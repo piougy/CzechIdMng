@@ -73,7 +73,7 @@ public class CoreCacheConfiguration {
 	public IdMCacheConfiguration permissionCacheConfiguration() {
 		return DistributedIdMCacheConfiguration.<UUID, HashMap> builder()
 			.withName(AuthorizationManager.PERMISSION_CACHE_NAME)
-				.withKeyType(UUID.class)
+				.withKeyType(UUID.class) // identity uuid ~ logged users
 				.withValueType(HashMap.class)
 				.withTtl(Duration.ofMinutes(1)) // permissions are based on data structure => cache should be effective short time (one request)
 				.build();

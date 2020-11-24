@@ -58,7 +58,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
     //
     this.state = {
-      filterOpened: this.props.filterOpened,
+      filterOpened: this._isFilterOpened(props, context),
       selectedRows: this.props.selectedRows,
       removedRows: new Immutable.Set(),
       showBulkActionDetail: false,
@@ -479,6 +479,21 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
   useFilterData(formData) {
     this.fetchEntities(this._getSearchParameters(formData));
+  }
+
+  /**
+   * Load filter is opened from redux store or default.
+   */
+  _isFilterOpened(props, context) {
+    const _manager = props.manager || DataManager;
+    let _filterOpened = null;
+    if (context && context.store) {
+      _filterOpened = _manager.isFilterOpened(context.store.getState(), props.uiKey);
+    }
+    if (_filterOpened !== null) {
+      return _filterOpened;
+    }
+    return props.filterOpened; // default ~ initial by table usage
   }
 
   /**
@@ -1338,6 +1353,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 { buttons }
 
                 <Filter.ToogleButton
+                  uiKey={ uiKey }
                   filterOpen={ this._filterOpen.bind(this) }
                   filterOpened={ filterOpened }
                   rendered={ showFilter && filter !== undefined && filterCollapsible }
@@ -1427,7 +1443,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                           placement="left"
                           buttons={
                             SecurityManager.hasAuthority('AUDIT_READ')
-                              && this.props.uiKey !== 'audit-table'
+                              && uiKey !== 'audit-table'
                               && showAuditLink
                             ?
                             [

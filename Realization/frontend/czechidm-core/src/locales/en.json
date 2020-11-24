@@ -5092,7 +5092,7 @@
       }
     },
     "LongRunningTask": {
-      "_type": "Long running task"
+      "_type": "Long running task",
       "taskId": "Task ID",
       "taskType": "Task type (class)",
       "taskDescription": "Description",

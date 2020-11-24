@@ -8,6 +8,8 @@ export const STOP_REQUEST = 'STOP_REQUEST';
 export const RECEIVE_DATA = 'RECEIVE_DATA';
 export const CLEAR_DATA = 'CLEAR_DATA';
 export const RECEIVE_ERROR = 'RECEIVE_ERROR';
+export const EXPAND_FILTER = 'EXPAND_FILTER';
+export const COLLAPSE_FILTER = 'COLLAPSE_FILTER';
 
 /**
  * Encapsulate redux action for form data (create, edit) etc.
@@ -131,6 +133,34 @@ export default class DataManager {
   }
 
   /**
+   * Expand filter with given ui key.
+   *
+   * @param uiKey {string}
+   * @return {action}
+   * @since 10.7.0
+   */
+  expandFilter(uiKey) {
+    return {
+      type: EXPAND_FILTER,
+      uiKey
+    };
+  }
+
+  /**
+   * Collapse filter with given ui key.
+   *
+   * @param uiKey {string}
+   * @return {action}
+   * @since 10.7.0
+   */
+  collapseFilter(uiKey) {
+    return {
+      type: COLLAPSE_FILTER,
+      uiKey
+    };
+  }
+
+  /**
    * Returns data associated with the given key
    *
    * @param  {state} state - application state
@@ -157,5 +187,17 @@ export default class DataManager {
    */
   static isShowLoading(state, uiKey) {
     return Utils.Ui.isShowLoading(state, uiKey);
+  }
+
+  /**
+   * Returns true, when filter is shown (~opened).
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {boolean} - true, when filter is expanded, null - default, filter is inited  by underlying table
+   * @since 10.7.0
+   */
+  static isFilterOpened(state, uiKey) {
+    return Utils.Ui.isFilterOpened(state, uiKey);
   }
 }

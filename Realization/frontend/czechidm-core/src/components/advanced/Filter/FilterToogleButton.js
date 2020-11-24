@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import AbstractContextComponent from '../../basic/AbstractContextComponent/AbstractContextComponent';
 import * as Basic from '../../basic';
 import * as Domain from '../../../domain';
+import { DataManager } from '../../../redux';
+
+const dataManager = new DataManager();
 
 /**
  * Button for closable filter mainly for advanced table.
@@ -14,16 +17,25 @@ export default class FilterToogleButton extends AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.state = {
       filterOpened: this.props.filterOpened
     };
   }
 
   _filterOpen(opened) {
-    const { filterOpen } = this.props;
+    const { filterOpen, uiKey } = this.props;
+    //
     this.setState({
       filterOpened: opened
     }, () => {
+      if (uiKey) {
+        if (opened) {
+          this.context.store.dispatch(dataManager.expandFilter(uiKey));
+        } else {
+          this.context.store.dispatch(dataManager.collapseFilter(uiKey));
+        }
+      }
       if (filterOpen) {
         filterOpen(opened);
       }
@@ -31,7 +43,13 @@ export default class FilterToogleButton extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, searchParameters, forceSearchParameters, ...others } = this.props;
+    const {
+      rendered,
+      showLoading,
+      searchParameters,
+      forceSearchParameters,
+      ...others
+    } = this.props;
     const { filterOpened } = this.state;
     if (!rendered) {
       return null;

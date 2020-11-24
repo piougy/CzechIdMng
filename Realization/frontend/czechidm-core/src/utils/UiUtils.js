@@ -42,6 +42,22 @@ export default class UiUtils {
   }
 
   /**
+   * Returns true, when filter is shown (~opened).
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {boolean} - true, when filter is expanded, null - default, filter is inited  by underlying table
+   * @since 10.7.0
+   */
+  static isFilterOpened(state, uiKey) {
+    const uiState = UiUtils.getUiState(state, uiKey);
+    if (!uiState) {
+      return null;
+    }
+    return uiState.filterOpened;
+  }
+
+  /**
    * Returns error asigned to given uiKey or null, if no error is found
    *
    * @param  {state} state - application state

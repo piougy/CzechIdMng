@@ -29,7 +29,9 @@ import {
   REQUEST_DATA,
   STOP_REQUEST,
   RECEIVE_DATA,
-  CLEAR_DATA
+  CLEAR_DATA,
+  EXPAND_FILTER,
+  COLLAPSE_FILTER
 } from './DataManager';
 
 const INITIAL_STATE = {
@@ -48,6 +50,7 @@ const INITIAL_STATE = {
       items: [], // reference to identities
       trimmed: true, // is entities for this key is trimmed
       showLoading: true,
+      filterOpened: null, // filter is shown (null => inital state by underlying table or content)
       total: null
       searchParameters: merge({}, DEFAULT_SEARCH_PARAMETERS, {
         sort: [{
@@ -343,7 +346,27 @@ export default function reduce(state = INITIAL_STATE, action) {
         })
       });
     }
-
+    case EXPAND_FILTER: {
+      const ui = merge({}, state.ui, {
+        [uiKey]: merge({}, state.ui[uiKey], {
+          filterOpened: true
+        })
+      });
+      return merge({}, state, {
+        ui: merge({}, state.ui, ui)
+      });
+    }
+    case COLLAPSE_FILTER: {
+      const ui = merge({}, state.ui, {
+        [uiKey]: merge({}, state.ui[uiKey], {
+          filterOpened: false
+        })
+      });
+      return merge({}, state, {
+        ui: merge({}, state.ui, ui)
+      });
+    }
+    //
     default: {
       return state;
     }

@@ -23,7 +23,7 @@ const projectionManager = new FormProjectionManager();
 const identityProjectionManager = new IdentityProjectionManager();
 
 /**
- * Table of identities
+ * Table of identities.
  *
  * @author Radek Tomiška
  */
@@ -31,6 +31,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.state = {
       filterOpened: props.filterOpened,
       showAddModal: false
@@ -62,7 +63,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     // window.removeEventListener('scroll', this.handleScroll.bind(this));
   }
 
-  handleScroll(event) {
+  handleScroll(/* event */) {
     this.setState({
       footerStyle: { position: 'absolute', bottom: 500 - window.scrollY, backgroundColor: 'white', widht: '100%' }
     });

@@ -1270,6 +1270,7 @@ export default class EntityManager {
    *
    * @param entityId {string, number}
    * @param revId {number}
+   * @param uiKey {string}
    * @return {object} - action
    */
   fetchRevision(entityId, revId, uiKey = null) {
@@ -1476,5 +1477,39 @@ export default class EntityManager {
           dispatch(this.receiveError(null, null, error, cb));
         });
     };
+  }
+
+  /**
+   * Expand filter with given ui key.
+   *
+   * @param uiKey {string}
+   * @return {action}
+   * @since 10.7.0
+   */
+  expandFilter(uiKey = null) {
+    return this.dataManager.expandFilter(this.resolveUiKey(uiKey));
+  }
+
+  /**
+   * Collapse filter with given ui key.
+   *
+   * @param uiKey {string}
+   * @return {action}
+   * @since 10.7.0
+   */
+  collapseFilter(uiKey = null) {
+    return this.dataManager.collapseFilter(this.resolveUiKey(uiKey));
+  }
+
+  /**
+   * Returns true, when filter is shown (~opened).
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {boolean} - true, when filter is expanded, null - default, filter is inited  by underlying table
+   * @since 10.7.0
+   */
+  isFilterOpened(state, uiKey = null) {
+    return Utils.Ui.isFilterOpened(state, this.resolveUiKey(uiKey));
   }
 }

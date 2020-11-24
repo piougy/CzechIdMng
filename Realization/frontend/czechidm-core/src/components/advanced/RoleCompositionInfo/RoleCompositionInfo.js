@@ -1,15 +1,19 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import {RoleCompositionManager, SecurityManager} from '../../../redux';
+import * as Basic from '../../basic';
+import { RoleCompositionManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new RoleCompositionManager();
 
 /**
- * Role composition basic information (info card)
+ * Role composition basic information (info card).
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
 export class RoleCompositionInfo extends AbstractEntityInfo {
 
@@ -21,7 +25,8 @@ export class RoleCompositionInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECOMPOSITION_READ'] })) {
+    const { _permissions } = this.props;
+    if (!manager.canRead(this.getEntity(), _permissions)) {
       return false;
     }
     return true;
@@ -35,6 +40,23 @@ export class RoleCompositionInfo extends AbstractEntityInfo {
   getLink() {
     const entity = this.getEntity();
     return `/role/${encodeURIComponent(entity.superior)}/compositions`;
+  }
+
+  /**
+   * Returns popovers title
+   *
+   * @param  {object} entity
+   */
+  getPopoverTitle() {
+    return this.i18n('entity.RoleComposition._type');
+  }
+
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
   }
 
   /**
@@ -58,11 +80,25 @@ export class RoleCompositionInfo extends AbstractEntityInfo {
     return [
       {
         label: this.i18n('entity.RoleComposition.superior.label'),
-        value: entity._embedded.superior.name
+        value: (
+          <EntityInfo
+            entityType="role"
+            entity={ entity._embedded.superior }
+            entityIdentifier={ entity.superior }
+            showIcon
+            face="popover" />
+        )
       },
       {
         label: this.i18n('entity.RoleComposition.sub.label'),
-        value: entity._embedded.sub.name
+        value: (
+          <EntityInfo
+            entityType="role"
+            entity={ entity._embedded.sub }
+            entityIdentifier={ entity.sub }
+            showIcon
+            face="popover" />
+        )
       }
     ];
   }
@@ -102,9 +138,16 @@ RoleCompositionInfo.defaultProps = {
 };
 
 function select(state, component) {
+  const { entityIdentifier, entity } = component;
+  let entityId = entityIdentifier;
+  if (!entityId && entity) {
+    entityId = entity.id;
+  }
+  //
   return {
-    _entity: manager.getEntity(state, component.entityIdentifier),
-    _showLoading: manager.isShowLoading(state, null, component.entityIdentifier)
+    _entity: manager.getEntity(state, entityId),
+    _showLoading: manager.isShowLoading(state, null, entityId),
+    _permissions: manager.getPermissions(state, null, entityId)
   };
 }
 export default connect(select)(RoleCompositionInfo);

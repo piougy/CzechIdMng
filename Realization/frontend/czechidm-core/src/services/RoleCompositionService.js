@@ -20,7 +20,7 @@ export default class RoleCompositionService extends AbstractRequestService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded || !entity._embedded.superior || entity._embedded.sub) {
+    if (!entity || !entity._embedded || !entity._embedded.superior || !entity._embedded.sub) {
       return i18n('entity.RoleComposition._type');
     }
     let label = `${roleService.getNiceLabel(entity._embedded.superior)}`;

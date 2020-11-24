@@ -100,7 +100,7 @@ export class LongRunningTaskInfo extends AbstractEntityInfo {
   getPopoverContent(entity) {
     const { _supportedTasks } = this.props;
     //
-    return [
+    const content = [
       {
         label: this.i18n('entity.LongRunningTask.taskType'),
         value: (
@@ -120,12 +120,19 @@ export class LongRunningTaskInfo extends AbstractEntityInfo {
       {
         label: this.i18n('entity.LongRunningTask.result.state'),
         value: (<OperationResult value={ entity.result }/>)
-      },
-      {
-        label: this.i18n('entity.LongRunningTask.taskDescription'),
-        value: entity.taskDescription
       }
     ];
+    //
+    if (entity.taskDescription) {
+      content.push(
+        {
+          label: this.i18n('entity.LongRunningTask.taskDescription'),
+          value: entity.taskDescription
+        }
+      );
+    }
+    //
+    return content;
   }
 }
 

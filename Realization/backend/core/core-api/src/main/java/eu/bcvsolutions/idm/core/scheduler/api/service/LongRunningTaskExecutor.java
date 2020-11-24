@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 
 /**
- * Long running task executor
+ * Long running task executor.
  * 
  * @author Radek Tomiška
  */

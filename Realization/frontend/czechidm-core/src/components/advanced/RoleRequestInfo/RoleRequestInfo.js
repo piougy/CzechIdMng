@@ -11,18 +11,13 @@ import RoleRequestStateEnum from '../../../enums/RoleRequestStateEnum';
 
 const manager = new RoleRequestManager();
 
-
 /**
- * Component for rendering nice identifier for role request, similar function as roleInfo
+ * Component for rendering nice identifier for role request, similar function as roleInfo.
  *
  * @author Radek Tomiška
  * @since 9.7.0
  */
 export class RoleRequestInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -32,7 +27,7 @@ export class RoleRequestInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLEREQUEST_READ']})) {
+    if (!SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['ROLEREQUEST_READ']})) {
       return false;
     }
     return true;

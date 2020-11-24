@@ -772,6 +772,19 @@ module.exports = {
       type: 'icon',
       entityType: ['identity-role-remove'],
       component: require('./src/components/advanced/Icon/IdentityRoleRemoveIcon')
-    }
+    },
+    {
+      id: 'role-catalogue-icon',
+      type: 'icon',
+      entityType: ['role-catalogue'],
+      component: 'fa:list-alt'
+    },
+    {
+      id: 'long-running-task-info',
+      type: 'entity-info',
+      entityType: ['longRunningTask', 'IdmLongRunningTaskDto', 'IdmLongRunningTask'],
+      component: require('./src/components/advanced/LongRunningTask/LongRunningTaskInfo').default,
+      manager: require('./src/redux').LongRunningTaskManager
+    },
   ]
 };

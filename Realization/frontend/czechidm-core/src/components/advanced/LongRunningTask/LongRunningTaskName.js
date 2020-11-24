@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
-import {
-  FormAttributeManager
-} from '../../../redux';
+import { FormAttributeManager } from '../../../redux';
+import LongRunningTaskIcon from './LongRunningTaskIcon';
 
 const formAttributeManager = new FormAttributeManager();
 
 /**
- * Full task name with icon and localization - id form definition is available.
+ * Full task name with icon and localization - if form definition is available.
  *
  * @author Radek Tomiška
  * @since 10.4.0
@@ -51,17 +50,19 @@ export default class LongRunningTaskName extends Basic.AbstractContextComponent 
       }
     }
     let _label = simpleTaskType;
-    let _icon = 'component:scheduled-task';
     if (_taskType && _taskType.formDefinition) {
       _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', _label);
-      _icon = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'icon', _icon);
     }
     let _textLabel = _label;
     if (_label !== simpleTaskType) {
       // append simple taks type name as new line
       _label = (
         <span>
-          <Basic.Icon value={ _icon } style={{ marginRight: 3 }}/>
+          <LongRunningTaskIcon
+            entity={ entity }
+            supportedTasks={ supportedTasks }
+            showLoading={ showLoading }
+            style={{ marginRight: 3 }}/>
           {
             showTaskType
             ?

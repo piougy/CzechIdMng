@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.ZoneId;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,6 +18,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.TaskTriggerState;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -27,7 +29,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public class AbstractScheduledTaskInitializerTest extends AbstractIntegrationTest {
 	
 	public static String TEST_DESCRIPTION = "TEST DESCRIPTION";
@@ -69,6 +70,8 @@ public class AbstractScheduledTaskInitializerTest extends AbstractIntegrationTes
 				
 				String value3 = parameters.get(KEY_3);
 				assertEquals(VALUE_3, value3);
+				
+				Assert.assertNotNull(parameters.get(SchedulableTaskExecutor.PARAMETER_MODIFIED));
 				
 				List<AbstractTaskTrigger> triggers = task.getTriggers();
 				assertEquals(2, triggers.size());

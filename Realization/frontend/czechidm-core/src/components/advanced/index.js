@@ -55,6 +55,8 @@ import ImageCropper from './ImageCropper/ImageCropper';
 import LongRunningTask from './LongRunningTask/LongRunningTask';
 import LongRunningTaskName from './LongRunningTask/LongRunningTaskName';
 import LongRunningTaskProperties from './LongRunningTask/LongRunningTaskProperties';
+import LongRunningTaskIcon from './LongRunningTask/LongRunningTaskIcon';
+import LongRunningTaskInfo from './LongRunningTask/LongRunningTaskInfo';
 import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 import CodeListSelect from './CodeListSelect/CodeListSelect';
 import CodeListValue from './CodeListValue/CodeListValue';
@@ -126,6 +128,8 @@ const Components = {
   LongRunningTask,
   LongRunningTaskName,
   LongRunningTaskProperties,
+  LongRunningTaskIcon,
+  LongRunningTaskInfo,
   CreatableSelectBox,
   CodeListSelect,
   CodeListValue,
@@ -136,8 +140,9 @@ const Components = {
   PasswordInfo,
   AuditableInfo,
   DetailHeader,
-  CronGenerator
+  CronGenerator,
+  ScriptInfo
 };
 
-Components.version = '10.4.0';
+Components.version = '10.7.0';
 module.exports = Components;

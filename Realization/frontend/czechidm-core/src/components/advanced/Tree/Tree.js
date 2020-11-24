@@ -558,6 +558,22 @@ class Tree extends Basic.AbstractContextComponent {
     return this.getManager().getNiceLabel(node);
   }
 
+  /**
+   * Node descrition.
+   *
+   * @param  {object} node tree node
+   * @return {string}   description
+   * @since 10.7.0
+   */
+  _getNodeDescription(node) {
+    const { showNodeDescription } = this.props;
+    if (!node || !showNodeDescription) {
+      return null;
+    }
+    //
+    return node.description;
+  }
+
   _renderHeader() {
     const { header, multiSelect } = this.props;
     const { selected, activeNodeId } = this.state;
@@ -809,9 +825,11 @@ class Tree extends Basic.AbstractContextComponent {
                     )}
                     style={{ marginLeft: 2 + (level * BASE_ICON_WIDTH) }}/> {/* dynamic margin by node level */}
 
-                  { /* Node icon + label */
-                    _nodeContent
-                  }
+                  <span title={ this._getNodeDescription(node) }>
+                    { /* Node icon + label */
+                      _nodeContent
+                    }
+                  </span>
                   {
                     !node.childrenCount
                     ||
@@ -1134,7 +1152,13 @@ Tree.propTypes = {
    *
    * @since 10.7.0
    */
-  paginationNodeSize: PropTypes.number
+  paginationNodeSize: PropTypes.number,
+  /**
+   * Show description in node title on hover.
+   *
+   * @since 10.7.0
+   */
+  showNodeDescription: PropTypes.bool
 };
 
 Tree.defaultProps = {
@@ -1143,7 +1167,8 @@ Tree.defaultProps = {
   multiSelect: false,
   clearable: true,
   showRefreshButton: true,
-  disableable: true
+  disableable: true,
+  showNodeDescription: true
 };
 
 function select(state, component) {

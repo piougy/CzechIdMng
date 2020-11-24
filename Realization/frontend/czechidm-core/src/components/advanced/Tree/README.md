@@ -37,6 +37,8 @@ Entity property names and manager's methods are not configurable - enrich entity
 | nodeIconClassName | oneOfType([string, func]) | Node icon class name - string or callback - named parameters "node" and "opened" will be given. { null } can be given - disable default icon class names. | default 'folder' and 'file' |
 | nodeNiceLabel | func | Node label. Manager's nice label is used by default. | manager.getNiceLabel(node) |
 | showRefreshButton | bool | Shows refresh button. | true |
+| showRefreshButton | bool | Shows refresh button. | true |
+| showNodeDescription | bool | Show description in node title on hover. | true |
 
 ## Usage
 

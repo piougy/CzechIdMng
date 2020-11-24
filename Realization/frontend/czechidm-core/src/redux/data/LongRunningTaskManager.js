@@ -30,7 +30,7 @@ export default class LongRunningTaskManager extends EntityManager {
     return 'longRunningTasks';
   }
 
-  getNiceLabel(entity, supportedTasks = null) {
+  getNiceLabel(entity, supportedTasks = null, showTaskType = true) {
     let _taskType;
     if (supportedTasks && supportedTasks.has(entity.taskType)) {
       _taskType = supportedTasks.get(entity.taskType);
@@ -50,7 +50,7 @@ export default class LongRunningTaskManager extends EntityManager {
     if (_taskType && _taskType.formDefinition) {
       const simpleTaskType = Utils.Ui.getSimpleJavaType(entity.taskType);
       let _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', simpleTaskType);
-      if (_label !== simpleTaskType) {
+      if (showTaskType && _label !== simpleTaskType) {
         _label += ` (${ simpleTaskType })`;
       }
       return _label;

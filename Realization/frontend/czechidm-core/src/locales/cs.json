@@ -5144,6 +5144,7 @@
       }
     },
     "LongRunningTask": {
+      "_type": "Dlouhotrvající úloha",
       "taskId": "Id úlohy",
       "taskType": "Typ úlohy (třída)",
       "taskDescription": "Popis",

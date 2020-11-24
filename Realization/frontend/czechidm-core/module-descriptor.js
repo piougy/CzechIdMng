@@ -561,7 +561,7 @@ module.exports = {
                 id: 'role-catalogue-roles',
                 type: 'TAB',
                 labelKey: 'content.role.catalogues.title',
-                icon: 'fa:list-alt',
+                icon: 'component:role-catalogue',
                 order: 140,
                 path: '/role/:entityId/catalogues',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUEROLE_READ'] } ]
@@ -716,7 +716,7 @@ module.exports = {
                 id: 'request-role-catalogue-roles',
                 type: 'TAB',
                 labelKey: 'content.role.catalogues.title',
-                icon: 'fa:list-alt',
+                icon: 'component:role-catalogue',
                 order: 140,
                 path: 'requests/:requestId/role/:entityId/catalogues',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUEROLE_READ'] } ]
@@ -824,7 +824,7 @@ module.exports = {
             id: 'role-catalogues',
             labelKey: 'content.roleCatalogues.header',
             titleKey: 'content.roleCatalogues.title',
-            icon: 'fa:list-alt',
+            icon: 'component:role-catalogue',
             iconColor: '#dad727',
             order: 100,
             path: '/role-catalogues',

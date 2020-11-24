@@ -1,18 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 //
 import * as Basic from '../../basic';
 import { RoleCatalogueManager } from '../../../redux';
-import UuidInfo from '../UuidInfo/UuidInfo';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new RoleCatalogueManager();
 
 /**
- * Role basic information (info card)
+ * Role basic information (info card).
  *
  * @author Radek Tomiška
  */
@@ -26,10 +23,10 @@ export class RoleCatalogueInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    /*
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_CATALOGUE_READ']})) { // TODO: asynchronous permissions by fetch autorities on selected entity
+    const { _permissions } = this.props;
+    if (!manager.canRead(this.getEntity(), _permissions)) {
       return false;
-    }*/
+    }
     return true;
   }
 
@@ -48,7 +45,7 @@ export class RoleCatalogueInfo extends AbstractEntityInfo {
    * @param  {object} entity
    */
   getEntityIcon() {
-    return 'fa:list-alt';
+    return 'component:role-catalogue';
   }
 
   /**
@@ -68,7 +65,7 @@ export class RoleCatalogueInfo extends AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    return [
+    const content = [
       {
         label: this.i18n('entity.RoleCatalogue.name.name'),
         value: entity.name
@@ -78,6 +75,17 @@ export class RoleCatalogueInfo extends AbstractEntityInfo {
         value: entity.code
       }
     ];
+    //
+    if (entity.description) {
+      content.push({
+        label: this.i18n('entity.Role.description'),
+        value: (
+          <Basic.ShortText value={ entity.description } maxLength={ 100 }/>
+        )
+      });
+    }
+    //
+    return content;
   }
 }
 
@@ -105,9 +113,16 @@ RoleCatalogueInfo.defaultProps = {
 };
 
 function select(state, component) {
+  const { entityIdentifier, entity } = component;
+  let entityId = entityIdentifier;
+  if (!entityId && entity) {
+    entityId = entity.id;
+  }
+  //
   return {
-    _entity: manager.getEntity(state, component.entityIdentifier),
-    _showLoading: manager.isShowLoading(state, null, component.entityIdentifier)
+    _entity: manager.getEntity(state, entityId),
+    _showLoading: manager.isShowLoading(state, null, entityId),
+    _permissions: manager.getPermissions(state, null, entityId)
   };
 }
 export default connect(select)(RoleCatalogueInfo);

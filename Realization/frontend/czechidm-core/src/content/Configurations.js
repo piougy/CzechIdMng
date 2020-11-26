@@ -370,7 +370,6 @@ class Configurations extends Advanced.AbstractTableContent {
               (processedBulkAction) => {
                 // clean all bulk actions in redux
                 if (processedBulkAction.id === 'configuration-delete-bulk-action') {
-                  alert('jo');
                   // reload public configurations
                   this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
                   // reload all bulk actions

@@ -264,7 +264,6 @@ export default class FlashMessagesManager {
             const currentTokenHash = sha256(currentToken);
             const tokenFromErrorHash = error.parameters.token;
             if (tokenFromErrorHash !== currentTokenHash) {
-              alert(currentTokenHash + '=tady=' + tokenFromErrorHash);
               return;
             }
           }

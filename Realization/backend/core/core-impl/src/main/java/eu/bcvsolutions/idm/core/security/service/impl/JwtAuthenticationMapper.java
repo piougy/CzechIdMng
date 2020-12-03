@@ -265,6 +265,7 @@ public class JwtAuthenticationMapper {
 			token.setOwnerId(preparedToken.getOwnerId());
 			token.setOwnerType(preparedToken.getOwnerType());
 			token.setTokenType(preparedToken.getTokenType());
+			token.setSecretVerified(preparedToken.isSecretVerified());
 		}
 		// required properties
 		if (token.getTokenType() == null) {
@@ -315,6 +316,7 @@ public class JwtAuthenticationMapper {
 			LOG.trace("Authentication token with id [{}] has unlimited expiration (e.g. system token), expiration will not be changed.", authenticationDto.getId());
 			return authenticationDto;
 		}
+		// TODO: #1198
 		long seconds = ChronoUnit.SECONDS.between(authenticationDto.getExpiration(), newExpiration);
 		if (seconds < 60) {
 			LOG.trace("Authentication [{}] expiration will not be prolonged - expiration differs by [{}]s only.", authenticationDto.getId(), seconds);

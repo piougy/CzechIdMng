@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.api.domain;
 
 import org.springframework.http.HttpStatus;
 
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+
 /**
  * Enum class for formatting response messages (mainly errors). 
  * Every enum contains a string message and corresponding https HttpStatus code.
@@ -48,9 +50,14 @@ public enum CoreResultCode implements ResultCode {
 	// auth errors
 	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "Authentication failed - bad credentials."),
 	AUTH_BLOCKED(HttpStatus.UNAUTHORIZED, "Authentication failed - login for identity [%s] is blocked due [%s]. Seconds from now [%s]."),
-	AUTH_EXPIRED(HttpStatus.UNAUTHORIZED, "Authentication expired."),
+	AUTH_EXPIRED(HttpStatus.UNAUTHORIZED, "Authentication expired.", NotificationLevel.INFO),
 	TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Token not found."),
-	AUTHORITIES_CHANGED(HttpStatus.UNAUTHORIZED, "Authorities changed or user logged out, log in again."),
+	TOKEN_READ_FAILED(HttpStatus.BAD_REQUEST, "Wrong token given."),
+	TWO_FACTOR_INIT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Two factor authentication is not available."),
+	TWO_FACTOR_AUTH_REQIURED(HttpStatus.UNAUTHORIZED, "Verification code is needed.", NotificationLevel.INFO),
+	TWO_FACTOR_VERIFICATION_CODE_FAILED(HttpStatus.UNAUTHORIZED, "Verification code is not valid."),
+	TWO_FACTOR_GENERATE_CODE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Verification code cannot be generated."),
+	AUTHORITIES_CHANGED(HttpStatus.UNAUTHORIZED, "Authorities changed or user logged out, log in again.", NotificationLevel.INFO),
 	LOG_IN(HttpStatus.UNAUTHORIZED, "You need to be logged in."),
 	XSRF(HttpStatus.UNAUTHORIZED, "XSRF cookie failed."),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden."),
@@ -85,7 +92,7 @@ public enum CoreResultCode implements ResultCode {
 	PASSWORD_CHANGE_DISABLED(HttpStatus.BAD_REQUEST, "Password change is disabled"),
 	PASSWORD_EXPIRED(HttpStatus.UNAUTHORIZED, "Password expired"),
 	MUST_CHANGE_IDM_PASSWORD(HttpStatus.UNAUTHORIZED, "User [%s] has to change password"),
-	PASSWORD_DOES_NOT_MEET_POLICY(HttpStatus.BAD_REQUEST, "Password does not match password policy: %s"),
+	PASSWORD_DOES_NOT_MEET_POLICY(HttpStatus.BAD_REQUEST, "Password does not match password policy: %s", NotificationLevel.INFO),
 	PASSWORD_PREVALIDATION(HttpStatus.ACCEPTED, "Password does not match password policy: %s"),
 	PASSWORD_CANNOT_CHANGE(HttpStatus.BAD_REQUEST, "You cannot change your password yet. Please try it again after %s"),
 	// password create
@@ -375,29 +382,42 @@ public enum CoreResultCode implements ResultCode {
 	MANUAL_TASK_DELEGATION_DELEGATOR_MISSING(HttpStatus.BAD_REQUEST, "Delegator not found. You must apply a filter by delegator (assigned user)!"),
 	MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE(HttpStatus.BAD_REQUEST, "Delegator [%s] isn't candidate of the task [%s]!");
 	
-	
-	
 	private final HttpStatus status;
 	private final String message;
+	private final NotificationLevel level;
 	
 	private CoreResultCode(HttpStatus status, String message) {
-		this.message = message;
-		this.status = status;
+		this(status, message, null);
 	}
 	
+	private CoreResultCode(HttpStatus status, String message, NotificationLevel level) {
+		this.message = message;
+		this.status = status;
+		this.level = level;
+	}
+	
+	@Override
 	public String getCode() {
 		return this.name();
 	}
 	
+	@Override
 	public String getModule() {
 		return "core";
 	}
 	
+	@Override
 	public HttpStatus getStatus() {
 		return status;
 	}
 	
+	@Override
 	public String getMessage() {
 		return message;
-	}	
+	}
+	
+	@Override
+	public NotificationLevel getLevel() {
+		return level;
+	}
 }

@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
+import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
@@ -70,6 +71,7 @@ public class DefaultFilterManager implements FilterManager {
 	private Map<FilterKey, FilterBuilderDto> registeredServiceFilters = null;
 	// ignored internal filter properties
 	private final Set<String> ignoredFilterProperties = Sets.newHashSet(
+			IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, // token sent as url parameter
 			"parameterConverter", // parameter conversion
 			"dtoClass", // filter type
 			"sort", // TODO: load from configuration, but cannot be configured now anyway - FE is hard coded to this props too.

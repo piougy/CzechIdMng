@@ -49,7 +49,7 @@
 		<logger name="org.springframework" level="WARN"/>
 		<logger name="org.springframework.web" level="WARN"/>
 		<logger name="org.hibernate.SQL" level="WARN"/>
-		<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>        
+		<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
     </springProfile>
     
     <springProfile name="dev-mysql">  	

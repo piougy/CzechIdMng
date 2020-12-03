@@ -38,12 +38,27 @@ public interface Authenticator extends Ordered {
 	String getModule();
 	
 	/**
-	 * Try to authenticate identity and return {@link LoginDto} with {@link IdmJwtAuthenticationDto}
+	 * Authenticate identity and return {@link LoginDto} with set authentication {@link IdmJwtAuthenticationDto}.
 	 * 
-	 * @param loginDto
+	 * 
+	 * @param loginDto credentials
 	 * @return
 	 */
 	LoginDto authenticate(LoginDto loginDto);
+	
+	/**
+	 * Validate given credentials.
+	 * 
+	 * @param loginDto credentials
+	 * @return true - credentials are valid, false otherwise
+	 * @since 10.7.0
+	 */
+	default boolean validate(LoginDto loginDto) {
+		// Lookout: Identity should be not logged in, credentials should be validated only.
+		// Authenticate is called for maintain backward compatibility only!
+		// Implement validate method in your Authenticator properly!
+		return authenticate(loginDto) != null;
+	}
 	
 	/**
 	 * Logout.  Override, when logout feature is provided by Authenticator implementation.

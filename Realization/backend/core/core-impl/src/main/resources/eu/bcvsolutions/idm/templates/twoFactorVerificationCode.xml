@@ -1,0 +1,24 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+@author Radek Tomiška
+@since 10.7.0
+
+Send verification code for two factor authentication code
+
+parameters:
+    - verificationCode
+    - identity
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>twoFactorVerificationCode</code>
+	<name>Send verification code for two factor authentication code.</name>
+	<subject>CzechIdM - verification code.</subject>
+    <bodyHtml></bodyHtml>
+	<bodyText>Verification code: $verificationCode</bodyText>
+	<parameter>verificationCode, identity</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

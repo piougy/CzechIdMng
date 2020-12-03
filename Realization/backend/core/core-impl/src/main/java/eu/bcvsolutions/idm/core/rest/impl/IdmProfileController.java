@@ -11,7 +11,9 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -31,11 +33,16 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmProfileFilter;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.TwoFactorAuthenticationType;
+import eu.bcvsolutions.idm.core.security.api.dto.TwoFactorRegistrationConfirmDto;
+import eu.bcvsolutions.idm.core.security.api.dto.TwoFactorRegistrationResponseDto;
+import eu.bcvsolutions.idm.core.security.api.service.TwoFactorAuthenticationManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -59,6 +66,8 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmProfileController extends AbstractEventableDtoController<IdmProfileDto, IdmProfileFilter> {
 
 	protected static final String TAG = "Profiles";
+	//
+	@Autowired private TwoFactorAuthenticationManager twoFactorAuthenticationManager;
 
 	@Autowired
 	public IdmProfileController(IdmProfileService service) {
@@ -342,6 +351,51 @@ public class IdmProfileController extends AbstractEventableDtoController<IdmProf
 				})
 	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.prevalidateBulkAction(bulkAction);
+	}
+	
+	@ResponseBody
+	@ApiOperation(
+			value = "Login - additional two factor authentication init", 
+			notes= "Additional two factor authentication with TOTP verification code.",
+			response = TwoFactorRegistrationResponseDto.class,
+			tags = { IdmProfileController.TAG } )
+	@RequestMapping(path = "/{backendId}/two-factor/init", method = RequestMethod.PUT)
+	public ResponseEntity<?> twoFactorInit(
+			@ApiParam(value = "Profile's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId,
+			@ApiParam(value = "Selected two factor method.", required = true)
+			@RequestParam @NotNull TwoFactorAuthenticationType twoFactorAuthenticationType) {
+		IdmProfileDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+		//
+		return new ResponseEntity<>(
+				new Resource<>(twoFactorAuthenticationManager.init(dto.getIdentity(), twoFactorAuthenticationType)),
+				HttpStatus.OK
+		);
+	}
+	
+	@ResponseBody
+	@ApiOperation(
+			value = "Login - additional two factor authentication confirm", 
+			notes= "Additional two factor authentication with TOTP verification code.",
+			response = IdmProfileDto.class,
+			tags = { IdmProfileController.TAG } )
+	@RequestMapping(path = "/{backendId}/two-factor/confirm", method = RequestMethod.PUT)
+	public ResponseEntity<?> twoFactorConfirm(
+			@ApiParam(value = "Profile's uuid identifier or username.", required = true)
+			@PathVariable @NotNull String backendId,
+			@ApiParam(value = "Verification secret and code.", required = true)
+			@Valid @RequestBody(required = true) TwoFactorRegistrationConfirmDto registrationConfirm) {
+		IdmProfileDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+		//
+		twoFactorAuthenticationManager.confirm(dto.getIdentity(), registrationConfirm);
+		//
+		return new ResponseEntity<>(toResource(getDto(dto)), HttpStatus.OK);
 	}
 	
 	@Override

@@ -34,6 +34,15 @@ public interface LoginService {
 	LoginDto loginAuthenticatedUser();
 	
 	/**
+	 * Validate given credentials.
+	 * 
+	 * @param loginDto credentials
+	 * @return true - credentials are valid, false otherwise
+	 * @since 10.7.0
+	 */
+	boolean validate(LoginDto loginDto);
+	
+	/**
 	 * Logout currently logged identity and disable currently used token.
 	 * 
 	 * @since 8.2.0

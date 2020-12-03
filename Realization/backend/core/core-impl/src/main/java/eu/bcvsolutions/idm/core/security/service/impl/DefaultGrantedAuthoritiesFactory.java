@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 
 /**
  * Load identity's granted authorities

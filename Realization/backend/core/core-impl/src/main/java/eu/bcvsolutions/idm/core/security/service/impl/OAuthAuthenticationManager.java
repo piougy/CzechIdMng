@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 
 /**
  * Default implementation of OAuth - jwt authenticate service.
@@ -93,7 +93,7 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 			throw new ResultCodeException(CoreResultCode.AUTH_EXPIRED);
 		}
 		if (tokenVerified) {
-			// when token is verified, then identity cannot be disabled => tokens are disabled after identity is disabled 
+			// when token is verified, then identity is not disabled => tokens are disabled after identity is disabled 
 			return idmJwtAuthentication;
 		}
 		//

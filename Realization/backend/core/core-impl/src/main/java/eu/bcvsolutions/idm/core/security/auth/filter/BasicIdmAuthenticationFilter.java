@@ -16,8 +16,10 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
+import eu.bcvsolutions.idm.core.security.api.exception.TwoFactorAuthenticationRequiredException;
 import eu.bcvsolutions.idm.core.security.api.filter.AbstractAuthenticationFilter;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 
 /**
  * Authentication filter implementing Basic authentication scheme.
@@ -43,6 +45,9 @@ public class BasicIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 			authManager.authenticate(loginDto);
 			LOG.debug("User [{}] successfully logged in.", loginDto.getUsername());
 			return true;
+		} catch (MustChangePasswordException | TwoFactorAuthenticationRequiredException ex) {
+			// publish additional authentication requirement
+			throw ex;
 		} catch (IdmAuthenticationException e) {
 			LOG.warn("Authentication exception raised during basic authentication: [{}].", e.getMessage());
 		} catch (Exception e) {
@@ -67,7 +72,7 @@ public class BasicIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 		LoginDto ldto = new LoginDto();
 		ldto.setUsername(credentials[0]);
 		ldto.setPassword(new GuardedString(credentials[1]));
-		ldto.setSkipMustChange(true); // FIXME: really?
+		//
 		return ldto;
 	}
 	

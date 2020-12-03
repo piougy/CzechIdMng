@@ -7,6 +7,8 @@ import java.util.UUID;
 import java.time.ZonedDateTime;
 import org.springframework.http.HttpStatus;
 
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+
 /**
  * Universal operation result response
  * 
@@ -69,4 +71,14 @@ public interface ResultModel extends Serializable {
 	 * @return
 	 */
 	HttpStatus getStatus();
+	
+	/**
+	 * Message level - override level by http status code.
+	 * 
+	 * @return level
+	 * @since 10.7.0
+	 */
+	default NotificationLevel getLevel() {
+		return null;
+	}
 }

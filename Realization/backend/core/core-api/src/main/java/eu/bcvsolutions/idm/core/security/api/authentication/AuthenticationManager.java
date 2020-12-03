@@ -41,6 +41,8 @@ public interface AuthenticationManager {
 	/**
 	 * Validate over all founded {@link Authenticator},
 	 * return true if authentication is success.
+	 * Identity is not logged, just credentials are validated.
+	 * Login can be blocked, if bad credentials are given.
 	 * 
 	 * @param loginDto credentials
 	 * @return

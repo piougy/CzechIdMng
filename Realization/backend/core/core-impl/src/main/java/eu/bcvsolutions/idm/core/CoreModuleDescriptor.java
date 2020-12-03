@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDt
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.core.notification.entity.IdmSmsLog;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -233,7 +234,13 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor implements Co
 				"Notification informs the delegate about the new delegation instance.", 
 				getNotificationTemplateId("delegationInstanceCreatedToDelegate")));
 		//
-		
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_TWO_FACTOR_VERIFICATION_CODE, 
+				null, 
+				IdmSmsLog.NOTIFICATION_TYPE,
+				"Send verification code for two factor authentication.", 
+				getNotificationTemplateId("twoFactorVerificationCode")));
+		//
 		return configs;
 	}
 	

@@ -1,12 +1,12 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager
  * the bearer and passing it to the {@link AuthenticationManager}.
  * 
  * @author Jan Helbich
- *
+ * @author Radek Tomiška
  */
 @Order(0)
 @Component
@@ -70,9 +70,8 @@ public class JwtIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 			LOG.debug("User [{}] successfully logged in.", auth.getName());
 			return auth.isAuthenticated();
 		} catch (ResultCodeException ex) {
-			LOG.warn("Invalid token, reason: [{}]", ex.getMessage());
-			ctx.setCodeEx(ex);
-			ctx.setToken(claims); // only expired or authorities changed
+			// publish additional authentication requirement
+			throw ex;
 		} catch (AuthenticationException ex) {
 			LOG.warn("Invalid authentication, reason: [{}]", ex.getMessage());
 			ctx.setAuthEx(ex);

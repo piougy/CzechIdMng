@@ -9,6 +9,7 @@ import org.springframework.hateoas.core.Relation;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.security.api.domain.TwoFactorAuthenticationType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -16,7 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Dto for identity profile - setting.
  * 
  * @author Radek Tomiška
- *
+ * @since 9.0.0
  */
 @Relation(collectionRelation = "profiles")
 @ApiModel(description = "Identity profile - e.g. profile image, preffered language")
@@ -37,6 +38,8 @@ public class IdmProfileDto extends AbstractDto  {
 	private boolean systemInformation;
 	@ApiModelProperty(notes = "Tables will show given count of records by default, default application setting will be used otherwise.")
 	private Integer defaultPageSize;
+	@ApiModelProperty(notes = "Additional two factor authentication method.")
+	private TwoFactorAuthenticationType twoFactorAuthenticationType;
 
 	public IdmProfileDto() {
 	}
@@ -115,5 +118,25 @@ public class IdmProfileDto extends AbstractDto  {
 	 */
 	public void setDefaultPageSize(Integer defaultPageSize) {
 		this.defaultPageSize = defaultPageSize;
+	}
+	
+	/**
+	 * Additional two factor authentication method.
+	 * 
+	 * @return selected method
+	 * @Since 10.7.0
+	 */
+	public TwoFactorAuthenticationType getTwoFactorAuthenticationType() {
+		return twoFactorAuthenticationType;
+	}
+	
+	/**
+	 * Additional two factor authentication method.
+	 * 
+	 * @param twoFactorAuthenticationType selected method
+	 * @Since 10.7.0
+	 */
+	public void setTwoFactorAuthenticationType(TwoFactorAuthenticationType twoFactorAuthenticationType) {
+		this.twoFactorAuthenticationType = twoFactorAuthenticationType;
 	}
 }

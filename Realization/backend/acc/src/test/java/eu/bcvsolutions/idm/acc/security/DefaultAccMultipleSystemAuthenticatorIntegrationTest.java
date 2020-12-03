@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +36,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -67,6 +69,8 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 	private SysSystemAttributeMappingService systemAttributeMappingService;
 	@Autowired 
 	private IdmPasswordService passwordService;
+	@Autowired 
+	private IdmIdentityService identityService;
 
 	@After
 	public void after() {
@@ -96,6 +100,11 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 		// IdM
 		login(identity, passwordIdm, false, CoreModuleDescriptor.MODULE_ID);
 		// System One
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(identity.getUsername());
+		loginDto.setPassword(new GuardedString(passwordSystemOne));
+		// valid credentials
+		Assert.assertTrue(authenticationManager.validate(loginDto));
 		login(identity, passwordSystemTwo, false, AccModuleDescriptor.MODULE_ID);
 		login(identity, passwordSystemOne, false, AccModuleDescriptor.MODULE_ID);
 		// System two
@@ -125,7 +134,37 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(identity.getUsername());
 		loginDto.setPassword(new GuardedString(passwordSystem));
+		
+		// valid credentials
+		Assert.assertTrue(authenticationManager.validate(loginDto));
+		// but must change password before authentication
+		authenticationManager.authenticate(loginDto);
+	}
+	
+	@Test(expected = IdmAuthenticationException.class)
+	public void testPreventLoginInvalidIdentity() {
+		String passwordSystem = getHelper().createName();
+		String passwordIdm = getHelper().createName();
 
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString(passwordIdm));
+
+		SysSystemDto systemOne = createSystem(null);
+
+		addSystemToIdentity(identity, systemOne);
+
+		changePassword(identity, passwordSystem, getAccountIdForSystem(identity, systemOne));
+
+		setupAuthentication(systemOne);
+		
+		identityService.disable(identity.getId());
+
+		// System One
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(identity.getUsername());
+		loginDto.setPassword(new GuardedString(passwordSystem));
+		// invalid
+		Assert.assertFalse(authenticationManager.validate(loginDto));
+		// and cannot login
 		authenticationManager.authenticate(loginDto);
 	}
 

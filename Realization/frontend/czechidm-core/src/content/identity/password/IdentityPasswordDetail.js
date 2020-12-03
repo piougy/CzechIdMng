@@ -217,6 +217,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
                 readOnly={ !canSave }/>
 
             </Basic.AbstractForm>
+
             <Basic.PanelFooter>
               <Basic.Button
                 type="button"

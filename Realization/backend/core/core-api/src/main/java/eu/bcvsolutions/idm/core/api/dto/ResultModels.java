@@ -17,7 +17,11 @@ import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
 public class ResultModels implements Serializable {
 	
+	public static final String ATTRIBUTE_ERRORS = "_errors";
+	public static final String ATTRIBUTE_INFOS = "_infos";
+	//
 	private static final long serialVersionUID = 130622622063070662L;
+	//
 	private final List<ErrorModel> errors = Lists.newArrayList();
 	private final List<ResultModel> infos = Lists.newArrayList();
 
@@ -58,19 +62,19 @@ public class ResultModels implements Serializable {
 		this.infos.add(info);
 	}
 	
-	@com.fasterxml.jackson.annotation.JsonProperty("_errors")
+	@com.fasterxml.jackson.annotation.JsonProperty(ATTRIBUTE_ERRORS)
 	public List<ResultModel> getErrors() {
 		return Collections.unmodifiableList(errors);
 	}
 	
-	@com.fasterxml.jackson.annotation.JsonProperty("_infos")
+	@com.fasterxml.jackson.annotation.JsonProperty(ATTRIBUTE_INFOS)
 	public List<ResultModel> getInfos() {
 		return Collections.unmodifiableList(infos);
 	}
 	
 	@com.fasterxml.jackson.annotation.JsonIgnore
 	public ErrorModel getError() {
-		if(this.errors.isEmpty()) {
+		if (this.errors.isEmpty()) {
 			return null;
 		}
 		return errors.get(0);

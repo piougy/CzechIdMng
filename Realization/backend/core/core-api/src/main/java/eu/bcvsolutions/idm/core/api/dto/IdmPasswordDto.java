@@ -38,6 +38,8 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
     private int unsuccessfulAttempts;
     private ZonedDateTime blockLoginDate = null;
     private boolean passwordNeverExpires = false;
+    @JsonProperty(access = Access.WRITE_ONLY)
+	private String verificationSecret;
 
     public ZonedDateTime getLastSuccessfulLogin() {
         return lastSuccessfulLogin;
@@ -120,5 +122,24 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
 	public void setPasswordNeverExpires(boolean passwordNeverExpires) {
 		this.passwordNeverExpires = passwordNeverExpires;
 	}
-
+	
+	/**
+	 * Two factor authentication secret.
+	 * 
+	 * @param verificationToken secret
+	 * @since 10.7.0
+	 */
+	public void setVerificationSecret(String verificationSecret) {
+		this.verificationSecret = verificationSecret;
+	}
+	
+	/**
+	 * Two factor authentication secret.
+	 * 
+	 * @return secret
+	 * @since 10.7.0
+	 */
+	public String getVerificationSecret() {
+		return verificationSecret;
+	}
 }

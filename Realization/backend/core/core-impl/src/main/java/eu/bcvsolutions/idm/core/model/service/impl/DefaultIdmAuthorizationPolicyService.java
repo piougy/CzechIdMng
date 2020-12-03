@@ -251,18 +251,18 @@ public class DefaultIdmAuthorizationPolicyService
 					// some base permission only
 					moduleService.getAvailablePermissions().forEach(availableGroupPermission -> {
 						if (IdmGroupPermission.APP != availableGroupPermission) { // app is wildcard only - skipping
-							for(String permission : baseAuthorities) {
+							for (String permission : baseAuthorities) {
 								authorities.add(new DefaultGrantedAuthority(availableGroupPermission.getName(), permission));
-							};
+							}
 						}
 					});
 				}
 			} else if (baseAuthorities.contains(IdmBasePermission.ADMIN.getName())) {	
 				authorities.add(new DefaultGrantedAuthority(groupPermission, IdmBasePermission.ADMIN.getName()));					
 			} else {
-				for(String permission : baseAuthorities) {
+				for (String permission : baseAuthorities) {
 					authorities.add(new DefaultGrantedAuthority(groupPermission, permission));
-				};
+				}
 			}			
 		}
 		//

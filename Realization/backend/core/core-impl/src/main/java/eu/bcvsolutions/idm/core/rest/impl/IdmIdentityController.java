@@ -950,7 +950,7 @@ public class IdmIdentityController extends AbstractFormableDtoController<IdmIden
 	}
 	
 	/**
-	 * Returns profile image attachment from identity
+	 * Update identity profile.
 	 * 
 	 * @return 
 	 * @since 9.0.0

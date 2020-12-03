@@ -89,8 +89,8 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 				loginDto.setPassword(passwordChangeDto.getOldPassword());
 				loginDto.setSkipMustChange(true); // password is changed => prevent to validate this flag again 
 				//
-				boolean successChainAuthentication = authenticationManager.validate(loginDto);
-				if (!successChainAuthentication) {
+				boolean successChainValidation = authenticationManager.validate(loginDto);
+				if (!successChainValidation) {
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 				}
 			}

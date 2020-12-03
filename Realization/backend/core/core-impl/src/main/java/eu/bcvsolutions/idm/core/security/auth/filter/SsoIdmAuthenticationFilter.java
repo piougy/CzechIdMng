@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.filter.AbstractAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 
 /**
  * Authentication filter which enables Single-Sign-On (SSO) to IdM by a specific
@@ -105,6 +105,12 @@ public class SsoIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 						"Check identity can login: The identity [{0}] either doesn't exist or is deleted.",
 						userName));
 			}
+			// identity is valid
+			if (identity.isDisabled()) {
+				throw new IdmAuthenticationException(MessageFormat.format(
+						"Check identity can login: The identity [{0}] is disabled.", 
+						userName));
+			}
 			// Check forbidden identity - identity can be found by different attribute than id / username - depends on registered lookup
 			if (isForbidden(identity)) {
 				LOG.info("The uid [{}] is forbidden for SSO authentication.", userName);
@@ -118,9 +124,12 @@ public class SsoIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 			// Authenticate the user
 			LOG.info("User [{}] will be authenticated by SSO.", userName);
 			LoginDto loginDto = createLoginDto(userName);
-			LoginDto fullLoginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(loginDto,
-					identity, CoreModuleDescriptor.MODULE_ID);
-			
+			LoginDto fullLoginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
+					loginDto,
+					identity, 
+					CoreModuleDescriptor.MODULE_ID
+			);
+			//
 			return fullLoginDto != null;
 			
 		} catch (IdmAuthenticationException e) {

@@ -459,6 +459,13 @@
 			<artifactId>cache-api</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		
+		<!-- Two factor authentication - one time password -->
+		<dependency>
+		  <groupId>dev.samstevens.totp</groupId>
+		  <artifactId>totp-spring-boot-starter</artifactId>
+		  <version>1.7</version>
+		</dependency>
 
 	</dependencies>
 

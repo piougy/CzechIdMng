@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -557,7 +557,7 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 		passwordService.save(password);
 		//
 		// try to login => exception
-		loginService.login(new LoginDto(identity));
+		authenticationManager.authenticate(new LoginDto(identity));
 	}
 	
 	@Test
@@ -580,6 +580,8 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 		LoginDto login = loginService.login(new LoginDto(identity));
 		Assert.assertNotNull(login.getToken());
 	}
+	
+	
 
 	private LoginDto tryLogin(String username, String password) {
 		LoginDto loginDto = new LoginDto();
@@ -600,8 +602,7 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 		} catch (ResultCodeException e) {
 			assertEquals(HttpStatus.UNAUTHORIZED, e.getStatus());
 		} catch (IdmAuthenticationException authEx) {
-			assertTrue(authEx.getMessage().contains("Check identity password"));
-			assertTrue(authEx.getMessage().contains("because the password digests differ"));
+			assertTrue(authEx.getMessage().contains("password check failed"));
 		} catch (Exception ex) {
 			fail("Unxcepted exception: " + ex.getMessage());
 		}

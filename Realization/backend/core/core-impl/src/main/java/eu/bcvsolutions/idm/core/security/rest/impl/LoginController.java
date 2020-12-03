@@ -25,13 +25,15 @@ import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManage
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginRequestDto;
+import eu.bcvsolutions.idm.core.security.api.dto.TwoFactorRequestDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
+import eu.bcvsolutions.idm.core.security.api.service.TwoFactorAuthenticationManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 /**
- * Identity authentication
+ * Identity authentication.
  * 
  * @author Radek Tomiška 
  * @author Ondrej Kopr <kopr@xyxy.cz>
@@ -46,6 +48,7 @@ public class LoginController implements BaseController {
 	public static final String REMOTE_AUTH_PATH = "/remote-auth";
 	//
 	@Autowired private AuthenticationManager authenticationManager;
+	@Autowired private TwoFactorAuthenticationManager twoFactorAuthenticationManager;
 	@Autowired private LoginService loginService;
 	@Autowired private LookupService lookupService;
 	
@@ -59,10 +62,42 @@ public class LoginController implements BaseController {
 	public Resource<LoginDto> login(
 			@ApiParam(value = "Identity credentials.", required = true)
 			@Valid @RequestBody(required = true) LoginRequestDto loginDto) {
-		if(loginDto == null || loginDto.getUsername() == null || loginDto.getPassword() == null){
+		if (loginDto == null || loginDto.getUsername() == null || loginDto.getPassword() == null){
 			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Username and password must be filled");
 		}
-		return new Resource<LoginDto>(authenticationManager.authenticate(new LoginDto(loginDto)));
+		LoginDto authenticate = authenticationManager.authenticate(new LoginDto(loginDto));
+		//
+		return new Resource<LoginDto>(authenticate);
+	}
+	
+	/**
+	 * Two factor login.
+	 * 
+	 * @param twoFactorDto
+	 * @return
+	 * @since 10.7.0
+	 */
+	@ResponseBody
+	@ApiOperation(
+			value = "Login - additional two factor authentication", 
+			notes= "Additional two factor authentication with TOTP verification code.",
+			response = LoginDto.class,
+			tags = { LoginController.TAG } )
+	@RequestMapping(path = "/two-factor", method = RequestMethod.POST)
+	public Resource<LoginDto> twoFactor(
+			@ApiParam(value = "Token and verification code.", required = true)
+			@Valid @RequestBody(required = true) TwoFactorRequestDto twoFactorDto) {
+		if (twoFactorDto == null 
+				|| twoFactorDto.getVerificationCode() == null
+				|| twoFactorDto.getToken() == null) {
+			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Verification code must be filled");
+		}
+		//
+		LoginDto loginDto = new LoginDto();
+		loginDto.setPassword(twoFactorDto.getVerificationCode());
+		loginDto.setToken(twoFactorDto.getToken().asString());
+		//
+		return new Resource<LoginDto>(twoFactorAuthenticationManager.authenticate(loginDto));
 	}
 	
 	@ApiOperation(
@@ -118,6 +153,5 @@ public class LoginController implements BaseController {
 	@RequestMapping(path = "/switch-user", method = RequestMethod.DELETE)
 	public Resource<LoginDto> switchUserLogout() {
 		return new Resource<LoginDto>(loginService.switchUserLogout());
-	}
-	
+	}	
 }

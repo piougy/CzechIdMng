@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -45,15 +46,14 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 			.andExpect(jsonPath("$.username", equalTo(TestHelper.ADMIN_USERNAME)));
 	}
 	
-	@Test
+	@Test(expected = ResultCodeException.class)
 	public void testLogoutSuccess() throws Exception {
 		LoginDto login = getHelper().loginAdmin();
 		logout(); // disable token
 		//
 		getMockMvc().perform(get(getSelfPath(TestHelper.ADMIN_USERNAME))
 				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
-				.contentType(TestHelper.HAL_CONTENT_TYPE))
-			.andExpect(status().isUnauthorized());
+				.contentType(TestHelper.HAL_CONTENT_TYPE));
 	}
 	
 	@Test

@@ -74,6 +74,10 @@ public class IdmToken extends AbstractEntity implements Disableable, ExternalIde
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled; // e.g. logout, authorities removed
 	
+	@NotNull
+	@Column(name = "secret_verified", nullable = false)
+	private boolean secretVerified = true;
+	
 	public String getOwnerType() {
 		return ownerType;
 	}
@@ -159,5 +163,25 @@ public class IdmToken extends AbstractEntity implements Disableable, ExternalIde
 	@Override
 	public String getExternalId() {
 		return externalId;
+	}
+	
+	/**
+	 * Token is verified (by two factor) authentication, if needed.
+	 * 
+	 * @return true => token is verified or verification is not required
+	 * @since 10.7.0
+	 */
+	public boolean isSecretVerified() {
+		return secretVerified;
+	}
+	
+	/**
+	 * Token is verified (by two factor) authentication, if needed.
+	 * 
+	 * @param verified  true => token is verified or verification is not required. False => verification is required
+	 * @since 10.7.0
+	 */
+	public void setSecretVerified(boolean secretVerified) {
+		this.secretVerified = secretVerified;
 	}
 }

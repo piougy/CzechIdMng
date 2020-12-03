@@ -60,6 +60,11 @@ public class DefaultCoreAuthenticator extends AbstractAuthenticator implements A
 	}
 	
 	@Override
+	public boolean validate(LoginDto loginDto) {
+		return loginService.validate(loginDto);
+	}
+	
+	@Override
 	public void logout(IdmTokenDto token) {
 		loginService.logout(token);
 	}

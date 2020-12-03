@@ -4,6 +4,7 @@ import * as Utils from '../utils';
 
 const authPath = '/authentication';
 const remoteAuthPath = `${ authPath }/remote-auth`;
+const twoFactorPath = `${ authPath }/two-factor`;
 
 let lastToken = null;
 
@@ -27,6 +28,21 @@ export default class AuthenticateService {
     };
     return RestApiService
       .post(authPath, json, false) // false - we don't want to append auth token
+      .then(response => {
+        return response.json();
+      })
+      .then(this._handleOptionalErrorModel);
+  }
+
+  /**
+   * Return login promise.
+   *
+   * @param  {TwoFactorRequestDto} twoFactorRequestDto
+   * @since 10.7.0
+   */
+  loginTwoFactor(twoFactorRequestDto) {
+    return RestApiService
+      .post(twoFactorPath, twoFactorRequestDto, false) // false - we don't want to append auth token
       .then(response => {
         return response.json();
       })

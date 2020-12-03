@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword_;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
@@ -35,7 +36,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
+import eu.bcvsolutions.idm.core.security.api.exception.TwoFactorAuthenticationRequiredException;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
+import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
 
 /**
  * Default implementation of authentication manager {@link AuthenticationManager}.
@@ -60,11 +63,13 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private ConfigurationService configurationService;
 	@Autowired
 	private TokenManager tokenManager;
+	@Autowired
+	private OAuthAuthenticationManager oAuthAuthenticationManager;
 
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
 		List<LoginDto> resultsList = new LinkedList<>();
-		RuntimeException firstFailture = null;
+		RuntimeException firstFailure = null;
 		//
 		// check if user can log in and hasn't administrator permission
 		IdmPasswordDto passwordDto = passwordService.findOrCreateByIdentity(loginDto.getUsername());
@@ -103,25 +108,25 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 					continue;
 				}
 				if (authenticator.getExceptedResult() == AuthenticationResponseEnum.SUFFICIENT) {
-					// check if user must change password, skip this check if loginDto contains flag
-					if (passwordDto.isMustChange() && !loginDto.isSkipMustChange()) {
-						throw new MustChangePasswordException(loginDto.getUsername());
-					}
+					checkAdditionalAuthenticationRequirements(passwordDto, result);
 					passwordDto = passwordService.setLastSuccessfulLogin(passwordDto);
 					return result;
 				}
 				// if otherwise add result too list and continue
 				resultsList.add(result);
-			} catch (MustChangePasswordException ex) {
+			} catch (MustChangePasswordException | TwoFactorAuthenticationRequiredException ex) {
+				// publish additional authentication requirement
 				throw ex;
 			} catch (RuntimeException e) {
 				// if excepted response is REQUISITE exit immediately with error
 				if (authenticator.getExceptedResult() == AuthenticationResponseEnum.REQUISITE) {
+					blockLogin(passwordDto, loginDto);
+					//
 					throw e;
 				}
 				// if otherwise save first failure into exception
-				if (firstFailture == null) {
-					firstFailture = e;
+				if (firstFailure == null) {
+					firstFailure = e;
 				}
 			}
 		}
@@ -129,10 +134,87 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure
 		if (resultsList.isEmpty()) {
 			blockLogin(passwordDto, loginDto);
-			throw firstFailture;
+			throw firstFailure;
 		}
+		// 
+		LoginDto result = resultsList.get(0);
+		checkAdditionalAuthenticationRequirements(passwordDto, result);
 		passwordDto = passwordService.setLastSuccessfulLogin(passwordDto);
-		return resultsList.get(0);
+		//
+		return result;
+	}
+	
+	@Override
+	public boolean validate(LoginDto loginDto) {
+		Assert.notNull(loginDto, "Credentials are required to validate.");
+		String username = loginDto.getUsername();
+		Assert.hasLength(username, "Username is required to validate credentials.");
+		//
+		try {
+			RuntimeException firstFailture = null;
+			boolean result = false;
+			//
+			IdmPasswordDto passwordDto = passwordService.findOrCreateByIdentity(username);
+			if (passwordDto == null) {
+				LOG.info("Identity [{}] not exist, password cannot be inited.", username);
+				//
+				return false;
+			}
+			if (passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfter(ZonedDateTime.now())) {
+				LOG.info("Identity [{}] has blocked login to IdM.", username);
+				//
+				return false;
+			}
+			//
+			for (Authenticator authenticator : getEnabledAuthenticators()) {
+				LOG.debug("AuthenticationManager call validate by [{}].", authenticator.getName());
+				try {
+					boolean validate = authenticator.validate(cloneLoginDto(loginDto));
+					if (validate) {
+						if(authenticator.getExceptedResult() == AuthenticationResponseEnum.SUFFICIENT) {
+							return true;
+						}
+						result = true; // at least one of optional registered authenticator succeed
+					}
+				} catch (RuntimeException ex) {
+					// if excepted response is REQUISITE exit immediately with error
+					if (authenticator.getExceptedResult() == AuthenticationResponseEnum.REQUISITE) {
+						if (ex instanceof ResultCodeException) {
+							ExceptionUtils.log(LOG, (ResultCodeException) ex);
+						} else {
+							ExceptionUtils.log(LOG, null, ex);
+						}
+						//
+						blockLogin(passwordDto, loginDto);
+						//
+						return false;
+					}
+					// if otherwise save first failure into exception
+					if (firstFailture == null) {
+						firstFailture = ex;
+					}
+				}
+			}
+			//
+			// authenticator is sorted by implement ordered, return first success authenticate authenticator, if don't exist any otherwise throw first failure
+			if (firstFailture != null) {
+				if (firstFailture instanceof ResultCodeException) {
+					ExceptionUtils.log(LOG, (ResultCodeException) firstFailture);
+				} else {
+					ExceptionUtils.log(LOG, null, firstFailture);
+				}
+				//
+				blockLogin(passwordDto, loginDto);
+				//
+				return false;
+			}
+			//
+			return result;
+		} catch (RuntimeException ex) {
+			LOG.warn("Authentication validation failed", ex);
+			//
+			return false;
+		}
 	}
 	
 	@Override
@@ -144,7 +226,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		}
 		//
 		// all registered authenticator should know about logout given token
-		for(Authenticator authenticator : getEnabledAuthenticators()) {
+		for (Authenticator authenticator : getEnabledAuthenticators()) {
 			LOG.trace("Process authenticator [{}].", authenticator.getName());
 			//
 			authenticator.logout(token);
@@ -266,15 +348,23 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		return validate(loginDto);
 	}
 	
-	@Override
-	public boolean validate(LoginDto loginDto) {
-		try {
-			this.authenticate(loginDto);
-		} catch (RuntimeException ex) {
-			LOG.warn("Authentication validation failed", ex);
-			//
-			return false;
+	/**
+	 * check if user must change password, skip this check if loginDto contains flag
+	 * @param passwordDto
+	 * @param loginDto result login with token
+	 */
+	private void checkAdditionalAuthenticationRequirements(IdmPasswordDto passwordDto, LoginDto loginResult) {
+		Assert.notNull(passwordDto, "IdM password instance is required.");
+		Assert.notNull(loginResult, "Login result is required.");
+		//
+		if (loginResult.isSkipMustChange()) {
+			return;
 		}
-		return true;
+		//
+		// check if user must change password, skip this check if loginDto contains flag
+		if (passwordDto.isMustChange()) {
+			oAuthAuthenticationManager.logout();
+			throw new MustChangePasswordException(loginResult.getUsername());
+		}
 	}
 }

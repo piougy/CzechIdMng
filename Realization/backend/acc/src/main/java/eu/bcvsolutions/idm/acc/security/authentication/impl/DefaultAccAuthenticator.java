@@ -60,20 +60,54 @@ public class DefaultAccAuthenticator extends AbstractAccAuthenticator implements
 
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
-		IdmIdentityDto identity = this.getIdentity(loginDto);
-
 		SysSystemDto system = authenticatorConfiguration.getSystem();
-		
-		IcUidAttribute auth = this.authenticateOverSystem(system, loginDto, identity);
-		if (auth == null || auth.getValue() == null) {
-			throw new ResultCodeException(AccResultCode.AUTHENTICATION_AGAINST_SYSTEM_FAILED,  ImmutableMap.of("name", system.getCode(), "username", loginDto.getUsername()));
+		if (system == null) {
+			// not configured
+			return null;
 		}
-
-		String module = this.getModule();
-		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(loginDto, identity, module);
-		LOG.info("Identity with username [{}] is authenticated by system identifier [{}]", loginDto.getUsername(), system.getCode());
+		//
+		IdmIdentityDto identity = getValidIdentity(loginDto, true);
+		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
+				loginDto, identity, getModule());
+		LOG.info("Identity with username [{}] is authenticated by system [{}].", loginDto.getUsername(), system.getCode());
+		
 		return loginDto;
 	}
+	
+	@Override
+	public boolean validate(LoginDto loginDto) {
+		return getValidIdentity(loginDto, false) != null;
+	}
+	
+	protected IdmIdentityDto getValidIdentity(LoginDto loginDto, boolean propagateException) {
+		SysSystemDto system = authenticatorConfiguration.getSystem();
+		if (system == null) {
+			// not configured
+			return null;
+		}
+		//
+		IdmIdentityDto identity = getValidIdentity(loginDto.getUsername(), propagateException);
+		if (identity == null) {
+			return null;
+		}
+		//
+		IcUidAttribute auth = this.authenticateOverSystem(system, loginDto, identity);
+		if (auth == null || auth.getValue() == null) {
+			if (!propagateException) {
+				return null;
+			}
+			//
+			throw new ResultCodeException(AccResultCode.AUTHENTICATION_AGAINST_SYSTEM_FAILED, 
+					ImmutableMap.of(
+							"name", system.getCode(), 
+							"username", identity.getUsername()
+					)
+			);
+		}
+		//
+		return identity;
+	}
+	
 
 	@Override
 	public AuthenticationResponseEnum getExceptedResult() {

@@ -36,5 +36,6 @@ public interface CoreModule extends ModuleDescriptor {
 	String TOPIC_DELEGATION_DELETED_TO_DELEGATE = String.format("%s:delegationDeletedToDelegate", MODULE_ID);
 	String TOPIC_DELEGATION_DELETED_TO_DELEGATOR = String.format("%s:delegationDeletedToDelegator", MODULE_ID);
 	String TOPIC_DELEGATION_INSTANCE_CREATED_TO_DELEGATE = String.format("%s:delegationInstanceCreatedToDelegate", MODULE_ID);
+	String TOPIC_TWO_FACTOR_VERIFICATION_CODE = String.format("%s:twoFactorVerificationCode", MODULE_ID);
 	
 }

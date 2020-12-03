@@ -5,6 +5,8 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -19,9 +21,10 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.entity.IdmAttachment;
+import eu.bcvsolutions.idm.core.security.api.domain.TwoFactorAuthenticationType;
 
 /**
- * Profile
+ * Identity profile.
  * 
  * @author Radek Tomiška 
  * @since 9.0.0
@@ -65,6 +68,11 @@ public class IdmProfile extends AbstractEntity implements AttachableEntity {
 	@Audited
 	@Column(name = "default_page_size", nullable = true)
 	private Integer defaultPageSize;
+	
+	@Audited
+	@Enumerated(EnumType.STRING)
+	@Column(name = "two_factor_authentication_type", length = DefaultFieldLengths.ENUMARATION)
+	private TwoFactorAuthenticationType twoFactorAuthenticationType;
 
 	public IdmProfile() {
 	}
@@ -143,5 +151,25 @@ public class IdmProfile extends AbstractEntity implements AttachableEntity {
 	 */
 	public void setDefaultPageSize(Integer defaultPageSize) {
 		this.defaultPageSize = defaultPageSize;
+	}
+	
+	/**
+	 * Additional two factor authentication method.
+	 * 
+	 * @return selected method
+	 * @Since 10.7.0
+	 */
+	public TwoFactorAuthenticationType getTwoFactorAuthenticationType() {
+		return twoFactorAuthenticationType;
+	}
+	
+	/**
+	 * Additional two factor authentication method.
+	 * 
+	 * @param twoFactorAuthenticationType selected method
+	 * @Since 10.7.0
+	 */
+	public void setTwoFactorAuthenticationType(TwoFactorAuthenticationType twoFactorAuthenticationType) {
+		this.twoFactorAuthenticationType = twoFactorAuthenticationType;
 	}
 }

@@ -223,8 +223,8 @@ public class DefaultIdmPasswordService
 	
 	@Override
 	@Transactional
-	public IdmPasswordDto findOrCreateByIdentity(Serializable identifier) {
-		IdmIdentityDto identityDto = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identifier);
+	public IdmPasswordDto findOrCreateByIdentity(Serializable codeable) {
+		IdmIdentityDto identityDto = lookupService.lookupDto(IdmIdentityDto.class, codeable);
 		//
 		if (identityDto == null) {
 			return null;

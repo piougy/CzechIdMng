@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Persisted tokens
+ * Persisted tokens.
  * 
  * @author Radek Tomiška
  * @since 8.2.0
@@ -43,6 +43,7 @@ public class IdmTokenDto extends AbstractDto implements Disableable, ExternalIde
 	private ConfigurationMap properties;
 	private boolean disabled;
 	private String moduleId;
+	private boolean secretVerified = true;
 	
 	public IdmTokenDto() {
 	}
@@ -134,5 +135,25 @@ public class IdmTokenDto extends AbstractDto implements Disableable, ExternalIde
 	@Override
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
+	}
+	
+	/**
+	 * Token is verified (by two factor) authentication, if needed.
+	 * 
+	 * @return true => token is verified or verification is not required
+	 * @since 10.7.0
+	 */
+	public boolean isSecretVerified() {
+		return secretVerified;
+	}
+	
+	/**
+	 * Token is verified (by two factor) authentication, if needed.
+	 * 
+	 * @param verified  true => token is verified or verification is not required. False => verification is required
+	 * @since 10.7.0
+	 */
+	public void setSecretVerified(boolean secretVerified) {
+		this.secretVerified = secretVerified;
 	}
 }

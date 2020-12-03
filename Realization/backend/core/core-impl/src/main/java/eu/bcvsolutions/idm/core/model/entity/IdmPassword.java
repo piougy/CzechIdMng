@@ -71,6 +71,13 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 	@Column(name = "password_never_expires")
 	private boolean passwordNeverExpires = false;
 	
+	@Column(name = "verification_secret")
+	private String verificationSecret;
+
+	public IdmPassword() {
+		// Auto-generated constructor
+	}
+	
 	public ZonedDateTime getBlockLoginDate() {
 		return blockLoginDate;
 	}
@@ -93,10 +100,6 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 
 	public void setUnsuccessfulAttempts(int unsuccessfulAttempts) {
 		this.unsuccessfulAttempts = unsuccessfulAttempts;
-	}
-
-	public IdmPassword() {
-		// Auto-generated constructor
 	}
 
 	public String getPassword() {
@@ -178,5 +181,24 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 	public void setPasswordNeverExpires(boolean passwordNeverExpires) {
 		this.passwordNeverExpires = passwordNeverExpires;
 	}
-
+	
+	/**
+	 * Two factor authentication secret.
+	 * 
+	 * @param verificationSecret secret
+	 * @since 10.6.0
+	 */
+	public void setVerificationSecret(String verificationSecret) {
+		this.verificationSecret = verificationSecret;
+	}
+	
+	/**
+	 * Two factor authentication secret.
+	 * 
+	 * @return secret
+	 * @since 10.6.0
+	 */
+	public String getVerificationSecret() {
+		return verificationSecret;
+	}
 }

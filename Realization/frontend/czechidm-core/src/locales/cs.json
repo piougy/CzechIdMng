@@ -81,6 +81,9 @@
     "detail": "Detail",
     "download": "$t(label.download)",
     "edit": "Upravit",
+    "enable": {
+      "label": "Aktivovat"
+    },
     "evict": "Vyprázdnit",
     "evictAll": "Vyprázdnit vše",
     "filter": {
@@ -108,6 +111,9 @@
     },
     "clear": {
       "title": "Zrušit výběr"
+    },
+    "verify": {
+      "label": "Ověřit"
     }
   },
   "filter": {
@@ -733,6 +739,14 @@
     "RoleTypeEnum": {
       "SYSTEM": "Systémová"
     },
+    "TwoFactorAuthenticationTypeEnum": {
+      "APPLICATION": "Aplikace (TOTP)",
+      "NOTIFICATION": "Notifikace (sms notifikace)",
+      "helpBlock": {
+        "APPLICATION": "Autentizační kód můžete vygenerovat pomocí TOTP aplikace (například Google Authenticator).",
+        "NOTIFICATION": "Autentizační kód bude zaslán textovou zprávou (notifikací)."
+      }
+    },
     "AutomaticRoleRequestTypeEnum": {
       "TREE": "Role dle stromové struktury",
       "ATTRIBUTE": "Role dle atributu"
@@ -1239,6 +1253,17 @@
         "logout": {
           "value": "Odhlásit se",
           "title": "Odhlásit se úplně a pokračovat na nové přihlášení"
+        }
+      },
+      "twoFactor": {
+        "header": "Dvoufaktorová autentizace",
+        "verificationCode": {
+          "label": "Autentizační kód",
+          "placeholder": "6-ti místný číselný kód"
+        },
+        "help": {
+          "header": "Jak získat autentizační kód",
+          "content": "<p>Po přihlášení do $t(app.name) pomocí uživatelského jména a hesla, budete vyzváni k zadání autentizačního kódu, který Vám byl zaslán textovou zprávou (notifikací) nebo si jej můžete vygenerovat pomocí TOTP aplikace (například Google Authenticator).</p><p>$t(app.name) bude požadovat zadaní autentizačního kódu opět po odhlášení, při použití jiného zařízení nebo pokud přihlášení expiruje.</p>"
         }
       }
     },
@@ -2901,6 +2926,34 @@
           "title": "Smazat fotku",
           "message": "Opravdu chcete smazat profilovou fotku?"
         },
+        "twoFactor": {
+          "application": {
+            "help": "Naskenujte QR kód v TOTP aplikaci (například Google Authenticator) na Vašem chytrém telefonu pro použití při přihlášení.",
+            "code": {
+              "enter": "Nebo zadejte",
+              "code": "tento kód",
+              "instead": "."
+            },
+            "verificationCode": {
+              "label": "Zadejte 6-ti místný číselný kód z aplikace",
+              "placeholder": "123456",
+              "help": "Po naskenování QR kódu aplikace zobrazí 6-ti místný číselný, který můžete zadat."
+            }
+          },
+          "notification": {
+            "help": "Notifikace byla odeslána.",
+            "disabled": "Pro povolení této metody je třeba zapnout podporu pro zasílání sms notifikací.",
+            "verificationCode": {
+              "label": "Zadejte 6-ti místný číselný kód z notifikace",
+              "placeholder": "123456",
+              "help": ""
+            }
+          },
+          "confirmDelete": {
+            "title": "Zrušit dvoufaktorovou autentizaci",
+            "message": "Opravdu chcete zrušit dvoufaktorovou autentizaci? Pro přihlášení bude potřeba pouze uživatelské jméno a heslo."
+          }
+        },
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Email uživatele"
@@ -2915,9 +2968,6 @@
           },
         "active": "Aktivní",
         "blockLoginDate": "Identita má blokované přihlášení do aplikace z důvodu překročení neúspěšných pokusů o přihlášení. Přihlášení bude možné po {{date}}.",
-        "button": {
-
-        },
         "validation": {
           "passwordsNotMatch": "Zadané nové heslo se neshoduje se zadaným heslem pro kontrolu.",
           "newIdmManagerIsTheSame": {
@@ -4085,6 +4135,10 @@
       "systemInformation": {
         "label": "Zobrazovat systémové informace",
         "help": "Zobrazovat interní identifikátory entit, transkací, detailní logy a další systémové informace."
+      },
+      "twoFactorAuthenticationType": {
+        "label": "Dvoufaktorová autentizace",
+        "help": "Pro přihlášení bude vyžadována dvoufaktorová autentizace."
       }
     },
     "Password": {
@@ -7525,6 +7579,26 @@
       "title": "Autentizační token nebyl nalezen",
       "message": "Autentizační token nebyl nalezen!"
     },
+    "TOKEN_READ_FAILED": {
+      "title": "Zadán chybný token.",
+      "message": "Zadaný token nelze přečíst."
+    },
+    "TWO_FACTOR_INIT_FAILED": {
+      "title": "Dvoufaktorová autentizace není dostupná.",
+      "message": "Inicializace dvoufaktorové autentizace selhala."
+    },
+    "TWO_FACTOR_AUTH_REQIURED": {
+      "title": "Dvoufaktorová autentizace",
+      "message": "Pro přišlášení je vyžadována dvoufaktorová autentizace."
+    },
+    "TWO_FACTOR_VERIFICATION_CODE_FAILED": {
+      "title": "Dvoufaktorová autentizace",
+      "message": "Verifikace kódu selhala. Zadejte validní verifikační kód."
+    },
+    "TWO_FACTOR_GENERATE_CODE_FAILED": {
+      "title": "Dvoufaktorová autentizace",
+      "message": "Generování verifikačního kódu selhalo."
+    },
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> obsahuje <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>",
       "title": ""
@@ -7865,6 +7939,9 @@
     },
     "all-sub-roles": {
       "description": "Cache pro ukládání sub rolí dle definice business role. Cache je vyprázdněna automaticky při každé změně business rolí."
+    },
+    "transaction-event-cache": {
+      "description": "Cache pro ukládání běžících asynchronních událostí. Cache je vyprázdněna automaticky pro každou ukončenou asynchronní událost."
     }
   }
 }

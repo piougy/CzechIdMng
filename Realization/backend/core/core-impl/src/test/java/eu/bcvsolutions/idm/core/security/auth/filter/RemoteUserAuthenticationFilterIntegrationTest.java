@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -44,6 +45,7 @@ public class RemoteUserAuthenticationFilterIntegrationTest extends AbstractRestT
 	
 	@Autowired private IdmConfigurationService configurationService;
 	@Autowired private RemoteUserAuthenticationFilter filter;
+	@Autowired private IdmIdentityService identityService;
 	
 	@Before
 	public void init() {
@@ -240,6 +242,20 @@ public class RemoteUserAuthenticationFilterIntegrationTest extends AbstractRestT
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(jsonPath("$.username", equalTo(TEST_SSO_USER_SSO_ADMIN)));
+	}
+	
+	@Test
+	public void testPreventLoginInvalidIdentity() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		identityService.disable(identity.getId());
+		//
+		getMockMvc().perform(get(getRemotePath())
+				.with(request -> {
+                    request.setRemoteUser(identity.getUsername());
+                    return request;
+                })
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().isForbidden());
 	}
 	
 	private String getRemotePath() {

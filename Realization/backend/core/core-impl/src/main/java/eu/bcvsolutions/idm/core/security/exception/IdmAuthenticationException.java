@@ -1,18 +1,14 @@
 package eu.bcvsolutions.idm.core.security.exception;
 
-import org.springframework.security.core.AuthenticationException;
-
 /**
- * Authentication exception
+ * Authentication exception.
  * 
  * @author svandav
- *
+ * @deprecated @since 10.7.0 use the same IdmAuthenticationException from api module
  */
-public class IdmAuthenticationException extends AuthenticationException {
+@Deprecated 
+public class IdmAuthenticationException extends eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException {
 
-	/**
-	 * Default Idm authentication 
-	 */
 	private static final long serialVersionUID = -2560698903646341229L;
 
 	public IdmAuthenticationException(String msg) {

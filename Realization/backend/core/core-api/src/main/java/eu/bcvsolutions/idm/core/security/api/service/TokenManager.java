@@ -34,6 +34,14 @@ public interface TokenManager {
 	 * @return
 	 */
 	IdmTokenDto getCurrentToken();
+	
+	/**
+	 * Returns whether the given token is considered to be new.
+	 * 
+	 * @param token must never be {@literal null}
+	 * @return true -> new token will be created
+	 */
+	boolean isNew(IdmTokenDto token);
 
 	/**
 	 * Save token

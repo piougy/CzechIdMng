@@ -40,7 +40,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Configuration for notification routing
+ * Configuration for notification routing.
  * 
  * @author Radek Tomiška
  *
@@ -189,31 +189,22 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteDto
 	}
 	
 	/**
-	 * Returns registered senders notification types
+	 * Returns registered senders notification types.
 	 * 
 	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/all/notification-types", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONCONFIGURATION_READ + "')"
-			+ " or hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	@ApiOperation(
 			value = "Supported notification (sender) type", 
 			nickname = "getSupportedNotificationTypes",
-			tags = { IdmNotificationConfigurationController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONCONFIGURATION_READ, description = ""),
-						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")}),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATIONCONFIGURATION_READ, description = ""),
-						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")})
-				},
+			tags = { IdmNotificationConfigurationController.TAG },
 			notes = "Returns registered senders notification types.")
 	public List<String> getSupportedNotificationTypes() {
 		Set<String> types = configurationService.getSupportedNotificationTypes();
 		List<String> results = Lists.newArrayList(types);
 		Collections.sort(results);
+		//
 		return results;
 	}
 }

@@ -13,10 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.LogbackLoggerManagerIntegrationTest;
+import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
@@ -29,6 +35,8 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public class IdmConfigurationControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmConfigurationDto> {
 
 	@Autowired private IdmConfigurationController controller;
+	@Autowired private AuthenticationManager authenticationManager;
+	@Autowired private TokenManager tokenManager;
 	
 	@Override
 	protected AbstractReadWriteDtoController<IdmConfigurationDto, ?> getController() {
@@ -72,7 +80,7 @@ public class IdmConfigurationControllerRestTest extends AbstractReadWriteDtoCont
 	}
 	
 	@Test
-	public void getAllConfigurationsFromEnvironment() throws Exception {
+	public void testGetAllConfigurationsFromEnvironment() throws Exception {
 		// configuration from files and logback logger
 		String response = getMockMvc().perform(get(getBaseUrl() + "/all/environment")
         		.with(authentication(getAdminAuthentication()))
@@ -85,5 +93,31 @@ public class IdmConfigurationControllerRestTest extends AbstractReadWriteDtoCont
 		List<IdmConfigurationDto> dtos = getMapper().readValue(response, new TypeReference<List<IdmConfigurationDto>>() {});
 		Assert.assertFalse(dtos.isEmpty());
 		Assert.assertTrue(dtos.stream().anyMatch(c -> c.getName().equals("java.specification.version"))); // all property files has this ...
+	}
+	
+	@Test
+	public void testGetPublicConfigurationsWithWrongToken() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		LoginDto loginDto = new LoginDto();
+		loginDto.setUsername(identity.getUsername());
+		loginDto.setPassword(identity.getPassword());
+		// credentials are valid
+		Assert.assertTrue(authenticationManager.validate(loginDto));
+		LoginDto authenticate = authenticationManager.authenticate(loginDto);
+		Assert.assertNotNull(authenticate.getToken());
+		// disable token => invalidate authentication
+		tokenManager.disableToken(authenticate.getAuthentication().getId());
+		// but public endpoints doesn't check it
+		String response = getMockMvc().perform(get(BaseController.BASE_PATH + "/public/configurations")
+                .contentType(TestHelper.HAL_CONTENT_TYPE)
+                .param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, authenticate.getToken()))
+				.andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		List<IdmConfigurationDto> dtos = getMapper().readValue(response, new TypeReference<List<IdmConfigurationDto>>() {});
+		Assert.assertFalse(dtos.isEmpty());
+		Assert.assertTrue(dtos.stream().anyMatch(c -> c.getName().equals("idm.pub.core.public-setting")));
 	}
 }

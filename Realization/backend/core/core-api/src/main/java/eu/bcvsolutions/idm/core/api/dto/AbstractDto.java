@@ -32,7 +32,7 @@ import io.swagger.annotations.ApiModelProperty.AccessMode;
 import joptsimple.internal.Strings;
 
 /**
- * Common dto
+ * Common dto.
  * 
  * @author Radek Tomiška 
  */

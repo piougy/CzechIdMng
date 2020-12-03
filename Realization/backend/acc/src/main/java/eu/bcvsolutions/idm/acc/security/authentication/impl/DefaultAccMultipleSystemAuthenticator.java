@@ -6,6 +6,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -34,7 +35,6 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 public class DefaultAccMultipleSystemAuthenticator extends AbstractAccAuthenticator implements Authenticator {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAccMultipleSystemAuthenticator.class);
-	
 	private static final String AUTHENTICATOR_NAME = "acc-multiple-system-authenticator";
 
 	@Autowired
@@ -58,8 +58,39 @@ public class DefaultAccMultipleSystemAuthenticator extends AbstractAccAuthentica
 
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
-		IdmIdentityDto identity = getIdentity(loginDto);
+		String username = loginDto.getUsername();
+		LOG.debug("Identity with username [{}] authenticating", username);
+		IdmIdentityDto identity = getValidIdentity(username, true);
+		SysSystemDto system = authenticateOverSystem(loginDto, identity, true);
+		
+		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(loginDto, identity, getModule());
+		LOG.info("Identity with username [{}] is authenticated by system [{}]. Multiple system authentication.", 
+				loginDto.getUsername(), system.getCode());
 
+		return loginDto;
+	}
+	
+	@Override
+	public boolean validate(LoginDto loginDto) {
+		IdmIdentityDto identity = getValidIdentity(loginDto.getUsername(), false);
+		if (identity == null) {	
+			return false;
+		}
+		//
+		return authenticateOverSystem(loginDto, identity, false) != null;
+	}
+
+	@Override
+	public AuthenticationResponseEnum getExceptedResult() {
+		return AuthenticationResponseEnum.SUFFICIENT;
+	}
+	
+	private SysSystemDto authenticateOverSystem(LoginDto loginDto, IdmIdentityDto identity, boolean propagateException) {
+		Assert.notNull(identity, "Identity is required.");
+		//
+		String username = identity.getUsername();
+		LOG.debug("Identity with username [{}] authenticating", username);
+		//
 		List<SysSystemDto> systems = authenticatorConfiguration.getSystems();
 
 		if (CollectionUtils.isEmpty(systems)) {
@@ -68,32 +99,31 @@ public class DefaultAccMultipleSystemAuthenticator extends AbstractAccAuthentica
 		}
 		
 		IcUidAttribute auth = null;
-		String finalSystemIdentifier = null;
-
+		SysSystemDto finalSystem = null;
+		//
 		for (SysSystemDto system : systems) {
 			auth = this.authenticateOverSystem(system, loginDto, identity);
 
 			if (auth != null && auth.getValue() != null) {
 				// Store final system for log
-				finalSystemIdentifier = system.getCode();
+				finalSystem = system;
 				break;
 			}
 		}
-		
+		//
 		if (auth == null || auth.getValue() == null) {
-			throw new ResultCodeException(AccResultCode.AUTHENTICATION_AGAINST_MULTIPLE_SYSTEM_FAILED,  ImmutableMap.of("username", loginDto.getUsername()));
+			if (!propagateException) {
+				return null;
+			}
+			//
+			throw new ResultCodeException(AccResultCode.AUTHENTICATION_AGAINST_MULTIPLE_SYSTEM_FAILED, 
+					ImmutableMap.of(
+							"username", username
+					)
+			);
 		}
-
-		String module = this.getModule();
-		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(loginDto, identity, module);
-		LOG.info("Identity with username [{}] is authenticated by system id [{}]. Multiple system authentication.", loginDto.getUsername(), finalSystemIdentifier);
-		
-		return loginDto;
-	}
-
-	@Override
-	public AuthenticationResponseEnum getExceptedResult() {
-		return AuthenticationResponseEnum.SUFFICIENT;
+		//
+		return finalSystem;
 	}
 
 }

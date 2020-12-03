@@ -25,15 +25,14 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 
 /**
- * Default login service
+ * Default login service.
  * 
  * @author svandav
  * @author Radek Tomiška
@@ -61,24 +60,9 @@ public class DefaultLoginService implements LoginService {
 	@Override
 	public LoginDto login(LoginDto loginDto) {
 		String username = loginDto.getUsername();
-		LOG.info("Identity with username [{}] authenticating", username);
+		LOG.info("Identity with username [{}] authenticating.", username);
 		
-		IdmIdentityDto identity = identityService.getByUsername(username);
-		// identity exists
-		if (identity == null) {			
-			throw new IdmAuthenticationException(MessageFormat.format(
-					"Check identity can login: The identity "
-					+ "[{0}] either doesn't exist or is deleted.",
-					username));
-		}
-		// validate identity
-		if (!validate(identity, loginDto)) {
-			LOG.debug("Username or password for identity [{}] is not correct!", username);			
-			throw new IdmAuthenticationException(MessageFormat.format(
-					"Check identity password: Failed for identity "
-					+ "{0} because the password digests differ.",
-					username));
-		}
+		IdmIdentityDto identity = getValidIdentity(loginDto, true);
 
 		loginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(
 				loginDto, new IdmIdentityDto(identity, identity.getUsername()), loginDto.getAuthenticationModule());
@@ -117,6 +101,67 @@ public class DefaultLoginService implements LoginService {
 		LOG.info("Identity with username [{}] is authenticated", username);
 
 		return loginDto;
+	}
+	
+	@Override
+	public boolean validate(LoginDto loginDto) {
+		return getValidIdentity(loginDto, false) != null;
+	}
+	
+	private IdmIdentityDto getValidIdentity(LoginDto loginDto, boolean propagateException) {
+		String username = loginDto.getUsername();
+		LOG.info("Identity with username [{}] authenticating", username);
+		
+		IdmIdentityDto identity = identityService.getByUsername(username);
+		// identity exists
+		if (identity == null) {
+			String validationMessage = MessageFormat.format("Check identity can login: The identity "
+					+ "[{0}] either doesn't exist or is deleted.", username);
+			if (!propagateException) {
+				LOG.debug(validationMessage);
+				return null;
+			}
+			throw new IdmAuthenticationException(validationMessage);
+		}
+		// identity is valid
+		if (identity.isDisabled()) {
+			String validationMessage = MessageFormat.format("Check identity can login: The identity [{0}] is disabled.", username);
+			if (!propagateException) {
+				LOG.debug(validationMessage);
+				return null;
+			}
+			throw new IdmAuthenticationException(validationMessage);
+		}
+		// GuardedString isn't necessary password is in hash.
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		if (password == null) {
+			String validationMessage = MessageFormat.format("Identity [{0}] does not have pasword stored in IdM.", username);
+			if (!propagateException) {
+				LOG.debug(validationMessage);
+				return null;
+			}
+			throw new IdmAuthenticationException(validationMessage);
+		}
+		// check if password expired
+		if (password.getValidTill() != null && password.getValidTill().isBefore(LocalDate.now())) {
+			String validationMessage = MessageFormat.format("Password for identity [{0}] is expired.", username);
+			if (!propagateException) {
+				LOG.debug(validationMessage);
+				return null;
+			}
+			throw new ResultCodeException(CoreResultCode.PASSWORD_EXPIRED);
+		}
+		// given password is correct
+		if (!passwordService.checkPassword(loginDto.getPassword(), password)) {
+			String validationMessage = MessageFormat.format("Identity [{0}] password check failed.", username);
+			if (!propagateException) {
+				LOG.debug(validationMessage);
+				return null;
+			}
+			throw new IdmAuthenticationException(validationMessage);
+		}
+		//
+		return identity;
 	}
 
 	@Override
@@ -176,39 +221,6 @@ public class DefaultLoginService implements LoginService {
 		LOG.info("Identity with username [{}] - logout from switched user [{}].", originalUsername, securityService.getCurrentUsername());
 		//
 		return login(identity, switchedToken);
-	}
-
-	/**
-	 * Validates given identity can log in
-	 * 
-	 * @param identity
-	 * @param password
-	 * @return
-	 */
-	private boolean validate(IdmIdentityDto identity, LoginDto loginDto) {
-		if (identity.isDisabled()) {
-			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.", identity.getUsername() ));
-		}
-		// GuardedString isn't necessary password is in hash
-		IdmPasswordDto idmPassword = passwordService.findOneByIdentity(identity.getId());
-		if (idmPassword == null) {
-			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
-			return false;
-		}
-		// check if password expired
-		if (idmPassword.getValidTill() != null && idmPassword.getValidTill().isBefore(LocalDate.now())) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_EXPIRED);
-		}
-		if (!passwordService.checkPassword(loginDto.getPassword(), idmPassword)) {
-			// TODO: Exception should be thrown as for other states - returns false in this situation only.
-			return false;
-		}
-		// check if user must change password, skip this check if loginDto contains flag
-		if (idmPassword.isMustChange() && !loginDto.isSkipMustChange()) {
-			throw new MustChangePasswordException(identity.getUsername());
-		}
-		//
-		return true;
 	}
 	
 	private LoginDto login(IdmIdentityDto identity, IdmTokenDto token) {

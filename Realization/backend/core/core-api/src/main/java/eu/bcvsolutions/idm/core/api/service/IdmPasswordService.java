@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 
 public interface IdmPasswordService extends 
-		ReadWriteDtoService<IdmPasswordDto, IdmPasswordFilter>, 
+		EventableDtoService<IdmPasswordDto, IdmPasswordFilter>, 
 		ScriptEnabled,
 		AuthorizableService<IdmPasswordDto> {
 
@@ -60,10 +60,10 @@ public interface IdmPasswordService extends
 	 * Return password for given identifier (id/ username), if password doesn't exist
 	 * create new empty password.
 	 *
-	 * @param identificator
+	 * @param identificator codeable identifier
 	 * @return
 	 */
-	IdmPasswordDto findOrCreateByIdentity(Serializable identifier);
+	IdmPasswordDto findOrCreateByIdentity(Serializable codeable);
 
 	/**
 	 * Check password matches a passwordToCheck

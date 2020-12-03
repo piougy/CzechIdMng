@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.model.event.ProfileEvent.ProfileEventType;
 
 /**
- * Persists profiles
+ * Persists profiles.
  * 
  * @author Radek Tomiška
  * @since 9.0.0

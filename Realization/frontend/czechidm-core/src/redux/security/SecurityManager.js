@@ -77,6 +77,25 @@ export default class SecurityManager {
   }
 
   /**
+   * Login user
+   *
+   * @param  {TwoFactorRequestDto} twoFactorRequestDto
+   * @param  {function} redirect
+   * @return {action}
+   * @since 10.7.0
+   */
+  loginTwoFactor(twoFactorRequestDto, redirect) {
+    return (dispatch, getState) => {
+      dispatch(this.requestLogin());
+      dispatch(flashMessagesManager.hideAllMessages());
+      //
+      authenticateService.loginTwoFactor(twoFactorRequestDto)
+        .then(json => this._handleUserAuthSuccess(dispatch, getState, redirect, json))
+        .catch(error => dispatch(this.receiveLoginError(error, redirect)));
+    };
+  }
+
+  /**
    * Tries to authenticate by remote authority token.
    * In case of successful authentication sets the tokenCIDMST into userContext.
    */
@@ -237,7 +256,7 @@ export default class SecurityManager {
     return dispatch => {
       authenticateService.clearStorage();
       // add error message
-      if (error) {
+      if (error && (!error.statusEnum || error.statusEnum !== 'TWO_FACTOR_AUTH_REQIURED')) {
         dispatch(flashMessagesManager.addErrorMessage({ position: 'tc' }, error));
       }
       // redirect after login, if needed
@@ -250,11 +269,15 @@ export default class SecurityManager {
     };
   }
 
-  receiveRemoteLoginError(error) {
+  receiveRemoteLoginError(error, redirect) {
     return (dispatch, getState) => {
       // add error message
       if (error) {
         getState().logger.warn('Remote login error occurred:', error);
+      }
+      // redirect after login, if needed
+      if (redirect) {
+        redirect(false, error);
       }
       dispatch({
         type: RECEIVE_REMOTE_LOGIN_ERROR

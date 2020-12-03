@@ -9,7 +9,7 @@ import HelpIcon from '../HelpIcon/HelpIcon';
 import Loading from '../Loading/Loading';
 
 /**
- * Basic panel decorator
+ * Basic panel decorator.
  *
  * @author Radek Tomiška
  */
@@ -131,7 +131,7 @@ export class PanelBody extends AbstractComponent {
     return (
       <div className={ classNames } style={ style }>
         <Loading showLoading={ showLoading }>
-          {this.props.children}
+          { this.props.children }
         </Loading>
       </div>
     );

@@ -102,14 +102,11 @@ public class AuditableEntityListener {
 		UUID modifierId = currentIdentity == null ? null : currentIdentity.getId();
 		entity.setModifierId(modifierId);
 		//
-		// could be filled in wf (applicant) ...
-		if (entity.getOriginalModifier() == null) {
-			String originalModifier = originalIdentity == null ? null : originalIdentity.getUsername();
-			entity.setOriginalModifier(originalModifier);
-			//
-			UUID originalModifierId = originalIdentity == null ? null : originalIdentity.getId();
-			entity.setOriginalModifierId(originalModifierId);
-		}
+		String originalModifier = originalIdentity == null ? null : originalIdentity.getUsername();
+		entity.setOriginalModifier(originalModifier);
+		UUID originalModifierId = originalIdentity == null ? null : originalIdentity.getId();
+		entity.setOriginalModifierId(originalModifierId);
+		//
 		// set transaction id from context holder
 		entity.setTransactionId(TransactionContextHolder.getContext().getTransactionId());
 	}

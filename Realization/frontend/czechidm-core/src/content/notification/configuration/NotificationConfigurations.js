@@ -328,6 +328,6 @@ class Filter extends Advanced.Filter {
           </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
-      );
+    );
   }
 }

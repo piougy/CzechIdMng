@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -92,7 +92,6 @@ public class PasswordChangeController {
 	@ApiOperation(
 			value = "Change identity's password", 
 			nickname = "passwordChange",
-			response = PasswordChangeDto.class,
 			tags = { PasswordChangeController.TAG })
 	public List<OperationResult> passwordChange(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
@@ -128,7 +127,7 @@ public class PasswordChangeController {
 	}
 	
 	/**
-	 * Pre validation of password (shows hint  of password policy rules)
+	 * Prevalidation of password (shows hint  of password policy rules)
 	 * 
 	 * @param identityId
 	 * @param passwordChangeDto

@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 
 /**
- * Adds http status to default result response
+ * Result model used for exceptions and common errors.
  *
  * @author Radek Tomiška
  */

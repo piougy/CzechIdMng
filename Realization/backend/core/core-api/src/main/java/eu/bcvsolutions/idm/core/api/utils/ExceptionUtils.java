@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
  * Exception utils
@@ -88,8 +89,26 @@ public abstract class ExceptionUtils {
 			}
 			return;
 		}
-		//
-		if (resultModel.getStatus().is5xxServerError()) {
+		NotificationLevel level = resultModel.getLevel();
+		if (level != null) { // override http status code 
+			switch (level) {
+				case SUCCESS: {
+					logger.debug(resultModel.toString(), ex);
+					break;
+				}
+				case INFO: {
+					logger.info(resultModel.toString(), ex);
+					break;
+				}
+				case WARNING: {
+					logger.warn(resultModel.toString(), ex);
+					break;
+				}
+				default: {// error by default
+					logger.error(resultModel.toString(), ex);
+				}
+			}
+		} else if (resultModel.getStatus().is5xxServerError()) {
 			logger.error(resultModel.toString(), ex);
 		} else if(resultModel.getStatus().is2xxSuccessful()) {
 			logger.debug(resultModel.toString(), ex);

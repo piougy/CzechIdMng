@@ -81,6 +81,9 @@
     "detail": "Detail",
     "download": "$t(label.download)",
     "edit": "Edit",
+    "enable": {
+      "label": "Enable"
+    },
     "evict": "Evict",
     "evictAll": "Evict all",
     "filter": {
@@ -108,6 +111,9 @@
     },
     "clear": {
       "title": "Clear"
+    },
+    "verify": {
+      "label": "Verify"
     }
   },
   "filter": {
@@ -700,6 +706,14 @@
     "RoleTypeEnum": {
       "SYSTEM": "System"
     },
+    "TwoFactorAuthenticationTypeEnum": {
+      "APPLICATION": "Application (TOTP)",
+      "NOTIFICATION": "Notification (sms notification)",
+      "helpBlock": {
+        "APPLICATION": "Authentication code from your TOTP application (e.g. Google Authenticator).",
+        "NOTIFICATION": "Authentication code from a text message (notification)."
+      }
+    },
     "AutomaticRoleRequestTypeEnum": {
       "TREE": "Role by tree structure",
       "ATTRIBUTE": "Role by attribute"
@@ -1206,6 +1220,17 @@
         "logout": {
           "value": "Logout",
           "title": "Log out completely and continue on new logging"
+        }
+      },
+      "twoFactor": {
+        "header": "Two-factor authentication",
+        "verificationCode": {
+          "label": "Authentication code",
+          "placeholder": "6-digit code"
+        },
+        "help": {
+          "header": "How to get authentication code",
+          "content": "<p>After you sign in to $t(app.name) using your username and password, you will be prompted to provide an authentication code from a text message (notification) or your TOTP application (e.g. Google Authenticator).</p><p>$t(app.name) will only ask you to provide your two-factor authentication code again if you have logged out, are using a new device, or your session expires.</p>"
         }
       }
     },
@@ -2848,6 +2873,34 @@
           "title": "Delete profile image",
           "message": "Do you really want to delete profile image?"
         },
+        "twoFactor": {
+          "application": {
+            "help": "Scan this Barcode using TOTP application (e.g. Google Authenticator) on your phone to use it in login.",
+            "code": {
+              "enter": "Or enter",
+              "code": "this code",
+              "instead": "instead."
+            },
+            "verificationCode": {
+              "label": "Enter the six-digit code from the application",
+              "placeholder": "123456",
+              "help": "After scanning the barcode image, the app will display a six-digit code that you can enter."
+            }
+          },
+          "notification": {
+            "help": "Notification was sent.",
+            "disabled": "Configure sms notifications to enable this method.",
+            "verificationCode": {
+              "label": "Enter the six-digit code from the received notification",
+              "placeholder": "123456",
+              "help": ""
+            }
+          },
+          "confirmDelete": {
+            "title": "Cancel two factor authentication",
+            "message": "Do you really want to cancel two factor authentication? Username and password will be needed for login into application."
+          }
+        },
         "email": {
           "label": "$t(entity.Identity.email)",
           "placeholder": "Users e-mail"
@@ -2862,9 +2915,6 @@
         },
         "active": "Active",
         "blockLoginDate": "Identity has a blocked login to the application due to exceeding unsuccessful login attempts. Login will be possible after {{date}}.",
-        "button": {
-
-        },
         "validation": {
           "passwordsNotMatch": "Passwords do not match.",
           "newIdmManagerIsTheSame": {
@@ -4032,6 +4082,10 @@
       "systemInformation": {
         "label": "Show system information",
         "help": "Show internal entity identifiers, user transactions, logs and other system information."
+      },
+      "twoFactorAuthenticationType": {
+        "label": "Two-factor authentication",
+        "help": "Two-factor authentication method."
       }
     },
     "Password": {
@@ -7473,6 +7527,26 @@
       "title": "Token not found",
       "message": "Authenticate token not found!"
     },
+    "TOKEN_READ_FAILED": {
+      "title": "Wrong token given.",
+      "message": "Given token cannot be read."
+    },
+    "TWO_FACTOR_INIT_FAILED": {
+      "title": "Two factor authentication is not available.",
+      "message": "Initialization of two factor authentication failed."
+    },
+    "TWO_FACTOR_AUTH_REQIURED": {
+      "title": "Two factor authentication",
+      "message": "Two factor authentication is required for login."
+    },
+    "TWO_FACTOR_VERIFICATION_CODE_FAILED": {
+      "title": "Two factor authentication",
+      "message": "Verification code validation failed. Enter a valid verification code."
+    },
+    "TWO_FACTOR_GENERATE_CODE_FAILED": {
+      "title": "Two factor authentication",
+      "message": "Generate verification code failed."
+    },
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> contains <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships before role deletion.</strong>",
       "title": ""
@@ -7809,7 +7883,10 @@
       "description": "Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used."
     },
     "all-sub-roles": {
-      "description": "Cache for business role sub roles. Cache is cleared automatically, when business role definition is changed."
+      "description": "Cache for business role sub roles. Cache is evicted automatically, when business role definition is changed."
+    },
+    "transaction-event-cache": {
+      "description": "Cache for running asynchronous events. Cache is evicted automatically, when asynchronous event ends."
     }
   }
 }

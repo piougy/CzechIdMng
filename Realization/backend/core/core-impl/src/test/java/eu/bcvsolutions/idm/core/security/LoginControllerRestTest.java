@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -28,6 +29,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -39,10 +42,14 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.TwoFactorAuthenticationType;
 import eu.bcvsolutions.idm.core.security.api.dto.DefaultGrantedAuthorityDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.dto.TwoFactorRegistrationResponseDto;
+import eu.bcvsolutions.idm.core.security.api.exception.TwoFactorAuthenticationRequiredException;
 import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
+import eu.bcvsolutions.idm.core.security.api.service.TwoFactorAuthenticationManager;
 import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
@@ -63,6 +70,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 	@Autowired private JwtAuthenticationMapper jwtTokenMapper;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private RoleConfiguration roleConfiguration;
+	@Autowired private TwoFactorAuthenticationManager twoFactorAuthenticationManager;
 	//
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -335,6 +343,366 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		.andExpect(status().isOk());
 		//
 		logout();
+	}
+	
+	@Test
+	public void testTwoFactorLogin() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmProfileDto profile = getHelper().createProfile(identity);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createBasePolicy(role.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ);
+		// login
+		Map<String, String> login = new HashMap<>();
+		login.put("username", identity.getUsername());
+		login.put("password", identity.getPassword().asString());
+		String response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		String token = getToken(response);
+		//
+		// init two factor authentication by profile controller
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/profiles/"+ profile.getId() +"/two-factor/init")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.param("twoFactorAuthenticationType", TwoFactorAuthenticationType.APPLICATION.name())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		TwoFactorRegistrationResponseDto twoFactorInit = getMapper().readValue(response, TwoFactorRegistrationResponseDto.class);
+		Assert.assertNotNull(twoFactorInit);
+		Assert.assertNotNull(twoFactorInit.getVerificationSecret());
+		//
+		// confirm two factor authentication by profile controller
+		Map<String, String> twoFactorConfirm = new HashMap<>();
+		twoFactorConfirm.put("verificationCode", twoFactorAuthenticationManager.generateCode(new GuardedString(twoFactorInit.getVerificationSecret())).asString());
+		twoFactorConfirm.put("verificationSecret", twoFactorInit.getVerificationSecret());
+		twoFactorConfirm.put("twoFactorAuthenticationType", TwoFactorAuthenticationType.APPLICATION.name());
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/profiles/"+ profile.getId() +"/two-factor/confirm")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.content(serialize(twoFactorConfirm))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		
+		IdmProfileDto updatedProfile = getMapper().readValue(response, IdmProfileDto.class);
+		Assert.assertNotNull(updatedProfile);
+		Assert.assertEquals(TwoFactorAuthenticationType.APPLICATION, updatedProfile.getTwoFactorAuthenticationType());
+		Assert.assertEquals(TwoFactorAuthenticationType.APPLICATION, twoFactorAuthenticationManager.getTwoFactorAuthenticationType(identity.getId()));
+		//
+		// login as identity again
+		response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isUnauthorized())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		// get token form response
+		token = mapper.readTree(response).get("_errors").get(0).get("parameters").get("token").asText();
+		Assert.assertNotNull(token);
+		//
+		// two factor authentication
+		Map<String, String> twoFactorLogin = new HashMap<>();
+		GuardedString generateCode = twoFactorAuthenticationManager.generateCode(identity.getId());
+		Assert.assertTrue(twoFactorAuthenticationManager.verifyCode(identity.getId(), generateCode));
+		twoFactorLogin.put("verificationCode", generateCode.asString());
+		twoFactorLogin.put("token", token);
+		response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication/two-factor")
+				.content(serialize(twoFactorLogin))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		token = getToken(response);
+		//
+		//
+		// load identities with valid token
+		getMockMvc()
+			.perform(get(BaseController.BASE_PATH + "/identities")
+			.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+			.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().isOk());
+		
+	}
+	
+	@Test(expected = TwoFactorAuthenticationRequiredException.class)
+	public void testTwoFactorLoginWithInvalidToken() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmProfileDto profile = getHelper().createProfile(identity);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createBasePolicy(role.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ);
+		// login
+		Map<String, String> login = new HashMap<>();
+		login.put("username", identity.getUsername());
+		login.put("password", identity.getPassword().asString());
+		String response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		String token = getToken(response);
+		//
+		// init two factor authentication by profile controller
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/profiles/"+ profile.getId() +"/two-factor/init")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.param("twoFactorAuthenticationType", TwoFactorAuthenticationType.NOTIFICATION.name())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		TwoFactorRegistrationResponseDto twoFactorInit = getMapper().readValue(response, TwoFactorRegistrationResponseDto.class);
+		Assert.assertNotNull(twoFactorInit);
+		Assert.assertNotNull(twoFactorInit.getVerificationSecret());
+		//
+		// confirm two factor authentication by profile controller
+		Map<String, String> twoFactorConfirm = new HashMap<>();
+		twoFactorConfirm.put("verificationCode", twoFactorAuthenticationManager.generateCode(new GuardedString(twoFactorInit.getVerificationSecret())).asString());
+		twoFactorConfirm.put("verificationSecret", twoFactorInit.getVerificationSecret());
+		twoFactorConfirm.put("twoFactorAuthenticationType", TwoFactorAuthenticationType.NOTIFICATION.name());
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/profiles/"+ profile.getId() +"/two-factor/confirm")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.content(serialize(twoFactorConfirm))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		
+		IdmProfileDto updatedProfile = getMapper().readValue(response, IdmProfileDto.class);
+		Assert.assertNotNull(updatedProfile);
+		Assert.assertEquals(TwoFactorAuthenticationType.NOTIFICATION, updatedProfile.getTwoFactorAuthenticationType());
+		Assert.assertEquals(TwoFactorAuthenticationType.NOTIFICATION, twoFactorAuthenticationManager.getTwoFactorAuthenticationType(identity.getId()));
+		//
+		// login as identity again
+		response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isUnauthorized())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		// get token form response
+		token = mapper.readTree(response).get("_errors").get(0).get("parameters").get("token").asText();
+		Assert.assertNotNull(token);
+		//
+		// try to load identities with invalid token
+		getMockMvc()
+			.perform(post(BaseController.BASE_PATH + "/identities")
+			.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+			.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().isUnauthorized());
+	}
+	
+	@Test
+	public void testMustChangePasswordAfterTwoFactorLogin() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmProfileDto profile = getHelper().createProfile(identity);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createBasePolicy(role.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ);
+		// login
+		Map<String, String> login = new HashMap<>();
+		login.put("username", identity.getUsername());
+		login.put("password", identity.getPassword().asString());
+		String response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		String token = getToken(response);
+		//
+		// init two factor authentication by profile controller
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/profiles/"+ profile.getId() +"/two-factor/init")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.param("twoFactorAuthenticationType", TwoFactorAuthenticationType.APPLICATION.name())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		TwoFactorRegistrationResponseDto twoFactorInit = getMapper().readValue(response, TwoFactorRegistrationResponseDto.class);
+		Assert.assertNotNull(twoFactorInit);
+		Assert.assertNotNull(twoFactorInit.getVerificationSecret());
+		//
+		// confirm two factor authentication by profile controller
+		Map<String, String> twoFactorConfirm = new HashMap<>();
+		twoFactorConfirm.put("verificationCode", twoFactorAuthenticationManager.generateCode(new GuardedString(twoFactorInit.getVerificationSecret())).asString());
+		twoFactorConfirm.put("verificationSecret", twoFactorInit.getVerificationSecret());
+		twoFactorConfirm.put("twoFactorAuthenticationType", TwoFactorAuthenticationType.APPLICATION.name());
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/profiles/"+ profile.getId() +"/two-factor/confirm")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.content(serialize(twoFactorConfirm))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		
+		IdmProfileDto updatedProfile = getMapper().readValue(response, IdmProfileDto.class);
+		Assert.assertNotNull(updatedProfile);
+		Assert.assertEquals(TwoFactorAuthenticationType.APPLICATION, updatedProfile.getTwoFactorAuthenticationType());
+		//
+		// set password must change
+		IdmPasswordDto password = getHelper().getPassword(identity);
+		password.setMustChange(true);
+		passwordService.save(password);
+		//
+		// login as identity again
+		response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isUnauthorized())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		// get token form response
+		token = mapper.readTree(response).get("_errors").get(0).get("parameters").get("token").asText();
+		Assert.assertNotNull(token);
+		//
+		// two factor authentication
+		Map<String, String> twoFactorLogin = new HashMap<>();
+		GuardedString generateCode = twoFactorAuthenticationManager.generateCode(identity.getId());
+		Assert.assertTrue(twoFactorAuthenticationManager.verifyCode(identity.getId(), generateCode));
+		twoFactorLogin.put("verificationCode", generateCode.asString());
+		twoFactorLogin.put("token", token);
+		getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication/two-factor")
+				.content(serialize(twoFactorLogin))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isUnauthorized());
+	}
+	
+	@Test
+	public void testChangePasswordWithTwoFactorLogin() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmProfileDto profile = getHelper().createProfile(identity);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createBasePolicy(role.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ);
+		// login
+		Map<String, String> login = new HashMap<>();
+		login.put("username", identity.getUsername());
+		login.put("password", identity.getPassword().asString());
+		String response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		String token = getToken(response);
+		//
+		// init two factor authentication by profile controller
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/profiles/"+ profile.getId() +"/two-factor/init")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.param("twoFactorAuthenticationType", TwoFactorAuthenticationType.APPLICATION.name())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		TwoFactorRegistrationResponseDto twoFactorInit = getMapper().readValue(response, TwoFactorRegistrationResponseDto.class);
+		Assert.assertNotNull(twoFactorInit);
+		Assert.assertNotNull(twoFactorInit.getVerificationSecret());
+		//
+		// confirm two factor authentication by profile controller
+		Map<String, String> twoFactorConfirm = new HashMap<>();
+		twoFactorConfirm.put("verificationCode", twoFactorAuthenticationManager.generateCode(new GuardedString(twoFactorInit.getVerificationSecret())).asString());
+		twoFactorConfirm.put("verificationSecret", twoFactorInit.getVerificationSecret());
+		twoFactorConfirm.put("twoFactorAuthenticationType", TwoFactorAuthenticationType.APPLICATION.name());
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/profiles/"+ profile.getId() +"/two-factor/confirm")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.content(serialize(twoFactorConfirm))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		
+		IdmProfileDto updatedProfile = getMapper().readValue(response, IdmProfileDto.class);
+		Assert.assertNotNull(updatedProfile);
+		Assert.assertEquals(TwoFactorAuthenticationType.APPLICATION, updatedProfile.getTwoFactorAuthenticationType());
+		//
+		// set password must change
+		IdmPasswordDto password = getHelper().getPassword(identity);
+		password.setMustChange(true);
+		passwordService.save(password);
+		//
+		// change password
+		Map<String, String> passwordChange = new HashMap<>();
+		passwordChange.put("oldPassword", identity.getPassword().asString());
+		String newPassword = getHelper().createName();
+		passwordChange.put("newPassword", newPassword);
+		passwordChange.put("idm", Boolean.TRUE.toString());
+		getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/public/identities/" + identity.getId() + "/password-change")
+				.content(serialize(passwordChange))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void testPreventLoginDisabledIdentity() throws Exception {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		GuardedString password = identity.getPassword();
+		identity = identityService.disable(identity.getId());
+		// login
+		Map<String, String> login = new HashMap<>();
+		login.put("username", identity.getUsername());
+		login.put("password", password.asString());
+		getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isUnauthorized());
+		
 	}
 	
 	private ResultActions tryLogin(String username, String password) throws Exception {

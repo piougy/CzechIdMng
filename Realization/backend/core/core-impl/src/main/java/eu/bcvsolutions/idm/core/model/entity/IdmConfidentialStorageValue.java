@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
  * 
- * "Naive" confidential storage
+ * "Naive" confidential storage.
  * 
  * @author Radek Tomiška
  *

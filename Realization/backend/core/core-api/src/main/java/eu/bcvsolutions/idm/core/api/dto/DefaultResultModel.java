@@ -12,15 +12,17 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
- * Detault response model
+ * Detault response model.
  * 
  * @author Radek Tomiška
  */
@@ -43,8 +45,10 @@ public class DefaultResultModel implements ResultModel {
 	 */
 	private Map<String, Object> parameters = new LinkedHashMap<>();
 	
+	/**
+	 * Module (e.g. for localization resolving).
+	 */
 	private String module;
-	
 	/**
 	 * Http status code
 	 */
@@ -53,6 +57,10 @@ public class DefaultResultModel implements ResultModel {
 	 * Http status name
 	 */
 	private HttpStatus status;
+	/**
+	 * Message level - override level by http status code.
+	 */
+	private NotificationLevel level;
 	
 	public DefaultResultModel() {
 		this.id = UUID.randomUUID();
@@ -78,10 +86,14 @@ public class DefaultResultModel implements ResultModel {
 	 */
 	public DefaultResultModel(ResultCode resultCode, String message, Map<String, Object> parameters) {
 		this();
+		Assert.notNull(resultCode, "Result code is required.");
+		//
 		this.statusEnum = resultCode.getCode();
 		this.module = resultCode.getModule();
 		this.status = resultCode.getStatus();
 		this.statusCode = resultCode.getStatus().value();
+		this.level = resultCode.getLevel();
+		//
 		String messageFormat = (StringUtils.isEmpty(message)) ? resultCode.getMessage() : message;
 		try {
 			// Linked hash map is needed - use ImmutableMap.of(..) or construct LinkedHashMap for preserve params order.
@@ -89,7 +101,7 @@ public class DefaultResultModel implements ResultModel {
 		} catch(IllegalFormatException ex) {
 			this.message = messageFormat;
 		}
-		if(parameters != null) {			
+		if (parameters != null) {			
 			this.parameters.putAll(parameters);
 		}
 	}
@@ -138,6 +150,16 @@ public class DefaultResultModel implements ResultModel {
 	}
 	
 	/**
+	 * Message level - override level by http status code.
+	 * 
+	 * @return level
+	 * @since 10.7.0
+	 */
+	public NotificationLevel getLevel() {
+		return level;
+	}
+	
+	/**
 	 * Model is serialized in LRT, WF etc.
 	 * We need to solve legacy issues with joda (old) vs. java time (new) usage.
 	 * 
@@ -156,5 +178,6 @@ public class DefaultResultModel implements ResultModel {
 		module = (String) readFields.get("module", null);
 		statusCode = readFields.get("statusCode", 0);
 		status = (HttpStatus) readFields.get("status", null);
+		level = (NotificationLevel) readFields.get("level", null);
     } 
 }

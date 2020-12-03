@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmToken_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.exception.TwoFactorAuthenticationRequiredException;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
@@ -65,11 +66,13 @@ public class DefaultTokenManager implements TokenManager {
 	}
 	
 	@Override
+	public boolean isNew(IdmTokenDto token) {
+		return tokenService.isNew(token);
+	}
+	
+	@Override
 	@Transactional
 	public IdmTokenDto saveToken(Identifiable owner, IdmTokenDto token, BasePermission... permission) {
-		Assert.notNull(owner, "Owner is required.");
-		Assert.notNull(owner.getId(), "Owner identifier is required.");
-		//
 		if(token.getOwnerType() == null) {
 			token.setOwnerType(getOwnerType(owner));
 		}
@@ -108,6 +111,9 @@ public class DefaultTokenManager implements TokenManager {
 		}
 		if (token.getExpiration() != null && token.getExpiration().isBefore(ZonedDateTime.now())) {
 			throw new ResultCodeException(CoreResultCode.AUTH_EXPIRED);
+		}
+		if (!token.isSecretVerified()) {
+			throw new TwoFactorAuthenticationRequiredException(token.getToken());
 		}
 		//
 		return token;

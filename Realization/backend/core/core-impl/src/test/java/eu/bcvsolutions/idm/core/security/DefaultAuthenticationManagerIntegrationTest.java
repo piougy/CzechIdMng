@@ -13,13 +13,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
@@ -29,67 +32,86 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultAuthenticationManager;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
-import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Default test for {@link AuthenticationManager} and core {@link Authenticator}.
+ * Test for {@link DefaultAuthenticationManager} and core {@link Authenticator}.
  * 
  * @author Ondrej Kopr
  * @author Radek Tomiška
  */
 @Transactional
-public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTest {
+public class DefaultAuthenticationManagerIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private AuthenticationManager authenticationManager;
+	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmPasswordPolicyService passwordPolicyService;
 	@Autowired private IdmNotificationLogService notificationLogService;
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private LoginService loginService;
+	//
+	private DefaultAuthenticationManager authenticationManager;
+	
+	@Before
+	public void init() {
+		authenticationManager = context.getAutowireCapableBeanFactory().createBean(DefaultAuthenticationManager.class);
+	}
 	
 	@Test(expected = AuthenticationException.class)
-	public void loginViaManagerBadCredentials() {
-		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername(getHelper().createName());
-		identity.setLastName(getHelper().createName());
-		identity.setPassword(new GuardedString("test1234"));
-		identity = identityService.save(identity);
+	public void testLoginViaManagerBadCredentials() {
+		IdmIdentityDto identity = getHelper().createIdentity(null, new GuardedString("test1234"));
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setPassword(new GuardedString("test12345"));
 		loginDto.setUsername(identity.getUsername());
 		
+		Assert.assertFalse(authenticationManager.validate(loginDto));
 		authenticationManager.authenticate(loginDto);
 	}
 	
 	@Test
-	public void loginViaManagerSuccesful() {
-		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("test_login_2");
-		identity.setLastName("test_login_2");
-		identity.setPassword(new GuardedString("test1234"));
-		identity = this.identityService.save(identity);
-		
+	public void testLoginViaManagerSuccesful() {
+		IdmIdentityDto identity = getHelper().createIdentity(null, new GuardedString("test1234"));
+		//
 		LoginDto loginDto = new LoginDto();
-		loginDto.setPassword(new GuardedString("test1234"));
-		loginDto.setUsername("test_login_2");
-		
+		loginDto.setPassword(identity.getPassword());
+		loginDto.setUsername(identity.getUsername());
+		//
+		Assert.assertTrue(authenticationManager.validate(loginDto));
 		loginDto = authenticationManager.authenticate(loginDto);
-		assertNotNull(loginDto);
-		assertNotNull(loginDto.getAuthentication());
-		assertEquals("core", loginDto.getAuthenticationModule());
+		Assert.assertNotNull(loginDto);
+		Assert.assertNotNull(loginDto.getAuthentication());
+		Assert.assertEquals(CoreModule.MODULE_ID, loginDto.getAuthenticationModule());
+	}
+	
+	@Test
+	public void testValidate() {
+		IdmIdentityDto identity = getHelper().createIdentity(null, new GuardedString("test1234"));
+		//
+		LoginDto loginDto = new LoginDto();
+		loginDto.setPassword(identity.getPassword());
+		loginDto.setUsername(identity.getUsername());
+		Assert.assertTrue(authenticationManager.validate(loginDto));
+		//
+		loginDto.setPassword(new GuardedString("wrong"));
+		Assert.assertFalse(authenticationManager.validate(loginDto));
+		//
+		// identity without password
+		identity = getHelper().createIdentity();
+		loginDto.setUsername(identity.getUsername());
+		Assert.assertFalse(authenticationManager.validate(loginDto));
 	}
 	
 	@Test
@@ -581,8 +603,6 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 		Assert.assertNotNull(login.getToken());
 	}
 	
-	
-
 	private LoginDto tryLogin(String username, String password) {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(username);

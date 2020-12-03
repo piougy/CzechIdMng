@@ -168,7 +168,7 @@ public interface TestHelper {
 	 * Creates test identity given username and given password.
 	 * The password is set back to identity after save.
 	 *
-	 * @param username
+	 * @param username [optional] username will be generated, if is not given
 	 * @param password [optional] when password is not given, then identity password will not be saved - usefull when password is not needed
 	 * @return
 	 */

@@ -6,7 +6,7 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
- * Base audit information
+ * Base audit information.
  * 
  * @author Radek Tomiška 
  */
@@ -26,63 +26,63 @@ public interface Auditable {
 	String PROPERTY_TRANSACTION_ID = "transactionId";
 	
 	/**
-	 * Entity identifier
+	 * Entity identifier.
      *
 	 * @return
 	 */
 	UUID getId();
 	
 	/**
-	 * Entity author
+	 * Entity author.
 	 * 
 	 * @return
 	 */
 	String getCreator();
 
 	/**
-	 * Entity author
+	 * Entity author.
 	 * 
 	 * @param creator
 	 */
 	void setCreator(String creator);
 	
 	/**
-	 * Original Entity author (logged as creator)
+	 * Original Entity author (logged as creator).
 	 * 
 	 * @return
 	 */
 	String getOriginalCreator();
 
 	/**
-	 * Original Entity author (logged as creator)
+	 * Original Entity author (logged as creator).
 	 * 
 	 * @param creator
 	 */
 	void setOriginalCreator(String creator);
 
 	/**
-	 * Created date
+	 * Created date.
 	 * 
 	 * @return
 	 */
 	ZonedDateTime getCreated();
 
 	/**
-	 * Created date
+	 * Created date.
 	 * 
 	 * @param created
 	 */
 	void setCreated(ZonedDateTime created);
 
 	/**
-	 * Original last entity modifier (logged identity before authentication was switched)
+	 * Original last entity modifier (logged identity before authentication was switched).
 	 * 
 	 * @return
 	 */
 	String getOriginalModifier();
 	
 	/**
-	 * Original last entity modifier (logged identity before authentication was switched)
+	 * Original last entity modifier (logged identity before authentication was switched).
 	 * 
 	 * @param modifier
 	 */
@@ -103,28 +103,28 @@ public interface Auditable {
 	void setModifier(String modifier);
 
 	/**
-	 * Last entity modified date
+	 * Last entity modified date.
 	 * 
 	 * @return
 	 */
 	ZonedDateTime getModified();
 
 	/**
-	 * Last entity modified date
+	 * Last entity modified date.
 	 * 
 	 * @param modified
 	 */
 	void setModified(ZonedDateTime modified);
 	
 	/**
-	 * Entity author identifier
+	 * Entity author identifier.
 	 * 
 	 * @return
 	 */
 	UUID getCreatorId();
 
 	/**
-	 * Entity author identifier
+	 * Entity author identifier.
 	 * 
 	 * @param creatorId
 	 */
@@ -184,17 +184,17 @@ public interface Auditable {
 	 * 
 	 * @param transactionId
 	 */
-	void setTransactionId(UUID transactionId);	
+	void setTransactionId(UUID transactionId);
 	
 	/**
-	 * Returns entity's realm (tenant) identifier
+	 * Returns entity's realm (tenant) identifier.
 	 * 
 	 * @return
 	 */
 	UUID getRealmId();
 	
 	/**
-	 * Sets entity's realm (tenant) identifier
+	 * Sets entity's realm (tenant) identifier.
 	 * 
 	 * @param realmId
 	 */

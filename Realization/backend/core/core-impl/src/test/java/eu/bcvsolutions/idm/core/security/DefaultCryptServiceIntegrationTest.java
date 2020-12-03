@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultCryptService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Crypt service tests
+ * Crypt service tests.
  * 
  * @author Ondřej Kopr
  * @author Radek Tomiška

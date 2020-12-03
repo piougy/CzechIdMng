@@ -340,9 +340,9 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		//
 		// can switch as subordinate
 		getMockMvc()
-		.perform(put(BaseController.BASE_PATH + "/authentication/switch-user?username=" + subordinateOne.getUsername())
-				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token))
-		.andExpect(status().isOk());
+			.perform(put(BaseController.BASE_PATH + "/authentication/switch-user?username=" + subordinateOne.getUsername())
+					.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token))
+			.andExpect(status().isOk());
 		//
 		logout();
 	}

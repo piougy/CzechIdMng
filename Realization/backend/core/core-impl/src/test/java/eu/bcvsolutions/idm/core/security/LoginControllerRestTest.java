@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.dto.TwoFactorRegistrationResponseDto;
 import eu.bcvsolutions.idm.core.security.api.exception.TwoFactorAuthenticationRequiredException;
 import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.api.service.TwoFactorAuthenticationManager;
 import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
@@ -66,6 +67,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private LoginController loginController;
+	@Autowired private LoginService loginService;
 	@Autowired private TokenManager tokenManager;
 	@Autowired private JwtAuthenticationMapper jwtTokenMapper;
 	@Autowired private IdmIdentityService identityService;
@@ -343,6 +345,58 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		.andExpect(status().isOk());
 		//
 		logout();
+	}
+	
+	@Test
+	public void testSwitchUserMultipleModifications() {
+		IdmIdentityDto identityOne = getHelper().createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity();
+		IdmIdentityDto identityThree = getHelper().createIdentity();
+		IdmIdentityDto identityFour = getHelper().createIdentity();
+		
+		Assert.assertNull(identityOne.getOriginalModifierId());
+		// first update
+		try {
+			getHelper().login(identityOne);
+			loginService.switchUser(identityTwo);
+			//
+			identityOne.setDescription("identityOne => identityTwo => update");
+			identityOne = identityService.save(identityOne);
+			//
+			Assert.assertNull(identityOne.getOriginalCreatorId()); // preserve nothing
+			Assert.assertEquals(identityTwo.getId(), identityOne.getModifierId());
+			Assert.assertEquals(identityOne.getId(), identityOne.getOriginalModifierId());
+		} finally {
+			logout();
+		}
+		// second update
+		try {
+			getHelper().login(identityTwo);
+			loginService.switchUser(identityThree);
+			//
+			identityOne.setDescription("identityTwo => identityThree => update");
+			identityOne = identityService.save(identityOne);
+			//
+			Assert.assertNull(identityOne.getOriginalCreatorId()); // preserve nothing
+			Assert.assertEquals(identityThree.getId(), identityOne.getModifierId());
+			Assert.assertEquals(identityTwo.getId(), identityOne.getOriginalModifierId());
+		} finally {
+			logout();
+		}
+		// third update
+		try {
+			getHelper().login(identityThree);
+			loginService.switchUser(identityFour);
+			//
+			identityOne.setDescription("identityThree => identityFour => update");
+			identityOne = identityService.save(identityOne);
+			//
+			Assert.assertNull(identityOne.getOriginalCreatorId()); // preserve nothing
+			Assert.assertEquals(identityFour.getId(), identityOne.getModifierId());
+			Assert.assertEquals(identityThree.getId(), identityOne.getOriginalModifierId());
+		} finally {
+			logout();
+		}
 	}
 	
 	@Test

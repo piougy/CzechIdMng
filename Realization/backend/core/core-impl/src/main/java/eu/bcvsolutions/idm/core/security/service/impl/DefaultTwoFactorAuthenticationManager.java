@@ -164,7 +164,7 @@ public class DefaultTwoFactorAuthenticationManager implements TwoFactorAuthentic
 		try {
 			return new GuardedString(codeGenerator.generate(verificationSecret.asString(), currentBucket));
 		} catch (CodeGenerationException ex) {
-			throw new ResultCodeException(CoreResultCode.TWO_FACTOR_GENERATE_CODE_FAILED);
+			throw new ResultCodeException(CoreResultCode.TWO_FACTOR_GENERATE_CODE_FAILED, ex);
 		}
 	}
 	
@@ -245,7 +245,7 @@ public class DefaultTwoFactorAuthenticationManager implements TwoFactorAuthentic
 		try {
 			claims = jwtAuthenticationMapper.getClaims(jwt.get());
 		} catch (IOException ex) {
-			throw new ResultCodeException(CoreResultCode.TOKEN_READ_FAILED);
+			throw new ResultCodeException(CoreResultCode.TOKEN_READ_FAILED, ex);
 		}
 		// check expiration for token given in header
 		// we need to check expiration, before current (automatically prolonged) token is used by mapper

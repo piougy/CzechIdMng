@@ -710,21 +710,42 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     // default implementation - based on entity.seq field
     const { data, startIndex, differenceIndex } = dndProps;
     const patchEntities = [];
+    //
     // console.log(startIndex, differenceIndex);
     if (differenceIndex > 0) { // move down
       // startIndex => increment for difference
       // last index
-      const lastIndexSeq = data[startIndex + differenceIndex].seq;
+      let lastOrder = null;
       const currentRow = data[startIndex];
-      // console.log(currentRow.id, ' -> ', lastIndexSeq);
-      if (lastIndexSeq !== currentRow.seq) { // 0 by default => no change is needed
-        patchEntities.push({ id: currentRow.id, seq: lastIndexSeq });
-      }
       // decrement others
       for (let index = startIndex + 1; index <= startIndex + differenceIndex; index++) {
         const decrementRow = data[index];
-        // console.log(decrementRow.id, ' -> ', data[index].seq - 1);
-        patchEntities.push({ id: decrementRow.id, seq: decrementRow.seq - 1 });
+        if (lastOrder >= decrementRow.seq - 1) {
+          // 0 by default => change is needed
+          if (lastOrder === null) {
+            lastOrder = 0;
+          } else {
+            lastOrder += 1;
+          }
+        } else if (decrementRow.seq - 1 < 0) {
+          lastOrder = 0;
+        } else {
+          lastOrder = decrementRow.seq - 1;
+        }
+        patchEntities.push({ id: decrementRow.id, seq: lastOrder });
+      }
+      lastOrder += 1;
+      if (lastOrder !== currentRow.seq) {
+        patchEntities.push({ id: currentRow.id, seq: lastOrder });
+      }
+      // check order for rows after
+      for (let index = startIndex + differenceIndex + 1; index < data.length; index++) {
+        lastOrder += 1;
+        const rowAfter = data[index];
+        if (rowAfter.seg >= lastOrder) {
+          break;
+        }
+        patchEntities.push({ id: rowAfter.id, seq: lastOrder });
       }
     } else { // move up
       // start index => decrement by difference
@@ -734,7 +755,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         patchEntities.push({ id: currentRow.id, seq: firstIndexSeq });
       }
       // increment others
-      let lastOrder = null;
+      let lastOrder = firstIndexSeq;
       for (let index = startIndex + differenceIndex; index < startIndex; index++) {
         const incrementRow = data[index];
         if (lastOrder >= incrementRow.seq + 1) {
@@ -744,6 +765,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           lastOrder = incrementRow.seq + 1;
         }
         patchEntities.push({ id: incrementRow.id, seq: lastOrder });
+      }
+      // check order for rows after
+      for (let index = startIndex + 1; index < data.length; index++) {
+        lastOrder += 1;
+        const rowAfter = data[index];
+        if (rowAfter.seg >= lastOrder) {
+          break;
+        }
+        patchEntities.push({ id: rowAfter.id, seq: (lastOrder) });
       }
     }
     //

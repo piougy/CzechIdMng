@@ -31,11 +31,11 @@ class ShortText extends AbstractComponent {
       shortText = _text;
     }
     return (
-      <Tooltip value={ _text }>
-        <span className={ className } style={ style }>
-          { shortText }
-        </span>
-      </Tooltip>
+      // <Tooltip value={ _text }>
+      <span title={_text} className={ className } style={ style }>
+        { shortText }
+      </span>
+      // </Tooltip>
     );
   }
 }

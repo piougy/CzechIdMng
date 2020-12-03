@@ -87,7 +87,7 @@
     "no-restricted-syntax": "off",
     "no-prototype-builtins": "off",
     "no-shadow": 1,
-    "no-tabs": "warn",
+    "no-tabs": "off",
     "no-unused-expressions": 1,
     "no-underscore-dangle": "off",
     "no-restricted-properties": "warn",

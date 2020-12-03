@@ -56,6 +56,41 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
     }
   }
 
+  static getIcon(key) {
+    if (!key) {
+      return null;
+    }
+
+    const sym = super.findSymbolByKey(this, key);
+
+    switch (sym) {
+      case this.IDENTITY: {
+        return 'component:identity';
+      }
+      case this.TREE: {
+        return 'fa:folder-open';
+      }
+      case this.ROLE: {
+        return 'component:role';
+      }
+      case this.ROLE_CATALOGUE: {
+        return 'fa:list-alt';
+      }
+      case this.CONTRACT: {
+        return 'fa:building';
+      }
+      case this.CONTRACT_SLICE: {
+        return 'fa:hourglass-half';
+      }
+      case this.IDENTITY_ROLE: {
+        return 'component:role';
+      }
+      default: {
+        return null;
+      }
+    }
+  }
+
   static getEntityEnum(key) {
     if (!key) {
       return null;

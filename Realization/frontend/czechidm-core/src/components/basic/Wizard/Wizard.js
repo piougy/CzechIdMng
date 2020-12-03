@@ -8,6 +8,7 @@ import Modal from '../Modal/Modal';
 import Button from '../Button/Button';
 import { Panel, PanelBody, PanelFooter, PanelHeader } from '../Panel/Panel';
 import Alert from '../Alert/Alert';
+import Icon from '../Icon/Icon';
 
 /**
  * Basic wizard component
@@ -54,6 +55,7 @@ export default class Wizard extends AbstractContextComponent {
       component: step.component,
       getComponent: step.getComponent,
       getValidation: step.getValidation,
+      getExecuteConnectorType: step.getExecuteConnectorType,
       isActive: !!step.isActive,
       isDone: !!step.isDone,
       isFirst: false,
@@ -68,13 +70,16 @@ export default class Wizard extends AbstractContextComponent {
       id,
       module
     } = this.props;
-
+    let wizardId = step.wizardId;
+    if (!wizardId) {
+      wizardId = id;
+    }
     let label = step.label;
     if (!label) {
-      const locKey = `wizard.${id}.steps.${step.id}.name`;
+      const locKey = `wizard.${wizardId}.steps.${step.id}.name`;
       label = this.i18n(`${module}:${locKey}`);
       if (label === locKey) {
-        label = null;
+        label = step.id;
       }
     }
     return label;
@@ -121,6 +126,9 @@ export default class Wizard extends AbstractContextComponent {
           if (localStep.hideFooter !== step.hideFooter) {
             localStep.hideFooter = step.hideFooter;
           }
+          if (localStep.wizardId !== step.wizardId) {
+            localStep.wizardId = step.wizardId;
+          }
         });
       if (stepFound) {
         newSteps.push(stepFound);
@@ -140,33 +148,61 @@ export default class Wizard extends AbstractContextComponent {
   }
 
   /**
+   * Action executing on click to the finish button.
+   *
+   * @param onlyGoNext - Move wizard next without calling save on the component.
+   * @param skip - Skip this step. Move wizard next without calling save on the component. Step will be marked as undone.
+   */
+  onClickFinish(skip = false, onlyGoNext = false) {
+    const {
+      onCloseWizard
+    } = this.props;
+
+    this.onClickNext(skip, onlyGoNext, onCloseWizard ? onCloseWizard.bind(null, true, this.context.wizardContext) : null);
+  }
+
+  wizardNext(step, nextStep, skip, cb) {
+    const wizardContext = this.context.wizardContext;
+
+    if (nextStep) {
+      nextStep.isActive = true;
+      nextStep.isLast = !this._getNextStep(nextStep);
+    }
+
+    step.isActive = false;
+    step.isDone = !skip;
+    // Clear callback for a next operation.
+    wizardContext.callBackNext = null;
+    this.setShowLoading(false);
+    this.forceUpdate();
+    if (cb) {
+      cb();
+    }
+  }
+
+  /**
    * Action executing on click next button.
    * @param onlyGoNext - Move wizard next without calling save on the component.
    * @param skip - Skip this step. Move wizard next without calling save on the component. Step will be marked as undone.
    */
-  onClickNext(skip = false, onlyGoNext = false) {
+  onClickNext(skip = false, onlyGoNext = false, cb) {
     const {steps} = this.state;
     const wizardContext = this.context.wizardContext;
 
     const step = this.getActiveStep(steps);
+    const nextStep = this._getNextStep(step);
     if (step && step.getValidation) {
       if (!step.getValidation(wizardContext)) {
         return;
       }
     }
-    const wizardNext = () => {
-      const nextStep = this._getNextStep(step);
-      if (nextStep) {
-        nextStep.isActive = true;
-        nextStep.isLast = !this._getNextStep(nextStep);
-      }
-      step.isActive = false;
-      step.isDone = !skip;
-      // Clear callback for a next operation.
-      wizardContext.callBackNext = null;
-      this.setShowLoading(false);
-      this.forceUpdate();
-    };
+    let wizardNext = this.wizardNext.bind(this, step, nextStep, skip, cb);
+
+    // Good method for execute a step on the backend (if is defined).
+    // For example set connector info after new system is created.
+    if (step && step.getExecuteConnectorType) {
+      wizardNext = step.getExecuteConnectorType.bind(this, wizardNext);
+    }
 
     if (!onlyGoNext && !skip && (step.component || step.getComponent)) {
       if (wizardContext.componentCallBackNext) {
@@ -186,6 +222,7 @@ export default class Wizard extends AbstractContextComponent {
    */
   onClickPrevious() {
     const {steps} = this.state;
+    const wizardContext = this.context.wizardContext;
 
     steps.filter(step => step.isActive)
       .forEach(step => {
@@ -196,6 +233,8 @@ export default class Wizard extends AbstractContextComponent {
           prevStep.isFirst = !this._getPreviousStep(prevStep);
         }
         step.isActive = false;
+        // Clear callback from previous step.
+        wizardContext.componentCallBackNext = null;
       });
     this.forceUpdate();
   }
@@ -249,9 +288,14 @@ export default class Wizard extends AbstractContextComponent {
     if (this.context.wizardContext) {
       this.context.wizardContext.activeStep = activeStep;
     }
+
+    let wizardId = activeStep.wizardId;
+    if (!wizardId) {
+      wizardId = id;
+    }
     let stepHelp = activeStep.help;
     if (!stepHelp) {
-      const locKey = `wizard.${id}.steps.${activeStep.id}.help`;
+      const locKey = `wizard.${wizardId}.steps.${activeStep.id}.help`;
       stepHelp = this.i18n(`${module}:${locKey}`);
       if (stepHelp === locKey) {
         stepHelp = null;
@@ -307,6 +351,12 @@ export default class Wizard extends AbstractContextComponent {
     return (
       <Div>
         <Button
+          level="link"
+          onClick={ onCloseWizard ? onCloseWizard.bind(null, false, this.context.wizardContext) : null }
+          showLoading={ _showLoading }>
+          { this.i18n('button.close') }
+        </Button>
+        <Button
           disabled={isFirst}
           style={{marginRight: 5}}
           showLoading={_showLoading}
@@ -318,14 +368,14 @@ export default class Wizard extends AbstractContextComponent {
           level="warning"
           style={{marginRight: 5}}
           showLoading={_showLoading}
-          onClick={this.onClickNext.bind(this, true, false)}>
+          onClick={this.onClickNext.bind(this, true, false, null)}>
           {this.i18n('component.basic.Wizard.button.skip')}
         </Button>
         <Button
           rendered={!isLast}
           level="success"
           showLoading={_showLoading}
-          onClick={this.onClickNext.bind(this, false, false)}
+          onClick={this.onClickNext.bind(this, false, false, null)}
           showLoadingIcon>
           {this.i18n('component.basic.Wizard.button.next')}
         </Button>
@@ -333,7 +383,7 @@ export default class Wizard extends AbstractContextComponent {
           rendered={isLast}
           level="success"
           showLoading={_showLoading}
-          onClick={onCloseWizard ? onCloseWizard.bind(null, true, this.context.wizardContext) : null}
+          onClick={this.onClickFinish.bind(this, false, false)}
           showLoadingIcon>
           {this.i18n('component.basic.Wizard.button.finish')}
         </Button>
@@ -350,7 +400,8 @@ export default class Wizard extends AbstractContextComponent {
       modal,
       show,
       onCloseWizard,
-      showLoading
+      showLoading,
+      icon
     } = this.props;
     const localSteps = getSteps ? this.mergeSteps(getSteps(this.props, this.context)) : [];
     if (rendered === null || rendered === undefined || rendered === '' || rendered === false) {
@@ -370,7 +421,16 @@ export default class Wizard extends AbstractContextComponent {
             onHide={onCloseWizard ? onCloseWizard.bind(null, false, this.context.wizardContext) : null}
             backdrop="static"
             keyboard={ false }>
-            <Modal.Header closeButton text={wizardName || this.i18n('component.basic.Wizard.defaultHeader')}/>
+            <Modal.Header closeButton>
+              <div style={{display: 'flex', alignItems: 'center'}}>
+                <Icon
+                  type="component"
+                  iconStyle="sm"
+                  style={{marginRight: 10}}
+                  icon={icon}/>
+                <h2>{wizardName || this.i18n('component.basic.Wizard.defaultHeader')}</h2>
+              </div>
+            </Modal.Header>
             <Modal.Body>
               {this.renderBody()}
             </Modal.Body>
@@ -379,7 +439,7 @@ export default class Wizard extends AbstractContextComponent {
             </Modal.Footer>
           </Modal>
         </Div>
-        <Div rendered={!modal}>
+        <Div rendered={!modal && show}>
           <Panel>
             <PanelHeader text={wizardName}/>
             <PanelBody>

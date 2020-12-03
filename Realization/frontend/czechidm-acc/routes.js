@@ -2,6 +2,11 @@ module.exports = {
   module: 'acc',
   childRoutes: [
     {
+      path: 'connector-types',
+      component: require('./src/content/wizard/ConnectorTypes'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['SYSTEM_READ'] } ]
+    },
+    {
       path: 'systems',
       component: require('./src/content/system/Systems'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['SYSTEM_READ'] } ]

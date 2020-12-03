@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { Basic } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 import SystemTable from './SystemTable';
-import SystemWizard from '../wizard/SystemWizard';
 
 /**
  * Content with table of systems
@@ -31,36 +30,14 @@ class Systems extends Basic.AbstractContent {
     return 'sys-systems';
   }
 
-  closeWizard(finished, wizardContext) {
-    this.setState({
-      showWizard: false
-    }, () => {
-      if (wizardContext && wizardContext.entity) {
-        this.context.history.push(`/system/${wizardContext.entity.id}/detail`);
-      }
-    });
-  }
-
   showWizardDetail(entity) {
-    this.setState({
-      showWizard: true
-    });
+    this.context.history.push(`/connector-types`);
   }
 
 
   render() {
     const { match, location } = this.props;
-    const { showWizard } = this.state;
 
-    if (showWizard) {
-      return (
-        <SystemWizard
-          show={showWizard}
-          closeWizard={this.closeWizard.bind(this)}
-          match={match}
-          location={location}/>
-      );
-    }
     return (
       <Basic.Div>
         { this.renderPageHeader() }

@@ -16,7 +16,7 @@ import Loading from '../Loading/Loading';
 export class Panel extends AbstractComponent {
 
   render() {
-    const { className, rendered, showLoading, level, style } = this.props;
+    const { className, rendered, showLoading, level, style, onClick } = this.props;
     if (rendered === null || rendered === undefined || rendered === '' || rendered === false) {
       return null;
     }
@@ -26,7 +26,7 @@ export class Panel extends AbstractComponent {
       className
     );
     return (
-      <Div className={classNames} style={style}>
+      <Div className={classNames} style={style} onClick={onClick}>
         <Loading showLoading={showLoading}>
           {this.props.children}
         </Loading>

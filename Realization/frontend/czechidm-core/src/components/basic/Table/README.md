@@ -17,6 +17,7 @@ Table of records, features
 | noData | oneOfType([string, element]) | No data found | Nenalezeny žádné záznamy |
 | showRowSelection | bool | Enable row selection - checkbox in first cell | false |
 | condensed | bool | Enable condensed table class, make tables more compact by cutting cell padding in half. | false |
+| classNameTable | string | Class names for table element. | |
 | draggable | bool | DnD support - table will not be orderable, pagination support will not be available. | false |
 | onDraggableStop | bool | Callback after dragable ends. Available parameters:  data - table data, startIndex - dragged row index (start from 0),  differenceIndex - index difference (+ down, - up). | ||
 

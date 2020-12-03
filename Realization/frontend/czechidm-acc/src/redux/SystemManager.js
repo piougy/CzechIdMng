@@ -15,7 +15,6 @@ export default class SystemManager extends Managers.EntityManager {
   constructor() {
     super();
     this.service = new SystemService();
-    this.dataManager = new Managers.DataManager();
   }
 
   getModule() {
@@ -259,7 +258,40 @@ export default class SystemManager extends Managers.EntityManager {
         });
     };
   }
+
+  /**
+   * Loads all registered connector types.
+   *
+   * @return {action}
+   */
+  fetchSupportedTypes() {
+    const uiKey = SystemManager.UI_KEY_SUPPORTED_TYPES;
+    //
+    return (dispatch, getState) => {
+      const loaded = Managers.DataManager.getData(getState(), uiKey);
+      if (loaded) {
+        // we dont need to load them again - change depends on BE restart
+      } else {
+        dispatch( this.getDataManager().requestData(uiKey));
+        this.getService().getSupportedTypes()
+          .then(json => {
+            let types = new Immutable.Map();
+            if (json._embedded && json._embedded.connectorTypes) {
+              json._embedded.connectorTypes.forEach(item => {
+                types = types.set(item.id, item);
+              });
+            }
+            dispatch( this.getDataManager().receiveData(uiKey, types));
+          })
+          .catch(error => {
+            // TODO: data uiKey
+            dispatch( this.getDataManager().receiveError(null, uiKey, error));
+          });
+      }
+    };
+  }
 }
 
 SystemManager.AVAILABLE_CONNECTORS = 'connectors-available';
 SystemManager.AVAILABLE_REMOTE_CONNECTORS = 'remote-connectors-available';
+SystemManager.UI_KEY_SUPPORTED_TYPES = 'connector-supported-types';

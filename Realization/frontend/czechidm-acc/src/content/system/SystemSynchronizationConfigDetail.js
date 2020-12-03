@@ -186,7 +186,13 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     if (!this.isWizard()) {
       return;
     }
-    this.save(false, false);
+    const {_synchronizationConfig} = this.props;
+    const {entityType} = this.state;
+    const isNew = this._getIsNew();
+    const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
+    const finalEntityType = this._getEntityType(synchronizationConfig, entityType);
+
+    this.save(false, false, finalEntityType);
   }
 
   afterSave(entity, error, close) {
@@ -232,8 +238,11 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   }
 
   _getIsNew(nextProps) {
-    const {query} = nextProps ? nextProps.location : this.props.location;
-    return (query) ? query.new : null;
+    if ((nextProps && nextProps.location) || this.props.location) {
+      const { query } = nextProps ? nextProps.location : this.props.location;
+      return (query) ? query.new : null;
+    }
+    return false;
   }
 
   _startSynchronization(sync) {
@@ -852,7 +861,7 @@ SystemSynchronizationConfigDetail.defaultProps = {
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, synchronizationConfigManager.getEntityType(), component.match.params.configId);
 
-  const {query} = component ? component.location : component.location;
+  const {query} = component && component.location ? component.location : {};
   const isNew = (query) ? query.new : null;
   const _showLoading = isNew ? false : !entity;
 

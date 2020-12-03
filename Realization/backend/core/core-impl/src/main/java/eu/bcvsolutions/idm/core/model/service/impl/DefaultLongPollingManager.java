@@ -151,7 +151,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 
 		}
 		// Try to find, if some from not finished entities were changed
-		
+
 		// TODO: For search SysSyncLogs the filter by modifiedFrom didn't work properly.
 		// I didn't found reason why, but I hope using sort by created and modified fields will be works better.
 		// filter.setModifiedFrom(timeStamp);
@@ -164,9 +164,15 @@ public class DefaultLongPollingManager implements LongPollingManager{
 			AbstractDto changedRequestsFromLastCheck = changedRequestsFromLastChecks.get(0);
 			ZonedDateTime lastModified = this.getLastTimeStamp(changedRequestsFromLastCheck);
 			if (lastModified.isAfter(timeStamp)) {
+				// Notify FE -> Some of the entity was changed (refresh must be executed).
+				// Notified will be all suspended request for same entity ID!
+				this.suspendedRequests.stream()
+						.filter(request -> request.getEntityId().equals(subscriber.getEntityId()))
+						.forEach(request -> {
+									request.getResult().setResult(new OperationResultDto(OperationState.RUNNING));
+								}
+						);
 				subscriber.setLastTimeStamp(lastModified);
-				// Notify FE -> Some of the role-request was changed (refresh must be executed)
-				deferredResult.setResult(new OperationResultDto(OperationState.RUNNING));
 				return;
 			}
 		}

@@ -57,17 +57,17 @@ public abstract class AbstractConnectorType implements
 
 	private String beanName; // spring bean name - used as id
 
-	private static final String STEP_FINISH = "finish";
-	private static final String CREATES_ROLE_WITH_SYSTEM = "createRoleWithSystem";
-	private static final String MAPPING_ID = "mappingId";
-	private static final String SCHEMA_ID = "schemaId";
-	private static final String NEW_ROLE_WITH_SYSTEM_CODE = "newRoleWithSystemCode";
-	private static final String ROLE_SYSTEM_ID = "roleSystemId";
+	public static final String STEP_FINISH = "finish";
+	public static final String CREATES_ROLE_WITH_SYSTEM = "createRoleWithSystem";
+	public static final String MAPPING_ID = "mappingId";
+	public static final String SCHEMA_ID = "schemaId";
+	public static final String NEW_ROLE_WITH_SYSTEM_CODE = "newRoleWithSystemCode";
+	public static final String ROLE_SYSTEM_ID = "roleSystemId";
 	public static final String SYSTEM_DTO_KEY = "system";
-	private static final String STEP_MAPPING = "mapping";
-	private static final String ENTITY_TYPE = "entityType";
-	private static final String TREE_TYPE_ID = "treeTypeId";
-	private static final String OPERATION_TYPE = "operationType";
+	public static final String STEP_MAPPING = "mapping";
+	public static final String ENTITY_TYPE = "entityType";
+	public static final String TREE_TYPE_ID = "treeTypeId";
+	public static final String OPERATION_TYPE = "operationType";
 	public static final String MAPPING_DTO_KEY = "mapping";
 	public static final String SYNC_DTO_KEY = "sync";
 	public static final String ALERT_MORE_MAPPINGS = "alertMoreMappings";

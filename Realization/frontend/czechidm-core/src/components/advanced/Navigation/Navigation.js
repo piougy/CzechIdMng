@@ -246,7 +246,7 @@ export class Navigation extends Basic.AbstractContent {
                 placement="right"
                 value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
                 <a
-                  href="#"
+                  href={ levelItem.to ? `${ levelItem.to.indexOf('/') === 0 ? '/#' : '' }${ levelItem.to }` : '#' }
                   onClick={
                     this.toogleNavigationItem.bind(
                       this,

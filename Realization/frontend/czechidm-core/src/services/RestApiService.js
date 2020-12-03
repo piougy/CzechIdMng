@@ -11,23 +11,23 @@ import ConfigLoader from '../utils/ConfigLoader';
  */
 export default class RestApiService {
 
-  static get(path, token = null, signal) {
+  static get(path, token = null, signal = null) {
     return this.action('get', path, null, token, signal);
   }
 
-  static post(path, json, token = null, signal) {
+  static post(path, json, token = null, signal = null) {
     return this.action('post', path, json, token, signal);
   }
 
-  static put(path, json, token = null, signal) {
+  static put(path, json, token = null, signal = null) {
     return this.action('put', path, json, token, signal);
   }
 
-  static patch(path, json, token = null, signal) {
+  static patch(path, json, token = null, signal = null) {
     return this.action('PATCH', path, json, token, signal);
   }
 
-  static delete(path, token = null, signal) {
+  static delete(path, token = null, signal = null) {
     return this.action('DELETE', path, null, token, signal);
   }
 
@@ -84,7 +84,7 @@ export default class RestApiService {
     return `${ ConfigLoader.getServerUrl() }${ path }`;
   }
 
-  static _getFetchConfig(methodType, body, token = null, signal) {
+  static _getFetchConfig(methodType, body, token = null, signal = null) {
     if (token === null) {
       token = AuthenticateService.getTokenCIDMST();
     }

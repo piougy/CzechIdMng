@@ -152,4 +152,29 @@ public class InvalidFormAttributeDto extends AbstractDto {
 	public void setOwnerType(String ownerType) {
 		this.ownerType = ownerType;
 	}
+	
+	/**
+	 * Textual information used in logs.
+	 */
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder(String.format("Attribute code [%s]", attributeCode));
+		if (missingValue) {
+			result.append(" - missingValue [true]");
+		}
+		if (minValue != null) {
+			result.append(String.format(" - minValue [%s]", minValue));
+		}
+		if (maxValue != null) {
+			result.append(String.format(" - maxValue [%s]", maxValue));		
+		}
+		if (uniqueValue != null) {
+			result.append(String.format(" - uniqueValue [%s]", uniqueValue));
+		}
+		if (regexValue != null) {
+			result.append(String.format(" - regexValue [%s]", regexValue));
+		}
+		//
+		return result.toString();
+	}
 }

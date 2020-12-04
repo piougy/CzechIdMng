@@ -216,7 +216,7 @@ class TextField extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { type, labelSpan, label, componentSpan, placeholder, style, required } = this.props;
+    const { type, labelSpan, label, componentSpan, placeholder, style, required, pwdAutocomplete } = this.props;
     const { inputType, value, disabled, readOnly } = this.state;
     //
     const className = classNames(
@@ -248,6 +248,7 @@ class TextField extends AbstractFormComponent {
       <input
         ref="input"
         type={ inputType }
+        autoComplete={!pwdAutocomplete ? 'new-password' : null}
         className={ className }
         disabled={ disabled }
         placeholder={ placeholder }
@@ -342,14 +343,20 @@ TextField.propTypes = {
    * Confidential text field - if it is filled, then shows asterix only and supports to add new value
    */
   confidential: PropTypes.bool,
-  warnIfTrimmable: PropTypes.bool
+  warnIfTrimmable: PropTypes.bool,
+  /**
+   * Uses workaround for turn off autocomplete for password input (false). This will works maybe only in the Chrome.
+   * Change ref of a password input doesn't work, because Chrome prefill any input with password type and !ANY! previous input.
+   */
+  pwdAutocomplete: PropTypes.bool
 };
 
 TextField.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   type: 'text',
   confidential: false,
-  warnIfTrimmable: true
+  warnIfTrimmable: true,
+  pwdAutocomplete: true
 };
 
 export default TextField;

@@ -2289,6 +2289,8 @@
     }
   },
   "wizard": {
+    "addSystemViaWizard": "Vytvořit nový systém pomocí průvodce",
+    "openSystemViaWizard": "Otevřít systém v průvodci",
     "create-system": {
       "name": "Průvodce napojením systému",
       "steps": {
@@ -2330,7 +2332,22 @@
         },
         "mapping": {
           "name":  "Mapování",
-          "help": "<strong>Mapování určuje zdali chceme z externího systému data extrahovat (synchronizace), či je do něj zapisovat (provisioning).</strong> Mapování dále definuje, s jakým typem objektu chceme v IdM pracovat (identita, role, kontrakt ...)."
+          "help": "<strong>Mapování určuje zdali chceme z externího systému data extrahovat (synchronizace), či je do něj zapisovat (provisioning).</strong> Mapování dále definuje, s jakým typem objektu chceme v IdM pracovat (identita, role, kontrakt ...).",
+          "provisioningSwitch": {
+            "label": "Provisioning",
+            "help": "Načte data z IdM a zapíše je do napojeného systému."
+          },
+          "syncSwitch": {
+            "label": "Synchronizace",
+            "help": "Načte data z napojeného systému a zapíše je do IdM."
+          },
+          "entityType": {
+            "label": "Typ objektu v IdM",
+            "help": ""
+          },
+          "entityTypeHeader": "S jakým objektem v IdM chcete pracovat?",
+          "operationTypeHeader": "Chcete data z napojeného systému číst, nebo do něj zapisovat?",
+          "alertMoreMappings": "Systém obsahuje více mapování! Tento průvodce spravuje pouze jedno (nejstarší) mapování. Pro zobrazení všech mapovování přejděte na <a href='#/system/{{systemId}}/mappings' title='Zavřít průvodce a přejít na detail systému.'>detail systému</a>."
         },
         "mappingNew": {
           "name":  "Mapování"
@@ -2354,10 +2371,125 @@
         },
         "summary": {
           "name":  "Shrnutí",
-          "text": "<h2 style=\"margin-top: 0\">Gratulejeme,</h2><h3>Váš nový systém <strong>{{systemName}}</strong> byl úspěšně vytvořen.</h3><h3>Po dokončení budete přesměrování na detail nového systému.</h3>"
+          "text": "<h2 style=\"margin-top: 0\">Gratulejeme,</h2><h3>Váš nový systém <strong>{{systemName}}</strong> byl úspěšně vytvořen.</h3><h3>Po dokončení budete přesměrování na detail nového systému.</h3>",
+          "mappingSystemOnRole": {
+            "label": "Vytvořit roli přidělující tento systém.",
+            "help": "Pokud chcete přidělovat účet na tomto systému pomocí role, pak jí zde můžete vybrat, či vytvořit novou."
+          },
+          "newRoleWithSystem": {
+            "label": "Vyplňte kód nové role.",
+            "help": "Pokud bude role s tímto kódem již existovat, bude systém navázán na ní."
+          },
+          "roleWithSystem": {
+            "label": "Nebo vyberte existující roli."
+          }
         }
       }
+    },
+    "csv-connector-type": {
+      "name": "CSV soubor",
+      "description": "Zdrojem dat je soubor CSV (Comma Separated Values).",
+      "steps": {
+        "csvStepOne": {
+          "name": "CSV konektor",
+          "help": "V tomto kroku <strong>zvolte název systému</strong> tak, jak chcete aby se zobrazoval v IdM. Dále zvolte cestu k Vašemu <strong>CSV souboru</strong>, který chcete napojit jako zdroj dat.",
+          "systemName": "Název systému v IdM",
+          "filePath": "Cesta k CSV souboru",
+          "fileUploaded": "CSV soubor byl nahrán do IdM.",
+          "fileRejected": "Soubor byl odmítnut.",
+          "separator": "Oddělovač hodnot v CSV souboru",
+          "dropzone": {
+            "infoText": "CSV soubor můžete přetáhnout sem a nebo klikněte pro ruční výběr. Soubor bude přesunut do adresáře, který je definován výše. Pokud bude soubor již existovat, bude přepsán."
+          }
+        },
+        "csvStepTwo": {
+          "name":  "Primární atribut",
+          "help": "Z Vašeho CSV souboru bylo úspěšně vygenerováno <strong>schéma</strong>. Nyní je potřeba zvolit, který ze sloupečků ve Vašem CSV je unikátní <strong>identifikátor</strong>. Tento atribut bude v dalších krocích namapován na <strong>uživatelské jméno identity</strong> v IdM.",
+          "primarySchemaAttributeId":  "Zvolte primární atribut v CSV"
+        }
+      }
+    },
+    "jdbc-connector-type": {
+      "name": "Připojení databázové tabulky",
+      "description": "Umožňuje napojení jedné databázové tabulky.",
+      "steps": {
+        "jdbcStepOne":{
+          "name": "Připojení k databázi",
+          "help": "V tomto kroku <strong>zvolte název systému</strong> tak, jak chcete aby se zobrazoval v IdM. Dále zadejte údaje pro přístup k Vámi zvolené databázové tabulce a vyberte její primární sloupec.",
+          "systemName": "Název systému v IdM",
+          "host": {
+            "label": "Host",
+            "help": "Zadejte název serveru, na kterém je vystavena databáze.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "Zadejte číslo portu TCP.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "Uživatel",
+            "help": "Uživatel databáze s oprávněním pracovat s tabulkou.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "Heslo",
+            "help": "Heslo uživatele s oprávněním pracovat s tabulkou",
+            "placeholder": ""
+          },
+          "database": {
+            "label": "Databáze",
+            "help": "Zadejte název databáze na databázovém serveru, který obsahuje tabulku.",
+            "placeholder": ""
+          },
+          "table": {
+            "label": "Tabulka",
+            "help": "Zadejte název tabulky do databáze, která obsahuje účty, se kterými bude konektor pracovat (synchronizace, provisioning).",
+            "placeholder": ""
+          },
+          "keyColumn": {
+            "label": "Sloupec s klíčem",
+            "help": "Název sloupce s unikátním identifikátorem řádku v tabulce (většinou shodný s primárním klíčem).",
+            "placeholder": ""
+          },
+          "passwordColumn": {
+            "label": "Sloupec s heslem",
+            "help": "Název sloupce, který bude obsahovat hesla k účtům. Ponechte prázdné, pokud není třeba pracovat s hesly (provisioning)",
+            "placeholder": ""
+          }
+        }
+      }
+    },
+    "postgresql-connector-type": {
+      "name": "PostgreSQL databáze",
+      "description": "Umožňuje napojení jedné tabulky v PostgreSQL databázi."
+    },
+    "mssql-connector-type": {
+      "name": "Microsoft SQL Server",
+      "description": "Umožňuje napojení jedné tabulky v MS SQL databázi."
+    },
+    "mysql-connector-type": {
+      "name": "MySQL databáze",
+      "description": "Umožňuje napojení jedné tabulky v MySQL databázi."
+    },
+    "scripted-sql-connector-type": {
+      "name": "Skriptovaný SQL konektor",
+      "description": "Pro spravování více databázových tabulek pomocí skriptů."
+    },
+    "ldap-connector-type": {
+      "name": "LDAP"
+    },
+    "ad-connector-type": {
+      "name": "Active Directory"
     }
+  },
+  "connector-type":  {
+    "header": "Seznam dostupných konektorů",
+    "name": "Název konektoru/průvodce",
+    "local": "Lokální konektor",
+    "version": "Verze",
+    "buttonTitle": "Spustí průvodce vytvořením nového systému",
+    "wizardStart": "Spustit průvodce"
   },
   "error": {
     "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
@@ -2831,6 +2963,14 @@
     "PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST": {
       "title": "Žádost o změnu hesla neprošla validací!",
       "message": "Žádost pro identitu [{{identifier}}] neprošla validací! Pro více informací zkontrolujte log aplikace."
+    },
+    "WIZARD_CSV_CONNECTOR_UPLOAD_FAILED": {
+      "title": "Při náhrávání nastala chyba!",
+      "message": "Při náhrávání CSV souboru nastala chyba!"
+    },
+    "WIZARD_CSV_CONNECTOR_CSV_FILE_NOT_FOUND": {
+      "title": "CSV soubor nebyl nalezen!",
+      "message": "CSV soubor nebyl nalezen na Vámi zadané cestě [{{path}}]!"
     }
   },
   "processor": {

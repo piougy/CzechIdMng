@@ -452,6 +452,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
           <Basic.AbstractForm
             rendered={_availableConnectors.length !== 0}
             ref="formConnector"
+            data={{connector: pickConnector ? pickConnector.value : null }}
             uiKey={uiKey}
             readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
             style={{ paddingBottom: 0 }}>
@@ -460,7 +461,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
               <Basic.EnumSelectBox
                 ref="connector"
                 placeholder={ this.i18n('acc:entity.System.connectorKey.connectorName') }
-                value={ pickConnector ? pickConnector.value : null }
                 options={ _availableConnectors }
                 readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') || remoteConnectorError }
                 clearable={ false }

@@ -2287,6 +2287,8 @@
     }
   },
   "wizard": {
+    "addSystemViaWizard": "Create a new system using the wizard",
+    "openSystemViaWizard": "Open the system in the wizard",
     "create-system": {
       "name": "System wizard",
       "steps": {
@@ -2328,8 +2330,24 @@
         },
         "mapping": {
           "name": "Mapping",
-          "help": "<strong>Mapping determines whether we want to extract data from the external system (synchronization) or write it to it (provisioning).</strong> The mapping further defines what type of object we want to work with in IdM (identity, role , contract ...). "
+          "help": "<strong>Mapping determines whether we want to extract data from the external system (synchronization) or write it to it (provisioning).</strong> The mapping further defines what type of object we want to work with in IdM (identity, role , contract ...). ",
+          "provisioningSwitch": {
+            "label": "Provisioning",
+            "help": "Reads data from the IdM and writes it to the connected system."
+          },
+          "syncSwitch": {
+            "label": "Synchronization",
+            "help": "Reads data from the connected system and writes it to the IdM."
+          },
+          "entityType": {
+            "label": "Object type in IdM",
+            "help": ""
+          },
+          "entityTypeHeader": "What object in IdM do you want to work with?",
+          "operationTypeHeader": "Do you want to read data from or write to the connected system?",
+          "alertMoreMappings": "The system includes more mappings! This wizard manages only one (oldest) mapping. To view all mappings, go to <a href='#/system/{{systemId}}/mappings' title='Close wizards and go to system detail.'>system detail</a>."
         },
+
         "mappingNew": {
           "name": "Mapping"
         },
@@ -2352,10 +2370,125 @@
         },
         "summary": {
           "name": "Summary",
-          "text": "<h2 style=\"margin-top: 0\">Congratulations,</h2> <h3>Your new system <strong>{{systemName}}</strong> has been successfully created.</h3><h3>When wizard done, you will be redirected to the detail of the new system.</h3>"
+          "text": "<h2 style=\"margin-top: 0\">Congratulations,</h2> <h3>Your new system <strong>{{systemName}}</strong> has been successfully created.</h3><h3>When wizard done, you will be redirected to the detail of the new system.</h3>",
+          "mappingSystemOnRole": {
+            "label": "Create a role that assigns this system.",
+            "help": "If you want to assign an account on this system using a role, then you can select it here or create a new one."
+          },
+          "newRoleWithSystem": {
+            "label": "Fill in the code for the new role.",
+            "help": "If a role with this code already exists, the system will be linked to it."
+          },
+          "roleWithSystem": {
+            "label": "Or select an existing role."
+          }
         }
       }
+    },
+    "csv-connector-type": {
+      "name": "CSV file",
+      "description": "The data source is a CSV (Comma Separated Values) file.",
+      "steps": {
+        "csvStepOne": {
+          "name": "CSV connector",
+          "help": "In this step, <strong>choose the system name</strong> as you want it to appear in IdM. Next, select the path to your <strong>CSV file</strong> that you want to link to as a data source.",
+          "systemName": "System name in IdM",
+          "filePath": "Path to the CSV file",
+          "fileUploaded": "CSV file uploaded to IdM.",
+          "fileRejected": "The file was rejected.",
+          "separator": "Value separator in CSV file",
+          "dropzone": {
+            "infoText": "You can drag the CSV file here or click for manual selection. The file will be moved to the directory defined above. If the file already exists, it will be overwritten."
+          }
+        },
+        "csvStepTwo": {
+          "name":  "Primary attribute",
+          "help": "A <strong>schema</strong> has been successfully generated from your CSV file. Now you need to choose which of the columns in your CSV is a unique <strong>identifier</strong>. This attribute will be mapped to the <strong>username identity</strong> in IdM in the next steps.",
+          "primarySchemaAttributeId":  "Choose the primary attribute in the CSV"
+        }
+      }
+    },
+    "ad-connector-type": {
+      "name": "Active Directory"
+    },
+    "jdbc-connector-type": {
+      "name": "Database table connection",
+      "description": "Allows you to connect a single database table.",
+      "steps": {
+        "jdbcStepOne": {
+          "name": "Connection to the database",
+          "help": "In this step, <strong>select the system name</strong> as you want it to appear in the IdM. Next, enter the data to access your chosen database table and select its primary column.",
+          "systemName": "System name in IdM",
+          "host": {
+            "label": "Host",
+            "help": "Enter the name of the server on which the database is exposed.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "Enter the TCP port number.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "User",
+            "help": "Database user with table permission.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "Password",
+            "help": "Password of a user with permission to work with the table",
+            "placeholder": ""
+          },
+          "database": {
+            "label": "Database",
+            "help": "Enter the name of the database on the database server that contains the table.",
+            "placeholder": ""
+          },
+          "table": {
+            "label": "Table",
+            "help": "Enter the name of the table in the database that contains the accounts that the connector will work with (synchronization, provisioning).",
+            "placeholder": ""
+          },
+          "keyColumn": {
+            "label": "Key Column",
+            "help": "The name of the column with the unique identifier of the row in the table (usually the same as the primary key).",
+            "placeholder": ""
+          },
+          "passwordColumn": {
+            "label": "Password Column",
+            "help": "Name of the column that will contain the passwords for the accounts. Leave blank if you do not need to work with passwords (provisioning)",
+            "placeholder": ""
+          }
+        }
+      }
+    },
+    "postgresql-connector-type": {
+      "name": "PostgreSQL database",
+      "description": "Allows managing a single table in a PostgreSQL database."
+    },
+    "mssql-connector-type": {
+      "name": "Microsoft SQL Server",
+      "description": "Allows managing a single table in a MS SQL database."
+    },
+    "mysql-connector-type": {
+      "name": "MySQL database",
+      "description": "Allows managing a single table in a MySQL database."
+    },
+    "scripted-sql-connector-type": {
+      "name": "Scripted SQL connector",
+      "description": "For managing multiple database tables by using scripts."
+    },
+    "ldap-connector-type": {
+      "name": "LDAP"
     }
+  },
+  "connector-type":  {
+    "header": "List of available connectors",
+    "name": "Connector/wizard name",
+    "local": "Local connector",
+    "version": "Version",
+    "buttonTitle": "Starts the new system wizard",
+    "wizardStart": "Start the wizard"
   },
   "error": {
     "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
@@ -2829,6 +2962,14 @@
     "PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST": {
       "title": "Request for password change was not validated!",
       "message": "Request for identifier [{{identifier}}] didn't pass by validation! For more information check application log."
+    },
+    "WIZARD_CSV_CONNECTOR_UPLOAD_FAILED": {
+      "title": "An error occurred while recording!",
+      "message": "An error occurred while uploading the CSV file!"
+    },
+    "WIZARD_CSV_CONNECTOR_CSV_FILE_NOT_FOUND": {
+      "title": "CSV file not found!",
+      "message": "CSV file not found in the path you entered [{{path}}]!"
     }
   },
   "processor": {

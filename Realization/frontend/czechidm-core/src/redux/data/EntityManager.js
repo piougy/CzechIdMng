@@ -51,6 +51,10 @@ export default class EntityManager {
     return 'core';
   }
 
+  getDataManager() {
+    return this.dataManager;
+  }
+
   /**
    * Resource name
    *

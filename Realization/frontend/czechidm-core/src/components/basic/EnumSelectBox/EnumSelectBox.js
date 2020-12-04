@@ -5,6 +5,8 @@ import Select from 'react-select';
 //
 import SelectBox from '../SelectBox/SelectBox';
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
+import EnumValueDecorator from './EnumValueDecorator';
+import EnumOptionDecorator from './EnumOptionDecorator';
 
 /**
  * Select box with enumetation or static options
@@ -97,6 +99,7 @@ class EnumSelectBox extends SelectBox {
         [SelectBox.NICE_LABEL]: enumItem.niceLabel ? enumItem.niceLabel : this._findNiceLabel(enumItem.value),
         [SelectBox.ITEM_FULL_KEY]: enumItem.value,
         disabled: this._isDisabled(enumItem.value),
+        _iconKey: this._findIcon(enumItem.value),
         description: enumItem.description
       });
     } else { // item is rendered already
@@ -120,6 +123,7 @@ class EnumSelectBox extends SelectBox {
         [SelectBox.ITEM_FULL_KEY]: itemFullKey,
         value: key,
         disabled: this._isDisabled(key),
+        _iconKey: this._findIcon(key),
         description: (typeof item === 'object' ? item.description : null)
       });
     }
@@ -168,6 +172,24 @@ class EnumSelectBox extends SelectBox {
           return options[item];
         }
       }
+    }
+    return null;
+  }
+
+  _findIcon(value) {
+    if (!value) {
+      return null;
+    }
+    let rawValue;
+    if (_.isSymbol(value)) {
+      rawValue = this._findKeyBySymbol(value);
+    } else {
+      rawValue = value;
+    }
+    //
+    const enumeration = this.props.enum;
+    if (enumeration && enumeration.getIcon) {
+      return enumeration.getIcon(rawValue);
     }
     return null;
   }
@@ -404,8 +426,8 @@ EnumSelectBox.defaultProps = {
   useSymbol: null,
   useObject: false,
   clearable: true,
-  optionComponent: SelectBox.OptionDecorator,
-  valueComponent: SelectBox.ValueDecorator
+  optionComponent: EnumOptionDecorator,
+  valueComponent: EnumValueDecorator
 };
 
 export default EnumSelectBox;

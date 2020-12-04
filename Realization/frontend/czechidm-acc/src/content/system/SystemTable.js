@@ -6,6 +6,8 @@ import _ from 'lodash';
 import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
 import uuid from 'uuid';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
+import SystemWizardDetail from '../wizard/SystemWizardDetail';
+
 //
 
 /**
@@ -64,6 +66,34 @@ export class SystemTable extends Advanced.AbstractTableContent {
     }
   }
 
+  showInWizard(system) {
+    this.setState({
+      showLoading: true
+    }, () => {
+      this.getManager().getService().loadConnectorType({reopened: true, metadata: {system: system.id}})
+        .then((connectorType) => {
+          connectorType.reopened = true;
+          this.setState({showLoading: false, showWizard: true, connectorType});
+        })
+        .catch(ex => {
+          this.setState({
+            showLoading: false
+          });
+          this.addError(ex);
+        });
+    });
+  }
+
+  closeWizard(finished, wizardContext) {
+    this.setState({
+      showWizard: false
+    }, () => {
+      if (finished && wizardContext && wizardContext.entity) {
+        this.context.history.push(`/system/${wizardContext.entity.id}/detail`);
+      }
+    });
+  }
+
   onDuplicate(bulkActionValue, selectedRows) {
     const { manager, uiKey } = this.props;
     const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
@@ -96,11 +126,12 @@ export class SystemTable extends Advanced.AbstractTableContent {
       [
         <Basic.Button
           level="success"
-          key="add_button"
+          key="add_wizard_button"
           className="btn-xs"
           onClick={ this.props.showWizardDetail }
           rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
-          icon="fa:list-ol">
+          title={ this.i18n('acc:wizard.addSystemViaWizard') }
+          icon="fa:magic">
           { this.i18n('button.add') }
         </Basic.Button>,
         <Basic.Button
@@ -167,7 +198,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
 
   render() {
     const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection } = this.props;
-    const { filterOpened } = this.state;
+    const { filterOpened, showWizard, connectorType } = this.state;
     const showFilterVirtual = !forceSearchParameters.filters.get('virtual');
 
     return (
@@ -217,10 +248,20 @@ export class SystemTable extends Advanced.AbstractTableContent {
             className="detail-button"
             cell={
               ({ rowIndex, data }) => {
-                return (
+                return ([
                   <Advanced.DetailButton
                     title={ this.i18n('button.detail') }
-                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>,
+                  <Basic.Button
+                    level="default"
+                    key="showInWizard"
+                    title={ this.i18n('acc:wizard.openSystemViaWizard') }
+                    className="btn-xs"
+                    style={{marginLeft: 5}}
+                    onClick={ this.showInWizard.bind(this, data[rowIndex])}
+                    icon="fa:magic">
+                  </Basic.Button>
+                ]
                 );
               }
             }
@@ -262,6 +303,14 @@ export class SystemTable extends Advanced.AbstractTableContent {
             }}
             rendered={ _.includes(columns, 'blockedOperation') }/>
         </Advanced.Table>
+        <Basic.Div rendered={showWizard}>
+          <SystemWizardDetail
+            show={showWizard}
+            reopened
+            closeWizard={this.closeWizard.bind(this)}
+            match={this.props.match}
+            connectorType={connectorType}/>
+        </Basic.Div>
       </Basic.Div>
     );
   }

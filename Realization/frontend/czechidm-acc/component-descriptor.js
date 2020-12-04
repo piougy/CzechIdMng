@@ -103,6 +103,78 @@ module.exports = {
       type: 'icon',
       entityType: ['synchronization', 'synchronizations'],
       component: 'fa:exchange'
+    },
+    {
+      id: 'csv-connector-icon',
+      type: 'icon',
+      entityType: ['csv'],
+      component: require('./src/components/CsvConnectorIcon/CsvConnectorIcon')
+    },
+    {
+      id: 'ad-connector-icon',
+      type: 'icon',
+      entityType: ['ad', 'ad-connector-icon'],
+      component: require('./src/components/AdConnectorIcon/AdConnectorIcon')
+    },
+    {
+      id: 'ldap-connector-icon',
+      type: 'icon',
+      entityType: ['ldap', 'ldap-connector-icon'],
+      component: require('./src/components/LdapConnectorIcon/LdapConnectorIcon')
+    },
+    {
+      id: 'scripted-sql-connector-icon',
+      type: 'icon',
+      entityType: ['scripted-sql-connector-icon'],
+      component: require('./src/components/ScriptedSqlConnectorIcon/ScriptedSqlConnectorIcon')
+    },
+    {
+      id: 'mssql-connector-icon',
+      type: 'icon',
+      entityType: ['ad', 'mssql-connector'],
+      component: require('./src/components/MsSqlConnectorIcon/MsSqlConnectorIcon')
+    },
+    {
+      id: 'mysql-connector-icon',
+      type: 'icon',
+      entityType: ['mysql', 'mysql-connector'],
+      component: require('./src/components/MySqlConnectorIcon/MySqlConnectorIcon')
+    },
+    {
+      id: 'default-connector-icon',
+      type: 'icon',
+      entityType: ['default-connector'],
+      component: require('./src/components/DefaultConnectorIcon/DefaultConnectorIcon')
+    },
+    {
+      id: 'postgresql-connector-icon',
+      type: 'icon',
+      entityType: ['postgresql-connector'],
+      component: require('./src/components/PostgreSqlConnectorIcon/PostgreSqlConnectorIcon')
+    },
+    {
+      id: 'csv-connector-type',
+      type: 'connector-type',
+      entityType: ['csv-connector-type'],
+      component: require('./src/content/wizard/connectorType/CsvSystemWizard')
+    },
+    {
+      id: 'postgresql-connector-type',
+      type: 'connector-type',
+      entityType: ['postgresql-connector-type'],
+      component: require('./src/content/wizard/connectorType/JdbcSqlSystemWizard')
+    },
+    {
+      id: 'mssql-connector-type',
+      type: 'connector-type',
+      entityType: ['mssql-connector-type'],
+      component: require('./src/content/wizard/connectorType/JdbcSqlSystemWizard')
+    },
+    {
+      id: 'mysql-connector-type',
+      type: 'connector-type',
+      entityType: ['mysql-connector-type'],
+      component: require('./src/content/wizard/connectorType/JdbcSqlSystemWizard')
     }
   ]
 };

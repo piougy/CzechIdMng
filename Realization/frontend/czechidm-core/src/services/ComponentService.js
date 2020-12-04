@@ -127,6 +127,19 @@ export default class ComponentService {
     return this.getComponentByEntityType(ComponentService.ICON_COMPONENT_TYPE, iconType);
   }
 
+  /**
+   * Returns registered icon component
+   *
+   * @param  {string} connectorType identifier
+   * @return {object} component
+   */
+  getConnectorTypeComponent(connectorType) {
+    if (!connectorType) {
+      return null;
+    }
+    return this.getComponentByEntityType(ComponentService.CONNECTOR_TYPE, connectorType);
+  }
+
 }
 // reserved component types
 ComponentService.ENTITY_INFO_COMPONENT_TYPE = 'entity-info';
@@ -137,4 +150,5 @@ ComponentService.FORM_ATTRIBUTE_RENDERER = 'form-attribute-renderer';
 ComponentService.ENTITY_SELECT_BOX_COMPONENT_TYPE = 'entity-select-box';
 ComponentService.PASSWORD_CHANGE_COMPONENTS_TYPE = 'password-change-component';
 ComponentService.ICON_COMPONENT_TYPE = 'icon';
+ComponentService.CONNECTOR_TYPE = 'connector-type';
 ComponentService.MODAL_COMPONENT_TYPE = 'modal';

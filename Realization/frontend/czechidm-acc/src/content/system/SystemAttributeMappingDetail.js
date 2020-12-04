@@ -95,8 +95,11 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   }
 
   _getIsNew(nextProps) {
-    const { query } = nextProps ? nextProps.location : this.props.location;
-    return (query) ? query.new : null;
+    if ((nextProps && nextProps.location) || this.props.location) {
+      const { query } = nextProps ? nextProps.location : this.props.location;
+      return (query) ? query.new : null;
+    }
+    return false;
   }
 
   save(event) {

@@ -176,6 +176,6 @@ Icon.propTypes = {
 Icon.defaultProps = {
   ...AbstractComponent.defaultProps,
   type: TYPE_GLYPHICON,
-  dibaled: false,
+  disabled: false,
   level: 'default'
 };

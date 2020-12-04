@@ -16,5 +16,11 @@ module.exports = {
       component: require('./src/components/advanced/VsRequestInfo/VsRequestInfo').default,
       manager: require('./src/redux').VsRequestManager
     },
+    {
+      id: 'vs-connector-icon',
+      type: 'icon',
+      entityType: ['virtual-reality'],
+      component: require('./src/components/basic/VsConnectorIcon/VsConnectorIcon')
+    }
   ]
 };

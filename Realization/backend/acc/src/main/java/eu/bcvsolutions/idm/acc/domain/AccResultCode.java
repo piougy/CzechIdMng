@@ -6,9 +6,9 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 
 /**
- * Enum class for formatting response messages (mainly errors). 
+ * Enum class for formatting response messages (mainly errors).
  * Every enum contains a string message and corresponding https HttpStatus code.
- * 
+ *
  * @author svandav
  * @author Radek Tomiška
  * @author Ondrej Husnik
@@ -107,12 +107,12 @@ public enum AccResultCode implements ResultCode {
 	SYNCHRONIZATION_IS_RUNNING(HttpStatus.BAD_REQUEST, "Synchronization [%s] already running!"),
 	SYNCHRONIZATION_IS_NOT_RUNNING(HttpStatus.BAD_REQUEST, "Synchronization [%s] is not running!"),
 	SYNCHRONIZATION_TO_MANY_SYSTEM_ENTITY(HttpStatus.CONFLICT, "Too many system entity items for same uid [%s]. Only one item is allowed!"),
-	SYNCHRONIZATION_FILTER_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Synchronization filter must be instance of IcFilter, but value is type [%s]!"), 
+	SYNCHRONIZATION_FILTER_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Synchronization filter must be instance of IcFilter, but value is type [%s]!"),
 	SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM(HttpStatus.BAD_REQUEST, "Error during synchronization item with UID [%s] ([%s])!"),
 	SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT(HttpStatus.CONFLICT, "Too many acc account items for same uid [%s]. Only one item is allowed!"),
 	SYNCHRONIZATION_IDM_FIELD_NOT_SET(HttpStatus.NOT_FOUND, "IDM field [%s] for entity [%s] cannot be set!"),
 	SYNCHRONIZATION_IDM_FIELD_NOT_GET(HttpStatus.NOT_FOUND, "IDM field [%s] for entity [%s] cannot be get!"),
-	SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Synchronization root filter result must be instance of Boolean, but value is type [%s]!"), 
+	SYNCHRONIZATION_TREE_ROOT_FILTER_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Synchronization root filter result must be instance of Boolean, but value is type [%s]!"),
 	SYNCHRONIZATION_TREE_PARENT_TREE_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] and acc account: [%s] was not found tree account!"),
 	SYNCHRONIZATION_TREE_PARENT_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "For parent UID: [%s] on system ID [%s] was not found parent's account!"),
 	SYNCHRONIZATION_TREE_PARENT_NODE_IS_NOT_FROM_SAME_TREE_TYPE(HttpStatus.NOT_FOUND, "Node [%s] is not in the tree type sets in the mapping!"),
@@ -160,29 +160,32 @@ public enum AccResultCode implements ResultCode {
 	PASSWORD_FILTER_SYSTEM_NOT_FOUND(HttpStatus.NOT_FOUND, "System in IdM for identifier: [%s] not found."),
 	PASSWORD_FILTER_DEFINITION_NOT_FOUND(HttpStatus.NOT_FOUND, "For system [%s] doesn't exist password filter definition."),
 	PASSWORD_FILTER_IDENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Identity for identifier [%s] not found."),
-	PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST(HttpStatus.FORBIDDEN, "Echo validation in password change for identity id [%s] didn't pass by check. See IdM log for more information.");
+	PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST(HttpStatus.FORBIDDEN, "Echo validation in password change for identity id [%s] didn't pass by check. See IdM log for more information."),
+	// CSV wizard
+	WIZARD_CSV_CONNECTOR_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "CSV file cannot be uploaded!"),
+	WIZARD_CSV_CONNECTOR_CSV_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "CSV file was not found [%s]!");
 
 	private final HttpStatus status;
 	private final String message;
-	
+
 	private AccResultCode(HttpStatus status, String message) {
 		this.message = message;
 		this.status = status;
 	}
-	
+
 	public String getCode() {
 		return this.name();
 	}
-	
+
 	public String getModule() {
 		return AccModuleDescriptor.MODULE_ID;
 	}
-	
+
 	public HttpStatus getStatus() {
 		return status;
 	}
-	
+
 	public String getMessage() {
 		return message;
-	}	
+	}
 }

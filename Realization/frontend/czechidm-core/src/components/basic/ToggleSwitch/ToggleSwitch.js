@@ -73,7 +73,7 @@ class ToggleSwitch extends AbstractFormComponent {
                 theme="graphite-small"
                 enabled={ !readOnly && !disabled }
               />
-              <span style={{marginLeft: '5px', marginTop: '3px'}}>
+              <span style={{marginLeft: '5px', marginTop: '3px', fontWeight: 700}}>
                 {label}
               </span>
               { this.renderHelpIcon() }

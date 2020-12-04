@@ -367,7 +367,8 @@ gulp.task('browserNoSync', () => browserSync({
 gulp.task('browserSync', () => browserSync({
   server: {
     baseDir: './'
-  }
+  },
+  ghostMode: false
 }));
 
 gulp.task('watchify', () => {

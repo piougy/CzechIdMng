@@ -1,13 +1,5 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
-import com.google.common.collect.Lists;
-import eu.bcvsolutions.idm.acc.connector.AbstractConnectorType;
-import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
-import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
-import eu.bcvsolutions.idm.acc.service.api.ConnectorType;
-import eu.bcvsolutions.idm.core.api.dto.DelegationTypeDto;
-import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.rest.impl.IdmDelegationDefinitionController;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -46,17 +38,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.connector.AbstractConnectorType;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AccPasswordFilterRequestDto;
+import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
+import eu.bcvsolutions.idm.acc.service.api.ConnectorType;
 import eu.bcvsolutions.idm.acc.service.api.PasswordFilterManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;

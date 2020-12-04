@@ -1,8 +1,22 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.List;
+import java.util.Map;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resources;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.connector.AbstractConnectorType;
-import eu.bcvsolutions.idm.acc.connector.AbstractJdbcConnectorType;
 import eu.bcvsolutions.idm.acc.connector.CsvConnectorType;
 import eu.bcvsolutions.idm.acc.connector.DefaultConnectorType;
 import eu.bcvsolutions.idm.acc.connector.PostgresqlConnectorType;
@@ -13,9 +27,7 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.rest.impl.SysSystemController;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorType;
@@ -23,18 +35,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.util.List;
-import java.util.Map;
-import org.junit.After;
-import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Resources;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Tests for connector types

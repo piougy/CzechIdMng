@@ -27,9 +27,9 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 public class IdentityUsernameGenerator extends AbstractIdentityValueGenerator {
 
 	public static final String GENERATOR_NAME = "core-identity-username-value-generator";
-	public static String SEARCH_UNIQUE_USERNAME = "searchUniqueUsername";
+	public static final String SEARCH_UNIQUE_USERNAME = "searchUniqueUsername";
 	//
-	private static int MAXIMUM_SEARCH_FOR_UNIQUE_USERNAME = 100;
+	private static final int MAXIMUM_SEARCH_FOR_UNIQUE_USERNAME = 100;
 
 	@Autowired
 	private IdmIdentityService identityService;

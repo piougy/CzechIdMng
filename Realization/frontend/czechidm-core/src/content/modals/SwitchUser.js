@@ -31,7 +31,7 @@ class SwitchUser extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const username = this.refs.username.getValue();
+    const username = this.refs.targetIdentity.getValue();
     //
     this.context.store.dispatch(securityManager.switchUser(username, (result) => {
       const { onHide } = this.props;
@@ -69,7 +69,7 @@ class SwitchUser extends Basic.AbstractContent {
         onHide={ onHide }
         keyboard
         backdrop="static"
-        onEnter={ () => { this.refs.username.focus(); } }>
+        onEnter={ () => { this.refs.targetIdentity.focus(); } }>
         <form onSubmit={ this.onSave.bind(this) }>
           <Basic.Modal.Header
             closeButton
@@ -81,7 +81,7 @@ class SwitchUser extends Basic.AbstractContent {
               showLoading={ showLoading }>
 
               <Advanced.IdentitySelect
-                ref="username"
+                ref="targetIdentity"
                 label={ this.i18n('content.identity.switch-user.username.label') }
                 helpBlock={ this.i18n('content.identity.switch-user.username.help') }
                 required

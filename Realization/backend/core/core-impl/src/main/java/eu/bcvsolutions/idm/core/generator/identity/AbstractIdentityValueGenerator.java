@@ -20,11 +20,11 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  */
 public abstract class AbstractIdentityValueGenerator extends AbstractValueGenerator<IdmIdentityDto> {
 
-	public static String FIRST_NAME_CHARACTERS_COUNT = "firstNameCharacterCount";
-	public static String LAST_NAME_CHARACTERS_COUNT = "lastNameCharacterCount";
-	public static String CONNECTING_CHARACTER = "connectionCharacter";
-	public static String FIRST_NAME_FIRST = "firstNameFirst";
-	public static String REPLACE_WHITE_SPACES_CHARACTER = "replaceWhiteSpacesCharacter";
+	public static final String FIRST_NAME_CHARACTERS_COUNT = "firstNameCharacterCount";
+	public static final String LAST_NAME_CHARACTERS_COUNT = "lastNameCharacterCount";
+	public static final String CONNECTING_CHARACTER = "connectionCharacter";
+	public static final String FIRST_NAME_FIRST = "firstNameFirst";
+	public static final String REPLACE_WHITE_SPACES_CHARACTER = "replaceWhiteSpacesCharacter";
 
 	@Override
 	public List<String> getPropertyNames() {

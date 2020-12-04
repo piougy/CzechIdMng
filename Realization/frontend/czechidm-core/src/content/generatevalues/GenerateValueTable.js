@@ -12,7 +12,7 @@ import { SecurityManager, DataManager, GenerateValueManager, FormAttributeManage
 const MAX_DESCRIPTION_LENGTH = 60;
 
 /**
- * Table with definitions of generate values
+ * Table with definitions of generate values.
  *
  * @author Ondřej Kopr
  */
@@ -197,7 +197,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
     if (generatorType && availableGenerators) {
       const generator = availableGenerators.get(generatorType);
       if (generator) {
-        return 'eav.value-generator.' + generator.name + '.label';
+        return `eav.value-generator.${ generator.name }.label`;
       }
     }
     // generator type not found
@@ -214,7 +214,9 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
     //
     let _supportedTypes = [];
     if (supportedTypes) {
-      _supportedTypes = supportedTypes._embedded.classes.map(item => { return {value: item.content, niceLabel: this._getSupportedTypeNiceLabel(item.content) }; });
+      _supportedTypes = supportedTypes._embedded.classes.map(item => {
+        return { value: item.content, niceLabel: this._getSupportedTypeNiceLabel(item.content) };
+      });
       _supportedTypes.sort((one, two) => {
         return one.niceLabel.localeCompare(two.niceLabel);
       });
@@ -232,7 +234,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -261,11 +263,10 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, {regenerateValue: false, seq: 0})}
-                rendered={SecurityManager.hasAuthority('GENERATEVALUE_CREATE')}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+                onClick={ this.showDetail.bind(this, {regenerateValue: false, seq: 0}) }
+                rendered={ SecurityManager.hasAuthority('GENERATEVALUE_CREATE') }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
@@ -284,36 +285,50 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.Column property="seq" sort />
-          <Advanced.Column property="dtoType" sort cell={ ({ rowIndex, data }) => {
-            return Utils.Ui.getSimpleJavaType(data[rowIndex].dtoType);
-          }}/>
-          <Advanced.Column property="generatorType" sort cell={ ({ rowIndex, data }) => {
-            return this.i18n(this._getLocalizationKeyForGeneratorJavaType(data[rowIndex].generatorType));
-          }}/>
-          <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {
-            if (data[rowIndex] && data[rowIndex].description !== null) {
-              const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, ''); // remove enters
-              return Utils.Ui.substringByWord(description, MAX_DESCRIPTION_LENGTH, '...');
-            }
-            return null;
-          }}/>
+          <Advanced.Column
+            property="dtoType"
+            sort
+            cell={ ({ rowIndex, data }) => {
+              return Utils.Ui.getSimpleJavaType(data[rowIndex].dtoType);
+            }}/>
+          <Advanced.Column
+            property="generatorType"
+            sort
+            cell={ ({ rowIndex, data }) => {
+              return this.i18n(this._getLocalizationKeyForGeneratorJavaType(data[rowIndex].generatorType));
+            }}/>
+          <Advanced.Column
+            property="description"
+            cell={ ({ rowIndex, data }) => {
+              if (data[rowIndex] && data[rowIndex].description !== null) {
+                const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, ''); // remove enters
+                return Utils.Ui.substringByWord(description, MAX_DESCRIPTION_LENGTH, '...');
+              }
+              return null;
+            }}/>
           <Advanced.Column property="unmodifiable" face="bool" sort />
         </Advanced.Table>
         <Basic.Modal
           bsSize="large"
-          show={detail.show}
-          onHide={this.closeDetail.bind(this)}
+          show={ detail.show }
+          onHide={ this.closeDetail.bind(this) }
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={ !_showLoading }>
 
-          <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header')} rendered={!Utils.Entity.isNew(detail.entity)}/>
+          <form onSubmit={ this.save.bind(this, {}) }>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header') }
+              rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header') }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
-                readOnly={!manager.canSave(detail.entity, _permissions)}
-                showLoading={_showLoading}>
+                readOnly={ !manager.canSave(detail.entity, _permissions) }
+                showLoading={ _showLoading }>
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
                     <Basic.EnumSelectBox
@@ -341,7 +356,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                       required/>
                     <Basic.TextField
                       ref="seq"
-                      validation={Joi.number().integer().min(0).max(9999)}
+                      validation={ Joi.number().integer().min(0).max(9999) }
                       label={ this.i18n('entity.GenerateValue.seq.label') }
                       help={ this.i18n('entity.GenerateValue.seq.help') }
                       readOnly={ this._isUnmodifiable(detail.entity) }/>
@@ -356,8 +371,8 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                     <Basic.Checkbox
                       ref="unmodifiable"
                       readOnly
-                      label={this.i18n('entity.GenerateValue.unmodifiable.label')}
-                      helpBlock={this.i18n('entity.GenerateValue.unmodifiable.help')}/>
+                      label={ this.i18n('entity.GenerateValue.unmodifiable.label') }
+                      helpBlock={ this.i18n('entity.GenerateValue.unmodifiable.help') }/>
                     <Basic.Checkbox
                       ref="disabled"
                       label={ this.i18n('entity.GenerateValue.disabled.label') }
@@ -393,8 +408,8 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
+                onClick={ this.closeDetail.bind(this) }
+                showLoading={ _showLoading }>
                 {this.i18n('button.close')}
               </Basic.Button>
               <Basic.Button
@@ -409,7 +424,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -440,7 +455,7 @@ function select(state, component) {
 export default connect(select)(GenerateValueTable);
 
 /**
- * Table filter component
+ * Table filter component.
  *
  * @author Radek Tomiška
  */

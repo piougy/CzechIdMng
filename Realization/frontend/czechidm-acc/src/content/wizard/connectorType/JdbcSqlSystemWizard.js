@@ -97,7 +97,6 @@ class JdbcStepOne extends AbstractWizardStep {
 
     const _connectorType = this.state.connectorType ? this.state.connectorType : connectorType;
     const formData = {};
-    let hasSchema = false;
     if (_connectorType && _connectorType.metadata) {
       const metadata = _connectorType.metadata;
       formData.name = metadata.name;
@@ -107,7 +106,7 @@ class JdbcStepOne extends AbstractWizardStep {
       formData.database = metadata.database;
       formData.table = metadata.table;
       formData.keyColumn = metadata.keyColumn;
-      if ( !!_connectorType.reopened ) {
+      if (_connectorType.reopened) {
         // We expecting the password was already filled for reopened system.
         formData.password = '********';
       }

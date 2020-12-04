@@ -1684,7 +1684,7 @@
               "business-role": "Directly assigned business role. Defined sub roles will be assigned together with this role.",
               "automatic-role": "Role assigned by automatic role configuration (by tree structure or attribute).",
               "sub-role": "Role assigned by business role (sub role).",
-              "disabled": "Role can be selected, when role can be requested."
+              "disabled": "Role can be selected, when role is active and can be requested."
             }
           }
         },

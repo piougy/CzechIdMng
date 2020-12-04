@@ -1730,7 +1730,7 @@
               "business-role": "Napřímo přidělená business role. Přidělením této role budou přiděleny i role definované touto business rolí (sub role).",
               "automatic-role": "Role přidělená systémem dle nastavení automatických rolí (podle struktury či atributu).",
               "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role).",
-              "disabled": "Roli lze vybrat pouze pokud o ni lze žádat."
+              "disabled": "Roli lze vybrat pouze pokud je aktivní a lze o ni žádat."
             }
           }
         },

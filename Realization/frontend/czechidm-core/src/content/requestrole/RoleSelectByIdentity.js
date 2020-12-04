@@ -126,7 +126,9 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 if (identityRoles.hasOwnProperty(index)) {
                   const identityRole = identityRoles[index];
                   if (identityRole) {
-                    // disabled is not set now ...
+                    if (identityRole._embedded && identityRole._embedded.role && identityRole._embedded.role.disabled) {
+                      identityRole.disabled = true; // disabled role definition
+                    }
                     identityRoleRoots = identityRoleRoots.set(identityRole.id, identityRole);
                   }
                 }

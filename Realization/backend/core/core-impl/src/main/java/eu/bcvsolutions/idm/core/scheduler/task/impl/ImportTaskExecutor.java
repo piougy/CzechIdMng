@@ -7,24 +7,22 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmExportImportService;
 import eu.bcvsolutions.idm.core.api.service.ImportManager;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 
 /**
- * Import task
+ * Import task.
  * 
  * @author Vít Švanda
  *
@@ -69,27 +67,12 @@ public class ImportTaskExecutor extends AbstractLongRunningTaskExecutor<Operatio
 		importManager.internalExecuteImport(batch, dryRun, this);
 
 		if (dryRun) {
-			return new OperationResult(OperationState.NOT_EXECUTED);
+			return new OperationResult
+						.Builder(OperationState.NOT_EXECUTED)
+						.setModel(new DefaultResultModel(CoreResultCode.IMPORT_EXECUTED_AS_DRYRUN))
+						.build();
 		}
 		return new OperationResult(OperationState.EXECUTED);
-	}
-	
-	@Override
-	protected OperationResult end(OperationResult result, Exception ex) {
-		Assert.notNull(batch, "Batch must exists!");
-
-		OperationResult operationResult = super.end(result, ex);
-		
-		// If result is 'NOT_EXECUTED' (dryRun), then we have to change result manually.
-		if (ex == null && OperationState.NOT_EXECUTED == operationResult.getState()) {
-			IdmLongRunningTaskDto task = getLongRunningTaskService().get(getLongRunningTaskId());
-			
-			ResultModel resultModel = new DefaultResultModel(CoreResultCode.IMPORT_EXECUTED_AS_DRYRUN);
-			task.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
-			
-			getLongRunningTaskService().save(task);
-		}
-		return operationResult;
 	}
 
 	private IdmExportImportDto getBatch() {
@@ -97,7 +80,7 @@ public class ImportTaskExecutor extends AbstractLongRunningTaskExecutor<Operatio
 		//
 		if (batch == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,
-					ImmutableMap.of("id", batchId));
+					ImmutableMap.of(BaseDto.PROPERTY_ID, batchId));
 		}
 		return batch;
 	}

@@ -85,6 +85,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 		return "csv";
 	}
 
+	@Transactional
 	public ConnectorTypeDto deployCsv(IdmAttachmentDto attachment, String goal) {
 
 		Path source = Paths.get(attachmentManager.getStoragePath(), attachment.getContentPath());

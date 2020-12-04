@@ -130,7 +130,6 @@ class CsvStepOne extends AbstractWizardStep {
         showLoading: true
       }, () => {
         const formData = new FormData();
-        formData.append('name', file.name);
         formData.append('goalPath', this.refs.filePath ? this.refs.filePath.getValue() : null);
         formData.append('fileName', file.name);
         formData.append('data', file);

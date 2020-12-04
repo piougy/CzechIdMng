@@ -5,6 +5,7 @@ import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.rest.impl.CsvConnectorTypeController;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorType;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -15,6 +16,9 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -22,7 +26,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Tests for CSV connector type.
@@ -40,6 +47,8 @@ public class CsvConnectorTypeTest extends AbstractIntegrationTest {
 	private SysSystemService systemService;
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private CsvConnectorTypeController csvConnectorTypeController;
 
 	@Before
 	public void init() {
@@ -49,6 +58,31 @@ public class CsvConnectorTypeTest extends AbstractIntegrationTest {
 	@After
 	public void logout() {
 		super.logout();
+	}
+
+	@Test
+	public void testDeployCsv() throws IOException {
+		String csvName = "idm_test.csv";
+		ConnectorTypeDto mockCsvConnectorTypeDto = new ConnectorTypeDto();
+		mockCsvConnectorTypeDto.setReopened(false);
+		mockCsvConnectorTypeDto.setId(CsvConnectorType.NAME);
+
+		ConnectorTypeDto csvConnectorTypeDto = connectorManager.load(mockCsvConnectorTypeDto);
+		assertNotNull(csvConnectorTypeDto);
+		String defaultPath = csvConnectorTypeDto.getMetadata().get(CsvConnectorType.FILE_PATH);
+		assertNotNull(defaultPath);
+		// Convert test file to the bytes and create mock MultipartFile.
+		byte[] bytes = Files.readAllBytes(Paths.get(CSV_TEST_FILE));
+		MultipartFile multipartFile = new MockMultipartFile(csvName, bytes);
+
+		// Deploy file. CSV file should be copied to the default path.
+		ResponseEntity<ConnectorTypeDto> deployResponse = csvConnectorTypeController.deploy(csvName, defaultPath, multipartFile);
+		ConnectorTypeDto deployResult = deployResponse.getBody();
+		assertNotNull(deployResult);
+		assertEquals(Paths.get(defaultPath, csvName).toString(),
+				Paths.get(deployResult.getMetadata().get(CsvConnectorType.FILE_PATH)).toString());
+		// Check if deployed file exists.
+		assertTrue(Files.exists(Paths.get(defaultPath, csvName)));
 	}
 
 	@Test

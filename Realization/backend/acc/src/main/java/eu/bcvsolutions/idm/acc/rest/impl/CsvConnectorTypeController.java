@@ -54,7 +54,6 @@ public class CsvConnectorTypeController {
 	/**
 	 * Upload CSV file.
 	 *
-	 * @param name
 	 * @param fileName
 	 * @param data
 	 * @return
@@ -77,7 +76,7 @@ public class CsvConnectorTypeController {
 							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
 			},
 			notes = "CSV file for system wizard.")
-	public ResponseEntity<ConnectorTypeDto> deploy(String name, String fileName, String goalPath, MultipartFile data) throws IOException {
+	public ResponseEntity<ConnectorTypeDto> deploy(String fileName, String goalPath, MultipartFile data) throws IOException {
 		// save attachment
 		IdmAttachmentDto attachment = new IdmAttachmentDto();
 		attachment.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);

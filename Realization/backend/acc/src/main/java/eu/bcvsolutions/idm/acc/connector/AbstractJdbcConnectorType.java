@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
@@ -22,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -68,7 +70,8 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		try {
 			Class.forName(this.getJdbcDriverName());
 		} catch (ClassNotFoundException e) {
-			LOG.info(MessageFormat.format("JDBC driver [{0}] wasn't found. This connector type [{1}] is not supports now.", this.getJdbcDriverName(), this.getId()));
+			LOG.info(MessageFormat.format("JDBC driver [{0}] wasn't found. This connector type [{1}] is not supports now.",
+					this.getJdbcDriverName(), this.getId()));
 			return false;
 		}
 		return super.supports();
@@ -152,6 +155,7 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		String keyColumn = connectorType.getMetadata().get(KEY_COLUMN);
 		Assert.notNull(keyColumn, "Key column cannot be null!");
 		String user = connectorType.getMetadata().get(USER);
+		Assert.notNull(user, "Username cannot be null!");
 		String password = connectorType.getMetadata().get(PASSWORD);
 		// Remove password from metadata.
 		connectorType.getMetadata().remove(PASSWORD);
@@ -188,7 +192,13 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		// Set the user.
 		this.setValueToConnectorInstance(USER, user, systemDto, connectorFormDef);
 		// Set the password.
-		this.setValueToConnectorInstance(PASSWORD, password, systemDto, connectorFormDef);
+		// Password is mandatory only if none exists in connector configuration.
+		String passwordInSystem = this.getValueFromConnectorInstance(PASSWORD, systemDto, connectorFormDef);
+		if (Strings.isNotBlank(password) && !GuardedString.SECRED_PROXY_STRING.equals(password)) {
+			this.setValueToConnectorInstance(PASSWORD, password, systemDto, connectorFormDef);
+		}else {
+			Assert.notNull(passwordInSystem, "Password cannot be null!");
+		}
 		// Set the JDBC driver.
 		this.setValueToConnectorInstance(JDBC_DRIVER, getJdbcDriverName(), systemDto, connectorFormDef);
 		// Set the JDBC url template.

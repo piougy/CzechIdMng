@@ -97,18 +97,23 @@ class JdbcStepOne extends AbstractWizardStep {
 
     const _connectorType = this.state.connectorType ? this.state.connectorType : connectorType;
     const formData = {};
+    let hasSchema = false;
     if (_connectorType && _connectorType.metadata) {
       const metadata = _connectorType.metadata;
       formData.name = metadata.name;
       formData.port = metadata.port;
       formData.host = metadata.host;
       formData.user = metadata.user;
-      formData.password = metadata.password;
       formData.database = metadata.database;
       formData.table = metadata.table;
       formData.keyColumn = metadata.keyColumn;
+      if ( !!_connectorType.reopened ) {
+        // We expecting the password was already filled for reopened system.
+        formData.password = '********';
+      }
     }
     const locKey = this.getLocKey();
+
     return (
       <Basic.Div showLoading={showLoading}>
         <Basic.AbstractForm
@@ -177,7 +182,7 @@ class JdbcStepOne extends AbstractWizardStep {
               <Basic.TextField
                 ref="password"
                 pwdAutocomplete={false}
-                required
+                required={_connectorType ? !_connectorType.reopened : true}
                 type="password"
                 label={this.i18n(`${locKey}.password.label`)}
                 max={255}/>

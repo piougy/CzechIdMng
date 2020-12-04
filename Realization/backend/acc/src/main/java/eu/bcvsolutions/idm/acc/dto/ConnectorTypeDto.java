@@ -1,15 +1,17 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.hateoas.core.Relation;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.api.dto.AbstractComponentDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModelProperty.AccessMode;
-import java.util.HashMap;
-import java.util.Map;
-import javax.validation.constraints.NotEmpty;
-import org.springframework.hateoas.core.Relation;
 
 
 /**

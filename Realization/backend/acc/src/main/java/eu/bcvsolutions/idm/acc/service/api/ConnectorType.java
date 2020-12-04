@@ -1,11 +1,12 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.util.Map;
+
+import org.springframework.core.Ordered;
+
 import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
-import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
-import java.util.Map;
-import org.springframework.core.Ordered;
 
 /**
  * Connector type extends standard IC connector for more metadata (image, wizard, ...).

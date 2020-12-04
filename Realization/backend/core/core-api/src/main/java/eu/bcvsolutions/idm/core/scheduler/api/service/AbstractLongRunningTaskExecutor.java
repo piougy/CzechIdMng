@@ -324,9 +324,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 				// operation result is prepared outside as LRT result
 				operationResult = (OperationResult) result;
 			} else {
-				operationResult = new OperationResult();
+				operationResult = new OperationResult(OperationState.RUNNING);
 			}
-			operationResult.setState(OperationState.EXECUTED);
+			if (operationResult.getState().isRunnable()) {
+				operationResult.setState(OperationState.EXECUTED);
+			}
 			//
 			task.setResult(operationResult);
 		}

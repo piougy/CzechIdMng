@@ -155,6 +155,8 @@ public class InvalidFormAttributeDto extends AbstractDto {
 	
 	/**
 	 * Textual information used in logs.
+	 * 
+	 * @since 10.7.0
 	 */
 	@Override
 	public String toString() {

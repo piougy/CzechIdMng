@@ -75,8 +75,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	@Override
 	public Boolean process() {
 		this.counter = 0L;
-		executeProcess();
-		return Boolean.TRUE;
+		//
+		return executeProcess();
 	}
 
 	@Override
@@ -186,10 +186,16 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		this.requireNewTransaction = requireNewTransaction;
 	}
 
-	private void executeProcess() {
+	/**
+	 * Process long running task.
+	 * 
+	 * @return true - completed, false - not complete
+	 */
+	private boolean executeProcess() {
 		Set<UUID> processedRefs = new HashSet<>();
 		//
 		boolean canContinue = true;
+		boolean updateStateSucceed = true;
 		boolean dryRun = longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun();
 		Pageable pageable = PageRequest.of(
 				0, 
@@ -217,7 +223,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 						processedRefs.add(candidate.getId());
 					}					
 				}
- 				canContinue &= this.updateState();
+				updateStateSucceed = this.updateState();
+				canContinue &= updateStateSucceed;
  				//
  				// flush and clear session - if LRT is wrapped in parent transaction, we need to clear it
  				if (getHibernateSession().isOpen()) {
@@ -232,7 +239,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		//
 		// if task doesn't support queue, we can end
 		if (!supportsQueue()) {
-			return;
+			return updateStateSucceed;
 		}
 		//
 		// check task was not canceled or interrupted, then clean history
@@ -246,6 +253,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			queueEntityRefs.removeAll(processedRefs);
 			queueEntityRefs.forEach(entityRef -> this.removeFromProcessedQueue(entityRef));
 		}
+		//
+		return updateStateSucceed;
 	}
 	
 	private Session getHibernateSession() {

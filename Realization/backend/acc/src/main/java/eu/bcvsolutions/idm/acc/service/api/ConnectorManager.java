@@ -1,12 +1,11 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import eu.bcvsolutions.idm.acc.connector.CsvConnectorType;
+import java.util.List;
+
 import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Connector manager controls connector types, which extends standard IC connectors for more metadata (image, wizard, ...).

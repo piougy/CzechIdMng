@@ -84,7 +84,7 @@ public interface LookupService extends ScriptEnabled {
 	<DTO extends BaseDto> DTO lookupDto(String identifiableType, Serializable entityId);
 	
 	/**
-	 * Returns {@link EntityLookup} for given identifiable class
+	 * Returns {@link EntityLookup} for given identifiable class.
 	 * 
 	 * @param entityClass
 	 * @param <E> {@link Identifiable} type
@@ -93,7 +93,7 @@ public interface LookupService extends ScriptEnabled {
 	<I extends BaseEntity> EntityLookup<I> getEntityLookup(Class<? extends Identifiable> identifiableType);
 	
 	/**
-	 * Returns {@link DtoLookup} for given identifiable class
+	 * Returns {@link DtoLookup} for given identifiable class.
 	 * 
 	 * @param identifiableType
 	 * @param <E> {@link Identifiable} type
@@ -102,7 +102,7 @@ public interface LookupService extends ScriptEnabled {
 	<I extends BaseDto> DtoLookup<I> getDtoLookup(Class<? extends Identifiable> identifiableType);
 
 	/**
-	 * Returns base service for given dto
+	 * Returns base service for given dto.
 	 * 
 	 * @param dtoClass
 	 * @param <DTO> {@link BaseDto} type

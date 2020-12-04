@@ -537,7 +537,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		Page<IdmProcessedTaskItemDto> queueItems = itemService.findQueueItems(scheduledTask, null);
 		Page<IdmProcessedTaskItemDto> logItems = itemService.findLogItems(longRunningTask, null);
 		//
-		assertTrue(result);
+		Assert.assertFalse(result);
 		assertEquals(longRunningTask.getScheduledTask(), scheduledTask.getId());
 		assertEquals(1, queueItems.getTotalElements());
 		assertEquals(1, logItems.getTotalElements());

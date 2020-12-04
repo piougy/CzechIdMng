@@ -6282,6 +6282,10 @@
           "replacewhitespacescharacter": {
             "label": "Character/s for filling white spaces",
             "help": "Character/s will be used to replace white spaces, outside the username and email suffix. If you leave this blank, all spaces will be removed."
+          },
+          "unique-email": {
+            "label": "Verify unique email adress",
+            "help": "The newly generated email adress will be searched. If such email adress already exists, numeric suffix will be added. Suffix may be incremented."
           }
         }
       },

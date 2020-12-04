@@ -30,13 +30,13 @@ class GenerateValues extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        {this.renderPageHeader()}
+      <Basic.Div>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
-          <GenerateValueTable manager={this.manager} uiKey={TABLE_UIKEY} match={ this.props.match } filterOpened/>
+          <GenerateValueTable manager={ this.manager } uiKey={ TABLE_UIKEY } match={ this.props.match } filterOpened/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

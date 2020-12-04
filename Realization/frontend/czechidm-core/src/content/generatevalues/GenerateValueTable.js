@@ -378,10 +378,10 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                     <div style={ showProperties ? {} : { display: 'none' }}>
                       <Basic.ContentHeader text={ this.i18n('generatorProperties.title') }/>
                       <Advanced.EavForm
-                        useDefaultValue
                         ref="formInstance"
-                        readOnly={!manager.canSave(detail.entity, _permissions)}
-                        formInstance={ formInstance }/>
+                        readOnly={ !manager.canSave(detail.entity, _permissions) }
+                        formInstance={ formInstance }
+                        useDefaultValue={ Utils.Entity.isNew(detail.entity) }/>
                     </div>
 
                   </Basic.Col>

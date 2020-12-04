@@ -80,7 +80,7 @@ public class IdmIdentityFilter
 	 */
 	public static final String PARAMETER_GUARANTEE_TYPE = "guaranteesType";
 	/**
-	 * Identities by email.
+	 * Identities by email (equals).
 	 */
 	public static final String PARAMETER_EMAIL = "email";
 	/**
@@ -305,6 +305,8 @@ public class IdmIdentityFilter
 	}
 	
 	/**
+	 * Identities by email (equals).
+	 * 
 	 * @since 9.3.0
 	 * @return
 	 */
@@ -313,6 +315,8 @@ public class IdmIdentityFilter
 	}
 	
 	/**
+	 * Identities by email (equals).
+	 * 
 	 * @since 9.3.0
 	 * @param email
 	 */

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,7 +24,7 @@ import eu.bcvsolutions.idm.core.generator.identity.IdentityEmailGenerator;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
+public class IdentityEmailGeneratorIntegrationTest extends AbstractGeneratorTest {
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -327,6 +328,50 @@ public class IdentityEmailGeneratorTest extends AbstractGeneratorTest {
 		IdmIdentityDto generatedDto = valueGeneratorManager.generate(identityDto);
 		assertNotNull(generatedDto.getEmail());
 		assertEquals(finalUsername + emailSuffixResult, generatedDto.getEmail());
+	}
+	
+	@Test
+	public void testUniqueEmail() {
+		String emailSuffix = "@example.tld";
+
+		IdmIdentityDto identityDto = new IdmIdentityDto();
+		identityDto.setFirstName("firstname");
+		identityDto.setLastName("lastname");
+		identityDto.setUsername(getHelper().createName());
+		
+		ValueGeneratorDto generator = getGenerator();
+
+		this.createGenerator(getDtoType(), getGeneratorType(),
+				this.createConfiguration(
+						generator.getFormDefinition(), 
+						ImmutableMap.of(
+							IdentityEmailGenerator.EMAIL_SUFFIX, emailSuffix,
+							IdentityEmailGenerator.GENERATE_FROM_USERNAME, Boolean.FALSE.toString(), // ~ firstname and lastname
+							IdentityEmailGenerator.PROPERTY_UNIQUE_EMAIL, Boolean.TRUE.toString()
+						)
+				),
+				1, 
+				null
+		);
+
+		IdmIdentityDto identityOne = identityService.save(identityDto);
+		Assert.assertNotNull(identityOne.getEmail());
+		Assert.assertEquals(identityDto.getLastName() + identityDto.getFirstName() + emailSuffix, identityOne.getEmail());
+		//
+		identityDto.setUsername(getHelper().createName());
+		IdmIdentityDto identityTwo = identityService.save(identityDto);
+		Assert.assertNotNull(identityTwo.getEmail());
+		Assert.assertEquals(identityDto.getLastName() + identityDto.getFirstName() + 1 + emailSuffix, identityTwo.getEmail());
+		//
+		identityDto.setUsername(getHelper().createName());
+		IdmIdentityDto identityThree = identityService.save(identityDto);
+		Assert.assertNotNull(identityThree.getEmail());
+		Assert.assertEquals(identityDto.getLastName() + identityDto.getFirstName() + 2 + emailSuffix, identityThree.getEmail());
+		//
+		identityDto.setUsername(getHelper().createName());
+		IdmIdentityDto identityFour = identityService.save(identityDto);
+		Assert.assertNotNull(identityFour.getEmail());
+		Assert.assertEquals(identityDto.getLastName() + identityDto.getFirstName() + 3 + emailSuffix, identityFour.getEmail());
 	}
 
 	@Override

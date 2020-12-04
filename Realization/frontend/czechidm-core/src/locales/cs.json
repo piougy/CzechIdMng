@@ -6334,6 +6334,10 @@
           "replacewhitespacescharacter": {
             "label": "Znak/y pro vyplnění mezer",
             "help": "Znak/y budou použity pro nahrazení mezer, a to i vně uživatelského jména a emailového suffixu. Pokud ponecháte prázdné, všechny mezery budou odstraněny."
+          },
+          "unique-email": {
+            "label": "Ověřovat unikátní emailovou adresu",
+            "help": "Nově vygenerovaná emailová adresa bude vyhledána a v případě existence bude dodán číselný suffix. Suffix může být inkrementován."
           }
         }
       },

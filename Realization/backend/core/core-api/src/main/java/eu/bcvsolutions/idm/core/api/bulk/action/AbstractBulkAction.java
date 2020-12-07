@@ -9,8 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.UnexpectedRollbackException;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -59,7 +67,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		implements IdmBulkAction<DTO, F> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractBulkAction.class);
-	
+
 	private IdmBulkActionDto action;
 	public Class<? extends BaseEntity> entityClass;
 	@Autowired
@@ -68,7 +76,11 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	private IdmIdentityService identityService;
 	@Autowired
 	private ObjectMapper mapper;
-	
+	@Autowired
+	private PlatformTransactionManager platformTransactionManager;
+	@Autowired
+	private EntityManager entityManager;
+
 	@Override
 	public IdmBulkActionDto getAction() {
 		return action;
@@ -78,7 +90,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	public void setAction(IdmBulkActionDto action) {
 		this.action = action;
 	}
-	
+
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		return new ArrayList<>();
@@ -110,7 +122,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 				Object value = action.getProperties().get(attribute.getCode());
 				if (value == null) {
 					throw new ResultCodeException(CoreResultCode.BULK_ACTION_REQUIRED_PROPERTY, ImmutableMap.of("attributeCode", attribute.getCode()));
-				} 
+				}
 				if (attribute.isMultiple()) {
 					Collection<?> multivaluedValue= (Collection<?>)value;
 					if (multivaluedValue.isEmpty()) {
@@ -120,12 +132,12 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 			}
 		}
 	}
-	
+
 	@Override
 	public ResultModels prevalidate() {
 		return new ResultModels();
 	}
-	
+
 	@Override
 	public Map<String, Object> getProperties() {
 		Map<String, Object> properties = super.getProperties();
@@ -140,17 +152,17 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		//
 		return properties;
 	}
-	
+
 	@Override
 	public List<String> getAuthorities() {
 		return this.getAuthoritiesForEntity();
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return DEFAULT_ORDER;
 	}
-	
+
 	@Override
 	public List<String> getPropertyNames() {
 		List<String> propertyNames = super.getPropertyNames();
@@ -164,7 +176,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		//
 		return propertyNames;
 	}
-	
+
 	@Override
 	protected OperationResult end(OperationResult result, Exception ex) {
 		OperationResult end = null;
@@ -199,8 +211,33 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public OperationResult process() {
+		if (requireNewTransaction()) {
+			TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+			template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+			// Bulk action will be processed in transaction.
+			final OperationResult[] result = new OperationResult[1];
+			try {
+				template.execute(new TransactionCallbackWithoutResult() {
+
+					@Override
+					protected void doInTransactionWithoutResult(TransactionStatus status) {
+						result[0] = internalProcess();
+					}
+				});
+			} catch (UnexpectedRollbackException ex) {
+				// Just log for sure ... exception solved in new transaction, but this lower transaction is marked as roll-back.
+				LOG.debug("Bulk action [{}] processed item [{}] failed",
+						getClass().getSimpleName(), result[0], ex);
+			}
+			return result[0];
+		}else {
+			return internalProcess();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public OperationResult internalProcess() {
 		IdmBulkActionDto localAction = this.getAction();
 		if (localAction == null) {
 			// try to load bulk action from LRT persisted properties
@@ -230,18 +267,18 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 						//
 						for (Field declaredField : filterClass.getDeclaredFields()) {
 							// prevent to resurrect half of filter only - is insecure
-							// TODO: refactor all filters to pure DataFilter 
+							// TODO: refactor all filters to pure DataFilter
 							if (!Modifier.isStatic(declaredField.getModifiers())) {
 								throw new CoreException(
 										String.format(
 											"Declared filter [%s] has to fully support DataFilter, "
 												+ "refactor field [%s] to data usage before action can be executed asynchronously.",
-											filterClass.getCanonicalName(), 
+											filterClass.getCanonicalName(),
 											declaredField.getName()
 										)
 								);
 							}
-						}						
+						}
 						filter = filterClass.getDeclaredConstructor(MultiValueMap.class).newInstance(multivaluedMap);
 					} catch (ReflectiveOperationException | IllegalArgumentException| SecurityException ex) {
 						throw new CoreException(
@@ -279,7 +316,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 
 	/**
 	 * Obtains the all UUIDs of entities to processing
-	 * 
+	 *
 	 * @param action
 	 * @param description
 	 * @return
@@ -320,12 +357,12 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		}
 		return entities;
 	}
-	
+
 	/**
 	 * Returns all entities to be process, if {@link #showWithoutSelection()} is enabled.
 	 * All entities are processed, if no filter and no identifiers was given.
 	 * Override this method, if {@link #showWithoutSelection()} is enabled for your action.
-	 * 
+	 *
 	 * @param action
 	 * @param description
 	 * @return
@@ -334,7 +371,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	protected List<UUID> getAllEntities(IdmBulkActionDto action, StringBuilder description) {
 		throw new ResultCodeException(CoreResultCode.BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED);
 	}
-	
+
 	protected DTO getDtoById(UUID id) {
 		return getService().get(id);
 	}
@@ -347,34 +384,69 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 */
 	protected OperationResult processEntities(Collection<UUID> entitiesId) {
 		for (UUID entityId : entitiesId) {
-			this.increaseCounter();
-			DTO entity = getDtoById(entityId);
-			if (entity == null) {
-				LOG.warn("Entity with id [{}] not found. The Entity will be skipped.", entityId);
-				continue;
-			}
-			try {
-				if (checkPermissionForEntity(entity)) {
-					OperationResult result = processDto(entity);
-					this.logItemProcessed(entity, result);
-				} else {
-					// check permission failed
-					createPermissionFailedLog(entity);
+			final OperationResult[] result = new OperationResult[1];
+			if (requireNewTransaction()) {
+				TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+				template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+				// Item will be processed in new transaction.
+				try {
+					template.execute(new TransactionCallbackWithoutResult() {
+
+						@Override
+						protected void doInTransactionWithoutResult(TransactionStatus status) {
+							result[0] = processEntity(entityId);
+						}
+					});
+				} catch (UnexpectedRollbackException ex) {
+					// Just log for sure ... exception solved in new transaction, but this lower transaction is marked as roll-back.
+					LOG.debug("Bulk action [{}] processed item [{}] failed",
+							getClass().getSimpleName(), result[0], ex);
 				}
-			} catch (ResultCodeException ex) {
-				// log failed result and continue
-				LOG.error("Processing of entity [{}] failed.", entityId, ex);
-				this.logItemProcessed(entity, new OperationResult.Builder(OperationState.EXCEPTION).setException(ex).build());
-			} catch (Exception ex) {
-				// log failed result and continue
-				LOG.error("Processing of entity [{}] failed.", entityId, ex);
-				this.logItemProcessed(entity, new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
+			} else {
+				result[0] = processEntity(entityId);
 			}
-			if (!updateState()) {
-				return new OperationResult.Builder(OperationState.CANCELED).build();
-			}			
+			if (result[0] != null && result[0].getState() == OperationState.CANCELED) {
+				return result[0];
+			}
 		}
 		return new OperationResult.Builder(OperationState.EXECUTED).build();
+	}
+
+	/**
+	 * Process one entity.
+	 */
+	private OperationResult processEntity(UUID entityId) {
+		this.increaseCounter();
+		DTO entity = getDtoById(entityId);
+		if (entity == null) {
+			LOG.warn("Entity with id [{}] not found. The Entity will be skipped.", entityId);
+			return null;
+		}
+		try {
+			if (checkPermissionForEntity(entity)) {
+				this.logItemProcessed(entity, processDto(entity));
+			} else {
+				// check permission failed
+				createPermissionFailedLog(entity);
+			}
+		} catch (ResultCodeException ex) {
+			// log failed result and continue
+			LOG.error("Processing of entity [{}] failed.", entityId, ex);
+			this.logItemProcessed(entity, new OperationResult.Builder(OperationState.EXCEPTION).setException(ex).build());
+		} catch (Exception ex) {
+			// log failed result and continue
+			LOG.error("Processing of entity [{}] failed.", entityId, ex);
+			this.logItemProcessed(entity, new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
+		}
+		if (!updateState()) {
+			return new OperationResult.Builder(OperationState.CANCELED).build();
+		}
+		// flush and clear session - if LRT is wrapped in parent transaction, we need to clear it
+		if (getHibernateSession().isOpen()) {
+			getHibernateSession().flush();
+			getHibernateSession().clear();
+		}
+		return null;
 	}
 
 	/**
@@ -385,7 +457,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	protected void createSuccessLog(DTO dto) {
 		this.logItemProcessed(dto, new OperationResult.Builder(OperationState.EXECUTED).build());
 	}
-	
+
 	/**
 	 * Create failed log for given dto with exception for insufficient permission
 	 *
@@ -427,7 +499,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		return PermissionUtils.hasPermission(getService().getPermissions(entity),
 				getPermissionForEntity());
 	}
-	
+
 	protected BasePermission[] getPermissionForEntity() {
 		return PermissionUtils.toPermissions(getAuthoritiesForEntity()).toArray(new BasePermission[] {});
 	}
@@ -441,7 +513,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	protected List<String> getAuthoritiesForEntity() {
 		return new ArrayList<>();
 	}
-	
+
 	/**
 	 * Process one of DTO in queue
 	 *
@@ -449,7 +521,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 * @return return operation result for current processed DTO
 	 */
 	protected abstract OperationResult processDto(DTO dto);
-	
+
 	/**
 	 * Generic action.
 	 *
@@ -473,11 +545,22 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	public void setEntityClass(Class<? extends BaseEntity> entityClass) {
 		this.entityClass = entityClass;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Class<? extends BaseDto> getDtoClass() {
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractBulkAction.class);
 		return (Class<? extends BaseDto>) genericTypes[0];
 	}
-	
+
+	/**
+	 * If return true, then every item (and whole bulk action) will executed in new transaction.
+	 * @return
+	 */
+	protected boolean requireNewTransaction() {
+		return false;
+	}
+
+	private Session getHibernateSession() {
+		return (Session) this.entityManager.getDelegate();
+	}
 }

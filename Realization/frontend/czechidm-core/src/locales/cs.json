@@ -61,7 +61,8 @@
     "readOnly": "Pouze pro čtení",
     "removed": "Odebráno",
     "waiting": "Čeká",
-    "next": "Další"
+    "next": "Další",
+    "warning": "Varování"
   },
   "button": {
     "activate": "Aktivovat",

@@ -38,7 +38,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
           level={ message ? message.level : null }
           value={ value.state }
           enum={ OperationStateEnum }
-          label={ stateLabel } />
+          label={ stateLabel || (message && message.level === 'info' && value.state === 'EXCEPTION' ? this.i18n('label.warning') : null) } />
         <Basic.Popover
           ref="popover"
           trigger={['click']}
@@ -137,7 +137,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
               level={ message ? message.level : null }
               value={value.state}
               enum={ OperationStateEnum }
-              label={ stateLabel }/>
+              label={ stateLabel || (message && message.level === 'info' && value.state === 'EXCEPTION' ? this.i18n('label.warning') : null) }/>
           </Basic.Div>
           {
             (!value || !value.code)

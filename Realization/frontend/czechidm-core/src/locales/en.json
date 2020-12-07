@@ -61,7 +61,8 @@
     "readOnly": "Read only",
     "removed": "Removed",
     "waiting": "Waiting",
-    "next": "Next"
+    "next": "Next",
+    "warning": "Warning"
   },
   "button": {
     "activate": "Activate",

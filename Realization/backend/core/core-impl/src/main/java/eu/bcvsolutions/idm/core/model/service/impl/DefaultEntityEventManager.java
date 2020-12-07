@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,6 +86,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -587,10 +589,16 @@ public class DefaultEntityEventManager implements EntityEventManager {
 					try {
 						process(new CoreEvent<>(EntityEventType.EXECUTE, event));
 					} catch (Exception ex) {
-						// exception handling only ... all processor should persist their own entity state (see AbstractEntityEventProcessor)
+						// all processor should persist their own entity state (see AbstractEntityEventProcessor)
+						// event result is persisted here
+						OperationState resultState = OperationState.EXCEPTION;
 						ResultModel resultModel;
 						if (ex instanceof ResultCodeException) {
-							resultModel = ((ResultCodeException) ex).getError().getError();
+							ResultCodeException resultCodeException = (ResultCodeException) ex;
+							resultModel = resultCodeException.getError().getError();
+							if (resultCodeException.getStatus() == HttpStatus.ACCEPTED) {
+								resultState = OperationState.EXECUTED; // => concrete information is preserved in model t know, what happen
+							}
 						} else {
 							resultModel = new DefaultResultModel(
 									CoreResultCode.EVENT_EXECUTE_FAILED, 
@@ -601,12 +609,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 											"instanceId", String.valueOf(event.getInstanceId())));
 						}		
 						saveResult(event.getId(), new OperationResultDto
-										.Builder(OperationState.EXCEPTION)
+										.Builder(resultState)
 										.setCause(ex)
 										.setModel(resultModel)
 										.build());
-						
-						LOG.error(resultModel.toString(), ex);
+						//
+						ExceptionUtils.log(LOG, resultModel, ex);
 						//
 						// Sometimes should be the exception processed within owner service (for audit purpose in some request).
 						// We check if owner service supports this feature (implements ExceptionProcessable).
@@ -647,6 +655,17 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmEntityEventDto saveEvent(IdmEntityEventDto entityEvent) {
+		Assert.notNull(entityEvent, "Entity event is required.");
+		//
+		// fill default instance id to asynchronous processing
+		if (entityEvent.getInstanceId() == null) {
+			entityEvent.setInstanceId(eventConfiguration.getAsynchronousInstanceId());
+		}
+		// fill default priority
+		if (entityEvent.getPriority() == null) {
+			entityEvent.setPriority(PriorityType.NORMAL);
+		}
+		//
 		return entityEventService.save(entityEvent);
 	}
 	

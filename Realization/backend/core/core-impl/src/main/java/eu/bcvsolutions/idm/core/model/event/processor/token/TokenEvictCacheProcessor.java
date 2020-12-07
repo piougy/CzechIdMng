@@ -55,7 +55,7 @@ public class TokenEvictCacheProcessor extends CoreEventProcessor<IdmTokenDto>  i
 			UUID identityId = token.getOwnerId(); 
 			// evict authorization manager caches for token identity only
 			cacheManager.evictValue(AuthorizationManager.PERMISSION_CACHE_NAME, identityId);
-			// cached configured authorization policies
+			// cached identity authorization policies
 			cacheManager.evictValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identityId);
 		}
 		// evict token cache on every token change

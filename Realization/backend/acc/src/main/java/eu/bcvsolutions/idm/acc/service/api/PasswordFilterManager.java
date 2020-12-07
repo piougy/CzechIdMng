@@ -21,16 +21,16 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 public interface PasswordFilterManager extends ScriptEnabled {
 
-	public static final String SCRIPT_SYSTEM_PARAMETER = "system";
-	public static final String SCRIPT_USERNAME_PARAMETER = "username";
-	public static final String SCRIPT_LOG_IDENTIFIER_PARAMETER = "logIdentifier";
-	public static final String SCRIPT_SYSTEM_ATTRIBUTE_MAPPING_PARAMETER = "systemAttributeMapping";
+	String SCRIPT_SYSTEM_PARAMETER = "system";
+	String SCRIPT_USERNAME_PARAMETER = "username";
+	String SCRIPT_LOG_IDENTIFIER_PARAMETER = "logIdentifier";
+	String SCRIPT_SYSTEM_ATTRIBUTE_MAPPING_PARAMETER = "systemAttributeMapping";
 	// Parameter for processor properties that contains managed account - performance speedup 
-	public static final String MANAGED_ACCOUNTS = "managedAccounts";
+	String MANAGED_ACCOUNTS = "managedAccounts";
 	// Parameter for processors that contains system id and all accounts that is for the given system must be skipped
-	public static final String EXCLUDED_SYSTEM = "excludedSystem";
+	String EXCLUDED_SYSTEM = "excludedSystem";
 	
-	public static final String ECHO_CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":password-filter-echo-cache";
+	String ECHO_CACHE_NAME = String.format("%s:password-filter-echo-cache", AccModuleDescriptor.MODULE_ID);
 
 	/**
 	 * Process validation trough password policies stored in IdM.

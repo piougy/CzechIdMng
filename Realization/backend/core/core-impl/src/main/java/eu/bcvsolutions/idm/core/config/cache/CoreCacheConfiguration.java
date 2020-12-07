@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import eu.bcvsolutions.idm.core.api.config.cache.DistributedIdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.config.cache.IdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.config.cache.LocalIdMCacheConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
@@ -80,10 +81,10 @@ public class CoreCacheConfiguration {
 	}
 
 	/**
-	 * Define distributed cache for {@link AuthorizationManager} - logged identity authorization policies.
+	 * Define distributed cache for {@link AuthorizationManager} - configured authorization policies (by application).
 	 *
-	 * @return autorization policy cache
-	 * @since 10.4.1
+	 * @return configured policies cache
+	 * @since 10.7.0
 	 */
 	@Bean
 	@SuppressWarnings("rawtypes")
@@ -93,6 +94,21 @@ public class CoreCacheConfiguration {
 				.withKeyType(UUID.class)
 				.withValueType(HashMap.class)
 				.withTtl(Duration.ofHours(2)) // Depends on identity is logged out. TODO: clear cache function (keys for logged identity only).
+				.build();
+	}
+	
+	/**
+	 * Define distributed cache for {@link AuthorizationManager} - logged identity authorization policies.
+	 *
+	 * @return autorization policy cache
+	 * @since 10.7.0
+	 */
+	@Bean
+	public IdMCacheConfiguration autorizationPolicyDefinitionCacheConfiguration() {
+		return DistributedIdMCacheConfiguration.<UUID, IdmAuthorizationPolicyDto> builder()
+			.withName(AuthorizationManager.AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME)
+				.withKeyType(UUID.class)
+				.withValueType(IdmAuthorizationPolicyDto.class)
 				.build();
 	}
 	

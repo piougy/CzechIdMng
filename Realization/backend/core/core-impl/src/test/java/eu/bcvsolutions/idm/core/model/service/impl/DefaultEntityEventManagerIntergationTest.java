@@ -724,9 +724,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			TransactionContextHolder.setContext(TransactionContextHolder.createEmptyContext()); //start transaction
 			UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
 			Assert.assertNotNull(transactionId);
-			//
-			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-			
 			// Create role request - identity roles has to be created under creators authority
 			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 			Assert.assertEquals(transactionId, identity.getTransactionId());
@@ -734,6 +731,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			Assert.assertEquals(transactionId, role.getTransactionId());
 			IdmRoleRequestDto request = getHelper().createRoleRequest(getHelper().getPrimeContract(identity), role);
 			Assert.assertEquals(transactionId, request.getTransactionId());
+			//
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			getHelper().executeRequest(request, true, false);
 			
 			getHelper().waitForResult(res -> {

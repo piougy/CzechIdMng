@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [10.7.0]
+
+### Administrator
+
+- [#2506](https://redmine.czechidm.com/issues/2506) - [Two-factor authentication](https://wiki.czechidm.com/devel/documentation/security/dev/security#two-factor_authentication) is supported optionally, but authentication mechanism was refactored from scratch. **Test your configured authentication method (e.g. sso, kerberos, authentication by header or by remote user, authentication by target systems) carefully after upgrade.**
+- [#2506](https://redmine.czechidm.com/issues/2506) - **Basic authentication checks password, which must be changed now - password with this requirement cannot be used now**. Password has to be changed the standard way to use it in basic authentication.
 
 ## [10.6.0]
 

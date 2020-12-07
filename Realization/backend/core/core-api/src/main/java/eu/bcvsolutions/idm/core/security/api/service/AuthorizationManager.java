@@ -24,8 +24,22 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
  */
 public interface AuthorizationManager {
 	
+	/**
+	 * Logged identity permissions for shown record.
+	 */
 	String PERMISSION_CACHE_NAME = String.format("%s:permission-cache", CoreModule.MODULE_ID);
+	/**
+	 * Logged identity authorization policies (as uuid).
+	 * 
+	 * @since 10.4.1
+	 */
 	String AUTHORIZATION_POLICY_CACHE_NAME = String.format("%s:authorization-policy-cache", CoreModule.MODULE_ID);
+	/**
+	 * Configured policies (uuid -> dto).
+	 * 
+	 * @since 10.7.0
+	 */
+	String AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME = String.format("%s:authorization-policy-definition-cache", CoreModule.MODULE_ID);
 	
 	/**
 	 * Return security predicate for given permissions and root by {@link BaseEntity} type.

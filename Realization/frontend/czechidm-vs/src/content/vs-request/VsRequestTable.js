@@ -233,7 +233,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           showLoading={showLoading}
           forceSearchParameters={ forceSearchParameters }
           defaultSearchParameters={defaultSearchParameters}
-          showRowSelection={ Managers.SecurityManager.hasAuthority('VSREQUEST_UPDATE') && showRowSelection }
+          showRowSelection={showRowSelection}
           className={ className }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -283,11 +283,6 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
-          }
-          actions={
-            [
-              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.cancel.bind(this), disabled: false }
-            ]
           }
           _searchParameters={ this.getSearchParameters() }
         >

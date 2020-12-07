@@ -246,6 +246,30 @@
           }
         }
       }
+    },
+    "bulk-action": {
+      "vs-request-cancel-bulk-action": {
+        "icon": "fa:remove",
+        "label": "Cancel the request",
+        "help": "<strong>Cancel selected requests</strong> on the virtual system. The operation <strong>does not</strong> affect other parts of the <strong>IdM</strong>. Ie. for example, if you want to prevent the same request from being recreated, you must remove the role that this system assigns to that identity.",
+        "attributes": {
+          "reason": {
+            "label": "Reason for rejection",
+            "placeholder": "Fill in the reason for rejection ..."
+          }
+        }
+      },
+      "vs-request-realize-bulk-action": {
+        "icon": "fa:check",
+        "label": "Realized",
+        "help": "Mark requirements as implemented.",
+        "attributes": {
+          "reason": {
+            "label": "Note",
+            "placeholder": "Fill in the note ..."
+          }
+        }
+      }
     }
   },
   "error": {

@@ -32,6 +32,10 @@ export default class VsRequestService extends Services.AbstractService {
     return 'VSREQUEST';
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   /**
    * Almost all dtos doesn§t support rest `patch` method
    */

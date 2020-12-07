@@ -1,10 +1,13 @@
 package eu.bcvsolutions.idm.vs.rest.impl;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +58,7 @@ import io.swagger.annotations.AuthorizationScope;
 
 /**
  * Rest methods for virtual system request
- * 
+ *
  * @author Svanda
  * @author Ondrej Husnik
  *
@@ -124,19 +127,19 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
 	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_COUNT + "')")
 	@ApiOperation(
-			value = "The number of entities that match the filter", 
-			nickname = "countRequests", 
-			tags = { VsRequestController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+			value = "The number of entities that match the filter",
+			nickname = "countRequests",
+			tags = { VsRequestController.TAG },
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 						@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_COUNT, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 						@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_COUNT, description = "") })
 				})
 	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
@@ -174,7 +177,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 				request.getEmbedded().put(IdmConceptRoleRequestService.ROLE_REQUEST_FIELD, roleRequestDto);
 			}
 		}
-		
+
 		ResourceSupport resource = toResource(request);
 		if (resource == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -290,6 +293,81 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		}
 	}
 
+
+	/**
+	 * Get available bulk actions for request
+	 *
+	 * @return
+	 */
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_READ + "')")
+	@ApiOperation(
+			value = "Get available bulk actions",
+			nickname = "availableBulkAction",
+			tags = { VsRequestController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") })
+			})
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return super.getAvailableBulkActions();
+	}
+
+	/**
+	 * Process bulk action for requests
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@Override
+	@ResponseBody
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_READ + "')")
+	@ApiOperation(
+			value = "Process bulk action for request",
+			nickname = "bulkAction",
+			response = IdmBulkActionDto.class,
+			tags = { VsRequestController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "")})
+			})
+	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.bulkAction(bulkAction);
+	}
+
+	/**
+	 * Prevalidate bulk action for requests
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@Override
+	@ResponseBody
+	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_READ + "')")
+	@ApiOperation(
+			value = "Prevalidate bulk action for identities",
+			nickname = "prevalidateBulkAction",
+			response = IdmBulkActionDto.class,
+			tags = { VsRequestController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "")})
+			})
+	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.prevalidateBulkAction(bulkAction);
+	}
+
+
 	@Override
 	public VsRequestDto getDto(Serializable backendId) {
 		VsRequestDto requestDto = super.getDto(backendId);
@@ -315,7 +393,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 
 	/**
 	 * Load and add implementers for that system to the request
-	 * 
+	 *
 	 * @param requestDto
 	 */
 	private void addImplementers(VsRequestDto requestDto) {

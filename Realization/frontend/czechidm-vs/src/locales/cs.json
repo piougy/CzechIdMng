@@ -252,6 +252,30 @@
           }
         }
       }
+    },
+    "bulk-action": {
+      "vs-request-cancel-bulk-action": {
+        "icon": "fa:remove",
+        "label": "Zrušit požadavek",
+        "help": "<strong>Zruší vybrané požadavky</strong> na virtuálním systému. Operace <strong>nezasahuje</strong> do jiných částí <strong>IdM</strong>. Tzn. pokud chcete zamezit znovu vytvoření stejného požadavku, tak musíte například odebrat roli, která tento systém dané identitě přiřazuje.",
+        "attributes": {
+          "reason": {
+            "label": "Důvod zamítnutí",
+            "placeholder": "Vyplňte důvod zamítnutí ..."
+          }
+        }
+      },
+      "vs-request-realize-bulk-action": {
+        "icon": "fa:check",
+        "label": "Realizováno",
+        "help": "Označí požadavky jako realizované.",
+        "attributes": {
+          "reason": {
+            "label": "Poznámka",
+            "placeholder": "Vyplňte poznámku ..."
+          }
+        }
+      }
     }
   },
   "error": {

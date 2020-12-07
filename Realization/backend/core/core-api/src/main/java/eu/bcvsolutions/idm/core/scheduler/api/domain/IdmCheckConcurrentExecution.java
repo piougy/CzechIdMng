@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
  * 
  * 
  * @author Radek Tomiška
- * @since 10.4.8
+ * @since 10.4.8, 10.6.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

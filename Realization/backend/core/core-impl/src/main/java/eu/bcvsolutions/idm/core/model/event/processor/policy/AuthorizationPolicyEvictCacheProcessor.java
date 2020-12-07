@@ -42,6 +42,8 @@ public class AuthorizationPolicyEvictCacheProcessor extends CoreEventProcessor<I
 		// cached permissions
 		cacheManager.evictCache(AuthorizationManager.PERMISSION_CACHE_NAME);
 		// cached configured authorization policies
+		cacheManager.evictCache(AuthorizationManager.AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME);
+		// cached identity authorization policies
 		cacheManager.evictCache(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME);
 		//
 		return new DefaultEventResult<>(event, this);

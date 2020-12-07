@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakItems;
@@ -20,6 +21,8 @@ public interface SysProvisioningBreakConfigService
 		extends ReadWriteDtoService<SysProvisioningBreakConfigDto, SysProvisioningBreakConfigFilter>,
 		AuthorizableService<SysProvisioningBreakConfigDto> {
 
+	String CACHE_NAME = String.format("%s:provisioning-cache", AccModuleDescriptor.MODULE_ID);
+	
 	/**
 	 * Return break configuration for {@link ProvisioningEventType} and system id
 	 * 

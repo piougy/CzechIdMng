@@ -21,7 +21,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningBreakConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
@@ -61,7 +60,6 @@ public class DefaultSysProvisioningBreakConfigService extends
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningBreakConfigService.class);
 	//
 	private static final Integer MAX_CONFIGS_FOR_SYSTEM = 3;
-	public static final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":provisioning-cache";
 	private static final Map<UUID, SysProvisioningBreakItems> localCache = new ConcurrentHashMap<>();
 	//
 

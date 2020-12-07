@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 
 /**
@@ -92,6 +93,14 @@ public class TestEntityEventProcessorConfiguration {
 		return new SameOrderProcessor(EVENT_TYPE_ORDER, 1);
 	}
 	
+	@Bean
+	public EntityEventProcessor<?> testAcceptedException() {
+		return new AbstractEntityEventProcessor<AcceptedContent>() {
+			public EventResult<AcceptedContent> process(EntityEvent<AcceptedContent> event) {
+				throw new AcceptedException();
+			}
+		};
+	}
 	
 	private class TestProcessor extends AbstractEntityEventProcessor<TestContent> {
 		

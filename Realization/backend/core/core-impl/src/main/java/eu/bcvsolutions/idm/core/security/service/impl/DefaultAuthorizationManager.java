@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
@@ -362,7 +363,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		Assert.notNull(entityType, "Entity type is required.");
 		//
 		// try to get cached policies
-		Map<Class<? extends Identifiable>, List<IdmAuthorizationPolicyDto>> cachedPolicies;
+		Map<Class<? extends Identifiable>, List<UUID>> cachedPolicies;
 		ValueWrapper value = cacheManager.getValue(AUTHORIZATION_POLICY_CACHE_NAME, identityId);
 		if (value != null) {
 			// cache value is never null - create copy
@@ -371,7 +372,11 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			cachedPolicies = new HashMap<>();
 		}
 		if (cachedPolicies.containsKey(entityType)) {
-			return cachedPolicies.get(entityType);
+			// cache contains policy identifiers only -> get policy dto
+			return cachedPolicies.get(entityType)
+					.stream()
+					.map(policyId -> getAuthorizationPolicy(policyId))
+					.collect(Collectors.toList());
 		}
 		// distinct policies
 		List<IdmAuthorizationPolicyDto> enabledDistinctPolicies = new ArrayList<>();
@@ -393,9 +398,18 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 				if (!contains) {
 					enabledDistinctPolicies.add(policy);
 				}
+				// cache all policies (even duplicates to prevent select)
+				cacheManager.cacheValue(AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME, policy.getId(), policy);
 			});
-		// cache policies 
-		cachedPolicies.put(entityType, enabledDistinctPolicies);
+		// cache policies as uuid
+		cachedPolicies.put(
+				entityType, 
+				// dto => uuid
+				enabledDistinctPolicies
+					.stream()
+					.map(AbstractDto::getId)
+					.collect(Collectors.toList())
+		);
 		cacheManager.cacheValue(AUTHORIZATION_POLICY_CACHE_NAME, identityId, cachedPolicies);
 		//
 		return enabledDistinctPolicies;
@@ -423,5 +437,25 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 				&& Objects.equal(one.getGroupPermission(), two.getGroupPermission())
 				&& Objects.equal(one.getPermissions(), two.getPermissions()) // set => order doesn't matter
 				&& Objects.equal(one.getEvaluatorProperties(), two.getEvaluatorProperties());
+	}
+	
+	/**
+	 * Get autorization policy with cache usage.
+	 * 
+	 * @param policyId policy identifier
+	 * @return policy dto
+	 * @since 10.7.0
+	 */
+	private IdmAuthorizationPolicyDto getAuthorizationPolicy(UUID policyId) {
+		ValueWrapper value = cacheManager.getValue(AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME, policyId);
+		if (value != null) {
+			// cache value can be null
+			return (IdmAuthorizationPolicyDto) value.get();
+		}
+		// load + cache (not exist ~ null policy can be cached to to prevent future select)
+		IdmAuthorizationPolicyDto policy = service.get(policyId);
+		cacheManager.cacheValue(AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME, policyId, policy);
+		//
+		return policy;
 	}
 }

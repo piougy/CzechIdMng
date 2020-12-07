@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.GenericApplicationListener;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -234,15 +235,20 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 		}		
 		// process event
 		EventResult<E> result = null;
-		try {			
+		try {		
 			result = process(event);
 		} catch(Exception ex) {
 			// persist state if needed
 			UUID eventId = entityEventManager.getEventId(event) ;
 			// log error
+			OperationState resultState = OperationState.EXCEPTION;
 			ResultModel resultModel;
 			if (ex instanceof ResultCodeException) {
-				resultModel = ((ResultCodeException) ex).getError().getError();
+				ResultCodeException resultCodeException = (ResultCodeException) ex;
+				resultModel = resultCodeException.getError().getError();
+				if (resultCodeException.getStatus() == HttpStatus.ACCEPTED) {
+					resultState = OperationState.EXECUTED; // => concrete information is preserved in model t know, what happen
+				}
 			} else {
 				resultModel = new DefaultResultModel(
 						CoreResultCode.EVENT_EXECUTE_PROCESSOR_FAILED, 
@@ -257,7 +263,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 				//
 				result = new DefaultEventResult.Builder<>(event, this)
 						.setResult(new OperationResult
-								.Builder(OperationState.EXCEPTION)
+								.Builder(resultState)
 								.setCause(ex)
 								.setModel(resultModel)
 								.build())

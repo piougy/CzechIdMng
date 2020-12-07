@@ -50,7 +50,7 @@ public class ConfigurationChangeDefaultRoleProcessor
 	public EventResult<IdmConfigurationDto> process(EntityEvent<IdmConfigurationDto> event) {
 		// cached permissions
 		cacheManager.evictCache(AuthorizationManager.PERMISSION_CACHE_NAME);
-		// cached configured authorization policies
+		// cached identity authorization policies
 		cacheManager.evictCache(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME);
 		//
 		return new DefaultEventResult<>(event, this);

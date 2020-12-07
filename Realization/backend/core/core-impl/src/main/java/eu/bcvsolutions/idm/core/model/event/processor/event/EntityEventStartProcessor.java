@@ -41,7 +41,8 @@ public class EntityEventStartProcessor extends CoreEventProcessor<IdmEntityEvent
 	public EventResult<IdmEntityEventDto> process(EntityEvent<IdmEntityEventDto> event) {
 		IdmEntityEventDto entity = event.getContent();
 		//
-		if (entity.getResult().getState() != OperationState.RUNNING) {
+		OperationResultDto result = entity.getResult();
+		if (result == null || result.getState() != OperationState.RUNNING) {
 			entity = entityEventManager.saveResult(entity.getId(), new OperationResultDto.Builder(OperationState.RUNNING).build());
 			event.setContent(entity);
 		}

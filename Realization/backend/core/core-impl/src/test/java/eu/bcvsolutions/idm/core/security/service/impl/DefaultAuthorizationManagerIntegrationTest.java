@@ -298,6 +298,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluato
 		IdmAuthorizationPolicyDto policy = getHelper().createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
 		getHelper().createIdentityRole(identity, role);
 		//
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME, identity.getId()));
 		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
 		Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
 		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
@@ -334,13 +335,16 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluato
 			Assert.assertEquals(2, permissions.size());
 			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
 			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME, policy.getId()));
 			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
 			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
 			// check cache content - one
 			ValueWrapper cacheValue = cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId());
 			List<IdmAuthorizationPolicyDto> cachedPolicies = (List) ((Map) cacheValue.get()).get(role.getClass());
 			Assert.assertEquals(1, cachedPolicies.size());
-			Assert.assertEquals(BasePermissionEvaluator.class.getCanonicalName(), cachedPolicies.get(0).getEvaluatorType());
+			Assert.assertEquals(BasePermissionEvaluator.class.getCanonicalName(), 
+					((IdmAuthorizationPolicyDto) cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME, 
+							cachedPolicies.get(0)).get()).getEvaluatorType());
 			cacheValue = cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId());
 			permissions = (Set) ((Map) cacheValue.get()).get(role.getId());
 			Assert.assertEquals(2, permissions.size());
@@ -350,6 +354,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluato
 			// change policy => evict whole cache
 			policy.setPermissions(IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
 			authorizationPolicyService.save(policy);
+			Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME, policy.getId()));
 			Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
 			Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
 			Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
@@ -426,9 +431,11 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluato
 			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
 			// check cache content - one
 			ValueWrapper cacheValue = cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId());
-			List<IdmAuthorizationPolicyDto> cachedPolicies = (List) ((Map) cacheValue.get()).get(role.getClass());
+			List<UUID> cachedPolicies = (List) ((Map) cacheValue.get()).get(role.getClass());
 			Assert.assertEquals(1, cachedPolicies.size());
-			Assert.assertEquals(BasePermissionEvaluator.class.getCanonicalName(), cachedPolicies.get(0).getEvaluatorType());
+			Assert.assertEquals(BasePermissionEvaluator.class.getCanonicalName(), 
+					((IdmAuthorizationPolicyDto) cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_DEFINITION_CACHE_NAME, 
+							cachedPolicies.get(0)).get()).getEvaluatorType());
 			cacheValue = cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId());
 			permissions = (Set) ((Map) cacheValue.get()).get(role.getId());
 			Assert.assertEquals(2, permissions.size());

@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
@@ -35,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
@@ -51,6 +53,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.event.AcceptedContent;
 import eu.bcvsolutions.idm.core.event.ConditionalContent;
 import eu.bcvsolutions.idm.core.event.TestContent;
 import eu.bcvsolutions.idm.core.event.TestContentTwo;
@@ -724,9 +727,6 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			TransactionContextHolder.setContext(TransactionContextHolder.createEmptyContext()); //start transaction
 			UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
 			Assert.assertNotNull(transactionId);
-			//
-			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-			
 			// Create role request - identity roles has to be created under creators authority
 			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 			Assert.assertEquals(transactionId, identity.getTransactionId());
@@ -734,6 +734,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			Assert.assertEquals(transactionId, role.getTransactionId());
 			IdmRoleRequestDto request = getHelper().createRoleRequest(getHelper().getPrimeContract(identity), role);
 			Assert.assertEquals(transactionId, request.getTransactionId());
+			//
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			getHelper().executeRequest(request, true, false);
 			
 			getHelper().waitForResult(res -> {
@@ -761,6 +763,51 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			manager.deleteAllEvents();
+		}
+	}
+	
+	@Test
+	public void testAcceptedException() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			//
+			IdmEntityEventDto event = new IdmEntityEventDto();
+			AcceptedContent content = new AcceptedContent();
+			content.setId(UUID.randomUUID());
+			event.setContent(content);
+			event.setOwnerId(content.getId());
+			event.setOwnerType(manager.getOwnerType(content));
+			event = manager.saveEvent(event);
+			
+			manager.executeEvent(event);
+			
+			IdmEntityEventFilter filter = new IdmEntityEventFilter();
+			filter.setOwnerId(content.getId());
+			filter.setStates(Lists.newArrayList(OperationState.EXECUTED));
+			//
+			// wait for execute event 
+			getHelper().waitForResult(res -> {
+				return entityEventService.find(filter, PageRequest.of(0, 1)).getContent().isEmpty();
+			}, 500, 20);
+			//
+			event = manager.getEvent(event.getId());
+			Assert.assertEquals(OperationState.EXECUTED, event.getResult().getState());
+			Assert.assertEquals(CoreResultCode.ACCEPTED.name(), event.getResult().getCode());
+			//
+			// check state is executed too
+			IdmEntityStateFilter stateFilter = new IdmEntityStateFilter();
+			stateFilter.setEventId(event.getId());
+			List<IdmEntityStateDto> states = entityStateManager.findStates(content, null).getContent();
+			Assert.assertFalse(states.isEmpty());
+			Assert.assertTrue(states
+					.stream()
+					.allMatch(
+							s -> s.getResult().getState() == OperationState.EXECUTED 
+								&& s.getResult().getCode().equals(CoreResultCode.ACCEPTED.name())
+					));
+			
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		}
 	}
 }

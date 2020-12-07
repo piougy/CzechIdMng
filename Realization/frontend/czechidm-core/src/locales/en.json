@@ -61,7 +61,8 @@
     "readOnly": "Read only",
     "removed": "Removed",
     "waiting": "Waiting",
-    "next": "Next"
+    "next": "Next",
+    "warning": "Warning"
   },
   "button": {
     "activate": "Activate",
@@ -7873,6 +7874,9 @@
     },
     "default-groovy-script-service-script-cache": {
       "description": "This cache stores compiled Groovy scripts. Evicting this cache will result in recompiling every script, when calling it. Recompiled script is then stored in this cache."
+    },
+    "authorization-policy-definition-cache": {
+      "description": "Cache stores configured (available) authorization policies. Cache is evicted after an authorization policy is changed."
     },
     "authorization-policy-cache": {
       "description": "Cache stores active authorization policies of currently logged user. Cache is evicted after user log out. When authorization policies configuration is changed, then user is logged out and cache is evicted (after permissions removal only). Cache expiration is 2 hour, e.g. if user forgot to log out."

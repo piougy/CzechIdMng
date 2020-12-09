@@ -72,6 +72,15 @@
 							<outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF</outputDirectory>
 							<destFileName>idm-tool.jar</destFileName>
 						</artifactItem>
+						<artifactItem>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>idm-parent</artifactId>
+							<version>${project.version}</version>
+							<type>pom</type>
+							<overWrite>false</overWrite>
+							<outputDirectory>${project.build.directory}/${project.build.finalName}/META-INF/maven/eu.bcvsolutions.idm/idm-parent</outputDirectory>
+							<destFileName>pom.xml</destFileName>
+						</artifactItem>
 					</artifactItems>
 					<outputDirectory>${project.build.directory}/wars</outputDirectory>
 					<overWriteReleases>false</overWriteReleases>

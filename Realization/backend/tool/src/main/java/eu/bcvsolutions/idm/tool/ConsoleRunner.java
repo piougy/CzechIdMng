@@ -196,10 +196,10 @@ public class ConsoleRunner implements CommandLineRunner {
 	    		.longOpt("password")
 	    		.desc("If ssh repository is used / cloned, then passphrase for ssh key is needed only.\n"
 	    				+ "If https repository is used / cloned, then git username and password is needed.\n"
-	    				+ "If two-factor authntication is enabled for <username>, "
+	    				+ "If two-factor authentication is enabled for <username>, "
 	    				+ "then token has to be given (see git documentation, how to generate authentication token for developers).\n"
 	    				+ "If ssh key is used, then put passphrase for ssh key (It loads the known hosts and private keys from their "
-	    				+ "default locations (identity, id_rsa and id_dsa) in the user’s .ssh directory.).")
+	    				+ "default locations (identity, id_rsa and id_dsa) in the user .ssh directory.).")
 	    		.argName("git password / token / ssh passphrase")
 	            .hasArg()
 	    		.build();
@@ -252,6 +252,13 @@ public class ConsoleRunner implements CommandLineRunner {
 	    		.longOpt("clean")
 	    		.desc("Clean up dowloaded frontend libraries in node_modules.")
 	    		.build();
+		Option optionResolveDependencies = Option.builder()
+	    		.required(false)
+	    		.longOpt("resolve-dependencies")
+	    		.desc("hird party module dependencies will be resolved automatically (not resolved by default), when project is built.\n" + 
+	    				"Dependencies will not be resolved and included in build, if feature is not enabled => \n" + 
+	    				"all module dependencies has to be installed manually (prepared ~ copied in 'modules' folder).")
+	    		.build();
 		
 		Options options = new Options();
 		//
@@ -286,6 +293,7 @@ public class ConsoleRunner implements CommandLineRunner {
         options.addOption(optionPatch);
         options.addOption(optionHotfix);
         options.addOption(optionClean);
+        options.addOption(optionResolveDependencies);
 		//
 		// parse arguments
 		CommandLineParser parser = new DefaultParser();
@@ -348,11 +356,13 @@ public class ConsoleRunner implements CommandLineRunner {
 				throw new BuildException("Build a project is supported only.");
 			}
 			boolean clean = commandLine.hasOption(optionClean.getLongOpt());
+			boolean resolveDependencies = commandLine.hasOption(optionResolveDependencies.getLongOpt());
 			//
 			if (projectManager == null) {
 				projectManager = new ProjectManager();
 				projectManager.setMavenHome(mavenHome);
 				projectManager.setNodeHome(nodeHome);
+				projectManager.setResolveDependencies(resolveDependencies);
 				projectManager.init();
 			}
 			projectManager.build(rootFolder == null ? "../" : rootFolder, clean); // /tool folder by default => project is in parent folder.

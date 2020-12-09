@@ -29,17 +29,22 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 
 	@Test
 	public void testBuildWithAtrifact() {
-		createMockProjectStructure(false, false);
+		createMockProjectStructure(false, false, true);
 	}
 	
 	@Test
 	public void testBuildWithExtractedProduct() {
-		createMockProjectStructure(true, false);
+		createMockProjectStructure(true, false, true);
 	}
 	
 	@Test(expected = BuildException.class)
 	public void testBuildWithDuplicateThirdPartyDependency() {
-		createMockProjectStructure(true, true);
+		createMockProjectStructure(true, true, true);
+	}
+	
+	@Test(expected = BuildException.class)
+	public void testBuildWithDuplicateThirdPartyDependencyWithoutResolvingDependenies() {
+		createMockProjectStructure(true, true, false);
 	}
 	
 	@BeforeClass
@@ -49,7 +54,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 	    Assume.assumeFalse(documentationOnly);
 	}
 	
-	private void createMockProjectStructure(boolean extracted, boolean duplicateDependency) {
+	private void createMockProjectStructure(boolean extracted, boolean duplicateDependency, boolean resolveDependencies) {
 		File targetFolder = new File("target");
 		Assert.assertTrue(targetFolder.exists());
 		//
@@ -205,6 +210,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			//
 			// build
 			ProjectManager projectManager = new ProjectManager(); // MAVEN_HOME, ./npm installed from plugin
+			projectManager.setResolveDependencies(resolveDependencies);
 			projectManager.init();
 			projectManager.build(projectRootFolder.getPath(), false); // prevent to clean all node_modules
 			//

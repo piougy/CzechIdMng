@@ -8,6 +8,21 @@
 	<name>CzechIdM Application</name>
 	<description>CzechIdM web application for tool usage only - war is compiled.</description>
 
+	<repositories>
+		<repository>
+			<id>maven-centrals</id>
+			<url>https://repo1.maven.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>nexus-public</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
+		</repository>
+		<repository>
+			<id>nexus-public-releases</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<finalName>idm</finalName>
 		<plugins>

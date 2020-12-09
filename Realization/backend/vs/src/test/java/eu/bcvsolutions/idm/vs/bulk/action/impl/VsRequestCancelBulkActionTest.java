@@ -127,7 +127,7 @@ public class VsRequestCancelBulkActionTest extends AbstractBulkActionTest {
 		properties.put(VsRequestCancelBulkAction.REASON, null);
 		bulkAction.setProperties(properties);
 
-		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		bulkActionManager.processAction(bulkAction);
 	}
 
 	public SysSystemDto createVirtualSystem(IdmIdentityDto userImplementerName, List<String> attributes) {

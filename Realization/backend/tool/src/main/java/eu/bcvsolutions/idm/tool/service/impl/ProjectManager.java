@@ -20,8 +20,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -56,6 +54,7 @@ public class ProjectManager {
 	//
 	private String mavenHome; // MAVEN_HOME will be used as default
 	private String nodeHome;
+	private boolean resolveDependencies = false;
 	//
 	private MavenManager mavenManager;
 	private ObjectMapper mapper;
@@ -244,14 +243,14 @@ public class ProjectManager {
 							FileUtils.copyDirectory(moduleFrontendFolder, extractedFrontendModulesFolder);
 							FileUtils.copyDirectory(moduleFrontendFolder, productFrontendModulesFolder); // we need to know, what was installed in target war
 						} else {
-							LOG.info("Module [{}] not contain frontend.", module.getName());
+							LOG.info("Module [{}] not contain frontend.", moduleName);
 						}
-						installedJarModules.add(extractedModuleFolder);
+						installedJarModules.add(module);
 					} catch (ZipException ex) {
 						LOG.warn("Module [{}] cannot be extracted, is not .jar library. Library will be installed without frontend resolving.", module.getName());
 					}
 					//
-					installedModules.add(module.getName());
+					installedModules.add(moduleName);
 				}
 			}
 			//
@@ -271,7 +270,7 @@ public class ProjectManager {
 			//
 			// create new idm.war
 			LOG.info("Build backend application with frontend included ...");
-			prepareBackendMavenProject(productVersion, installedJarModules, targetFolder);
+			prepareBackendMavenProject(extractedProductFolder, productVersion, installedJarModules, targetFolder);
 			mavenManager.command(
 					targetFolder, 
 					"clean", 
@@ -301,7 +300,19 @@ public class ProjectManager {
 	
 	public void setNodeHome(String nodeHome) {
 		this.nodeHome = nodeHome;
-	}	
+	}
+	
+	/**
+	 * Third party module dependencies will not be resolved automatically, when project is built.
+	 * Dependencies will not be included in build if feature is disabled => 
+	 * all module dependencies has to be installed manually (prepared ~ copied in 'modules' folder).
+	 * 
+	 * @param resolveDependencies true - enable / false - disable (by default)
+	 * @since 10.7.0
+	 */
+	public void setResolveDependencies(boolean resolveDependencies) {
+		this.resolveDependencies = resolveDependencies;
+	}
 	
 	private String getVersion(File library) throws IOException {
 		Assert.notNull(library, "Java library (jar, war) is required.");
@@ -346,7 +357,11 @@ public class ProjectManager {
 				new File(targetFolder, "pom.xml"));
 	}
 	
-	private void prepareBackendMavenProject(String productVersion, List<File> installedJarModules, File targetFolder) throws Exception {
+	private void prepareBackendMavenProject(
+			File extractedProductFolder, 
+			String productVersion, 
+			List<File> installedJarModules, 
+			File targetFolder) throws Exception {
 		File projectDescriptor = new File(targetFolder, "pom.xml");
 		//
 		FileUtils.copyInputStreamToFile(
@@ -354,6 +369,11 @@ public class ProjectManager {
 				projectDescriptor);
 		
 		if (installedJarModules.isEmpty()) {
+			return;
+		}
+		if (!resolveDependencies) {
+			LOG.warn("Resolve and install third party dependencies is disabled. "
+					+ "Dependencies will not be included in build - all module dependencies has to be installed manually (copied in 'modules' folder).");
 			return;
 		}
 		// append registered backend modules as dependencies => third party module libraries will be resolved by maven automatically
@@ -366,8 +386,6 @@ public class ProjectManager {
 		xmlMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
 		xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
-		// read maven poms
-		MavenXpp3Reader reader = new MavenXpp3Reader();
 		//
 		ObjectNode buildPom = (ObjectNode) xmlMapper.readTree(projectDescriptor);
 		//
@@ -377,6 +395,33 @@ public class ProjectManager {
 		parentWrapper.put("artifactId", "idm-parent");
 		parentWrapper.put("version", productVersion);
 		buildPom.set("parent", parentWrapper);
+		//
+		// try install parent into local repository
+		File parentProjectDescriptor = new File(String.format("%s/META-INF/maven/eu.bcvsolutions.idm/idm-parent/pom.xml", extractedProductFolder.getPath()));
+		if (parentProjectDescriptor.exists()) {
+			Model parentModel = mavenManager.installFile(parentProjectDescriptor, null);
+			//
+			if (parentModel != null) {
+				LOG.info("Product parent project [{}] installed into local maven repository for backend build.",
+						parentProjectDescriptor.getPath());
+			} else {
+				LOG.warn("Product parent project [{}] not installed into local maven repository for backend build.",
+						parentProjectDescriptor.getPath());
+			}
+			// FIXME: code bellow work partially only => "pom"s (e.g. idm-core) ~ sub parents are not available in war (same as parent above) 
+			// install all product (~private) dependencies into local repository
+//			File warLibs = new File(String.format("%s/WEB-INF/lib", extractedProductFolder.getPath()));
+//			for (File file : FileUtils.listFiles(warLibs, null, true)) {
+//				if (file.getName().startsWith("idm-")) {
+//					// extract product module and get pom file
+//					File extractedModuleFolder = new File(targetFolder, FilenameUtils.removeExtension(file.getName()));
+//					ZipUtils.extract(file, extractedModuleFolder.getPath());
+//					Model model = mavenManager.getModel(extractedModuleFolder);
+//					mavenManager.installFile(model.getPomFile(), file);
+//				}
+//	        }
+		}
+		// 
 		//
 		// find pom.xml modules in jar
 		Map<String, String> resolvedModules = new HashMap<>(ProductReleaseManager.BACKEND_MODULES.length + installedJarModules.size());
@@ -400,21 +445,17 @@ public class ProjectManager {
 		//
 		Map<String, Model> modules = new LinkedHashMap<>();
 		for (File installedJarModule : installedJarModules) {
-			File moduleMavenResources = new File(String.format("%s/META-INF/maven", installedJarModule.getPath()));
-			if (!moduleMavenResources.exists()) {
-				LOG.info("Backend module [{}] cannot be registered as maven dependency for backend build, "
-						+ "required maven descriptor not found.",
-						installedJarModule.getName());
+			// extract and install maven module
+			File extractedModuleFolder = new File(targetFolder, FilenameUtils.removeExtension(installedJarModule.getName()));
+			if (extractedModuleFolder.exists()) {
+				Model model = mavenManager.getModel(extractedModuleFolder);
+				if (model != null) {
+					modules.put(model.getId(), model);
+					//
+					// FIXME: code bellow work partially only => "pom"s (e.g. idm-crt, idm-scim) ~ sub parents are not available in war (same as parent above) 
+					// mavenManager.installFile(model.getPomFile(), installedJarModule);
+				}
 			}
-			
-            for (File file : FileUtils.listFiles(installedJarModule, null, true)) {
-                if (file.getName().equals("pom.xml")) {
-                	try (InputStream is = new FileInputStream(file)) {
-        				Model model = reader.read(is);
-        				modules.put(model.getId(), model);
-        			}
-                }
-            }	
 		}
 		// a module doesn't contain pom descriptor
 		if (modules.isEmpty()) {
@@ -424,35 +465,10 @@ public class ProjectManager {
 		int registeredDependencies = 0;
 		ArrayNode dependencies = xmlMapper.createArrayNode();
 		for (Model module : modules.values()) {
-			Parent parent = module.getParent();
-			// group id decorator
-			String groupId = module.getGroupId();
-			if (StringUtils.isEmpty(groupId)) {
-				groupId = parent.getGroupId();
-			} else if("${project.groupId}".equals(groupId)) {
-				groupId = module.getGroupId();
-				if (StringUtils.isEmpty(groupId)) {
-					if (parent != null) {
-						groupId = parent.getGroupId();
-					}
-				}
-			}
+			String groupId = mavenManager.getGroupId(module);
 			String artifactId = module.getArtifactId();
 			String simpleModuleId = getSimpleModuleId(groupId, artifactId);
-			String version = module.getVersion();
-			// resolve module version as project property
-			if (StringUtils.isEmpty(version) && parent != null) {
-				version = parent.getVersion();
-			} else if (version != null && version.startsWith("${") && version.endsWith("}")) {
-				String propertyKey = version.substring(2, version.length() - 1);
-				if ("project.version".equals(propertyKey)) {
-					if (parent != null) {
-						version = parent.getVersion();
-					}
-				} else if (module.getProperties().containsKey(propertyKey)) {
-					version = module.getProperties().getProperty(propertyKey);
-				}
-			}
+			String version = mavenManager.getVersion(module);
 			//
 			// simple check dependency is fully specified
 			if (StringUtils.isEmpty(groupId) 

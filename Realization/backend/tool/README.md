@@ -337,14 +337,15 @@ Usable additional tool argument:
 | Argument | Value | Description | Default  |
 | --- | :--- | :--- | :--- |
 | --node-home | path | Node home directory for build a project.<br />Global node instalation directory should contain executable node command.<br />For Windows <node-home>/node/node.exe.<br />For Linux <node-home>/node | Node and npm will be dowloaded and installed localy automaticaly into tool target folder (``<target>/npm``) by default |
-| -c,--clean | | Clean up dowloaded frontend libraries in node_modules. |  |
+| -c,--clean | | Clean up dowloaded frontend libraries in node_modules. | |
 | -r,--repository-location | path | Folder structure location. | ``../`` - when IdM tool is placed by example above. |
+| --resolve-dependencies | | Third party module dependencies will be resolved automatically (not resolved by default), when project is built. Dependencies will not be resolved and included in build, if feature is not enabled => all module dependencies has to be installed manually (prepared ~ copied in 'modules' folder). | |
 
 #### Third party module dependencies
 
-@since 10.4.0
+@since 10.7.0 (draft added @since 10.4.0,  fully supported @since 10.7.0)
 
-Third party module dependencies are inluded in target build automatically:
+Third party module dependencies are inluded in target build automatically, when ``--resolve-dependencies`` argument is given:
 - Product modules (``core``, ``acc`` etc.) are not defined as maven dependencies. These libraries are installed from product placed in product folder. **Product dependency should be defined as provided in module dependencies**.
 - Modules or libraries added into ``modules`` folder are **registered as project dependencies for build. All libraries have to be available in local or nexus repository => see settings.xml above to resolve private artefacts**),
 - libraries are included:

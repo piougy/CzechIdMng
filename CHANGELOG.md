@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 - [#2506](https://redmine.czechidm.com/issues/2506) - [Two-factor authentication](https://wiki.czechidm.com/devel/documentation/security/dev/security#two-factor_authentication) is supported optionally, but authentication mechanism was refactored from scratch. **Test your configured authentication method (e.g. sso, kerberos, authentication by header or by remote user, authentication by target systems) carefully after upgrade.**
 - [#2506](https://redmine.czechidm.com/issues/2506) - **Basic authentication checks password, which must be changed - password with this requirement cannot be used now**. Password has to be changed the standard way to use it in basic authentication.
 
+### Developer
+
+- [#2603](https://redmine.czechidm.com/issues/2603) - IdM tool - [resolving third-party module dependencies automatically](https://github.com/bcvsolutions/CzechIdMng/tree/develop/Realization/backend/tool#third-party-module-dependencies) is conditional now. Use new tool argument ``--resolve-dependencies`` to enable resolving third party libraries automatically, when project with modules is built.
+
 ## [10.6.0]
 
 ### Administrator

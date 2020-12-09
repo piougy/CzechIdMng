@@ -248,7 +248,7 @@ Configuration **file in test package ``logback-test.xml`` has to be changed**. N
 
 #### Test profile properties
 
-Configuration file in test package ``application.properties`` has to be updated (mainly jpa properties changed), use content (copy / paste):
+Configuration file in test package ``application.properties`` has to be **created/updated** (mainly jpa properties changed), use content (copy / paste):
 
 ```
 ######

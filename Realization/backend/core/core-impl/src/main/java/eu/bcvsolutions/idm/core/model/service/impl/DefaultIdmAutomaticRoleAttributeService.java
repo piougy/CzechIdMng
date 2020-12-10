@@ -336,12 +336,13 @@ public class DefaultIdmAutomaticRoleAttributeService
 			return new PageImpl<>(Collections.emptyList(), pageable, 0);
 		}
 		//
+		// FIXME: Pagination cannot be used since async requests was added! Refactor rows below to return UUID only to prevent memory overusage!
 		Specification<IdmIdentityContract> criteria = this.getCriteriaForRulesByContract(automaticRoleId, rulesForContracts, passed, null);
-		Page<IdmIdentityContract> contracts = identityContractRepository.findAll(criteria, pageable);
+		List<IdmIdentityContract> contracts = identityContractRepository.findAll(criteria);
 		//
 		// transform to page uuid
-		List<UUID> dtos = contracts.getContent().stream().map(IdmIdentityContract::getId).collect(Collectors.toList());
-		return new PageImpl<>(dtos, pageable, contracts.getTotalElements());
+		List<UUID> dtos = contracts.stream().map(IdmIdentityContract::getId).collect(Collectors.toList());
+		return new PageImpl<>(dtos);
 	}
 	
 	@Override

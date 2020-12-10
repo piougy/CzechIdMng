@@ -40,10 +40,11 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * For each contract is created maximal twice {@link IdmRoleRequestDto}. One request contains all newly assigned roles
  * and the second contains newly removed roles. This is now only one solution.
  * <br />
- * TODO: after some big refactor can be processed all concept in one request.
+ * 
+ * TODO: after some big refactoring can be processed all concept in one request.
  *
  * @author Ondrej Kopr
- *
+ * @author Radek Tomiška
  */
 @DisallowConcurrentExecution
 @Component(ProcessAllAutomaticRoleByAttributeTaskExecutor.TASK_NAME)
@@ -51,7 +52,6 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 
 	public static final String TASK_NAME = "core-process-all-automatic-role-attribute-long-running-task";
 	private static final int DEFAULT_PAGE_SIZE_ROLE = 10;
-	private static final int DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES = 100;
 
 	@Autowired
 	private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
@@ -112,50 +112,40 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 	 */
 	private void processAutomaticRoleForContract(IdmAutomaticRoleAttributeDto automaticRolAttributeDto) {
 		UUID automaticRoleId = automaticRolAttributeDto.getId();
-		// For every query is get first page with 100 rows
-		PageRequest defaultPageRequest = PageRequest.of(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES);
-
 		//
     	// process contracts
-    	Page<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, defaultPageRequest);
-    	Page<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, defaultPageRequest);
+    	List<UUID> newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, null).getContent();
+    	List<UUID> newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, null).getContent();
     	//
     	boolean canContinue = true;
-    	while (canContinue) {
-    		for(UUID contractId : newPassedContracts) {
-    			// Concepts that will be added
-    			List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
-    			//
-    			IdmIdentityContractDto contract = identityContractService.get(contractId);
-    			//
-    			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
-    			concept.setIdentityContract(contract.getId());
-    			concept.setValidFrom(contract.getValidFrom());
-    			concept.setValidTill(contract.getValidTill());
-    			concept.setRole(automaticRolAttributeDto.getRole());
-    			concept.setAutomaticRole(automaticRoleId);
-				concept.setOperation(ConceptRoleRequestOperation.ADD);
-				concepts.add(concept);	
-    			
-    			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
-    			roleRequest.setConceptRoles(concepts);
-    			roleRequest.setApplicant(contract.getIdentity());
-    			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
- 
-				canContinue = updateState();
-				if (!canContinue) {
-					break;
-				}
-    		}
-    		if (newPassedContracts.hasNext()) {
-    			newPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, true, defaultPageRequest);
-    		} else {
-    			break;
-    		}
+		for (UUID contractId : newPassedContracts) {
+			// Concepts that will be added
+			List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+			//
+			IdmIdentityContractDto contract = identityContractService.get(contractId);
+			//
+    		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
+    		concept.setIdentityContract(contract.getId());
+    		concept.setValidFrom(contract.getValidFrom());
+    		concept.setValidTill(contract.getValidTill());
+    		concept.setRole(automaticRolAttributeDto.getRole());
+    		concept.setAutomaticRole(automaticRoleId);
+			concept.setOperation(ConceptRoleRequestOperation.ADD);
+			concepts.add(concept);	
+
+    		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+    		roleRequest.setConceptRoles(concepts);
+    		roleRequest.setApplicant(contract.getIdentity());
+    		roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
+
+			canContinue = updateState();
+			if (!canContinue) {
+				break;
+			}
     	}
     	//
-    	while (canContinue) {
-    		for(UUID contractId : newNotPassedContracts) {
+		if (canContinue) {
+    		for (UUID contractId : newNotPassedContracts) {
     			// Identity id is get from embedded identity role. This is little speedup.
     			UUID identityId = null;
     			//
@@ -189,11 +179,6 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     			if (!canContinue) {
     				break;
     			}
-    		}
-    		if (newNotPassedContracts.hasNext()) {
-    			newNotPassedContracts = automaticRoleAttributeService.getContractsForAutomaticRole(automaticRoleId, false, defaultPageRequest);
-    		} else {
-    			break;
     		}
     	}
 	}

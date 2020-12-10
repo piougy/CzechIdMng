@@ -79,7 +79,16 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
 
   isAllAuthorityGroupSelected(authorityGroup) {
     const { filledAuthorities } = this.state;
-    return filledAuthorities.get(authorityGroup).reduce((result, selected) => { return result && selected; }, true);
+    // admin wildcard
+    if (_.includes(Array.from(filledAuthorities.get(authorityGroup).filter(selected => selected).keys()), 'ADMIN')) {
+      return true;
+    }
+    // something filled
+    return filledAuthorities
+      .get(authorityGroup)
+      .reduce((result, selected) => {
+        return result && selected;
+      }, true);
   }
 
   isSomeAuthorityGroupSelected(authorityGroup) {

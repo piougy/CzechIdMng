@@ -369,7 +369,7 @@ class Table extends AbstractComponent {
 
 
   renderBody(columns) {
-    const { data, showLoading, supportsPagination, draggable } = this.props;
+    const { data, showLoading, supportsPagination } = this.props;
     const { showMax } = this.state;
     if (!data || data.length === 0) {
       return null;
@@ -379,7 +379,7 @@ class Table extends AbstractComponent {
       rows.push(this.renderRow(columns, i));
     }
     return (
-      <tbody ref={ this.tableBodyRef } className="basic-table-body" style={ draggable ? { position: 'relative' } : null }>
+      <tbody ref={ this.tableBodyRef } className="basic-table-body">
         { rows }
         {
           !supportsPagination

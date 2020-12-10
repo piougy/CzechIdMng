@@ -166,6 +166,10 @@ class Row extends AbstractContextComponent {
       return content;
     }
     //
+    // calculate dragable boundaries => relative to selected row by index.
+    const top = -(rowIndex * DRAGABLE_ROW_HEIGHT);
+    const bottom = top + ((data ? data.length : 0) * DRAGABLE_ROW_HEIGHT) - DRAGABLE_ROW_HEIGHT;
+    //
     return (
       <Draggable
         axis="y"
@@ -173,7 +177,7 @@ class Row extends AbstractContextComponent {
         onDrag={ this.handleDrag.bind(this) }
         onStop={ this.handleStop.bind(this) }
         handle=".handle"
-        bounds=".basic-table-body"
+        bounds={{ top, bottom }}
         defaultClassNameDragging="dragging">
         { content }
       </Draggable>

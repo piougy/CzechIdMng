@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.event;
 
+import org.activiti.engine.impl.cmd.GetHistoricIdentityLinksForTaskCmd;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -96,6 +97,12 @@ public class TestEntityEventProcessorConfiguration {
 	@Bean
 	public EntityEventProcessor<?> testAcceptedException() {
 		return new AbstractEntityEventProcessor<AcceptedContent>() {
+			
+			@Override
+			public String getName() {
+				return "test-accepted-content-exception-processor";
+			}
+			
 			public EventResult<AcceptedContent> process(EntityEvent<AcceptedContent> event) {
 				throw new AcceptedException();
 			}

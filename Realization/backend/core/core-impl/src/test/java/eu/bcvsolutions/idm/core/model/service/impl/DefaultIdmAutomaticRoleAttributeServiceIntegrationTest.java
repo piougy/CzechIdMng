@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Sort.Direction;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
@@ -2166,7 +2168,7 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 		String description = getHelper().createName();
 		List<IdmIdentityDto> identities = new ArrayList<IdmIdentityDto>();
 		try {
-		
+			//
 			for (int index = 0; index < 187; index++) {
 				IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 				identity.setDescription(description);
@@ -2176,22 +2178,39 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 			assertEquals(187, identities.size());
 	
 			IdmRoleDto role = getHelper().createRole();
+			IdmRoleDto subRole = getHelper().createRole();
+			getHelper().createRoleComposition(role, subRole);
 			IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
 			getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
 					AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, description);
 	
-			this.recalculateSync(automaticRole.getId());
-	
+			// turn on async processing
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			//
+			// execute recalculation
+			automaticRoleAttributeService.recalculate(automaticRole.getId());
+			//
+			// wait for result
 			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 			filter.setAutomaticRoleId(automaticRole.getId());
+			getHelper().waitForResult(res -> {
+				return identityRoleService.find(filter, PageRequest.of(0, 1)).getTotalElements() != 187;
+			}, 1000, 300);
+			
 			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
-			assertEquals(187, identityRoles.size());
+			Assert.assertEquals(187, identityRoles.size());
 	
 			for (IdmIdentityDto identity : identities) {
 				List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
-				assertEquals(1, allByIdentity.size());
+				Assert.assertEquals(2, allByIdentity.size());
+				Assert.assertTrue(allByIdentity.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())
+						&& ir.getRole().equals(role.getId())));
+				Assert.assertTrue(allByIdentity.stream().anyMatch(ir -> ir.getDirectRole() != null
+						&& ir.getRole().equals(subRole.getId())));
 			}
 		} finally {
+			// turn off async processing
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			identityService.deleteAll(identities);
 		}
 	}

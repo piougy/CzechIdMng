@@ -79,9 +79,11 @@ public interface IdmAutomaticRoleAttributeService extends
 	/**
 	 * Return all id's of {@link IdmIdentityContractDto} that passed or not passed (defined in parameter passed) by given automatic role by attribute.
 	 *
+	 * TODO: introduce new method returning List<UUID> (pageable is not used).
+	 *
 	 * @param automaticRoleId
 	 * @param passed
-	 * @param pageable
+	 * @param pageable deprecated unused @since 10.6.4, 10.7.0 - pagination cannot be used since async role requests are used
 	 * @return
 	 */
 	Page<UUID> getContractsForAutomaticRole(UUID automaticRoleId, boolean passed, Pageable pageable);

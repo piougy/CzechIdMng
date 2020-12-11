@@ -12,7 +12,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -66,8 +65,6 @@ public class CsvConnectorType extends AbstractConnectorType {
 	private AttachmentManager attachmentManager;
 	@Autowired
 	private ConnectorManager connectorManager;
-	@Autowired
-	private SysSystemService systemService;
 	@Autowired
 	private FormService formService;
 	@Autowired
@@ -148,7 +145,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 		connectorType.getMetadata().put(SYSTEM_NAME, systemDto.getName());
 
 		// Find attribute with CSV file path.
-		IdmFormDefinitionDto connectorFormDef = this.systemService
+		IdmFormDefinitionDto connectorFormDef = getSystemService()
 				.getConnectorFormDefinition(systemDto.getConnectorInstance());
 		IdmFormAttributeDto csvFilePathAttribute = connectorFormDef.getMappedAttributeByCode(CONNECTOR_SOURCE_PATH);
 		List<IdmFormValueDto> values = formService.getValues(systemDto, csvFilePathAttribute, IdmBasePermission.READ);
@@ -206,7 +203,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 		SysSystemDto systemDto;
 		if (systemId != null) {
 			// System already exists.
-			systemDto = systemService.get(UUID.fromString(systemId), IdmBasePermission.READ);
+			systemDto = getSystemService().get(UUID.fromString(systemId), IdmBasePermission.READ);
 		} else {
 			// Create new system.
 			systemDto = new SysSystemDto();
@@ -216,13 +213,13 @@ public class CsvConnectorType extends AbstractConnectorType {
 		IcConnectorKey connectorKey = connectorManager.findConnectorKey(this.getConnectorName());
 		Assert.notNull(connectorKey, "Connector key was not found!");
 		systemDto.setConnectorKey(new SysConnectorKeyDto(connectorKey));
-		systemDto = systemService.save(systemDto, IdmBasePermission.CREATE);
+		systemDto = getSystemService().save(systemDto, IdmBasePermission.CREATE);
 
 		// Put new system to the connector type (will be returned to FE).
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 
 		// Find and update attribute with CSV file path.
-		IdmFormDefinitionDto connectorFormDef = this.systemService
+		IdmFormDefinitionDto connectorFormDef = getSystemService()
 				.getConnectorFormDefinition(systemDto.getConnectorInstance());
 		IdmFormAttributeDto csvFilePathAttribute = connectorFormDef.getMappedAttributeByCode(CONNECTOR_SOURCE_PATH);
 		List<Serializable> csvFileValue = new ArrayList<>();
@@ -259,7 +256,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 					.forEach(sysSchemaObjectClassDto -> objectClassService.delete(sysSchemaObjectClassDto));
 
 			// Generate schema
-			List<SysSchemaObjectClassDto> schemas = this.systemService.generateSchema(systemDto);
+			List<SysSchemaObjectClassDto> schemas = getSystemService().generateSchema(systemDto);
 			SysSchemaObjectClassDto schemaAccount = schemas.stream()
 					.filter(schema -> IcObjectClassInfo.ACCOUNT.equals(schema.getObjectClassName())).findFirst()
 					.orElse(null);
@@ -278,7 +275,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 			connectorType.getMetadata().put(SCHEMA_ID_KEY, schemaAccount.getId().toString());
 		} else {
 			// Generate schema
-			List<SysSchemaObjectClassDto> schemas = this.systemService.generateSchema(systemDto);
+			List<SysSchemaObjectClassDto> schemas = getSystemService().generateSchema(systemDto);
 			SysSchemaObjectClassDto schemaAccount = schemas.stream()
 					.filter(schema -> IcObjectClassInfo.ACCOUNT.equals(schema.getObjectClassName())).findFirst()
 					.orElse(null);
@@ -301,11 +298,11 @@ public class CsvConnectorType extends AbstractConnectorType {
 
 		String systemId = connectorType.getMetadata().get(SYSTEM_DTO_KEY);
 		Assert.notNull(systemId, "System ID cannot be null!");
-		SysSystemDto systemDto = systemService.get(UUID.fromString(systemId), IdmBasePermission.READ);
+		SysSystemDto systemDto = getSystemService().get(UUID.fromString(systemId), IdmBasePermission.READ);
 		Assert.notNull(systemDto, "System cannot be null!");
 
 		// Find and update attribute defines UID attribute.
-		IdmFormDefinitionDto connectorFormDef = this.systemService
+		IdmFormDefinitionDto connectorFormDef = getSystemService()
 				.getConnectorFormDefinition(systemDto.getConnectorInstance());
 		IdmFormAttributeDto uidAttribute = connectorFormDef.getMappedAttributeByCode(CONNECTOR_UID);
 		List<Serializable> uidValue = new ArrayList<>();
@@ -313,7 +310,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 		formService.saveValues(systemDto, uidAttribute, uidValue);
 
 		// Generate schema - again, for create primary attribute __NAME__.
-		List<SysSchemaObjectClassDto> schemas = this.systemService.generateSchema(systemDto);
+		List<SysSchemaObjectClassDto> schemas = getSystemService().generateSchema(systemDto);
 		SysSchemaObjectClassDto schemaAccount = schemas.stream()
 				.filter(schema -> IcObjectClassInfo.ACCOUNT.equals(schema.getObjectClassName())).findFirst()
 				.orElse(null);

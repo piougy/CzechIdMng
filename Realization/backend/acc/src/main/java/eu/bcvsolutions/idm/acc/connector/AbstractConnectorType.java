@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
@@ -57,25 +58,10 @@ public abstract class AbstractConnectorType implements
 
 	private String beanName; // spring bean name - used as id
 
-	public static final String STEP_FINISH = "finish";
-	public static final String CREATES_ROLE_WITH_SYSTEM = "createRoleWithSystem";
-	public static final String MAPPING_ID = "mappingId";
-	public static final String SCHEMA_ID = "schemaId";
-	public static final String NEW_ROLE_WITH_SYSTEM_CODE = "newRoleWithSystemCode";
-	public static final String ROLE_SYSTEM_ID = "roleSystemId";
-	public static final String SYSTEM_DTO_KEY = "system";
-	public static final String STEP_MAPPING = "mapping";
-	public static final String ENTITY_TYPE = "entityType";
-	public static final String TREE_TYPE_ID = "treeTypeId";
-	public static final String OPERATION_TYPE = "operationType";
-	public static final String MAPPING_DTO_KEY = "mapping";
-	public static final String SYNC_DTO_KEY = "sync";
-	public static final String ALERT_MORE_MAPPINGS = "alertMoreMappings";
-
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired
-	protected SysSystemService systemService;
+	private SysSystemService systemService;
 	@Autowired
 	private SysRoleSystemService roleSystemService;
 	@Autowired
@@ -217,7 +203,23 @@ public abstract class AbstractConnectorType implements
 	private void executeMappingStep(ConnectorTypeDto connectorTypeDto) {
 
 		String schemaId = connectorTypeDto.getMetadata().get(SCHEMA_ID);
-		SysSchemaObjectClassDto schemaDto = schemaService.get(UUID.fromString(schemaId), IdmBasePermission.READ);
+		SysSchemaObjectClassDto schemaDto = null;
+		if (schemaId != null) {
+			schemaDto = schemaService.get(UUID.fromString(schemaId), IdmBasePermission.READ);
+		}else {
+			String systemId = connectorTypeDto.getMetadata().get(SYSTEM_DTO_KEY);
+			SysSchemaObjectClassFilter filter = new SysSchemaObjectClassFilter();
+			Assert.isTrue(Strings.isNotBlank(systemId), "System ID cannot be empty!");
+			filter.setSystemId(UUID.fromString(systemId));
+			List<SysSchemaObjectClassDto> schemas = schemaService.find(filter, null, IdmBasePermission.READ)
+					.getContent()
+					.stream()
+					.sorted(Comparator.comparing(SysSchemaObjectClassDto::getCreated))
+					.collect(Collectors.toList());
+			if (!schemas.isEmpty()){
+				schemaDto = schemas.get(0);
+			}
+		}
 		Assert.notNull(schemaDto, "System schema must exists!");
 
 		String entityType = connectorTypeDto.getMetadata().get(ENTITY_TYPE);
@@ -243,8 +245,11 @@ public abstract class AbstractConnectorType implements
 		mappingDto.setName("Mapping");
 		boolean isNew = true;
 		if (mappingId != null) {
-			isNew = false;
-			mappingDto = systemMappingService.get(mappingId, IdmBasePermission.READ);
+			SysSystemMappingDto mappingExisted = systemMappingService.get(mappingId, IdmBasePermission.READ);
+			if (mappingExisted != null) {
+				isNew = false;
+				mappingDto = mappingExisted;
+			}
 		}
 		// For tree type have to be filled tree type ID too.
 		if (SystemEntityType.TREE == systemEntityType) {
@@ -310,5 +315,9 @@ public abstract class AbstractConnectorType implements
 		}
 		String connectorName = systemDto.getConnectorKey().getConnectorName();
 		return this.getConnectorName().equals(connectorName);
+	}
+
+	protected SysSystemService getSystemService() {
+		return systemService;
 	}
 }

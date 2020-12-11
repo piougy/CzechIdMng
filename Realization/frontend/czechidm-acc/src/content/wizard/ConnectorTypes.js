@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import IdmContext from 'czechidm-core/src/context/idm-context';
 import { SystemManager } from '../../redux';
 import SystemWizardDetail from './SystemWizardDetail';
+import Helmet from 'react-helmet';
 
 const systemManager = new SystemManager();
 
@@ -219,6 +220,7 @@ class ConnectorTypes extends Basic.AbstractContextComponent {
     return (
       <IdmContext.Provider value={{...this.context, wizardContext}}>
         <Basic.Panel>
+          <Helmet title={ this.i18n('acc:connector-type.header') } />
           <Basic.PanelHeader text={this.i18n('acc:connector-type.header')}/>
           <Basic.PanelBody>
             {this.renderConnectorTypes()}

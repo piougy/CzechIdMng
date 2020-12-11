@@ -66,7 +66,7 @@ class VsRequestContent extends Basic.AbstractContent {
     const { entity, showLoading} = this.props;
     // Not allows to create VsRequestDetail without entity. Otherwise tables with next and previous requests
     // will be not loaded (because the componentWillReceiveProps is not used).
-    if ( !entity ) {
+    if (!entity) {
       return null;
     }
 

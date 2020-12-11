@@ -379,7 +379,8 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       validationMessage,
       disableable,
       additionalOptions,
-      onChange
+      onChange,
+      roots
     } = this.props;
     const {
       treeTypeId,
@@ -518,6 +519,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               disableable={ disableable }
               paginationRootSize={ treePaginationRootSize }
               paginationNodeSize={ treePaginationNodeSize }
+              roots={ roots }
             />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
@@ -601,7 +603,16 @@ TreeNodeSelect.propTypes = {
   /**
    * If disabled option can be selected.
    */
-  disableable: PropTypes.bool
+  disableable: PropTypes.bool,
+  /**
+   * "Hard roots" - roots can be loaded from outside and given as parameter, then root will not be loaded by method getRootSearchParameters().
+   * Roots can be given as array of ids only - entities has to be loaded in redux store!
+   * Search is disabled, if roots are given.
+   */
+  roots: PropTypes.arrayOf(PropTypes.oneOfType(
+    PropTypes.string,
+    PropTypes.object
+  ))
 };
 
 TreeNodeSelect.defaultProps = {

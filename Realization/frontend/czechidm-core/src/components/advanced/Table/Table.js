@@ -490,7 +490,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (context && context.store) {
       _filterOpened = _manager.isFilterOpened(context.store.getState(), props.uiKey);
     }
-    if (_filterOpened !== null) {
+    if (Utils.Ui.isNotEmpty(_filterOpened)) {
       return _filterOpened;
     }
     return props.filterOpened; // default ~ initial by table usage

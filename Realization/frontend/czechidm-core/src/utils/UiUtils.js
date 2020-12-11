@@ -461,6 +461,17 @@ export default class UiUtils {
   }
 
   /**
+   * Returns true, if given value is NOT filled - usable for boolean values - false is not empty.
+   *
+   * @param  {object}  objectValue
+   * @return {Boolean}
+   * @since 10.7.0
+   */
+  static isNotEmpty(objectValue) {
+    return !this.isEmpty(objectValue);
+  }
+
+  /**
    * Get parameter value from url.
    *
    * @param  {object} location      url

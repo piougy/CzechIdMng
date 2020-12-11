@@ -74,7 +74,7 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
         return 'component:role';
       }
       case this.ROLE_CATALOGUE: {
-        return 'fa:list-alt';
+        return 'component:role-catalogue';
       }
       case this.CONTRACT: {
         return 'fa:building';
@@ -83,7 +83,7 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
         return 'fa:hourglass-half';
       }
       case this.IDENTITY_ROLE: {
-        return 'component:role';
+        return 'component:identity-role';
       }
       default: {
         return null;

@@ -10,6 +10,14 @@
 
 	<repositories>
 		<repository>
+			<id>nexus</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-all/</url>
+		</repository>
+		<repository>
+			<id>nexus-releases</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+		</repository>
+		<repository>
 			<id>maven-centrals</id>
 			<url>https://repo1.maven.org/maven2/</url>
 		</repository>

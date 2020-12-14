@@ -456,7 +456,6 @@ class Table extends AbstractComponent {
       showLoading,
       hover,
       className,
-      classNameTable,
       condensed,
       header,
       noHeader,
@@ -477,8 +476,7 @@ class Table extends AbstractComponent {
       { table: true },
       { 'table-hover': hover},
       { 'table-condensed': condensed },
-      { 'table-no-header': noHeader },
-      classNameTable
+      { 'table-no-header': noHeader }
     );
     //
     const content = [];
@@ -601,10 +599,6 @@ Table.propTypes = {
    * Supports frontend pagination
    */
   supportsPagination: PropTypes.bool,
-  /**
-  * Class names for table element
-  */
-  classNameTable: PropTypes.string,
   /**
    * DnD support - table will not be orderable, pagination support will not be available.
    *

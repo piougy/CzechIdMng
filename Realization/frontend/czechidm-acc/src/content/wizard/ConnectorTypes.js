@@ -1,10 +1,11 @@
 import { Basic, Managers } from 'czechidm-core';
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import IdmContext from 'czechidm-core/src/context/idm-context';
 import { SystemManager } from '../../redux';
 import SystemWizardDetail from './SystemWizardDetail';
-import Helmet from 'react-helmet';
+
 
 const systemManager = new SystemManager();
 
@@ -119,7 +120,7 @@ class ConnectorTypes extends Basic.AbstractContextComponent {
         <Basic.Table
           rendered={false}
           data={connectorTypeData}
-          classNameTable="table-cell-vertical-middle-align"
+          className="table-cell-vertical-middle-align"
         >
           <Basic.Column
             property="button"

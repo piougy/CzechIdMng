@@ -58,6 +58,11 @@ public class DefaultAccMultipleSystemAuthenticator extends AbstractAccAuthentica
 
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
+		if (CollectionUtils.isEmpty(authenticatorConfiguration.getSystems())) {
+			// not configured
+			return null;
+		}
+		
 		String username = loginDto.getUsername();
 		LOG.debug("Identity with username [{}] authenticating", username);
 		IdmIdentityDto identity = getValidIdentity(username, true);

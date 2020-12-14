@@ -71,6 +71,8 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 	private IdmPasswordService passwordService;
 	@Autowired 
 	private IdmIdentityService identityService;
+	@Autowired 
+	private DefaultAccMultipleSystemAuthenticator defaultAccMultipleSystemAuthenticator;
 
 	@After
 	public void after() {
@@ -110,6 +112,13 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 		// System two
 		// Bas password
 		login(identity, passwordSystemTwo + 1, true, null);
+	}
+	
+	@Test
+	public void testLoginNotConfiguredWithWrongPassword() {
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString(getHelper().createName()));
+		//
+		Assert.assertNull(defaultAccMultipleSystemAuthenticator.authenticate(new LoginDto(identity.getUsername(), new GuardedString(getHelper().createName()))));
 	}
 	
 	@Test(expected = MustChangePasswordException.class)

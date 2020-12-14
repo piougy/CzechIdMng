@@ -37,9 +37,9 @@ class VsDashboard extends Basic.AbstractContent {
             columns={['targetEntity', 'systemId', 'operationType', 'created', 'creator', 'operations', 'uid']}
             showFilter={false}
             forceSearchParameters={searchActive}
-            showToolbar={false}
+            showToolbar={true}
             showPageSize={false}
-            showRowSelection={false}
+            showRowSelection={true}
             showId={false}
             filterOpened={false}/>
         </Basic.Panel>

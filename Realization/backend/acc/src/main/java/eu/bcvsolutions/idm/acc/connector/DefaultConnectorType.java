@@ -4,7 +4,6 @@ import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import java.util.UUID;
@@ -27,8 +26,6 @@ public class DefaultConnectorType extends AbstractConnectorType {
 
 	@Autowired
 	private ConnectorManager connectorManager;
-	@Autowired
-	private SysSystemService systemService;
 
 	@Override
 	public String getConnectorName() {
@@ -42,7 +39,7 @@ public class DefaultConnectorType extends AbstractConnectorType {
 		// Set connector to the new system.
 		if (CREATE_SYSTEM_SET_CONNECTOR.equals(connectorTypeDto.getWizardStepName())) {
 			String systemId = connectorTypeDto.getMetadata().get(SYSTEM_DTO_KEY);
-			SysSystemDto systemDto = systemService.get(UUID.fromString(systemId), IdmBasePermission.READ);
+			SysSystemDto systemDto = getSystemService().get(UUID.fromString(systemId), IdmBasePermission.READ);
 			Assert.notNull(systemDto, "System must exists!");
 			SysConnectorKeyDto connectorKey = systemDto.getConnectorKey();
 			if (connectorKey == null) {
@@ -50,7 +47,7 @@ public class DefaultConnectorType extends AbstractConnectorType {
 				IcConnectorKey connectorKeyIc = connectorManager.findConnectorKey(connectorTypeDto.getConnectorName());
 				Assert.notNull(connectorKeyIc, "Connector key was not found!");
 				systemDto.setConnectorKey(new SysConnectorKeyDto(connectorKeyIc));
-				systemDto = systemService.save(systemDto, IdmBasePermission.UPDATE);
+				systemDto = getSystemService().save(systemDto, IdmBasePermission.UPDATE);
 				connectorTypeDto.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 			}
 		}

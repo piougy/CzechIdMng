@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -54,8 +53,6 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 	@Autowired
 	private ConnectorManager connectorManager;
 	@Autowired
-	private SysSystemService systemService;
-	@Autowired
 	private SysSystemMappingService systemMappingService;
 	@Autowired
 	private SysSyncConfigService syncConfigService;
@@ -89,7 +86,7 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		connectorType.getMetadata().put(SYSTEM_NAME, systemDto.getName());
 		Map<String, String> metadata = connectorType.getMetadata();
 
-		IdmFormDefinitionDto connectorFormDef = this.systemService
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
 				.getConnectorFormDefinition(systemDto.getConnectorInstance());
 		// Find attribute with port.
 		metadata.put(PORT, getValueFromConnectorInstance(PORT, systemDto, connectorFormDef));
@@ -164,7 +161,7 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		SysSystemDto systemDto;
 		if (systemId != null) {
 			// System already exists.
-			systemDto = systemService.get(UUID.fromString(systemId), IdmBasePermission.READ);
+			systemDto = getSystemService().get(UUID.fromString(systemId), IdmBasePermission.READ);
 		} else {
 			// Create new system.
 			systemDto = new SysSystemDto();
@@ -174,12 +171,12 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		IcConnectorKey connectorKey = connectorManager.findConnectorKey(this.getConnectorName());
 		Assert.notNull(connectorKey, "Connector key was not found!");
 		systemDto.setConnectorKey(new SysConnectorKeyDto(connectorKey));
-		systemDto = systemService.save(systemDto, IdmBasePermission.CREATE);
+		systemDto = getSystemService().save(systemDto, IdmBasePermission.CREATE);
 
 		// Put new system to the connector type (will be returned to FE).
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 
-		IdmFormDefinitionDto connectorFormDef = this.systemService
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
 				.getConnectorFormDefinition(systemDto.getConnectorInstance());
 		// Set the port.
 		this.setValueToConnectorInstance(PORT, port, systemDto, connectorFormDef);
@@ -207,7 +204,7 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		this.setValueToConnectorInstance(KEY_COLUMN, keyColumn, systemDto, connectorFormDef);
 
 		// Generate schema
-		List<SysSchemaObjectClassDto> schemas = this.systemService.generateSchema(systemDto);
+		List<SysSchemaObjectClassDto> schemas = this.getSystemService().generateSchema(systemDto);
 		SysSchemaObjectClassDto schemaAccount = schemas.stream()
 				.filter(schema -> IcObjectClassInfo.ACCOUNT.equals(schema.getObjectClassName())).findFirst()
 				.orElse(null);
@@ -226,7 +223,7 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 			return false;
 		}
 
-		IdmFormDefinitionDto connectorFormDef = this.systemService
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
 				.getConnectorFormDefinition(systemDto.getConnectorInstance());
 		// Find attribute with drive name.
 		String jdbcDriverName = getValueFromConnectorInstance(JDBC_DRIVER, systemDto, connectorFormDef);

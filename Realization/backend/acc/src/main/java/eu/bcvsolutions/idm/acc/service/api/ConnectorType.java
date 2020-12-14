@@ -16,6 +16,21 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  */
 public interface ConnectorType extends Ordered{
 
+	String STEP_FINISH = "finish";
+	String CREATES_ROLE_WITH_SYSTEM = "createRoleWithSystem";
+	String MAPPING_ID = "mappingId";
+	String SCHEMA_ID = "schemaId";
+	String NEW_ROLE_WITH_SYSTEM_CODE = "newRoleWithSystemCode";
+	String ROLE_SYSTEM_ID = "roleSystemId";
+	String SYSTEM_DTO_KEY = "system";
+	String STEP_MAPPING = "mapping";
+	String ENTITY_TYPE = "entityType";
+	String TREE_TYPE_ID = "treeTypeId";
+	String OPERATION_TYPE = "operationType";
+	String MAPPING_DTO_KEY = "mapping";
+	String SYNC_DTO_KEY = "sync";
+	String ALERT_MORE_MAPPINGS = "alertMoreMappings";
+
 	/**
 	 * Bean name / unique identifier (spring bean name).
 	 *

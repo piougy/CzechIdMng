@@ -26,6 +26,7 @@ export default class DefaultSystemWizard extends Basic.AbstractContextComponent 
       wizardContext.entity = connectorType._embedded.system;
       wizardContext.mapping = connectorType._embedded.mapping;
       wizardContext.syncConfig = connectorType._embedded.sync;
+      wizardContext.connectorType = connectorType;
     }
     this.state = {};
   }

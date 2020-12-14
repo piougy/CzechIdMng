@@ -29,7 +29,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
@@ -58,14 +57,14 @@ import eu.bcvsolutions.idm.core.security.api.service.TwoFactorAuthenticationMana
 @Service("twoFactorAuthenticationManager")
 public class DefaultTwoFactorAuthenticationManager implements TwoFactorAuthenticationManager {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultTwoFactorAuthenticationManager.class);
+	// private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultTwoFactorAuthenticationManager.class);
 	// identity services
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private IdmProfileService profileService;
 	// notification / configuration
 	@Autowired private NotificationManager notificationManager;
-	@Autowired private ConfigurationService configurationService;
+	// @Autowired private ConfigurationService configurationService;
 	// token services
 	@Autowired private TokenManager tokenManager;
 	@Autowired private JwtAuthenticationMapper jwtAuthenticationMapper;

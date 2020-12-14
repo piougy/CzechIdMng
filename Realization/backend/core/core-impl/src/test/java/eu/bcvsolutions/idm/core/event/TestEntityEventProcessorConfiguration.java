@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.event;
 
-import org.activiti.engine.impl.cmd.GetHistoricIdentityLinksForTaskCmd;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

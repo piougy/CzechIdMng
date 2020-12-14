@@ -1260,7 +1260,7 @@
         "header": "Dvoufaktorová autentizace",
         "verificationCode": {
           "label": "Autentizační kód",
-          "placeholder": "6-ti místný číselný kód"
+          "placeholder": "6místný číselný kód"
         },
         "help": {
           "header": "Jak získat autentizační kód",
@@ -2936,16 +2936,16 @@
               "instead": "."
             },
             "verificationCode": {
-              "label": "Zadejte 6-ti místný číselný kód z aplikace",
+              "label": "Zadejte 6místný číselný kód z aplikace",
               "placeholder": "123456",
-              "help": "Po naskenování QR kódu aplikace zobrazí 6-ti místný číselný, který můžete zadat."
+              "help": "Po naskenování QR kódu aplikace zobrazí 6místný číselný, který můžete zadat."
             }
           },
           "notification": {
             "help": "Notifikace byla odeslána.",
             "disabled": "Pro povolení této metody je třeba zapnout podporu pro zasílání sms notifikací.",
             "verificationCode": {
-              "label": "Zadejte 6-ti místný číselný kód z notifikace",
+              "label": "Zadejte 6místný číselný kód z notifikace",
               "placeholder": "123456",
               "help": ""
             }

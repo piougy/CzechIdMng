@@ -300,21 +300,17 @@ class PasswordChange extends Basic.AbstractContent {
       const verificationCode = formData.verificationCode;
       const { token } = this.state;
       this.context.store.dispatch(securityManager.loginTwoFactor({ token, verificationCode }, (result, error) => {
-        this.setState({
-          showLoading: false
-        }, () => {
-          if (error) {
-            return;
-          }
-          // redirection to requested page before login
-          const { location } = this.props;
-          if (location.state && location.state.nextPathname) {
-            this.context.history.replace(location.state.nextPathname);
-          } else {
-            // TODO: user defined home page ...
-            this.context.history.replace('/');
-          }
-        });
+        if (error) {
+          return;
+        }
+        // redirection to requested page before login
+        const { location } = this.props;
+        if (location.state && location.state.nextPathname) {
+          this.context.history.replace(location.state.nextPathname);
+        } else {
+          // TODO: user defined home page ...
+          this.context.history.replace('/');
+        }
       }));
     });
   }

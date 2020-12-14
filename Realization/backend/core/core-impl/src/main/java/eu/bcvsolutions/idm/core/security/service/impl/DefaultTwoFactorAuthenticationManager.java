@@ -111,9 +111,9 @@ public class DefaultTwoFactorAuthenticationManager implements TwoFactorAuthentic
 			sendVerificationCode(identity, generateCode(new GuardedString(secret)));
 		}
 		// TODO: ApplicationConfiguration - stage development
-		if ("development".equals(configurationService.getValue("idm.pub.app.stage"))) {
-			LOG.warn("Development - verification code [{}].", generateCode(new GuardedString(secret)).asString());
-		}
+//		if ("development".equals(configurationService.getValue("idm.pub.app.stage"))) {
+//			LOG.warn("Development - verification code [{}].", generateCode(new GuardedString(secret)).asString());
+//		}
 		//
 		return registration;
 	}
@@ -222,10 +222,10 @@ public class DefaultTwoFactorAuthenticationManager implements TwoFactorAuthentic
 			);
 		}
 		// TODO: ApplicationConfiguration - stage development
-		if ("development".equals(configurationService.getValue("idm.pub.app.stage"))) {
-			LOG.warn("Development - verification code [{}].", 
-					generateCode(new GuardedString(passwordService.findOneByIdentity(identityId).getVerificationSecret())).asString());
-		}
+//		if ("development".equals(configurationService.getValue("idm.pub.app.stage"))) {
+//			LOG.warn("Development - verification code [{}].", 
+//					generateCode(new GuardedString(passwordService.findOneByIdentity(identityId).getVerificationSecret())).asString());
+//		}
 		//
 		return true;
 	}

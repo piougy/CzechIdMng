@@ -1581,7 +1581,7 @@ RoleType]]></x0:EntityRelationshipModel.title>
 		<node id="n29">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-763.4726655736505" Y="-634.9224321045913" Width="187.4249321423768" Height="110.10124084014319"/>
+				<y:RectD X="-1713.756040772681" Y="-602.9015153813767" Width="187.4249321423768" Height="110.10124084014319"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FF000000">
@@ -1918,7 +1918,7 @@ PersistentType]]></x0:EntityRelationshipModel.title>
 		<node id="n36">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-359.55312831376676" Y="-305.9648100549146" Width="152.9599253584928" Height="158.49530703258907"/>
+				<y:RectD X="-359.5531283137669" Y="-342.8398100549145" Width="152.9599253584928" Height="195.37030703258907"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
@@ -1944,6 +1944,7 @@ PersistentType]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[- unsuccessfulAttempts]]></sys:String>
 									<sys:String><![CDATA[- blockLoginDate]]></sys:String>
 									<sys:String><![CDATA[- passwordNeverExpires]]></sys:String>
+									<sys:String><![CDATA[+ verificationSecret]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>
@@ -4703,7 +4704,7 @@ Type]]></x0:EntityRelationshipModel.title>
 		<node id="n104">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-554.4005976855676" Y="-299.90112923364285" Width="162.37763440860215" Height="146.36794539004597"/>
+				<y:RectD X="-574.5255976855676" Y="-342.8398100549146" Width="182.50263440860215" Height="195.37030703258918"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
@@ -4726,6 +4727,7 @@ Type]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[- navigationCollapsed]]></sys:String>
 									<sys:String><![CDATA[- systemInformation]]></sys:String>
 									<sys:String><![CDATA[+ defaultPageSize]]></sys:String>
+									<sys:String><![CDATA[+ twoFactorAuthenticationType]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>
@@ -4738,7 +4740,7 @@ Type]]></x0:EntityRelationshipModel.title>
 		<node id="n105">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-1001.0684644486984" Y="-491.9754529116112" Width="107.7643694720162" Height="184.17600318417755"/>
+				<y:RectD X="-1191.1917323872508" Y="-648.0364664654771" Width="107.7643694720162" Height="223.73850318417755"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
@@ -4766,6 +4768,7 @@ Type]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[+ issuedAt]]></sys:String>
 									<sys:String><![CDATA[+ expiration]]></sys:String>
 									<sys:String><![CDATA[+ externalId]]></sys:String>
+									<sys:String><![CDATA[+ secretVerified]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>
@@ -5530,7 +5533,7 @@ Type]]></x0:EntityRelationshipModel.title>
 		<node id="n127">
 			<data key="d0">4</data>
 			<data key="d5">
-				<y:RectD X="-1614.9950894680062" Y="408.29144606277737" Width="162.32572716670643" Height="123.46026294413161"/>
+				<y:RectD X="-1573.9950894680057" Y="408.29144606277737" Width="162.32572716670643" Height="123.46026294413161"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle fill="{y:GraphMLReference 12}" insetFill="{y:GraphMLReference 11}" stroke="{y:GraphMLReference 13}">
@@ -9623,7 +9626,9 @@ pravidla]]></y:Label.Text>
 			</data>
 			<data key="d12">
 				<x:List>
-					<y:Bend Location="-1418.5,14"/>
+					<y:Bend Location="-588,-653"/>
+					<y:Bend Location="-774.7457274982144,-301.5"/>
+					<y:Bend Location="-1492.8322258846524,-301.5"/>
 				</x:List>
 			</data>
 			<data key="d13">

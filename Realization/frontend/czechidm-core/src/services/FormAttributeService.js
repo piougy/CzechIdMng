@@ -36,6 +36,10 @@ class FormAttributeService extends AbstractService {
     return label;
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   getGroupPermission() {
     return 'FORMATTRIBUTE';
   }

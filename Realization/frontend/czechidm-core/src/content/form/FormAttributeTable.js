@@ -99,7 +99,7 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
-          showRowSelection={ SecurityManager.hasAuthority('FORMATTRIBUTE_DELETE') }
+          showRowSelection
           manager={ attributeManager }
           forceSearchParameters={ new SearchParameters().setFilter('definitionId', definitionId) }
           rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
@@ -119,11 +119,6 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
-          }
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-            ]
           }
           buttons={
             [

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.eav.rest.impl;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,8 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -41,7 +44,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * EAV Form definitions
+ * EAV Form attributes.
  * 
  * @author Radek Tomiška
  *
@@ -265,6 +268,62 @@ public class IdmFormAttributeController extends AbstractReadWriteDtoController<I
 			@ApiParam(value = "Attribute's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_ATTRIBUTE_READ + "')")
+	@ApiOperation(
+			value = "Get available bulk actions for form attributes", 
+			nickname = "availableBulkAction", 
+			tags = { IdmFormAttributeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_READ, description = "") })
+				})
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return super.getAvailableBulkActions();
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_ATTRIBUTE_READ + "')")
+	@ApiOperation(
+			value = "Process bulk action for form attribute", 
+			nickname = "bulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmFormAttributeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_READ, description = "")})
+				})
+	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.bulkAction(bulkAction);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_ATTRIBUTE_READ + "')")
+	@ApiOperation(
+			value = "Prevalidate bulk action for form attribute", 
+			nickname = "prevalidateBulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { IdmFormAttributeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_READ, description = "")})
+				})
+	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.prevalidateBulkAction(bulkAction);
 	}
 	
 	@Override

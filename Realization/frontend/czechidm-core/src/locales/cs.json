@@ -6138,6 +6138,11 @@
         "label": "$t(action.delete.action) oprávnění",
         "help": "Smaže vybraná oprávnění.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-form-attribute-delete-bulk-action": {
+        "label": "$t(action.delete.action) atributy",
+        "help": "Smaže vybrané atributy formuláře.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {

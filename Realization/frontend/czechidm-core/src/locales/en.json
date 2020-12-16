@@ -6086,6 +6086,11 @@
         "label": "$t(action.delete.action) permissions",
         "help": "$t(action.delete.action) selected permissions.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-form-attribute-delete-bulk-action": {
+        "label": "$t(action.delete.action) attributes",
+        "help": "$t(action.delete.action) selected attributes.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {

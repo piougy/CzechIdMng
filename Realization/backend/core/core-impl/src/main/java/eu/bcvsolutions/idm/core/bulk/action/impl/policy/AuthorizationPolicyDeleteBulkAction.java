@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
  * Delete selected authorization policies.
  *
  * @author Radek Tomiška
- *
+ * @since 10.8.0
  */
 @Component(AuthorizationPolicyDeleteBulkAction.NAME)
 @Description("Delete selected authorization policies.")

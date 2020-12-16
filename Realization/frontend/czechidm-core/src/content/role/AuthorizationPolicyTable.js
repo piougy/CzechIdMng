@@ -399,10 +399,9 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, { evaluatorType: DEFAULT_EVALUATOR_TYPE }) }
-                rendered={ _supportedEvaluators.length > 0 && manager.canSave() && showAddButton }>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+                rendered={ _supportedEvaluators.length > 0 && manager.canSave() && showAddButton }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
@@ -421,8 +420,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 return (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
             }
@@ -467,7 +466,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             property="evaluatorType"
             header={ this.i18n('entity.AuthorizationPolicy.evaluatorType.label') }
             sort
-            rendered={_.includes(columns, 'evaluatorType')}
+            rendered={ _.includes(columns, 'evaluatorType') }
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data, property }) => {
@@ -624,7 +623,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                           .number()
                           .integer()
                           .min(0)
-                          .max(9999)
+                          .max(32767)
                           .allow(null)
                       }
                       label={ this.i18n('entity.AuthorizationPolicy.seq.label') }

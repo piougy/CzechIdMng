@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -66,7 +67,8 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	private ZonedDateTime dateValue;
 	private byte[] byteValue;
 	private UUID uuidValue;
-	@Max(99999)
+	@Min(Short.MIN_VALUE)
+	@Max(Short.MAX_VALUE)
 	private short seq;
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity

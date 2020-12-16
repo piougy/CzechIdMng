@@ -356,7 +356,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                       required/>
                     <Basic.TextField
                       ref="seq"
-                      validation={ Joi.number().integer().min(0).max(9999) }
+                      validation={ Joi.number().integer().min(0).max(32767) }
                       label={ this.i18n('entity.GenerateValue.seq.label') }
                       help={ this.i18n('entity.GenerateValue.seq.help') }
                       readOnly={ this._isUnmodifiable(detail.entity) }/>

@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -40,7 +41,8 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 	private boolean disabled;
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;
-	@Max(99999)
+	@Min(Short.MIN_VALUE)
+	@Max(Short.MAX_VALUE)
 	private Short seq;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String groupPermission;

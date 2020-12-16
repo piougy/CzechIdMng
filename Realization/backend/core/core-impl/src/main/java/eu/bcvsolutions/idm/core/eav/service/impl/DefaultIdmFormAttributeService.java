@@ -12,6 +12,8 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,9 +90,34 @@ public class DefaultIdmFormAttributeService
 	public IdmFormAttributeDto saveInternal(IdmFormAttributeDto dto) {
 		// default seq
 		if (dto.getSeq() == null) {
-			dto.setSeq((short) 0);
+			if (isNew(dto)) { // new => try to init order
+				IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
+				filter.setDefinitionId(dto.getFormDefinition());
+				List<IdmFormAttributeDto> attributes = find(
+							filter, 
+							PageRequest.of(0, 1, Sort.by(Direction.DESC, IdmFormAttribute_.seq.getName()))
+						)
+						.getContent();
+				if (attributes.isEmpty()) {
+					dto.setSeq((short) 0);
+				} else {
+					// last by form definition // why big Short, why ... but it's too late ...
+					Short lastSeq = attributes.get(0).getSeq();
+					if (lastSeq == null) {
+						// cannot be saved by application, but can be broken in DB (TODO: change script + default 0)
+						dto.setSeq((short) 0);
+					} else if (lastSeq.shortValue() >= Short.MAX_VALUE) {
+						dto.setSeq(Short.MAX_VALUE);
+					} else {
+						dto.setSeq((short)(attributes.get(0).getSeq() + 1));
+					}
+				}
+			} else {
+				// update => ~ reset was requested.
+				dto.setSeq((short) 0);
+			}
 		}
-		// check seq
+		//
 		return super.saveInternal(dto);
 	}
 	

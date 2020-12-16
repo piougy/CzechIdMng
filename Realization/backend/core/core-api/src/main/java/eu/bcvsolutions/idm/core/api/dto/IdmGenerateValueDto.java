@@ -33,7 +33,7 @@ public class IdmGenerateValueDto extends AbstractDto implements UnmodifiableEnti
 	@Size(max = DefaultFieldLengths.NAME)
 	private String generatorType;
 	@Min(0)
-	@Max(99999)
+	@Max(Short.MAX_VALUE)
 	private short seq;
 	private ConfigurationMap generatorProperties;
 	@NotNull

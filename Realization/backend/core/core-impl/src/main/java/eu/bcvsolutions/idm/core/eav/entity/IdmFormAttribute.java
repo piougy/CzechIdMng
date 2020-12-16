@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -101,7 +102,8 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@Column(name = "confidential", nullable = false)
 	private boolean confidential;
 	
-	@Max(99999)
+	@Min(Short.MIN_VALUE)
+	@Max(Short.MAX_VALUE)
 	@Column(name = "seq")
 	private Short seq;
 	

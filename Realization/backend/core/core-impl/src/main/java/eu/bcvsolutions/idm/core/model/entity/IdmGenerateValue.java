@@ -44,7 +44,7 @@ public class IdmGenerateValue extends AbstractEntity implements UnmodifiableEnti
 
 	@Audited
 	@Min(0)
-	@Max(99999)
+	@Max(Short.MAX_VALUE)
 	@Column(name = "seq", nullable = false)
 	private short seq = 0;
 

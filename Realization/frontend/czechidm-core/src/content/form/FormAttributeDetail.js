@@ -39,26 +39,26 @@ class FormAttributeDetail extends Basic.AbstractContent {
     super.componentDidMount();
     //
     const { entityId } = this.props.match.params;
-    const { isNew, formDefinitionId } = this.props;
+    const { isNew, formDefinitionId, entity } = this.props;
     if (isNew) {
-      this.context.store.dispatch(manager.receiveEntity(entityId,
-        {
-          persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
-          seq: 0,
-          unmodifiable: false,
-          formDefinition: formDefinitionId
-        }, null, () => {
-          this.refs.code.focus();
-          this.setState({
-            persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT)
-          });
-        }));
-    } else {
-      this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(manager.fetchEntity(entityId, null, (entity) => {
+      const _entity = entity || {
+        persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
+        unmodifiable: false,
+        formDefinition: formDefinitionId
+      };
+      //
+      this.context.store.dispatch(manager.receiveEntity(entityId, _entity, null, () => {
         this.refs.code.focus();
         this.setState({
-          persistentType: entity.persistentType
+          persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT)
+        });
+      }));
+    } else {
+      this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
+      this.context.store.dispatch(manager.fetchEntity(entityId, null, (_entity) => {
+        this.refs.code.focus();
+        this.setState({
+          persistentType: _entity.persistentType
         });
       }));
     }
@@ -107,6 +107,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
   _isUnmodifiable() {
     const { entity } = this.props;
+    //
     return entity ? entity.unmodifiable : false;
   }
 
@@ -208,8 +209,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
     const { _showLoading, persistentType } = this.state;
     //
     return (
-      <div>
-        <form onSubmit={this.save.bind(this)}>
+      <Basic.Div>
+        <form onSubmit={ this.save.bind(this) }>
           <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.formAttributes.detail.title') } />
             <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
@@ -298,8 +299,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
                           .number()
                           .required()
                           .integer()
-                          .min(-99999)
-                          .max(99999)
+                          .min(-32768)
+                          .max(32767)
                       }/>
                   </Basic.Col>
                 </Basic.Row>
@@ -322,12 +323,26 @@ class FormAttributeDetail extends Basic.AbstractContent {
                 <Basic.TextField
                   ref="min"
                   label={ this.i18n('entity.FormAttribute.min.label') }
-                  validation={ Joi.number().precision(4).min(-Math.pow(10, 33)).max(Math.pow(10, 33)).allow(null) }
+                  validation={
+                    Joi
+                      .number()
+                      .precision(4)
+                      .min(-(10 ** 33))
+                      .max(10 ** 33)
+                      .allow(null)
+                  }
                   readOnly={ !this._supportsMinMaxValidation(persistentType) }/>
                 <Basic.TextField
                   ref="max"
                   label={ this.i18n('entity.FormAttribute.max.label') }
-                  validation={ Joi.number().precision(4).min(-Math.pow(10, 33)).max(Math.pow(10, 33)).allow(null) }
+                  validation={
+                    Joi
+                      .number()
+                      .precision(4)
+                      .min(-(10 ** 33))
+                      .max(10 ** 33)
+                      .allow(null)
+                  }
                   readOnly={ !this._supportsMinMaxValidation(persistentType) }/>
                 <Basic.TextField
                   ref="regex"
@@ -374,7 +389,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

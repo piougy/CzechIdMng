@@ -691,7 +691,6 @@ public class DefaultSysSystemAttributeMappingService
 	private IdmFormAttributeDto convertMappingAttribute(AttributeMapping entity) {
 		SysSchemaAttributeDto schemaAttribute = getSchemaAttribute(entity);
 		IdmFormAttributeDto attributeDefinition = new IdmFormAttributeDto();
-		attributeDefinition.setSeq((short) 0);
 		attributeDefinition.setCode(entity.getIdmPropertyName());
 		attributeDefinition.setName(entity.getName());
 		attributeDefinition.setPersistentType(formPropertyManager.getPersistentType(schemaAttribute.getClassType()));

@@ -99,7 +99,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.eav.IdentityFormValueEvaluato
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Form service integration tests
+ * Form service integration tests.
  *
  * @author Radek Tomiška
  *
@@ -1825,6 +1825,52 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		attribute = formService.saveAttribute(attribute);
 		//
 		Assert.assertTrue(attribute.isRequired());
+	}
+	
+	@Test
+	public void testChangeAttributeWithoutSeq() {
+		IdmFormAttributeDto attributeOne = new IdmFormAttributeDto(getHelper().createName());
+		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attributeTwo.setCode(attributeName);
+		attributeTwo.setName(attributeName);
+		attributeTwo.setPersistentType(PersistentType.SHORTTEXT);
+		attributeTwo.setConfidential(false);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				getHelper().createName(),
+				getHelper().createName(),
+				Lists.newArrayList(attributeOne, attributeTwo));
+		attributeTwo = formDefinitionOne.getMappedAttributeByCode(attributeTwo.getCode());
+		//
+		attributeTwo.setRequired(true);
+		attributeTwo = formService.saveAttribute(attributeTwo);
+		//
+		Assert.assertNotNull(attributeTwo.getSeq());
+		Assert.assertTrue(attributeTwo.getSeq().shortValue() > 0);
+		Assert.assertTrue(attributeTwo.isRequired());
+		//
+		// update no zero
+		attributeTwo.setSeq(null);
+		attributeTwo = formService.saveAttribute(attributeTwo);
+		//
+		Assert.assertNotNull(attributeTwo.getSeq());
+		Assert.assertTrue(attributeTwo.getSeq().shortValue() == 0);
+		Assert.assertTrue(attributeTwo.isRequired());
+		//
+		attributeTwo.setSeq(Short.MAX_VALUE);
+		attributeTwo = formService.saveAttribute(attributeTwo);
+		//
+		Assert.assertNotNull(attributeTwo.getSeq());
+		Assert.assertTrue(attributeTwo.getSeq().equals(Short.MAX_VALUE));
+		Assert.assertTrue(attributeTwo.isRequired());
+		//
+		// add new attribute
+		IdmFormAttributeDto attributeThree = new IdmFormAttributeDto(getHelper().createName());
+		attributeThree.setFormDefinition(formDefinitionOne.getId());
+		attributeThree = formService.saveAttribute(attributeThree);
+		//
+		Assert.assertNotNull(attributeThree.getSeq());
+		Assert.assertTrue(attributeThree.getSeq().equals(Short.MAX_VALUE));
 	}
 
 	@Test

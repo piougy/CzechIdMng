@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.config.web;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.ObjectFactory;
@@ -92,7 +93,11 @@ public class WebConfig extends HateoasAwareSpringDataWebConfiguration {
 				 */
 	            @Override
 	            public Object handleWeirdStringValue(DeserializationContext ctxt, Class<?> targetType, String valueToConvert, String failureMsg) {
-	                LocalDate date = LocalDate.parse(valueToConvert, DateTimeFormatter.ISO_DATE);
+	                if (!ZonedDateTime.class.isAssignableFrom(targetType)) {
+	                	return NOT_HANDLED;
+	                }
+	                //
+	            	LocalDate date = LocalDate.parse(valueToConvert, DateTimeFormatter.ISO_DATE);
 	                //
 	                return date.atStartOfDay(ctxt.getTimeZone().toZoneId());
 	            }

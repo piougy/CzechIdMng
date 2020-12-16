@@ -24,7 +24,8 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
     super(props, context);
     this.state = {
       filterOpened: props.filterOpened,
-      showLoading: true
+      showLoading: true,
+      lastOrder: null
     };
   }
 
@@ -57,15 +58,39 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
   showDetail(entity) {
     const { definitionId } = this.props;
     if (entity.id === undefined) {
-      const uuidId = uuid.v1();
-      this.context.history.push(`/form-definitions/attribute/${ uuidId }/detail?new=1&formDefinition=${ definitionId }`);
+      // load form attributes and add next order
+      const searchParameters = new SearchParameters().setSize(1).setFilter('definitionId', definitionId).setSort('seq', 'desc');
+      this.context.store.dispatch(this.getManager().fetchEntities(searchParameters, null, json => {
+        const newId = uuid.v1();
+        entity = {
+          ...entity,
+          seq: 0,
+          formDefinition: definitionId,
+          persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
+          unmodifiable: false
+        };
+        // seq is used => error is not resolved (~ order is set optionaly)
+        if (json) {
+          const data = json._embedded[this.getManager().getCollectionType()] || [];
+          if (data.length > 0) {
+            entity.seq = data[0].seq + 1;
+            if (entity.seq > 32767) {
+              // short max => at end => order will be decremented by dnd in table eventually
+              entity.seq = 32767;
+            }
+          }
+        }
+        //
+        this.context.store.dispatch(this.getManager().receiveEntity(newId, entity));
+        this.context.history.push(`/form-definitions/attribute/${ newId }/detail?new=1&formDefinition=${ definitionId }`);
+      }));
     } else {
       this.context.history.push(`/form-definitions/attribute/${ entity.id }/detail`);
     }
   }
 
   render() {
-    const { uiKey, definitionId, className, _showLoadingOrder } = this.props;
+    const { uiKey, definitionId, className, showAddLoading } = this.props;
     const { filterOpened } = this.state;
     //
     return (
@@ -78,7 +103,6 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
           manager={ attributeManager }
           forceSearchParameters={ new SearchParameters().setFilter('definitionId', definitionId) }
           rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
-          showLoading={ _showLoadingOrder }
           className={ className }
           filter={
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
@@ -107,8 +131,10 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={ this.showDetail.bind(this, { }) }
+                onClick={ this.showDetail.bind(this, {}) }
                 rendered={ SecurityManager.hasAuthority('FORMATTRIBUTE_CREATE') }
+                showLoading={ showAddLoading }
+                showLoadingIcon
                 icon="fa:plus">
                 { this.i18n('button.add') }
               </Basic.Button>
@@ -209,6 +235,7 @@ FormAttributeTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    showAddLoading: attributeManager.isShowLoading(state),
   };
 }
 

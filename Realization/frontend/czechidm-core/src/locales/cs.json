@@ -6133,6 +6133,11 @@
         "label": "Přepočítat stav uživatele",
         "help": "Přepočítá stav dle aktuálních kontraktů.",
         "icon": "fa:user-cog"
+      },
+      "core-authorization-policy-delete-bulk-action": {
+        "label": "$t(action.delete.action) oprávnění",
+        "help": "Smaže vybraná oprávnění.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {

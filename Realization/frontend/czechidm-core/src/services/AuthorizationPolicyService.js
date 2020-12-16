@@ -30,13 +30,17 @@ export default class AuthorizationPolicyService extends AbstractRequestService {
     }
 
     if (!entity._embedded.role && entity.authorizableType) {
-      return `${ Utils.Ui.getSimpleJavaType(entity.authorizableType)} - ${Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
+      return `${ Utils.Ui.getSimpleJavaType(entity.authorizableType)} - ${ Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
     }
-    return `${ this.roleService.getNiceLabel(entity._embedded.role)} - ${Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
+    return `${ this.roleService.getNiceLabel(entity._embedded.role)} - ${ Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
   }
 
   supportsPatch() {
     return false;
+  }
+
+  supportsBulkAction() {
+    return true;
   }
 
   getGroupPermission() {

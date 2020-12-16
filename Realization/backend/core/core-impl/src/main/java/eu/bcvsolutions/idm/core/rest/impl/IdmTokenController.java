@@ -16,8 +16,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import io.swagger.annotations.Api;
 
 /**
- * Created IdM tokens
- * - for admin only
+ * Created IdM tokens.
+ * 
+ * TODO: add group permision, use abstract controller instead.
  * 
  * @author Radek Tomiška
  *
@@ -42,6 +43,6 @@ public class IdmTokenController extends DefaultReadWriteDtoController<IdmTokenDt
 	
 	@Override
 	protected IdmTokenFilter toFilter(MultiValueMap<String, Object> parameters) {
-		return new IdmTokenFilter(parameters);
+		return new IdmTokenFilter(parameters, getParameterConverter());
 	}
 }

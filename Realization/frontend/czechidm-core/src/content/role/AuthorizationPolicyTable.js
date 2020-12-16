@@ -377,7 +377,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
           uiKey={ uiKey }
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
-          showRowSelection={ manager.canDelete() && showRowSelection }
+          showRowSelection={ showRowSelection }
           className={ className }
           filterOpened
           rowClass={
@@ -391,11 +391,6 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
               }
               return Utils.Ui.getDisabledRowClass(data[rowIndex]);
             }
-          }
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-            ]
           }
           buttons={
             [

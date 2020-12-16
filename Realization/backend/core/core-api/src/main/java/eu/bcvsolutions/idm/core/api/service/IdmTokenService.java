@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTokenFilter;
+import eu.bcvsolutions.idm.core.api.event.processor.TokenProcessor;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
@@ -12,6 +13,7 @@ import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
  * Persisted tokens. Use {@link TokenManager} instead in your services.
  * 
  * @see TokenManager
+ * @see TokenProcessor
  * @author Radek Tomiška
  * @since 8.2.0
  */

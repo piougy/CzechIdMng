@@ -6081,6 +6081,11 @@
         "label": "Recalculate identity state",
         "help": "Recalculate identity state (according to its current contracts).",
         "icon": "fa:user-cog"
+      },
+      "core-authorization-policy-delete-bulk-action": {
+        "label": "$t(action.delete.action) permissions",
+        "help": "$t(action.delete.action) selected permissions.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {

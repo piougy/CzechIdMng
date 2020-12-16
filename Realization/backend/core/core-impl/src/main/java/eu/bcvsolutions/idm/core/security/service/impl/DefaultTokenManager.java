@@ -149,9 +149,10 @@ public class DefaultTokenManager implements TokenManager {
 		Assert.notNull(owner.getId(), "Owner identifier is required.");
 		//
 		IdmTokenFilter filter = new IdmTokenFilter();
-		filter.setOwnerType(getOwnerType(owner.getClass()));
+		filter.setOwnerType(getOwnerType(owner));
 		filter.setOwnerId(getOwnerId(owner));
 		filter.setDisabled(Boolean.FALSE);
+		filter.setExpirationFrom(ZonedDateTime.now()); // valid tokens only
 		//
 		tokenService
 			.find(filter, null) // permissions are evaluated below, we want to disable all tokens (e.g. referential integrity)
@@ -181,7 +182,7 @@ public class DefaultTokenManager implements TokenManager {
 		//
 		token.setDisabled(true);
 		if (token.getExpiration() == null || token.getExpiration().isAfter(ZonedDateTime.now())) {
-			token.setExpiration(ZonedDateTime.now()); // Remove token by LRT depends on expiration time
+			token.setExpiration(ZonedDateTime.now()); // Remove token by LRT () depends on expiration time
 		}
 		return tokenService.save(token, permission);
 	}

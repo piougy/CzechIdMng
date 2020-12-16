@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
 /**
- * Delete entity events from queue
+ * Delete entity events from queue.
  * 
  * @author Radek Tomiška
  *

@@ -4,6 +4,11 @@ import SearchParameters from '../domain/SearchParameters';
 import * as Utils from '../utils';
 import PlainTextApi from './PlainTextApi';
 
+/**
+ * Application configuration.
+ *
+ * @author Radek Tomiška
+ */
 export default class ConfigurationService extends AbstractService {
 
   getApiPath() {
@@ -49,16 +54,16 @@ export default class ConfigurationService extends AbstractService {
    */
   getPublicConfigurations() {
     return RestApiService
-    .get(RestApiService.getUrl(`/public${this.getApiPath()}`), '')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(RestApiService.getUrl(`/public${ this.getApiPath() }`), '')
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -68,16 +73,16 @@ export default class ConfigurationService extends AbstractService {
    */
   getAllConfigurationsFromFile() {
     return RestApiService
-    .get(this.getApiPath() + '/all/file')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/all/file`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -88,7 +93,7 @@ export default class ConfigurationService extends AbstractService {
    */
   getMonitoringType(monitoringType) {
     return RestApiService
-      .get(`${this.getApiPath()}/monitoring-types/${monitoringType}`)
+      .get(`${ this.getApiPath() }/monitoring-types/${ monitoringType }`)
       .then(response => {
         if (response.status === 204) {
           return null;
@@ -113,16 +118,16 @@ export default class ConfigurationService extends AbstractService {
    */
   getAllConfigurationsFromEnvironment() {
     return RestApiService
-    .get(this.getApiPath() + '/all/environment')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/all/environment`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -132,21 +137,21 @@ export default class ConfigurationService extends AbstractService {
    * @return Promise
    */
   addMoreEntities(text) {
-    return PlainTextApi.put(this.getApiPath() + `/bulk/save`, text)
-    .then(response => {
-      if (response.status === 204) { // no content - ok
-        return null;
-      }
-      return response.json();
-    })
-    .then(jsonResponse => {
-      if (Utils.Response.hasError(jsonResponse)) {
-        throw Utils.Response.getFirstError(jsonResponse);
-      }
-      if (Utils.Response.hasInfo(jsonResponse)) {
-        throw Utils.Response.getFirstInfo(jsonResponse);
-      }
-      return jsonResponse;
-    });
+    return PlainTextApi.put(`${ this.getApiPath() }/bulk/save`, text)
+      .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      });
   }
 }

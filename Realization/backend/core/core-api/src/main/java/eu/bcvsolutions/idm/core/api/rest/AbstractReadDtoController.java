@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.core.api.rest;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -22,16 +24,18 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -52,9 +56,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
-import java.util.Map;
-import java.util.UUID;
-import org.springframework.util.LinkedMultiValueMap;
 
 /**
  * Read operations (get, find, autocomplete)
@@ -326,11 +327,12 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public ResourceSupport toResource(DTO dto) {
-		if(dto == null) { 
+		if (dto == null) { 
 			return null;
 		} 
 		Link selfLink = ControllerLinkBuilder.linkTo(this.getClass()).slash(dto.getId()).withSelfRel();
 		Resource<DTO> resourceSupport = new Resource<DTO>(dto, selfLink);
+		//
 		return resourceSupport;
 	}
 
@@ -350,13 +352,27 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		return pageToResources(page, domainType);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Resources<?> pageToResources(Page<Object> page, Class<?> domainType) {
-
+		Assert.notNull(page, "Resource page (content) is required.");
+		//
 		if (page.getContent().isEmpty()) {
 			return pagedResourcesAssembler.toEmptyResource(page, domainType);
 		}
-
-		return pagedResourcesAssembler.toResource(page);
+		//
+		return pagedResourcesAssembler.toResource(page, it -> {
+			if (!(it instanceof Identifiable)) {
+				return new Resource<>(it);
+			}
+			if (getDtoClass().isAssignableFrom(it.getClass())) {
+				return toResource((DTO) it);
+			}
+			// common hateoas resource with self link only
+			Link selfLink = ControllerLinkBuilder.linkTo(this.getClass()).slash(((Identifiable) it).getId()).withSelfRel();
+			Resource<?> resourceSupport = new Resource<>(it, selfLink);
+			//
+			return resourceSupport;
+		});
 	}
 
 	/**

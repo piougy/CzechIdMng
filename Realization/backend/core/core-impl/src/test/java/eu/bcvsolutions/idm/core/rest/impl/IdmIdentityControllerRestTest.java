@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -119,7 +120,8 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
-                .andExpect(jsonPath("$.username", equalTo(TestHelper.ADMIN_USERNAME)));
+                .andExpect(jsonPath("$.username", equalTo(TestHelper.ADMIN_USERNAME)))
+                .andExpect(jsonPath("$._links.profile", Matchers.notNullValue()));
     }
 	
 	@Test

@@ -48,7 +48,7 @@ public class FormAttributeDeleteBulkActionIntegrationTest extends AbstractBulkAc
 	public void processBulkActionByIds() {
 		List<IdmFormAttributeDto> attributes = createAttributes(5);
 		
-		IdmBulkActionDto bulkAction = findBulkAction(IdmAuthorizationPolicy.class, AuthorizationPolicyDeleteBulkAction.NAME);
+		IdmBulkActionDto bulkAction = findBulkAction(IdmFormAttribute.class, FormAttributeDeleteBulkAction.NAME);
 		
 		Set<UUID> ids = this.getIdFromList(attributes);
 		bulkAction.setIdentifiers(ids);
@@ -84,7 +84,7 @@ public class FormAttributeDeleteBulkActionIntegrationTest extends AbstractBulkAc
 	
 	private List<IdmFormAttributeDto> createAttributes(int count) {
 		List<IdmFormAttributeDto> results = new ArrayList<>();
-		IdmFormDefinitionDto formDefinition = formService.createDefinition(IdmRoleDto.class, null);
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(IdmRoleDto.class, getHelper().createName(), null);
 		//
 		for (int i = 0; i < count; i++) {
 			IdmFormAttributeDto attribute = new IdmFormAttributeDto(getHelper().createName());

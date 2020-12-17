@@ -25,6 +25,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -1267,6 +1268,19 @@ public class IdmIdentityController extends AbstractFormableDtoController<IdmIden
 			dto.setState(IdentityState.CREATED);
 		}
 		return dto;
+	}
+	
+	@Override
+	public ResourceSupport toResource(IdmIdentityDto dto) {
+		ResourceSupport resource = super.toResource(dto);
+		//
+		// add additional links to enable / disable identity
+		resource.add(
+				ControllerLinkBuilder.linkTo(this.getClass()).slash(dto.getId()).slash("profile").withRel("profile"),
+				ControllerLinkBuilder.linkTo(this.getClass()).slash(dto.getId()).slash("form-values").withRel("form-values")
+		);
+		//
+		return resource;
 	}
 	
 	@Override

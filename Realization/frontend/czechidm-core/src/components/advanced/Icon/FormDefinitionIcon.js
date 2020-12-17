@@ -16,7 +16,7 @@ export default class FormDefinitionIcon extends AbstractIcon {
     return (
       <span className="fa-layers fa-fw">
         <FontAwesomeIcon icon={ faSquare } transform="grow-4 right--2"/>
-        <span className="fa-layers-text fa-inverse" style={{ left: '40%', fontSize: '0.85em', fontWeight: 900 }}>F</span>
+        <span className="fa-layers-text fa-inverse" style={{ left: '40%', marginTop: -1, fontSize: '0.85em', fontWeight: 900 }}>F</span>
       </span>
     );
   }

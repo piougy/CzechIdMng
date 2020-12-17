@@ -70,6 +70,10 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
     }, () => {
       const entityFormData = _.merge({}, entity, {
         codeList,
+        codeable: {
+          code: entity.code,
+          name: entity.name
+        }
       });
       //
       this.setState({
@@ -81,11 +85,7 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
         formDefinition: codeList.formDefinition
       }, () => {
         this.refs.form.setData(entityFormData);
-        if (Utils.Entity.isNew(entity)) {
-          this.refs.code.focus();
-        } else {
-          this.refs.name.focus();
-        }
+        this.refs.codeable.focus();
       });
     });
   }
@@ -98,6 +98,8 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
       return;
     }
     const formEntity = this.refs.form.getData();
+    formEntity.code = formEntity.codeable.code;
+    formEntity.name = formEntity.codeable.name;
     //
     // append eav values
     formEntity._eav = [{
@@ -165,11 +167,10 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, { })}
-                rendered={ this.getManager().canSave() }>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+                onClick={ this.showDetail.bind(this, { }) }
+                rendered={ this.getManager().canSave() }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
@@ -190,8 +191,8 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 return (
                   <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    title={ this.i18n('button.detail') }
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
             }
@@ -243,18 +244,14 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
                   helpBlock={ this.i18n('entity.CodeListItem.codeList.help') }
                   readOnly
                   required/>
-                <Basic.TextField
-                  ref="code"
-                  label={this.i18n('entity.CodeListItem.code.label')}
-                  helpBlock={this.i18n('entity.CodeListItem.code.help')}
-                  max={ 255 }
-                  required/>
-                <Basic.TextField
-                  ref="name"
-                  label={this.i18n('entity.CodeListItem.name.label')}
-                  helpBlock={this.i18n('entity.CodeListItem.name.help')}
-                  max={ 255 }
-                  required/>
+
+                <Advanced.CodeableField
+                  ref="codeable"
+                  codeLabel={ this.i18n('entity.CodeListItem.code.label') }
+                  codeHelpBlock={ this.i18n('entity.CodeListItem.code.help') }
+                  nameLabel={ this.i18n('entity.CodeListItem.name.label') }
+                  nameHelpBlock={ this.i18n('entity.CodeListItem.name.help') }/>
+
                 <Basic.Div style={ formInstance.getAttributes().size > 0 ? {} : { display: 'none' }}>
                   <Basic.ContentHeader text={ this.i18n('content.code-lists.attributes.header') }/>
                   <Advanced.EavForm

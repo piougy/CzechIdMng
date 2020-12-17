@@ -68,6 +68,7 @@ import PasswordInfo from './PasswordInfo/PasswordInfo';
 import AuditableInfo from './EntityInfo/AuditableInfo';
 import DetailHeader from './Content/DetailHeader';
 import CronGenerator from './CronGenerator/CronGenerator';
+import CodeableField from './CodeableField/CodeableField';
 
 const Components = {
   Table,
@@ -141,8 +142,9 @@ const Components = {
   AuditableInfo,
   DetailHeader,
   CronGenerator,
-  ScriptInfo
+  ScriptInfo,
+  CodeableField
 };
 
-Components.version = '10.7.0';
+Components.version = '10.8.0';
 module.exports = Components;

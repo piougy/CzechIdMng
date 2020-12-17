@@ -3,6 +3,7 @@ import React from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
 import { NotificationTemplateManager, SecurityManager } from '../../../redux';
 
@@ -35,7 +36,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
     super.componentDidMount();
     //
     if (this.refs.form) {
-      this.refs.code.focus();
+      this.refs.codeable.focus();
     }
   }
 
@@ -51,8 +52,8 @@ export default class TemplateDetail extends Basic.AbstractContent {
   }
 
   /**
+  * @Deprecated - since V10 ... replaced by dynamic key in Route
   * Method for basic initial form
-  */
   _initForm(entity) {
     if (entity && this.refs.form) {
       const loadedEntity = _.merge({}, entity);
@@ -60,6 +61,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
       this.refs.form.setData(loadedEntity);
     }
   }
+  */
 
   /**
   * Default save method that catch save event from form.
@@ -76,25 +78,27 @@ export default class TemplateDetail extends Basic.AbstractContent {
 
     this.setState({
       showLoading: true
-    },
-    this.refs.form.processStarted());
-
-    // get data from form
-    const entity = this.refs.form.getData();
-
-    if (entity.id === undefined) {
-      this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
-      }));
-    } else if (manager.supportsPatch()) {
-      this.context.store.dispatch(manager.patchEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
-        this._afterSave(entity, error);
-      }));
-    } else {
-      this.context.store.dispatch(manager.updateEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
-        this._afterSave(entity, error);
-      }));
-    }
+    }, () => {
+      this.refs.form.processStarted();
+      // get data from form
+      const entity = this.refs.form.getData();
+      entity.code = entity.codeable.code;
+      entity.name = entity.codeable.name;
+      //
+      if (entity.id === undefined) {
+        this.context.store.dispatch(manager.createEntity(entity, `${ uiKey }-detail`, (createdEntity, error) => {
+          this._afterSave(createdEntity, error);
+        }));
+      } else if (manager.supportsPatch()) {
+        this.context.store.dispatch(manager.patchEntity(entity, `${ uiKey }-detail`, (savedEntity, error) => {
+          this._afterSave(entity, error);
+        }));
+      } else {
+        this.context.store.dispatch(manager.updateEntity(entity, `${ uiKey }-detail`, (savedEntity, error) => {
+          this._afterSave(entity, error);
+        }));
+      }
+    });
   }
 
   /**
@@ -104,16 +108,20 @@ export default class TemplateDetail extends Basic.AbstractContent {
     if (error) {
       this.setState({
         showLoading: false
-      }, this.refs.form.processEnded());
-      this.addError(error);
+      }, () => {
+        this.refs.form.processEnded();
+        this.addError(error);
+      });
       return;
     }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.refs.form.processEnded();
+    //
     this.setState({
       showLoading: false
+    }, () => {
+      this.refs.form.processEnded();
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+      this.context.history.replace('/notification/templates');
     });
-    this.context.history.replace('/notification/templates/');
   }
 
   onRedeployOrBackup(actionValue, event) {
@@ -124,8 +132,8 @@ export default class TemplateDetail extends Basic.AbstractContent {
     const entities = [];
     entities.push(entity);
     this.refs[`confirm-${ actionValue }`].show(
-      this.i18n(`action.${actionValue}.message`, { count: 1, record: manager.getNiceLabel(entity), records: manager.getNiceLabel(entity) }),
-      this.i18n(`action.${actionValue}.header`, { count: 1, records: manager.getNiceLabel(entity) })
+      this.i18n(`action.${ actionValue }.message`, { count: 1, record: manager.getNiceLabel(entity), records: manager.getNiceLabel(entity) }),
+      this.i18n(`action.${ actionValue }.header`, { count: 1, records: manager.getNiceLabel(entity) })
     ).then(() => {
       // TODO: same method as bulk operation? Or create new for one?
       this.context.store.dispatch(manager.notificationBulkOperationForEntities(entities, actionValue, uiKey));
@@ -163,30 +171,20 @@ export default class TemplateDetail extends Basic.AbstractContent {
       <Basic.Div>
         <Basic.Confirm ref="confirm-backup" level="danger"/>
         <Basic.Confirm ref="confirm-redeploy" level="danger"/>
-        <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={ this.save.bind(this) }>
           <Basic.AbstractForm
-            data={entity}
+            data={ entity }
             ref="form"
-            uiKey={uiKey}
+            uiKey={ uiKey }
             readOnly={ !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE') }
             style={{ padding: '15px 15px 0 15px' }}>
-            <Basic.Row>
-              <Basic.Col lg={ 3 }>
-                <Basic.TextField
-                  ref="code"
-                  readOnly={entity.unmodifiable}
-                  label={this.i18n('entity.NotificationTemplate.code')}
-                  required
-                  max={255}/>
-              </Basic.Col>
-              <Basic.Col lg={ 9 }>
-                <Basic.TextField
-                  ref="name"
-                  label={this.i18n('entity.NotificationTemplate.name')}
-                  required
-                  max={ 255 }/>
-              </Basic.Col>
-            </Basic.Row>
+
+            <Advanced.CodeableField
+              ref="codeable"
+              codeLabel={ this.i18n('entity.NotificationTemplate.code') }
+              nameLabel={ this.i18n('entity.NotificationTemplate.name') }
+              codeReadOnly={ entity.unmodifiable } />
+
             <Basic.TextField
               ref="module"
               readOnly={ entity.unmodifiable }
@@ -195,27 +193,27 @@ export default class TemplateDetail extends Basic.AbstractContent {
               helpBlock={ this.i18n('entity.NotificationTemplate.module.help') } />
             <Basic.TextField
               ref="parameter"
-              readOnly={entity.unmodifiable}
+              readOnly={ entity.unmodifiable }
               max={255}
-              label={this.i18n('entity.NotificationTemplate.parameter.name')}
-              helpBlock={this.i18n('entity.NotificationTemplate.parameter.help')} />
+              label={ this.i18n('entity.NotificationTemplate.parameter.name') }
+              helpBlock={ this.i18n('entity.NotificationTemplate.parameter.help') } />
             <Basic.TextField
               ref="sender"
-              label={this.i18n('entity.NotificationTemplate.sender')}
-              max={255} />
+              label={ this.i18n('entity.NotificationTemplate.sender') }
+              max={ 255 } />
             <Basic.TextField
               ref="subject"
-              label={this.i18n('entity.NotificationTemplate.subject')}
+              label={ this.i18n('entity.NotificationTemplate.subject') }
               required
-              max={255}/>
+              max={ 255 }/>
             <Basic.Checkbox
               readOnly={entity.unmodifiable}
               ref="unmodifiable"
-              label={this.i18n('entity.NotificationTemplate.unmodifiable.name')}
-              helpBlock={this.i18n('entity.NotificationTemplate.unmodifiable.help')}/>
-            <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
+              label={ this.i18n('entity.NotificationTemplate.unmodifiable.name') }
+              helpBlock={ this.i18n('entity.NotificationTemplate.unmodifiable.help') }/>
+            <Basic.TextArea ref="bodyText" label={ this.i18n('entity.NotificationTemplate.bodyText') } />
             {/* TODO: add two areas - text area for plain html and WYSIWYG editor for edit html tags */}
-            <Basic.TextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')} rows="20"/>
+            <Basic.TextArea ref="bodyHtml" label={ this.i18n('entity.NotificationTemplate.bodyHtml.name') } rows="20"/>
             {/*
             <Basic.TextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
               showToolbar
@@ -223,16 +221,18 @@ export default class TemplateDetail extends Basic.AbstractContent {
               mentions={this.getParameters()}/>*/}
           </Basic.AbstractForm>
 
-          <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
+          <Basic.PanelFooter showLoading={ showLoading } >
+            <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
+              { this.i18n('button.back') }
+            </Basic.Button>
 
             <Basic.SplitButton
               level="success"
-              title={this.i18n('button.save') }
+              title={ this.i18n('button.save') }
               onClick={ this.save.bind(this, 'CONTINUE') }
               showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE')}
+              showLoadingText={ this.i18n('button.saving') }
+              rendered={ SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE') }
               pullRight
               dropup>
               <Basic.MenuItem eventKey="1" onClick={ this.onRedeployOrBackup.bind(this, 'redeploy') }>

@@ -26,9 +26,9 @@ export class Panel extends AbstractComponent {
       className
     );
     return (
-      <Div className={classNames} style={style} onClick={onClick}>
-        <Loading showLoading={showLoading}>
-          {this.props.children}
+      <Div className={ classNames } style={ style } onClick={ onClick }>
+        <Loading showLoading={ showLoading }>
+          { this.props.children }
         </Loading>
       </Div>
     );

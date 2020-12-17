@@ -72,13 +72,13 @@ class NodeContent extends Basic.AbstractContent {
     const { node } = this.state;
     return (
       <Basic.Row>
-        <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
+        <Basic.Div className={ this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12' }>
           {
             !node
             ||
-            <NodeDetail entity={node} type={this._getDefaultType()} />
+            <NodeDetail entity={ node } type={ this._getDefaultType() } />
           }
-        </div>
+        </Basic.Div>
       </Basic.Row>
     );
   }

@@ -41,7 +41,7 @@ export class FormAttributeInfo extends AbstractEntityInfo {
   getPopoverContent(entity) {
     return [
       {
-        label: this.i18n('entity.name'),
+        label: this.i18n('entity.name.label'),
         value: this.getManager().getNiceLabel(entity)
       }
     ];

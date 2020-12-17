@@ -786,5 +786,11 @@ module.exports = {
       component: require('./src/components/advanced/LongRunningTask/LongRunningTaskInfo').default,
       manager: require('./src/redux').LongRunningTaskManager
     },
+    {
+      id: 'form-definition-icon',
+      type: 'icon',
+      entityType: ['form-definition', 'form-definitions'],
+      component: require('./src/components/advanced/Icon/FormDefinitionIcon')
+    }
   ]
 };

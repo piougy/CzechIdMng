@@ -42,7 +42,7 @@ export class FormDefinitionInfo extends AbstractEntityInfo {
   getPopoverContent(entity) {
     return [
       {
-        label: this.i18n('entity.name'),
+        label: this.i18n('entity.name.label'),
         value: entity.name
       },
       {

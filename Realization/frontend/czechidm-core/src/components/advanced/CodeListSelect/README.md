@@ -22,13 +22,14 @@ All parameters form parent component ``AbstractFormComponent`` is supported.
 | searchable | bool   | selectbox is searchable | true |
 
 ## Usage
-### Enumeration select
+
 ```html
 <Advanced.CodeListSelect
     ref="list"
     code="list"
-    label={this.i18n('some.label')}
+    label={ this.i18n('some.label') }
     multiSelect
-    onChange={this.changeAction.bind(this)}
-    searchable={false}
+    onChange={ this.changeAction.bind(this) }
+    searchable={ false }
 />
+```

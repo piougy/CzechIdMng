@@ -2026,6 +2026,7 @@
       },
       "localization": {
         "header": "Form localization",
+        "label": "Localization",
         "title": "Form localization",
         "check": {
           "found": "Form localization exists. Localization found in localization file.",
@@ -5515,7 +5516,7 @@
         "label": "$t(entity.code.label)"
       },
       "name": {
-        "label": "$t(entity.name)"
+        "label": "$t(entity.name.label)"
       },
       "description": {
         "label": "$t(entity.description.label)"

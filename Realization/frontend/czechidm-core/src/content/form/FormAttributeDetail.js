@@ -2,8 +2,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import Joi from 'joi';
+import classnames from 'classnames';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { FormAttributeManager, CodeListManager } from '../../redux';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
@@ -48,17 +50,19 @@ class FormAttributeDetail extends Basic.AbstractContent {
       };
       //
       this.context.store.dispatch(manager.receiveEntity(entityId, _entity, null, () => {
-        this.refs.code.focus();
         this.setState({
           persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT)
+        }, () => {
+          this.refs.codeable.focus();
         });
       }));
     } else {
       this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(manager.fetchEntity(entityId, null, (_entity) => {
-        this.refs.code.focus();
         this.setState({
           persistentType: _entity.persistentType
+        }, () => {
+          this.refs.codeable.focus();
         });
       }));
     }
@@ -82,25 +86,27 @@ class FormAttributeDetail extends Basic.AbstractContent {
       return;
     }
     //
-    const entity = this.refs.form.getData();
     this.setState({
       _showLoading: true
     }, () => {
       this.refs.form.processStarted();
+      const entity = this.refs.form.getData();
       //
       const saveEntity = {
         ...entity,
         persistentType,
-        faceType: persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) ? entity.codeList : entity.faceType
+        faceType: persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) ? entity.codeList : entity.faceType,
+        code: entity.codeable.code,
+        name: entity.codeable.name
       };
 
       if (entity.id === undefined) {
         saveEntity.formDefinition = formDefinition;
-        this.context.store.dispatch(manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
+        this.context.store.dispatch(manager.createEntity(saveEntity, `${ uiKey }-detail`, (createdEntity, error) => {
           this._afterSave(createdEntity, error);
         }));
       } else {
-        this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, this._afterSave.bind(this)));
+        this.context.store.dispatch(manager.patchEntity(saveEntity, `${ uiKey }-detail`, this._afterSave.bind(this)));
       }
     });
   }
@@ -196,9 +202,10 @@ class FormAttributeDetail extends Basic.AbstractContent {
       .toArray()
       .map(component => {
         const _faceType = component.faceType || component.persistentType;
+        const _label = `${ component.labelKey ? this.i18n(component.labelKey) : _faceType }`;
         return {
           value: _faceType,
-          niceLabel: `${ component.labelKey ? this.i18n(component.labelKey) : _faceType }${ _faceType === component.persistentType ? ` (${ this.i18n('label.default') })` : '' }`
+          niceLabel: `${ _label }${ _faceType === component.persistentType ? ` (${ this.i18n('label.default') })` : '' }`
         };
       });
     return types;
@@ -211,7 +218,13 @@ class FormAttributeDetail extends Basic.AbstractContent {
     return (
       <Basic.Div>
         <form onSubmit={ this.save.bind(this) }>
-          <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+          <Basic.Panel
+            className={
+              classnames({
+                last: !Utils.Entity.isNew(entity),
+                'no-border': !Utils.Entity.isNew(entity)
+              })
+            }>
             <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.formAttributes.detail.title') } />
             <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
               <Basic.AbstractForm
@@ -219,25 +232,15 @@ class FormAttributeDetail extends Basic.AbstractContent {
                 data={ entity }
                 showLoading={ showLoading || _showLoading }
                 readOnly={ !manager.canSave(entity, _permissions) }>
-                <Basic.Row>
-                  <Basic.Col lg={ 4 }>
-                    <Basic.TextField
-                      ref="code"
-                      label={ this.i18n('entity.FormAttribute.code.label') }
-                      helpBlock={ this.i18n('entity.FormAttribute.code.help') }
-                      readOnly={ this._isUnmodifiable() }
-                      required
-                      max={ 255 }/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 8 }>
-                    <Basic.TextField
-                      ref="name"
-                      label={ this.i18n('entity.FormAttribute.name.label') }
-                      helpBlock={ this.i18n('entity.FormAttribute.name.help') }
-                      max={ 255 }
-                      required/>
-                  </Basic.Col>
-                </Basic.Row>
+
+                <Advanced.CodeableField
+                  ref="codeable"
+                  codeLabel={ this.i18n('entity.FormAttribute.code.label') }
+                  codeHelpBlock={ this.i18n('entity.FormAttribute.code.help') }
+                  codeReadOnly={ this._isUnmodifiable() }
+                  nameLabel={ this.i18n('entity.FormAttribute.name.label') }
+                  nameHelpBlock={ this.i18n('entity.FormAttribute.name.help') }/>
+
                 <Basic.Row>
                   <Basic.Col lg={ 8 } className="col-lg-offset-4">
                     <Basic.TextField
@@ -408,8 +411,14 @@ FormAttributeDetail.defaultProps = {
 function select(state, component) {
   const { entityId } = component.match.params;
   const entity = manager.getEntity(state, entityId);
-  if (entity && entity.persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST)) {
-    entity.codeList = entity.faceType;
+  if (entity) {
+    entity.codeable = {
+      code: entity.code,
+      name: entity.name
+    };
+    if (entity.persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST)) {
+      entity.codeList = entity.faceType;
+    }
   }
   //
   return {

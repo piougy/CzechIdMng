@@ -47,7 +47,7 @@ export class AuthorizationPolicyInfo extends AbstractEntityInfo {
   getPopoverContent(entity) {
     return [
       {
-        label: this.i18n('entity.name'),
+        label: this.i18n('entity.name.label'),
         value: Utils.Ui.getSimpleJavaType(entity.authorizableType)
       },
       {

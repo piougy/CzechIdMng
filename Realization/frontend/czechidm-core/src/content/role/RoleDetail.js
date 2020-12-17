@@ -30,7 +30,6 @@ class RoleDetail extends Basic.AbstractContent {
     super(props);
     this.state = {
       _showLoading: true,
-      oldCode: null,
       activeKey: 1
     };
   }
@@ -78,11 +77,14 @@ class RoleDetail extends Basic.AbstractContent {
 
   _setSelectedEntity(entity) {
     this.setState({
-      _showLoading: false,
-      oldCode: entity.baseCode
+      _showLoading: false
     }, () => {
+      entity.codeable = {
+        code: entity.baseCode,
+        name: entity.name
+      };
       this.refs.form.setData(entity);
-      this.refs.baseCode.focus();
+      this.refs.codeable.focus();
     });
   }
 
@@ -97,6 +99,8 @@ class RoleDetail extends Basic.AbstractContent {
       _showLoading: true
     }, () => {
       const entity = this.refs.form.getData();
+      entity.baseCode = entity.codeable.code;
+      entity.name = entity.codeable.name;
       this.refs.form.processStarted();
       //
       this.getLogger().debug('[RoleDetail] save entity', entity);
@@ -128,14 +132,14 @@ class RoleDetail extends Basic.AbstractContent {
       } else if (afterAction === 'NEW') {
         const uuidId = uuid.v1();
         const newEntity = {
-          priority: `${RolePriorityEnum.getPriority(RolePriorityEnum.NONE)}`,
+          priority: `${ RolePriorityEnum.getPriority(RolePriorityEnum.NONE) }`, // conversion to string
           priorityEnum: RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE)
         };
         this.context.store.dispatch(roleManager.receiveEntity(uuidId, newEntity));
-        this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${uuidId}/new?new=1`);
+        this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${ uuidId }/new?new=1`);
         this._setSelectedEntity(newEntity);
       } else {
-        this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${entity.id}/detail`);
+        this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params) }/${ entity.id }/detail`);
         // reload code (baseCode|environment) in form is needed ... TODO: data prop on form can be used instead.
         this._setSelectedEntity(this._prepareEntity(entity));
       }
@@ -145,26 +149,9 @@ class RoleDetail extends Basic.AbstractContent {
   _onChangePriorityEnum(item) {
     if (item) {
       const priority = RolePriorityEnum.getPriority(item.value);
-      this.refs.priority.setValue(`${priority}`);
+      this.refs.priority.setValue(`${ priority }`);
     } else {
       this.refs.priority.setValue(null);
-    }
-  }
-
-  /**
-   * TODO: move to new Codeable component
-   */
-  _onChangeCode(event) {
-    // check guarded depents on new entity name
-    const name = this.refs.name.getValue();
-    const baseCode = event.currentTarget.value;
-    //
-    if (!name || this.state.oldCode === name) {
-      this.setState({
-        oldCode: baseCode,
-      }, () => {
-        this.refs.name.setValue(baseCode);
-      });
     }
   }
 
@@ -192,7 +179,7 @@ class RoleDetail extends Basic.AbstractContent {
           activeKey={ activeKey }
           onSelect={ this._onChangeSelectTabs.bind(this)}
           style={{ paddingTop: 15 }}>
-          <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
+          <Basic.Tab eventKey={ 1 } title={ this.i18n('entity.Role._type') } className="bordered">
             <form onSubmit={ this.save.bind(this, 'CONTINUE') }>
               <Basic.Panel className="no-border last">
                 <Basic.PanelHeader
@@ -204,25 +191,11 @@ class RoleDetail extends Basic.AbstractContent {
                     showLoading={ _showLoading || showLoading }
                     readOnly={ !roleManager.canSave(entity, _permissions) }>
 
-                    <Basic.Row>
-                      <Basic.Col lg={ 4 }>
-                        <Basic.TextField
-                          ref="baseCode"
-                          label={ this.i18n('entity.Role.baseCode.label') }
-                          helpBlock={ this.i18n('entity.Role.baseCode.help') }
-                          max={ 255 }
-                          required
-                          onChange={ this._onChangeCode.bind(this) }/>
-                      </Basic.Col>
-                      <Basic.Col lg={ 8 }>
-                        <Basic.TextField
-                          ref="name"
-                          label={ this.i18n('entity.Role.name') }
-                          required
-                          min={ 0 }
-                          max={ 255 }/>
-                      </Basic.Col>
-                    </Basic.Row>
+                    <Advanced.CodeableField
+                      ref="codeable"
+                      codeLabel={ this.i18n('entity.Role.baseCode.label') }
+                      codeHelpBlock={ this.i18n('entity.Role.baseCode.help') }
+                      nameLabel={ this.i18n('entity.Role.name') }/>
 
                     <Basic.Row>
                       <Basic.Col lg={ 4 }>
@@ -334,12 +307,12 @@ class RoleDetail extends Basic.AbstractContent {
               style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
             <RequestTable
               ref="table"
-              uiKey={uiKeyRoleRequest}
+              uiKey={ uiKeyRoleRequest }
               forceSearchParameters={ requestsForceSearch }
               showFilter={false}
-              showLoading={_showLoading}
-              manager={requestManager}
-              columns={['state', 'created', 'modified', 'wf', 'detail']}/>
+              showLoading={ _showLoading }
+              manager={ requestManager }
+              columns={[ 'state', 'created', 'modified', 'wf', 'detail' ]}/>
           </Basic.Tab>
         </Basic.Tabs>
       </Basic.Div>

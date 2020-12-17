@@ -66,7 +66,7 @@ class FormProjectionLocalization extends Basic.AbstractContent {
     //
     return (
       <Basic.Panel className="no-border last">
-        <Basic.PanelHeader text={this.i18n('title')} />
+        <Basic.PanelHeader text={ this.i18n('title') } />
 
         <Basic.Alert level="success" text={ this.i18n('check.found')} icon="ok" rendered={ this._localeExists(entity) }/>
         <Basic.Alert level="warning" text={ this.i18n('check.not-found')} icon="info-sign" rendered={ !this._localeExists(entity) }/>

@@ -18,7 +18,7 @@ export default class FormRoutes extends Basic.AbstractContent {
   render() {
     return (
       <Basic.Div>
-        { this.renderPageHeader() }
+        { this.renderPageHeader({ icon: 'component:form-definitions' }) }
 
         <Advanced.TabPanel position="top" parentId="forms" match={ this.props.match }>
           { this.getRoutes() }

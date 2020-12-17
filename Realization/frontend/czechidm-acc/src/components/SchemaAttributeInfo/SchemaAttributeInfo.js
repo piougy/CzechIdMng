@@ -68,7 +68,7 @@ export class SchemaAttributeInfo extends Advanced.AbstractEntityInfo {
     //
     return [
       {
-        label: this.i18n('entity.name'),
+        label: this.i18n('entity.name.label'),
         value: this.getManager().getNiceLabel(entity)
       }
     ];

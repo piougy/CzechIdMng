@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import classnames from 'classnames';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -35,8 +36,12 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
     //
     const { entity } = this.props;
     if (entity !== undefined) {
+      entity.codeable = {
+        code: entity.code,
+        name: entity.name
+      };
       this.refs.form.setData(entity);
-      this.refs.code.focus();
+      this.refs.codeable.focus();
     }
   }
 
@@ -52,16 +57,19 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
 
     this.setState({
       showLoading: true
-    }, this.refs.form.processStarted());
-    //
-    const entity = this.refs.form.getData();
-    if (entity.id === undefined) {
-      this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
-      }));
-    } else {
-      this.context.store.dispatch(manager.updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
-    }
+    }, () => {
+      this.refs.form.processStarted();
+      const entity = this.refs.form.getData();
+      entity.code = entity.codeable.code;
+      entity.name = entity.codeable.name;
+      if (entity.id === undefined) {
+        this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+          this._afterSave(createdEntity, error);
+        }));
+      } else {
+        this.context.store.dispatch(manager.updateEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      }
+    });
   }
 
   /**
@@ -72,8 +80,10 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
     if (error) {
       this.setState({
         showLoading: false
-      }, this.refs.form.processEnded());
-      this.addError(error);
+      }, () => {
+        this.refs.form.processEnded();
+        this.addError(error);
+      });
       return;
     }
     this.context.store.dispatch(manager.clearEntities());
@@ -90,7 +100,13 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
         <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
         <form onSubmit={ this.save.bind(this) }>
-          <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last' }>
+          <Basic.Panel
+            className={
+              classnames({
+                last: !Utils.Entity.isNew(entity),
+                'no-border': !Utils.Entity.isNew(entity)
+              })
+            }>
             <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('tabs.basic') } />
 
             <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
@@ -99,26 +115,14 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
                 ref="form"
                 uiKey={ uiKey }
                 readOnly={ !manager.canSave(entity, _permissions) }>
-                <Basic.Row>
-                  <Basic.Col lg={ 2 }>
-                    <Basic.TextField
-                      ref="code"
-                      label={ this.i18n('entity.RoleCatalogue.code.name') }
-                      helpBlock={ this.i18n('entity.RoleCatalogue.code.help') }
-                      required
-                      min={ 0 }
-                      max={ 255}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 10 }>
-                    <Basic.TextField
-                      ref="name"
-                      label={ this.i18n('entity.RoleCatalogue.name.name') }
-                      helpBlock={ this.i18n('entity.RoleCatalogue.name.help') }
-                      required
-                      min={ 0 }
-                      max={ 255 }/>
-                  </Basic.Col>
-                </Basic.Row>
+
+                <Advanced.CodeableField
+                  ref="codeable"
+                  codeLabel={ this.i18n('entity.RoleCatalogue.code.name') }
+                  codeHelpBlock={ this.i18n('entity.RoleCatalogue.code.help') }
+                  nameLabel={ this.i18n('entity.RoleCatalogue.name.name') }
+                  nameHelpBlock={ this.i18n('entity.RoleCatalogue.name.help') }/>
+
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
                     <Basic.TextField

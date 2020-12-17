@@ -29,7 +29,8 @@ class Node extends Basic.AbstractContent {
         <Advanced.DetailHeader
           icon="apple"
           entity={ entity }
-          showLoading={ !entity && showLoading }>
+          showLoading={ !entity && showLoading }
+          back={ entity ? `/tree/nodes?type=${ entity.treeType }` : null }>
           { manager.getNiceLabel(entity) } <small> { this.i18n('content.tree.node.detail.header') }</small>
         </Advanced.DetailHeader>
 

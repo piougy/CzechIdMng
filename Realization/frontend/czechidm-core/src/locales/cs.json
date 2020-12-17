@@ -2076,6 +2076,7 @@
       },
       "localization": {
         "header": "Lokalizace formuláře",
+        "label": "Lokalizace",
         "title": "Lokalizace formuláře",
         "check": {
           "found": "Lokalizace formuláře existuje. Lokalizace nalezena v lokalizačním souboru.",
@@ -4060,7 +4061,9 @@
       "label": "Identifikátor transakce",
       "help": "Interní identifikátor uživatelské transakce - entity byly uloženy v rámci této dávky (operace)."
     },
-    "name": "Název",
+    "name": {
+      "label": "Název"
+    },
     "type": "Typ",
     "created": "Vytvořeno",
     "modified": {
@@ -4077,7 +4080,8 @@
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
     "code": {
-      "label": "Kód"
+      "label": "Kód",
+      "placeholder": "Unikátní kód"
     },
     "description": {
       "label": "Popis"
@@ -5567,7 +5571,7 @@
         "label": "$t(entity.code.label)"
       },
       "name": {
-        "label": "$t(entity.name)"
+        "label": "$t(entity.name.label)"
       },
       "description": {
         "label": "$t(entity.description.label)"

@@ -17,16 +17,16 @@ const roleManager = new RoleManager();
 */
 export class AuthoritiesPanel extends Basic.AbstractContextComponent {
 
-  componentDidMount() {
-    this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
-  }
-
   constructor(props, context) {
     super(props, context);
     this.state = {
       openedAuthorities: new Immutable.Set(),
       filledAuthorities: this.prepareFilledAuthorities(this.props.authorities, this.props.availableAuthorities)
     };
+  }
+
+  componentDidMount() {
+    this.context.store.dispatch(roleManager.fetchAvailableAuthorities());
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {

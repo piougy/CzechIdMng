@@ -132,7 +132,7 @@ export class RoleInfo extends AbstractEntityInfo {
   getPopoverContent(entity) {
     const content = [
       {
-        label: this.i18n('entity.name'),
+        label: this.i18n('entity.name.label'),
         value: entity.name
       },
       {

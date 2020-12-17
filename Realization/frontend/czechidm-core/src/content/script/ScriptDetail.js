@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import Helmet from 'react-helmet';
-import MappingContextCompleters from './completers/MappingContextCompleters';
+import classnames from 'classnames';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -10,6 +10,7 @@ import { ScriptManager, SecurityManager, ScriptAuthorityManager } from '../../re
 import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 import EntityUtils from '../../utils/EntityUtils';
 import AbstractEnum from '../../enums/AbstractEnum';
+import MappingContextCompleters from './completers/MappingContextCompleters';
 
 /**
  * Detail for sript
@@ -20,6 +21,7 @@ import AbstractEnum from '../../enums/AbstractEnum';
  * * script authorities (table)
  *
  * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 export default class ScriptDetail extends Basic.AbstractContent {
 
@@ -60,7 +62,11 @@ export default class ScriptDetail extends Basic.AbstractContent {
         entity.description = '';
         entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, ScriptCategoryEnum.DEFAULT);
       }
-      this.refs.code.focus();
+      entity.codeable = {
+        code: entity.code,
+        name: entity.name
+      };
+      this.refs.codeable.focus();
       this.refs.form.setData(entity);
     }
   }
@@ -84,13 +90,15 @@ export default class ScriptDetail extends Basic.AbstractContent {
       this.refs.form.processStarted();
       //
       const entity = this.refs.form.getData();
+      entity.code = entity.codeable.code;
+      entity.name = entity.codeable.name;
       // entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, entity.category);
       if (entity.id === undefined) {
-        this.context.store.dispatch(this.scriptManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+        this.context.store.dispatch(this.scriptManager.createEntity(entity, `${ uiKey }-detail`, (createdEntity, error) => {
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.scriptManager.updateEntity(entity, `${uiKey}-detail`, (updateEntity, error) => {
+        this.context.store.dispatch(this.scriptManager.updateEntity(entity, `${ uiKey }-detail`, (updateEntity, error) => {
           this._afterSave(updateEntity, error, afterAction);
         }));
       }
@@ -116,9 +124,10 @@ export default class ScriptDetail extends Basic.AbstractContent {
     } else {
       this.setState({
         showLoading: false
-      }, this.refs.form.processEnded());
-      //
-      this.context.history.replace(`/scripts/${ entity.id }/detail`);
+      }, () => {
+        this.refs.form.processEnded();
+        this.context.history.replace(`/scripts/${ entity.id }/detail`);
+      });
     }
   }
 
@@ -133,54 +142,52 @@ export default class ScriptDetail extends Basic.AbstractContent {
     const isCategoryMappingContext = localCategory ? (localCategory === 'MAPPING_CONTEXT') : (entity && entity.category === 'MAPPING_CONTEXT');
     //
     return (
-      <div>
+      <Basic.Div>
 
-        <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
-        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
-            <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('detail.header')} />
+        <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title') } />
+        <form onSubmit={ this.save.bind(this, 'CONTINUE') }>
+          <Basic.Panel
+            className={
+              classnames({
+                last: !Utils.Entity.isNew(entity),
+                'no-border': !Utils.Entity.isNew(entity)
+              })
+            }>
+            <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('detail.header') } />
 
-            <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+            <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
               <Basic.AbstractForm
                 ref="form"
-                uiKey={uiKey}
-                readOnly={!SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}>
-                <Basic.Row>
-                  <Basic.Col lg={ 4 }>
-                    <Basic.TextField
-                      ref="code"
-                      label={this.i18n('entity.Script.code')}
-                      required
-                      max={255}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 8 }>
-                    <Basic.TextField
-                      ref="name"
-                      label={this.i18n('entity.Script.name')}
-                      required
-                      max={255}/>
-                  </Basic.Col>
-                </Basic.Row>
+                uiKey={ uiKey }
+                readOnly={ !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE') }>
+
+                <Advanced.CodeableField
+                  ref="codeable"
+                  codeLabel={ this.i18n('entity.Script.code') }
+                  nameLabel={ this.i18n('entity.Script.name') } />
+
                 <Basic.EnumSelectBox
                   ref="category"
-                  label={this.i18n('entity.Script.category')}
-                  enum={ScriptCategoryEnum}
-                  onChange={this._onChangeCategory.bind(this)}
-                  max={255}
+                  label={ this.i18n('entity.Script.category') }
+                  enum={ ScriptCategoryEnum }
+                  onChange={ this._onChangeCategory.bind(this) }
+                  max={ 255 }
                   required/>
-                <Advanced.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
+                <Advanced.RichTextArea ref="description" label={ this.i18n('entity.Script.description') } />
                 <Basic.ScriptArea
                   ref="script"
                   mode="groovy"
-                  completers={isCategoryMappingContext ? MappingContextCompleters.getCompleters() : null}
+                  completers={ isCategoryMappingContext ? MappingContextCompleters.getCompleters() : null }
                   height="25em"
-                  helpBlock={this.i18n('entity.Script.script.help')}
-                  label={this.i18n('entity.Script.script.label')}/>
+                  helpBlock={ this.i18n('entity.Script.script.help') }
+                  label={ this.i18n('entity.Script.script.label') }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 
-            <Basic.PanelFooter showLoading={showLoading} >
-              <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.PanelFooter showLoading={ showLoading } >
+              <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
+                { this.i18n('button.back') }
+              </Basic.Button>
               <Basic.SplitButton
                 level="success"
                 title={ this.i18n('button.saveAndContinue') }
@@ -188,16 +195,18 @@ export default class ScriptDetail extends Basic.AbstractContent {
                 showLoading={ showLoading }
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
-                rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
+                rendered={ SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE') }
                 dropup>
-                <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+                <Basic.MenuItem eventKey="1" onClick={ this.save.bind(this, 'CLOSE') }>
+                  { this.i18n('button.saveAndClose') }
+                </Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
             {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
             <input type="submit" className="hidden"/>
           </Basic.Panel>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

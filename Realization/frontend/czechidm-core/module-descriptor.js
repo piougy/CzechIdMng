@@ -1439,7 +1439,7 @@ module.exports = {
             id: 'forms',
             labelKey: 'content.formDefinitions.header',
             titleKey: 'content.formDefinitions.title',
-            iconColor: '#000000',
+            icon: 'component:form-definitions',
             order: 55,
             path: '/forms/form-definitions',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ', 'FORMPROJECTION_READ'] } ],
@@ -1459,7 +1459,7 @@ module.exports = {
                     labelKey: 'content.formDefinitions.detail.title',
                     order: 10,
                     path: '/form-definitions/:entityId/detail',
-                    icon: '',
+                    icon: 'component:basic-info',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
                   },
@@ -1468,7 +1468,6 @@ module.exports = {
                     labelKey: 'content.formDefinitions.attributes.title',
                     order: 100,
                     path: '/form-definitions/:entityId/attributes',
-                    icon: '',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMATTRIBUTE_READ'] } ],
                     items: [
@@ -1477,7 +1476,7 @@ module.exports = {
                         labelKey: 'content.formAttributes.detail.title',
                         order: 10,
                         path: '/form-definitions/attribute/:entityId/detail',
-                        icon: '',
+                        icon: 'component:basic-info',
                         type: 'TAB',
                         access: [{ type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] }]
                       },
@@ -1486,7 +1485,6 @@ module.exports = {
                         labelKey: 'content.formAttributes.form-values.title',
                         order: 505,
                         path: '/form-definitions/attribute/:entityId/values',
-                        icon: '',
                         type: 'TAB',
                         access: [{ type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] }]
                       }
@@ -1497,16 +1495,16 @@ module.exports = {
                     labelKey: 'content.form-values.title',
                     order: 200,
                     path: '/form-definitions/:entityId/values',
-                    icon: '',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
                   },
                   {
                     id: 'forms-localization',
-                    labelKey: 'content.formDefinitions.localization.title',
+                    labelKey: 'content.formDefinitions.localization.label',
+                    titleKey: 'content.formDefinitions.localization.title',
                     order: 900,
                     path: '/form-definitions/:entityId/localization',
-                    icon: '',
+                    icon: 'fa:language',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
                   }

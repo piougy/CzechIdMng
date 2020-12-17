@@ -6,6 +6,7 @@ import * as Basic from '../../basic';
 import BusinessRoleIcon from './BusinessRoleIcon';
 import MainContractIcon from './MainContractIcon';
 import IdentityIcon from './IdentityIcon';
+import FormDefinitionIcon from './FormDefinitionIcon';
 import ComponentService from '../../../services/ComponentService';
 
 const componentService = new ComponentService();
@@ -69,3 +70,4 @@ export default class Icons extends Basic.AbstractComponent {
 Icons.BusinessRoleIcon = BusinessRoleIcon;
 Icons.MainContractIcon = MainContractIcon;
 Icons.IdentityIcon = IdentityIcon;
+Icons.FormDefinitionIcon = FormDefinitionIcon;

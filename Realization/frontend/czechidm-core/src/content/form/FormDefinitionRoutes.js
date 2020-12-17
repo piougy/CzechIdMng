@@ -56,6 +56,7 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
           (this._getIsNew() || !entity)
           ||
           <Advanced.DetailHeader
+            icon="component:form-definition"
             entity={ entity }
             showLoading={ showLoading }
             back="/forms/form-definitions">

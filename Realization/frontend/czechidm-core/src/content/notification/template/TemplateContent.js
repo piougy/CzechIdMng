@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -85,9 +84,16 @@ TemplateContent.defaultProps = {
 
 function select(state, component) {
   const { entityId } = component.match.params;
+  const entity = manager.getEntity(state, entityId);
+  if (entity) {
+    entity.codeable = {
+      code: entity.code,
+      name: entity.name
+    };
+  }
   //
   return {
-    template: manager.getEntity(state, entityId),
+    template: entity,
     showLoading: manager.isShowLoading(state, null, entityId)
   };
 }

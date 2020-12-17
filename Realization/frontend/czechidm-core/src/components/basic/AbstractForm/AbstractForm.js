@@ -213,7 +213,7 @@ class AbstractForm extends AbstractContextComponent {
       if (!component.isValid()) {
         this.showValidationError(true);
         // focus invalid component
-        component.focus();
+        component.focus(true);
         return false;
       }
     }

@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import classnames from 'classnames';
 //
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { FormDefinitionManager, DataManager } from '../../redux';
 
 const manager = new FormDefinitionManager();
@@ -11,7 +13,7 @@ const manager = new FormDefinitionManager();
 const TYPES_UIKEY = 'typesUiKey';
 
 /**
-* Form detail
+* Form definition detail.
 *
 * @author Ondřej Kopr
 * @author Radek Tomiška
@@ -36,12 +38,13 @@ class FormDefinitionDetail extends Basic.AbstractContent {
     const { isNew } = this.props;
     this.context.store.dispatch(manager.fetchTypes(TYPES_UIKEY));
     if (isNew) {
-      this.context.store.dispatch(manager.receiveEntity(entityId, { unmodifiable: false }));
+      this.context.store.dispatch(manager.receiveEntity(entityId, { unmodifiable: false }, null, () => {
+        this.refs.type.focus();
+      }));
     } else {
       this.getLogger().debug(`[FormDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(manager.fetchEntity(entityId, null, () => {
-        // set focus into name
-        this.refs.code.focus();
+        this.refs.codeable.focus();
       }));
     }
   }
@@ -62,17 +65,20 @@ class FormDefinitionDetail extends Basic.AbstractContent {
 
     this.setState({
       _showLoading: true
-    }, this.refs.form.processStarted());
-
-    const entity = this.refs.form.getData();
-
-    if (entity.id === undefined) {
-      this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
-      }));
-    } else {
-      this.context.store.dispatch(manager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
-    }
+    }, () => {
+      this.refs.form.processStarted();
+      const entity = this.refs.form.getData();
+      entity.code = entity.codeable.code;
+      entity.name = entity.codeable.name;
+      //
+      if (entity.id === undefined) {
+        this.context.store.dispatch(manager.createEntity(entity, `${ uiKey }-detail`, (createdEntity, error) => {
+          this._afterSave(createdEntity, error);
+        }));
+      } else {
+        this.context.store.dispatch(manager.patchEntity(entity, `${ uiKey }-detail`, this._afterSave.bind(this)));
+      }
+    });
   }
 
   /**
@@ -109,37 +115,39 @@ class FormDefinitionDetail extends Basic.AbstractContent {
     const { uiKey, entity, showLoading, types, _permissions } = this.props;
     //
     return (
-      <form onSubmit={this.save.bind(this)}>
-        <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
-          <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.formDefinitions.detail.title')} />
-          <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+      <form onSubmit={ this.save.bind(this) }>
+        <Basic.Panel
+          className={
+            classnames({
+              last: !Utils.Entity.isNew(entity),
+              'no-border': !Utils.Entity.isNew(entity)
+            })
+          }>
+          <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.formDefinitions.detail.title') } />
+          <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
             <Basic.AbstractForm
               ref="form"
-              uiKey={uiKey}
-              data={entity}
-              rendered={types !== undefined}
+              uiKey={ uiKey }
+              data={ entity }
+              rendered={ types !== undefined }
               readOnly={ !manager.canSave(entity, _permissions) }>
               <Basic.EnumSelectBox
                 ref="type"
-                label={this.i18n('entity.FormDefinition.type')}
-                placeholder={this.i18n('entity.FormDefinition.type')}
+                label={ this.i18n('entity.FormDefinition.type') }
+                placeholder={ this.i18n('entity.FormDefinition.type') }
                 required
-                readOnly={!entity || entity.unmodifiable || !Utils.Entity.isNew(entity)}
-                options={types}
+                readOnly={ !entity || entity.unmodifiable || !Utils.Entity.isNew(entity) }
+                options={ types }
                 searchable
                 clearable={ false }
                 onChange={ this.onChangeType.bind(this) }/>
-              <Basic.TextField
-                ref="code"
-                label={this.i18n('entity.FormDefinition.code')}
-                readOnly={!entity || entity.unmodifiable}
-                max={255}
-                required/>
-              <Basic.TextField
-                ref="name"
-                label={this.i18n('entity.FormDefinition.name')}
-                max={255}
-                required/>
+
+              <Advanced.CodeableField
+                ref="codeable"
+                codeLabel={ this.i18n('entity.FormDefinition.code') }
+                nameLabel={ this.i18n('entity.FormDefinition.name') }
+                codeReadOnly={ !entity || entity.unmodifiable } />
+
               <Basic.TextField
                 ref="module"
                 label={ this.i18n('entity.FormDefinition.module.label') }
@@ -148,29 +156,31 @@ class FormDefinitionDetail extends Basic.AbstractContent {
               <Basic.Checkbox
                 ref="main"
                 readOnly={ entity ? entity.main : false }
-                label={this.i18n('entity.FormDefinition.main.label')}
-                helpBlock={this.i18n('entity.FormDefinition.main.help')}/>
+                label={ this.i18n('entity.FormDefinition.main.label') }
+                helpBlock={ this.i18n('entity.FormDefinition.main.help') }/>
               <Basic.Checkbox
                 ref="unmodifiable"
                 readOnly
-                label={this.i18n('entity.FormDefinition.unmodifiable.label')}
-                helpBlock={this.i18n('entity.FormDefinition.unmodifiable.help')}/>
+                label={ this.i18n('entity.FormDefinition.unmodifiable.label') }
+                helpBlock={ this.i18n('entity.FormDefinition.unmodifiable.help') }/>
               <Basic.TextArea
                 ref="description"
                 label={ this.i18n('entity.FormDefinition.description') }
-                rows={4}
-                max={1000}/>
+                rows={ 4 }
+                max={ 1000 }/>
             </Basic.AbstractForm>
           </Basic.PanelBody>
-          <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
+          <Basic.PanelFooter showLoading={ showLoading } >
+            <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
+              { this.i18n('button.back') }
+            </Basic.Button>
             <Basic.Button
               type="submit"
               level="success"
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }
               rendered={ manager.canSave(entity, _permissions) }>
-              {this.i18n('button.save')}
+              { this.i18n('button.save') }
             </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
@@ -192,9 +202,16 @@ FormDefinitionDetail.defaultProps = {
 
 function select(state, component) {
   const { entityId } = component.match.params;
+  const entity = manager.getEntity(state, entityId);
+  if (entity) {
+    entity.codeable = {
+      code: entity.code,
+      name: entity.name
+    };
+  }
   //
   return {
-    entity: manager.getEntity(state, entityId),
+    entity,
     showLoading: manager.isShowLoading(state, null, entityId),
     types: DataManager.getData(state, TYPES_UIKEY),
     _permissions: manager.getPermissions(state, null, entityId)

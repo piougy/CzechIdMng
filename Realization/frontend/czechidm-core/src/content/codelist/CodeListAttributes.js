@@ -32,7 +32,7 @@ class CodeListAttributes extends Basic.AbstractContent {
     //
     return (
       <Basic.Panel className="no-border last">
-        <Basic.PanelHeader text={this.i18n('content.code-lists.attributes.title')} />
+        <Basic.PanelHeader text={ this.i18n('content.code-lists.attributes.title') } />
         <Basic.PanelBody style={{ padding: 0 }}>
           {
             !entity || showLoading

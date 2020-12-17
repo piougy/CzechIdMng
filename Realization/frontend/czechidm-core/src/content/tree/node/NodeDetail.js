@@ -12,7 +12,7 @@ import { TreeNodeManager, TreeTypeManager } from '../../../redux';
 const manager = new TreeNodeManager();
 
 /**
- * Node detail content
+ * Node detail content.
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška
@@ -21,6 +21,7 @@ class NodeDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.treeTypeManager = new TreeTypeManager();
     this.state = {
       _showLoading: false
@@ -40,7 +41,12 @@ class NodeDetail extends Basic.AbstractContent {
     //
     const { entity, type } = this.props;
     if (entity !== undefined) {
-      const loadedNode = _.merge({ }, entity);
+      const loadedNode = _.merge({ }, entity, {
+        codeable: {
+          code: entity.code,
+          name: entity.name
+        }
+      });
       // if exist _embedded - edit node, if not exist create new
       if (entity._embedded) {
         if (entity._embedded.parent) {
@@ -51,7 +57,7 @@ class NodeDetail extends Basic.AbstractContent {
         loadedNode.treeType = type;
       }
       this.refs.form.setData(loadedNode);
-      this.refs.code.focus();
+      this.refs.codeable.focus();
     }
   }
 
@@ -68,14 +74,16 @@ class NodeDetail extends Basic.AbstractContent {
     this.setState({
       _showLoading: true
     }, () => {
-      const entity = this.refs.form.getData();
       this.refs.form.processStarted();
+      const entity = this.refs.form.getData();
+      entity.code = entity.codeable.code;
+      entity.name = entity.codeable.name;
       if (entity.id === undefined) {
-        this.context.store.dispatch(manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+        this.context.store.dispatch(manager.createEntity(entity, `${ uiKey }-detail`, (createdEntity, error) => {
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
-        this.context.store.dispatch(manager.patchEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
+        this.context.store.dispatch(manager.patchEntity(entity, `${ uiKey }-detail`, (patchedEntity, error) => {
           this._afterSave(patchedEntity, error, afterAction);
         }));
       }
@@ -99,7 +107,7 @@ class NodeDetail extends Basic.AbstractContent {
         // go back to tree types or organizations
         this.context.history.goBack();
       } else {
-        this.context.history.replace(`/tree/nodes/${entity.id}/detail`);
+        this.context.history.replace(`/tree/nodes/${ entity.id }/detail`);
       }
     });
   }
@@ -109,8 +117,8 @@ class NodeDetail extends Basic.AbstractContent {
     const { _showLoading } = this.state;
 
     return (
-      <div>
-        <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
+      <Basic.Div>
+        <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title') } />
 
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
@@ -125,27 +133,15 @@ class NodeDetail extends Basic.AbstractContent {
 
                 <Basic.SelectBox
                   ref="treeType"
-                  label={this.i18n('entity.TreeNode.treeType.name')}
-                  manager={this.treeTypeManager}
+                  label={ this.i18n('entity.TreeNode.treeType.name') }
+                  manager={ this.treeTypeManager }
                   required
                   readOnly/>
 
-                <Basic.Row>
-                  <Basic.Col lg={ 2 }>
-                    <Basic.TextField
-                      ref="code"
-                      label={this.i18n('entity.TreeType.code')}
-                      max={255}/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 10 }>
-                    <Basic.TextField
-                      ref="name"
-                      label={this.i18n('entity.TreeNode.name')}
-                      required
-                      min={0}
-                      max={255}/>
-                  </Basic.Col>
-                </Basic.Row>
+                <Advanced.CodeableField
+                  ref="codeable"
+                  codeLabel={ this.i18n('entity.TreeType.code') }
+                  nameLabel={ this.i18n('entity.TreeNode.name') }/>
 
                 <Advanced.TreeNodeSelect
                   ref="parent"
@@ -155,31 +151,41 @@ class NodeDetail extends Basic.AbstractContent {
 
                 <Basic.Checkbox
                   ref="disabled"
-                  label={this.i18n('entity.TreeNode.disabled')}/>
+                  label={ this.i18n('entity.TreeNode.disabled') }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button
+                type="button"
+                level="link"
+                showLoading={ _showLoading }
+                onClick={ this.context.history.goBack }>
+                { this.i18n('button.back') }
+              </Basic.Button>
 
               <Basic.SplitButton
                 level="success"
-                title={this.i18n('button.saveAndContinue')}
-                onClick={this.save.bind(this, 'CONTINUE')}
-                showLoading={_showLoading}
+                title={ this.i18n('button.saveAndContinue') }
+                onClick={ this.save.bind(this, 'CONTINUE') }
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
+                showLoadingText={ this.i18n('button.saving') }
                 rendered={ manager.canSave(entity, _permissions) }
                 pullRight
                 dropup>
-                <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+                <Basic.MenuItem
+                  eventKey="1"
+                  onClick={ this.save.bind(this, 'CLOSE') }>
+                  { this.i18n('button.saveAndClose') }
+                </Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
           </Basic.Panel>
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
           <input type="submit" className="hidden"/>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

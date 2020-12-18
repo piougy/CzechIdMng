@@ -4008,7 +4008,9 @@
       "label": "Transaction identifier",
       "help": "User transaction identifier - entity was saved in this context (batch)."
     },
-    "name": "Name",
+    "name": {
+      "label": "Name"
+    },
     "type": "Type",
     "created": "Created",
     "modified": {
@@ -4025,7 +4027,8 @@
     "validFrom": "Valid from",
     "validTill": "Valid till",
     "code": {
-      "label": "Code"
+      "label": "Code",
+      "placeholder": "Unique code"
     },
     "description": {
       "label": "Description"

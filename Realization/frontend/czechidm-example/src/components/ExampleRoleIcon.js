@@ -14,7 +14,7 @@ export default class ExampleRoleIcon extends Advanced.AbstractIcon {
 
   renderIcon() {
     return (
-      <span className="fa-layers fa-fw">
+      <span className={ this.getClassName('fa-layers fa-fw') }>
         <FontAwesomeIcon icon={ faBookmark } />
         <FontAwesomeIcon icon={ faKey } transform="shrink-7 up-2" style={{ color: '#fff' }}/>
       </span>

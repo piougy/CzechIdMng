@@ -7,6 +7,7 @@ import BusinessRoleIcon from './BusinessRoleIcon';
 import MainContractIcon from './MainContractIcon';
 import IdentityIcon from './IdentityIcon';
 import FormDefinitionIcon from './FormDefinitionIcon';
+import AutomaticRoleIcon from './AutomaticRoleIcon';
 import ComponentService from '../../../services/ComponentService';
 
 const componentService = new ComponentService();
@@ -34,7 +35,7 @@ export default class Icons extends Basic.AbstractComponent {
     let entityTypes = new Immutable.OrderedSet();
     components.forEach(component => {
       if (!component.entityType) {
-        return true;
+        return;
       }
       // multiple types
       if (_.isArray(component.entityType)) {
@@ -49,20 +50,20 @@ export default class Icons extends Basic.AbstractComponent {
     //
     // render available icons as example
     return (
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+      <Basic.Div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end' }}>
         {
           [...entityTypes.sort((one, two) => one > two).map(entityType => {
             return (
-              <div style={{ textAlign: 'center', padding: 15 }}>
-                <Basic.Icon type="component" icon={ entityType } className="fa-2x" />
-                <div style={{ marginTop: 5 }}>
+              <Basic.Div style={{ textAlign: 'center', padding: 15 }}>
+                <Basic.Icon type="component" icon={ entityType } iconSize="sm" />
+                <Basic.Div style={{ marginTop: 5 }}>
                   { entityType }
-                </div>
-              </div>
+                </Basic.Div>
+              </Basic.Div>
             );
           }).values()]
         }
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -71,3 +72,4 @@ Icons.BusinessRoleIcon = BusinessRoleIcon;
 Icons.MainContractIcon = MainContractIcon;
 Icons.IdentityIcon = IdentityIcon;
 Icons.FormDefinitionIcon = FormDefinitionIcon;
+Icons.AutomaticRoleIcon = AutomaticRoleIcon;

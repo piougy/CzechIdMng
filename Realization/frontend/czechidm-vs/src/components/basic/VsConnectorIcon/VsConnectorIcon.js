@@ -6,23 +6,28 @@ import { Advanced, Basic } from 'czechidm-core';
  * Icon for VS connector.
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  * @since 10.7.0
  */
 export default class VsConnectorIcon extends Advanced.AbstractIcon {
 
   renderIcon() {
-    const {iconStyle} = this.props;
-    if (iconStyle === 'sm') {
+    const { iconSize } = this.props;
+
+    if (iconSize === 'sm') {
       return (
-        <Basic.Div>
-          <Basic.Icon style={{color: '#008AFF', marginTop: '1px', minWidth: '25px', height: '25px'}} className="fa-2x" value="link"/>
-        </Basic.Div>
+        <Basic.Icon color="#008AFF" style={{ marginTop: 1, minWidth: 25, height: 25 }} iconSize={ iconSize } value="link"/>
       );
     }
+
+    if (iconSize === 'lg') {
+      return (
+        <Basic.Icon color="#008AFF" style={{ marginTop: 8, minWidth: 120, height: 100 }} iconSize={ iconSize } value="link"/>
+      );
+    }
+    // default
     return (
-      <Basic.Div>
-        <Basic.Icon style={{color: '#008AFF', marginTop: '8px', minWidth: '120px', height: '100px'}} className="fa-6x" value="link"/>
-      </Basic.Div>
+      <Basic.Icon color="#008AFF" iconSize={ iconSize } value="link"/>
     );
   }
 }

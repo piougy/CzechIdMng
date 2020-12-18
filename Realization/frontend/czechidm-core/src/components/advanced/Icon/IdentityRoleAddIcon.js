@@ -14,7 +14,7 @@ export default class IdentityRoleAddIcon extends AbstractIcon {
 
   renderIcon() {
     return (
-      <span className="fa-layers fa-fw">
+      <span className={ this.getClassName('fa-layers fa-fw') }>
         <FontAwesomeIcon icon={ faKey }/>
         <FontAwesomeIcon icon={ faPlus } transform="down-5 right-8 shrink-6"/>
       </span>

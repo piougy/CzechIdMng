@@ -71,7 +71,8 @@ class ConnectorTypes extends Basic.AbstractContextComponent {
           <Basic.PanelBody style={{textAlign: 'center', height: 180}}>
             <Basic.Icon
               type="component"
-              icon={connectorType.iconKey}/>
+              icon={connectorType.iconKey}
+              iconSize="lg"/>
             <small className="help-block">
               <Basic.ShortText
                 value={ description }

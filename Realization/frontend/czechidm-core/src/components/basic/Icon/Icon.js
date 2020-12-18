@@ -97,7 +97,8 @@ export default class Icon extends AbstractComponent {
       disabled,
       title,
       onClick,
-      level
+      level,
+      iconSize
     } = this.props;
     //
     // without icon defined returns null
@@ -124,6 +125,8 @@ export default class Icon extends AbstractComponent {
         { fa: _type === TYPE_FONT_AWESOME },
         { [`fa-${ _icon}`]: _type === TYPE_FONT_AWESOME },
         { disabled: disabled === true },
+        { 'fa-2x': iconSize === 'sm' },
+        { 'fa-6x': iconSize === 'lg' },
         className,
       );
     }
@@ -137,7 +140,7 @@ export default class Icon extends AbstractComponent {
         className={ classNames }
         aria-hidden="true"
         style={ _style }
-        onClick={ onClick } />
+        onClick={ disabled ? null : onClick } />
     );
   }
 }
@@ -160,17 +163,23 @@ Icon.propTypes = {
    */
   value: PropTypes.string,
   /**
-   * css only
+   * Adds css, not clickable.
    */
   disabled: PropTypes.bool,
   /**
-   * Standard onClick callback
+   * Standard onClick callback.
    */
   onClick: PropTypes.func,
   /**
-   * Icon level (~color) / css / class
+   * Icon level (~color) / css / class.
    */
-  level: PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'error', 'primary'])
+  level: PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'error', 'primary']),
+  /**
+   * Icon size sm = 2x, lg = 6x.
+   *
+   * @since 10.8.0
+   */
+  iconSize: PropTypes.oneOf(['default', 'sm', 'lg'])
 };
 
 Icon.defaultProps = {

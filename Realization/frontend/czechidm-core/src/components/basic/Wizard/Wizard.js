@@ -425,7 +425,7 @@ export default class Wizard extends AbstractContextComponent {
               <div style={{display: 'flex', alignItems: 'center'}}>
                 <Icon
                   type="component"
-                  iconStyle="sm"
+                  iconSize="sm"
                   style={{marginRight: 10}}
                   icon={icon}/>
                 <h2>{wizardName || this.i18n('component.basic.Wizard.defaultHeader')}</h2>

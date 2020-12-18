@@ -567,7 +567,7 @@ module.exports = {
       id: 'automatic-role-icon',
       type: 'icon',
       entityType: ['automatic-role', 'automatic-roles', 'automatic-role-request', 'automatic-role-requests'],
-      component: 'fa:magic'
+      component: require('./src/components/advanced/Icon/AutomaticRoleIcon')
     },
     {
       id: 'sub-role-icon',

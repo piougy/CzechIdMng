@@ -6,23 +6,27 @@ import { Advanced, Basic } from 'czechidm-core';
  * Icon for LDAP connector.
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  * @since 10.7.0
  */
 export default class LdapConnectorIcon extends Advanced.AbstractIcon {
 
   renderIcon() {
-    const {iconStyle} = this.props;
-    if (iconStyle === 'sm') {
+    const { iconSize } = this.props;
+
+    if (iconSize === 'sm') {
       return (
-        <Basic.Div>
-          <Basic.Icon style={{marginTop: '1px', minWidth: '25px', height: '25px'}} level="primary" className="fa-2x" type="fa" value="users-cog"/>
-        </Basic.Div>
+        <Basic.Icon style={{ marginTop: 1, minWidth: 25, height: 25 }} level="primary" iconSize={ iconSize } type="fa" value="users-cog"/>
       );
     }
+    if (iconSize === 'lg') {
+      return (
+        <Basic.Icon style={{ marginTop: 8, minWidth: 120, height: 100 }} level="primary" iconSize={ iconSize } type="fa" value="users-cog"/>
+      );
+    }
+    // default
     return (
-      <Basic.Div>
-        <Basic.Icon style={{marginTop: '8px', minWidth: '120px', height: '100px'}} level="primary" className="fa-6x" type="fa" value="users-cog"/>
-      </Basic.Div>
+      <Basic.Icon level="primary" value="fa:users-cog" iconSize={ iconSize }/>
     );
   }
 }

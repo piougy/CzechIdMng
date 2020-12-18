@@ -26,6 +26,21 @@ export default class Div extends AbstractComponent {
     if (!rendered) {
       return null;
     }
+    if (!showLoading) {
+      const others = {
+        onClick
+      };
+      //
+      return (
+        <div
+          style={ style }
+          className={ className }
+          title={ title }
+          { ...others }>
+          { this.props.children }
+        </div>
+      );
+    }
     //
     return (
       <Loading

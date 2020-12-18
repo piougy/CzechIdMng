@@ -1185,6 +1185,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     //
     // resolve bulk actions
     let processActions = selectedRows.length <= 0 ? _actionsWithoutSelection : _actionsWithSelection;
+    // disabled by security reason
+    processActions = processActions.filter(a => !a.disabled);
     // quick action buttons - configured
     let buttonActions = processActions.filter(a => a.quickButton);
     processActions = processActions.filter(a => !a.quickButton);

@@ -362,16 +362,15 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		//
 		return pagedResourcesAssembler.toResource(page, it -> {
 			if (!(it instanceof Identifiable)) {
+				// just for sure - if some response with different dto is returned manually
 				return new Resource<>(it);
 			}
-			if (getDtoClass().isAssignableFrom(it.getClass())) {
-				return toResource((DTO) it);
+			if (!getDtoClass().isAssignableFrom(it.getClass())) {
+				// not controlled dto => self link is not correct
+				return new Resource<>(it);
 			}
-			// common hateoas resource with self link only
-			Link selfLink = ControllerLinkBuilder.linkTo(this.getClass()).slash(((Identifiable) it).getId()).withSelfRel();
-			Resource<?> resourceSupport = new Resource<>(it, selfLink);
-			//
-			return resourceSupport;
+			// controlled dto
+			return toResource((DTO) it);
 		});
 	}
 

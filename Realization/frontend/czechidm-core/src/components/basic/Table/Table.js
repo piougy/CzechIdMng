@@ -533,7 +533,7 @@ class Table extends AbstractComponent {
 Table.propTypes = {
   ...AbstractComponent.propTypes,
   /**
-   * input data as array of json objects
+   * input data as array of json objects.
    */
   data: PropTypes.arrayOf(PropTypes.object),
   /**
@@ -553,26 +553,26 @@ Table.propTypes = {
    */
   onRowSelect: PropTypes.func,
   /**
-   * selected row indexes as immutable set
+   * selected row indexes as immutable set.
    */
   selectedRows: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
   /**
-   * Enable row selection - checkbox in first cell
+   * Enable row selection - checkbox in first cell.
    */
   showRowSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   /**
-   * css added to row
+   * css added to row.
    */
   rowClass: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.func
   ]),
   /**
-   * If table data is empty, then this text will be shown
+   * If table data is empty, then this text will be shown.
    */
   noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   /**
-   * Show column headers
+   * Show column headers.
    */
   noHeader: PropTypes.bool,
   /**
@@ -580,23 +580,25 @@ Table.propTypes = {
    */
   condensed: PropTypes.bool,
   /**
-   * Enable hover table class
+   * Enable hover table class.
    */
   hover: PropTypes.bool,
   /**
-   * Function that is called after de/select row/s
+   * Function that is called after de/select row/s.
    */
   selectRowCb: PropTypes.func,
   /**
-   * Function that is called for check if row is selcted
+   * Function that is called for check if row is selcted.
    */
   isRowSelectedCb: PropTypes.func,
   /**
-   * Function that is called for check if all row are selected
+   * Function that is called for check if all row are selected.
    */
   isAllRowsSelectedCb: PropTypes.func,
   /**
-   * Supports frontend pagination
+   * Supports frontend pagination.
+   *
+   * @since 9.5.2
    */
   supportsPagination: PropTypes.bool,
   /**

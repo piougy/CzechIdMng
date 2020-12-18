@@ -129,21 +129,16 @@ class Loading extends AbstractComponent {
 
 class ResizeLoading extends AbstractComponent {
   render() {
-    const { rendered, showLoading, ...others } = this.props;
+    const { rendered, ...others } = this.props;
     if (!rendered) {
       return null;
-    }
-    if (!showLoading) {
-      return (
-        <Loading { ...others } />
-      );
     }
     //
     return (
       <ReactResizeDetector
         handleHeight
         render={ ({ height }) => (
-          <Loading showLoading height={ height } { ...others } />
+          <Loading height={ height } { ...others } />
         )}/>
     );
   }

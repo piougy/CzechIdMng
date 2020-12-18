@@ -135,7 +135,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
   describe('- component change dynamicaly readOnly', function test() {
     for (const componentLibrary of componentLibrariesBasic) {
       for (const component in componentLibrary) {
-        if (component.startsWith('AbstractFormComponent.')) {
+        if (component.startsWith('AbstractForm')) {
           continue;
         }
         // for now we must skip test for SelectBox and ScriptArea

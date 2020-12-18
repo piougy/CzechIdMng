@@ -35,18 +35,6 @@ export default class BasicModal extends AbstractComponent {
   }
 
   /**
-   * Remove event listener - just for sure (see onExit).
-   */
-  componentWillUnmount() {
-    const { affixFooter } = this.props;
-    if (!affixFooter) {
-      // affix footer is disabled
-      return;
-    }
-    window.removeEventListener('resize', this._setFooterStyle.bind(this, null, null));
-  }
-
-  /**
    * Fix modal backdrop size
    */
   _onEnter(onEnter) {
@@ -56,7 +44,6 @@ export default class BasicModal extends AbstractComponent {
       bottom: 0 - $(window).scrollTop()
     });
     if (affixFooter) {
-      window.removeEventListener('resize', this._setFooterStyle.bind(this, null, null));
       this._setFooterStyle(onEnter);
     }
   }
@@ -65,11 +52,6 @@ export default class BasicModal extends AbstractComponent {
     this.setState({
       bodyStyle: {}
     }, () => {
-      const { affixFooter } = this.props;
-      if (affixFooter) {
-        // affix footer is disabled
-        window.removeEventListener('resize', this._setFooterStyle.bind(this, null, null));
-      }
       // original
       if (onExit) {
         onExit();

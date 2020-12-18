@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import $ from 'jquery';
+import ReactResizeDetector from 'react-resize-detector';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
@@ -18,6 +19,14 @@ class Loading extends AbstractComponent {
     super(props, context);
     //
     this.containerRef = React.createRef();
+  }
+
+  componentDidMount() {
+    this._resize();
+  }
+
+  componentDidUpdate() {
+    this._resize();
   }
 
   _showLoading() {
@@ -44,16 +53,6 @@ class Loading extends AbstractComponent {
       width: panel.width(),
       height: panel.height()
     });
-  }
-
-  componentDidMount() {
-    this._resize();
-    // window.addEventListener('resize', this._resize);
-  }
-
-  componentDidUpdate() {
-    this._resize();
-    // window.removeEventListener('resize', this._resize);
   }
 
   render() {
@@ -107,8 +106,11 @@ class Loading extends AbstractComponent {
               showAnimation
               ?
               <div className="loading-wave-container" title={ loadingTitle }>
-                <div className="loading-wave">
+                <div className="loading-wave hidden">
                   <div/><div/><div/><div/><div/>
+                </div>
+                <div className="loading-logo">
+                  <div/><div/><div/><div/><div/><div/><div/><div/><div/>
                 </div>
               </div>
               :
@@ -120,6 +122,7 @@ class Loading extends AbstractComponent {
           null
         }
         { this.props.children }
+        <ReactResizeDetector handleHeight onResize={ this._resize.bind(this) } />
       </div>
     );
   }

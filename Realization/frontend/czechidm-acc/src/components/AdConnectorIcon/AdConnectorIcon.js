@@ -6,23 +6,35 @@ import { Advanced, Basic } from 'czechidm-core';
  * Icon for AD connector.
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  * @since 10.7.0
  */
 export default class AdConnectorIcon extends Advanced.AbstractIcon {
 
+  getIcon() {
+    return 'fa:users-cog';
+  }
+
+  getLevel() {
+    return 'warning';
+  }
+
   renderIcon() {
-    const {iconStyle} = this.props;
-    if (iconStyle === 'sm') {
+    const { iconSize } = this.props;
+
+    if (iconSize === 'sm') {
       return (
-        <Basic.Div>
-          <Basic.Icon style={{marginTop: '1px', minWidth: '25px', height: '25px'}} level="warning" className="fa-2x" type="fa" value="users-cog"/>
-        </Basic.Div>
+        <Basic.Icon style={{ marginTop: 1, minWidth: 25, height: 25 }} level={ this.getLevel() } iconSize={ iconSize } value={ this.getIcon() }/>
       );
     }
+    if (iconSize === 'lg') {
+      return (
+        <Basic.Icon style={{ marginTop: 8, minWidth: 120, height: 100 }} level={ this.getLevel() } iconSize={ iconSize } value={ this.getIcon() }/>
+      );
+    }
+    // default
     return (
-      <Basic.Div>
-        <Basic.Icon style={{marginTop: '8px', minWidth: '120px', height: '100px'}} level="warning" className="fa-6x" type="fa" value="users-cog"/>
-      </Basic.Div>
+      <Basic.Icon level={ this.getLevel() } value={ this.getIcon() }/>
     );
   }
 }

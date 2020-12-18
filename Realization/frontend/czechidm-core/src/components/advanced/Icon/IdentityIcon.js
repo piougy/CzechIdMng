@@ -12,15 +12,16 @@ import * as Basic from '../../basic';
 export default class IdentityIcon extends AbstractIcon {
 
   renderIcon() {
-    const { identity } = this.props;
+    const { identity, ...others } = this.props;
+    //
     if (!identity || !identity.disabled) {
       return (
-        <Basic.Icon icon="component:enabled-identity"/>
+        <Basic.Icon icon="component:enabled-identity" { ...others }/>
       );
     }
     //
     return (
-      <Basic.Icon icon="component:disabled-identity"/>
+      <Basic.Icon icon="component:disabled-identity" { ...others }/>
     );
   }
 }

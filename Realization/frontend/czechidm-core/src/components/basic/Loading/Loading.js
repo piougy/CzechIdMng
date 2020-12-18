@@ -39,7 +39,7 @@ class Loading extends AbstractComponent {
     }
     // TODO: offset, scroll
     loading.css({
-      top: panel.position().top, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
+      top: panel.position().top,
       left: panel.position().left,
       width: panel.width(),
       height: panel.height()

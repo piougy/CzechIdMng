@@ -1,28 +1,29 @@
 import React from 'react';
+import classnames from 'classnames';
 //
-import { Advanced, Basic } from 'czechidm-core';
+import { Advanced } from 'czechidm-core';
 
 /**
  * Icon for CSV connector.
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  * @since 10.7.0
  */
 export default class CsvConnectorIcon extends Advanced.AbstractIcon {
 
   renderIcon() {
-    const {iconStyle} = this.props;
-    if (iconStyle === 'sm') {
-      return (
-        <Basic.Div>
-          <img style={{maxWidth: 35}} src={'dist/images/csv.png'}/>
-        </Basic.Div>
-      );
-    }
+    const { iconSize } = this.props;
+
     return (
-      <Basic.Div>
-        <img style={{maxWidth: 100}} src={'dist/images/csv.png'}/>
-      </Basic.Div>
+      <span className={
+        classnames(
+          'connector-icon',
+          'csv-icon',
+          { 'img-lg': iconSize === 'lg' },
+          { 'img-sm': iconSize === 'sm' }
+        )
+      }/>
     );
   }
 }

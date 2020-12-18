@@ -10,7 +10,8 @@ All parameters from AbstractComponent are supported. Added parameters:
 | --- | :--- | :--- | :--- |
 | type  | oneOf(['glyph', 'fa', 'component'])   | glyphicon, font-awesome or custom component registred by ``component-descriptor.js`` | 'glyph' |
 | icon  | string   | glyphicon, font-awesome suffix name or component identifier. Could contain type definition in format ``fa:group``, ``component:identity`` | if empty, then icon isn't rendered |
-| value  | string   |  icon parameter alias  |  ||
+| value  | string   |  icon parameter alias  |  |
+| iconSize  | oneOf(['default', 'sm', 'lg'])  | Icon size sm = 2x, lg = 6x.  | 'default' |
 
 ## Usage
 

@@ -5998,7 +5998,7 @@
         "icon": "$t(action.backup.icon)"
       },
       "script-definition-redeploy-bulk-action": {
-        "label": "$t(action.redeploy.action) definice skriptů",
+        "label": "Obnovit z disku definice skriptů (redeploy)",
         "help": "Obnoví vybrané definice skriptů. Aktuální skripty budou nejdříve zazálohovány a pak znovu načteny z aplikace či externího umístění.",
         "icon": "$t(action.redeploy.icon)"
       },
@@ -6013,7 +6013,7 @@
         "icon": "$t(action.backup.icon)"
       },
       "notification-template-redeploy-bulk-action": {
-        "label": "$t(action.redeploy.action) šablony notifikací",
+        "label": "Obnovit z disku šablony notifikací (redeploy)",
         "help": "$t(action.redeploy.action) vybrané šablony notifikací. Aktuální skripty budou nejdříve zazálohovány a pak znovu načteny z aplikace či externího umístění.",
         "icon": "$t(action.redeploy.icon)"
       },

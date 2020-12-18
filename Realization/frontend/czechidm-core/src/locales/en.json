@@ -5946,7 +5946,7 @@
         "icon": "$t(action.backup.icon)"
       },
       "script-definition-redeploy-bulk-action": {
-        "label": "$t(action.redeploy.action) script definitions",
+        "label": "Recover from disk script definitions (redeploy)",
         "help": "$t(action.redeploy.action) selected script definitions.",
         "icon": "$t(action.redeploy.icon)"
       },
@@ -5961,7 +5961,7 @@
         "icon": "$t(action.backup.icon)"
       },
       "notification-template-redeploy-bulk-action": {
-        "label": "$t(action.redeploy.action) notification templates",
+        "label": "Recover from disk notification templates (redeploy)",
         "help": "$t(action.redeploy.action) selected notification templates.",
         "icon": "$t(action.redeploy.icon)"
       },

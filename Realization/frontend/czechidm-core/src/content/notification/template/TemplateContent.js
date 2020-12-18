@@ -63,13 +63,11 @@ class TemplateContent extends Basic.AbstractContent {
 
         </Advanced.DetailHeader>
 
-        <Basic.Panel showLoading={ showLoading } >
-          {
-            !template
-            ||
-            <TemplateDetail entity={ template } isNew={ !!isNew } uiKey="templateDetail" />
-          }
-        </Basic.Panel>
+        {
+          !template
+          ||
+          <TemplateDetail entity={ template } isNew={ !!isNew } uiKey="templateDetail" showLoading={ showLoading } />
+        }
       </Basic.Div>
     );
   }

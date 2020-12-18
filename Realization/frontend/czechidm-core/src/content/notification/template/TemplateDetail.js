@@ -19,8 +19,10 @@ export default class TemplateDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.state = {
-      showLoading: false
+      showLoading: false,
+      bodyHtml: null
     };
   }
 
@@ -68,6 +70,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
   */
   save(operation, event) {
     const { uiKey } = this.props;
+    const { bodyHtml } = this.state;
 
     if (event) {
       event.preventDefault();
@@ -84,6 +87,9 @@ export default class TemplateDetail extends Basic.AbstractContent {
       const entity = this.refs.form.getData();
       entity.code = entity.codeable.code;
       entity.name = entity.codeable.name;
+      if (bodyHtml) {
+        entity.bodyHtml = bodyHtml;
+      }
       //
       if (entity.id === undefined) {
         this.context.store.dispatch(manager.createEntity(entity, `${ uiKey }-detail`, (createdEntity, error) => {
@@ -164,88 +170,117 @@ export default class TemplateDetail extends Basic.AbstractContent {
     return components;
   }
 
+  onBodyHtmlChange(event) {
+    this.setState({
+      bodyHtml: event.currentTarget.value
+    });
+  }
+
   render() {
     const { uiKey, entity } = this.props;
-    const { showLoading } = this.state;
+    const { showLoading, bodyHtml } = this.state;
     return (
       <Basic.Div>
         <Basic.Confirm ref="confirm-backup" level="danger"/>
         <Basic.Confirm ref="confirm-redeploy" level="danger"/>
         <form onSubmit={ this.save.bind(this) }>
-          <Basic.AbstractForm
-            data={ entity }
-            ref="form"
-            uiKey={ uiKey }
-            readOnly={ !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE') }
-            style={{ padding: '15px 15px 0 15px' }}>
+          <Basic.Panel showLoading={ this.props.showLoading }>
+            <Basic.PanelBody style={{ paddingTop: 0, paddingBottom: 0 }}>
+              <Basic.AbstractForm
+                data={ entity }
+                ref="form"
+                uiKey={ uiKey }
+                readOnly={
+                  !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE')
+                }>
 
-            <Advanced.CodeableField
-              ref="codeable"
-              codeLabel={ this.i18n('entity.NotificationTemplate.code') }
-              nameLabel={ this.i18n('entity.NotificationTemplate.name') }
-              codeReadOnly={ entity.unmodifiable } />
+                <Advanced.CodeableField
+                  ref="codeable"
+                  codeLabel={ this.i18n('entity.NotificationTemplate.code') }
+                  nameLabel={ this.i18n('entity.NotificationTemplate.name') }
+                  codeReadOnly={ entity.unmodifiable } />
 
-            <Basic.TextField
-              ref="module"
-              readOnly={ entity.unmodifiable }
-              max={ 255 }
-              label={ this.i18n('entity.NotificationTemplate.module.label') }
-              helpBlock={ this.i18n('entity.NotificationTemplate.module.help') } />
-            <Basic.TextField
-              ref="parameter"
-              readOnly={ entity.unmodifiable }
-              max={255}
-              label={ this.i18n('entity.NotificationTemplate.parameter.name') }
-              helpBlock={ this.i18n('entity.NotificationTemplate.parameter.help') } />
-            <Basic.TextField
-              ref="sender"
-              label={ this.i18n('entity.NotificationTemplate.sender') }
-              max={ 255 } />
-            <Basic.TextField
-              ref="subject"
-              label={ this.i18n('entity.NotificationTemplate.subject') }
-              required
-              max={ 255 }/>
-            <Basic.Checkbox
-              readOnly={entity.unmodifiable}
-              ref="unmodifiable"
-              label={ this.i18n('entity.NotificationTemplate.unmodifiable.name') }
-              helpBlock={ this.i18n('entity.NotificationTemplate.unmodifiable.help') }/>
-            <Basic.TextArea ref="bodyText" label={ this.i18n('entity.NotificationTemplate.bodyText') } />
-            {/* TODO: add two areas - text area for plain html and WYSIWYG editor for edit html tags */}
-            <Basic.TextArea ref="bodyHtml" label={ this.i18n('entity.NotificationTemplate.bodyHtml.name') } rows="20"/>
-            {/*
-            <Basic.TextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
-              showToolbar
-              helpBlock={this.i18n('entity.NotificationTemplate.bodyHtml.help')}
-              mentions={this.getParameters()}/>*/}
-          </Basic.AbstractForm>
+                <Basic.TextField
+                  ref="module"
+                  readOnly={ entity.unmodifiable }
+                  max={ 255 }
+                  label={ this.i18n('entity.NotificationTemplate.module.label') }
+                  helpBlock={ this.i18n('entity.NotificationTemplate.module.help') } />
+                <Basic.TextField
+                  ref="sender"
+                  label={ this.i18n('entity.NotificationTemplate.sender') }
+                  max={ 255 } />
+                <Basic.TextField
+                  ref="subject"
+                  label={ this.i18n('entity.NotificationTemplate.subject') }
+                  required
+                  max={ 255 }/>
+                <Basic.Checkbox
+                  readOnly={entity.unmodifiable}
+                  ref="unmodifiable"
+                  label={ this.i18n('entity.NotificationTemplate.unmodifiable.name') }
+                  helpBlock={ this.i18n('entity.NotificationTemplate.unmodifiable.help') }/>
+                <Basic.TextField
+                  ref="parameter"
+                  readOnly={ entity.unmodifiable }
+                  max={ 255 }
+                  label={ this.i18n('entity.NotificationTemplate.parameter.name') }
+                  helpBlock={ this.i18n('entity.NotificationTemplate.parameter.help') } />
+                <Basic.TextArea
+                  ref="bodyText"
+                  label={ this.i18n('entity.NotificationTemplate.bodyText') } />
 
-          <Basic.PanelFooter showLoading={ showLoading } >
-            <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
-              { this.i18n('button.back') }
-            </Basic.Button>
+                <Basic.Tabs>
+                  <Basic.Tab
+                    eventKey={ 1 }
+                    title={ this.i18n('entity.NotificationTemplate.bodyHtml.name') }
+                    className="bordered">
+                    <Basic.Div style={{ padding: 10 }}>
+                      <Basic.TextArea
+                        ref="bodyHtml"
+                        value={ bodyHtml || entity.bodyHtml }
+                        rows={ 20 }
+                        onChange={ this.onBodyHtmlChange.bind(this) }/>
+                    </Basic.Div>
+                  </Basic.Tab>
+                  <Basic.Tab
+                    eventKey={ 2 }
+                    title={ this.i18n('entity.Notification.message.renderedHtmlMessage') }
+                    className="bordered">
+                    <Basic.Div style={{ padding: 10, minHeight: 450 }}>
+                      <span dangerouslySetInnerHTML={{ __html: bodyHtml || entity.bodyHtml || '' }}/>
+                    </Basic.Div>
+                  </Basic.Tab>
+                </Basic.Tabs>
 
-            <Basic.SplitButton
-              level="success"
-              title={ this.i18n('button.save') }
-              onClick={ this.save.bind(this, 'CONTINUE') }
-              showLoadingIcon
-              showLoadingText={ this.i18n('button.saving') }
-              rendered={ SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE') }
-              pullRight
-              dropup>
-              <Basic.MenuItem eventKey="1" onClick={ this.onRedeployOrBackup.bind(this, 'redeploy') }>
-                { this.i18n('action.redeploy.action') }
-              </Basic.MenuItem>
-              <Basic.MenuItem eventKey="2" onClick={ this.onRedeployOrBackup.bind(this, 'backup') }>
-                { this.i18n('action.backup.action') }
-              </Basic.MenuItem>
-            </Basic.SplitButton>
+              </Basic.AbstractForm>
+            </Basic.PanelBody>
+            <Basic.PanelFooter showLoading={ showLoading } >
+              <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
+                { this.i18n('button.back') }
+              </Basic.Button>
 
-          </Basic.PanelFooter>
-          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-          <input type="submit" className="hidden"/>
+              <Basic.SplitButton
+                level="success"
+                title={ this.i18n('button.save') }
+                onClick={ this.save.bind(this, 'CONTINUE') }
+                showLoadingIcon
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE') }
+                pullRight
+                dropup>
+                <Basic.MenuItem eventKey="1" onClick={ this.onRedeployOrBackup.bind(this, 'redeploy') }>
+                  { this.i18n('action.redeploy.action') }
+                </Basic.MenuItem>
+                <Basic.MenuItem eventKey="2" onClick={ this.onRedeployOrBackup.bind(this, 'backup') }>
+                  { this.i18n('action.backup.action') }
+                </Basic.MenuItem>
+              </Basic.SplitButton>
+
+            </Basic.PanelFooter>
+            {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+            <input type="submit" className="hidden"/>
+          </Basic.Panel>
         </form>
       </Basic.Div>
     );

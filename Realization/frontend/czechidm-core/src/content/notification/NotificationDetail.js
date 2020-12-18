@@ -107,7 +107,7 @@ class NotificationDetail extends Basic.AbstractContent {
   }
 
   renderRecipients(notification, isNew, identityOnly) {
-    if ( !notification.recipients ) {
+    if (!notification.recipients) {
       return null;
     }
 
@@ -158,125 +158,129 @@ class NotificationDetail extends Basic.AbstractContent {
         template
       };
     }
-    //
+    // FIXME: <form> is missing, why?
     return (
-      <Basic.Div>
-        <Basic.AbstractForm ref="form" data={formData} style={{ padding: 15 }}>
-          <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
+      <Basic.Panel>
+        <Basic.PanelBody showLoading={ this.props.showLoading } style={{ paddingTop: 0, paddingBottom: 0 }}>
+          <Basic.AbstractForm ref="form" data={ formData }>
+            <Basic.DateTimePicker ref="created" label={ this.i18n('entity.Notification.created') } readOnly hidden={ isNew }/>
 
-          <Basic.LabelWrapper
-            hidden={isNew}
-            label={this.i18n('entity.Notification.sent')}>
-            <NotificationSentState notification={notification} style={{ margin: '7px 0' }}/>
-          </Basic.LabelWrapper>
+            <Basic.LabelWrapper
+              hidden={isNew}
+              label={this.i18n('entity.Notification.sent')}>
+              <NotificationSentState notification={notification} style={{ margin: '7px 0' }}/>
+            </Basic.LabelWrapper>
 
-          <Basic.TextField ref="topic" label={ this.i18n('entity.Notification.topic') } readOnly={ !isNew } hidden={ !showTopic }/>
+            <Basic.TextField ref="topic" label={ this.i18n('entity.Notification.topic') } readOnly={ !isNew } hidden={ !showTopic }/>
 
-          <Basic.SelectBox
-            readOnly={!isNew}
-            onChange={ this._pickTemplate.bind(this) }
-            ref="template"
-            label={this.i18n('entity.Notification.template')}
-            manager={this.notificationTemplateManager}/>
+            <Basic.SelectBox
+              readOnly={ !isNew }
+              onChange={ this._pickTemplate.bind(this) }
+              ref="template"
+              label={ this.i18n('entity.Notification.template') }
+              manager={ this.notificationTemplateManager }/>
 
-          <Basic.TextField ref="subject" required label={this.i18n('entity.Notification.message.subject')} readOnly={!isNew} />
+            <Basic.TextField ref="subject" required label={ this.i18n('entity.Notification.message.subject') } readOnly={ !isNew } />
 
-          <Basic.EnumSelectBox
-            hidden={!isNew}
-            ref="level"
-            enum={NotificationLevelEnum}
-            useSymbol={false}
-            label={this.i18n('entity.Notification.message.level')}
-            required/>
+            <Basic.EnumSelectBox
+              hidden={ !isNew }
+              ref="level"
+              enum={ NotificationLevelEnum }
+              useSymbol={ false }
+              label={ this.i18n('entity.Notification.message.level') }
+              required/>
 
-          <Basic.LabelWrapper
-            hidden={isNew || !notification.message.level}
-            label={this.i18n('entity.Notification.message.level')}>
-            <Basic.Div style={{ margin: '7px 0' }}>
+            <Basic.LabelWrapper
+              hidden={ isNew || !notification.message.level }
+              label={ this.i18n('entity.Notification.message.level') }>
+              <Basic.Div style={{ margin: '7px 0' }}>
+                {
+                  !notification.message
+                  ||
+                  <Basic.EnumValue value={ notification.message.level } enum={ NotificationLevelEnum } />
+                }
+              </Basic.Div>
+            </Basic.LabelWrapper>
+
+            <Basic.SelectBox
+              hidden={ !isNew }
+              ref="identitySender"
+              label={ this.i18n('entity.Notification.sender') }
+              manager={ this.identityManager }/>
+
+            <Basic.LabelWrapper
+              hidden={isNew || !notification._embedded || !notification._embedded.identitySender}
+              label={this.i18n('entity.Notification.sender')}>
+              <Basic.Div style={{ margin: '7px 0' }}>
+                {
+                  !notification._embedded
+                  ||
+                  this.identityManager.getNiceLabel(notification._embedded.identitySender)
+                }
+              </Basic.Div>
+            </Basic.LabelWrapper>
+            { this.renderRecipients(notification, isNew, identityOnly) }
+            <Basic.SelectBox
+              hidden={ !isNew }
+              ref="recipients"
+              required
+              label={ this.i18n('entity.Notification.recipients') }
+              manager={ this.identityManager }
+              multiSelect />
+
+            <Basic.TextArea
+              ref="textMessage"
+              label={ this.i18n('entity.Notification.message.textMessage') }
+              readOnly={ !isNew }
+              hidden={ !isNew && !notification.message.textMessage } />
+
+            <Basic.Tabs>
+              <Basic.Tab
+                eventKey={ 1 }
+                title={ this.i18n('entity.Notification.message.htmlMessage') }
+                className="bordered">
+                <Basic.Div style={{ padding: 10 }}>
+                  <Basic.TextArea
+                    ref="htmlMessage"
+                    value={ formData.htmlMessage }
+                    rows="10"
+                    readOnly={ !isNew }
+                    hidden={ !isNew && !notification.message.htmlMessage }
+                  />
+                </Basic.Div>
+              </Basic.Tab>
+              <Basic.Tab
+                eventKey={ 2 }
+                title={ this.i18n('entity.Notification.message.renderedHtmlMessage') }
+                className="bordered"
+                rendered={ !isNew }>
+                <Basic.Div style={{ padding: 10 }}>
+                  <span dangerouslySetInnerHTML={{ __html: formData.htmlMessage || '' }}/>
+                </Basic.Div>
+              </Basic.Tab>
+            </Basic.Tabs>
+            <Basic.LabelWrapper
+              hidden={isNew || !notification.message.model}
+              label={this.i18n('entity.Notification.message.model')}>
               {
                 !notification.message
                 ||
-                <Basic.EnumValue value={notification.message.level} enum={NotificationLevelEnum} />
+                <Basic.FlashMessage
+                  level={notification.message.level}
+                  message={this.getFlashManager().convertFromResultModel(notification.message.model)}
+                  style={{ margin: '7px 0' }}/>
               }
-            </Basic.Div>
-          </Basic.LabelWrapper>
+            </Basic.LabelWrapper>
 
-          <Basic.SelectBox
-            hidden={ !isNew }
-            ref="identitySender"
-            label={ this.i18n('entity.Notification.sender') }
-            manager={ this.identityManager }/>
+            <Basic.TextArea
+              ref="sentLog"
+              label={ this.i18n('entity.Notification.sentLog') }
+              readOnly
+              hidden={ isNew || !notification.sentLog }
+              max={ 2000 } />
+          </Basic.AbstractForm>
+        </Basic.PanelBody>
 
-          <Basic.LabelWrapper
-            hidden={isNew || !notification._embedded || !notification._embedded.identitySender}
-            label={this.i18n('entity.Notification.sender')}>
-            <Basic.Div style={{ margin: '7px 0' }}>
-              {
-                !notification._embedded
-                ||
-                this.identityManager.getNiceLabel(notification._embedded.identitySender)
-              }
-            </Basic.Div>
-          </Basic.LabelWrapper>
-          {this.renderRecipients(notification, isNew, identityOnly)}
-          <Basic.SelectBox
-            hidden={!isNew}
-            ref="recipients"
-            required
-            label={this.i18n('entity.Notification.recipients')}
-            manager={this.identityManager}
-            multiSelect />
-
-          <Basic.TextArea
-            ref="textMessage"
-            label={this.i18n('entity.Notification.message.textMessage')}
-            readOnly={!isNew}
-            hidden={!isNew && !notification.message.textMessage} />
-          <Basic.Tabs>
-            <Basic.Tab
-              eventKey={1}
-              title={this.i18n('entity.Notification.message.htmlMessage')}
-              className="bordered">
-              <div style={{padding: '10px'}}>
-                <Basic.TextArea
-                  ref="htmlMessage"
-                  value={formData.htmlMessage}
-                  rows="10"
-                  readOnly={!isNew}
-                  hidden={!isNew && !notification.message.htmlMessage}
-                />
-              </div>
-            </Basic.Tab>
-            <Basic.Tab
-              eventKey={ 2 }
-              title={ this.i18n('entity.Notification.message.renderedHtmlMessage') }
-              className="bordered"
-              rendered={ !isNew }>
-              <Basic.Div style={{ padding: '10px' }}>
-                <span dangerouslySetInnerHTML={{ __html: formData.htmlMessage || '' }}/>
-              </Basic.Div>
-            </Basic.Tab>
-          </Basic.Tabs>
-          <Basic.LabelWrapper
-            hidden={isNew || !notification.message.model}
-            label={this.i18n('entity.Notification.message.model')}>
-            {
-              !notification.message
-              ||
-              <Basic.FlashMessage
-                level={notification.message.level}
-                message={this.getFlashManager().convertFromResultModel(notification.message.model)}
-                style={{ margin: '7px 0' }}/>
-            }
-          </Basic.LabelWrapper>
-
-          <Basic.TextArea
-            ref="sentLog"
-            label={ this.i18n('entity.Notification.sentLog') }
-            readOnly
-            hidden={ isNew || !notification.sentLog }
-            max={ 2000 } />
-        </Basic.AbstractForm>
         <NotificationAttachmentTable
           uiKey={ `notification-attachment-table-${ formData.id }` }
           forceSearchParameters={ attachmentForceSearchParameters }
@@ -342,7 +346,7 @@ class NotificationDetail extends Basic.AbstractContent {
             { this.i18n('button.send') }
           </Basic.Button>
         </Basic.PanelFooter>
-      </Basic.Div>
+      </Basic.Panel>
     );
   }
 }

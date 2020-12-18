@@ -10,15 +10,11 @@ import NotificationDetail from './NotificationDetail';
 const notificationManager = new NotificationManager();
 
 /**
- * Notification detail content
+ * Notification detail content.
  *
  * @author Radek Tomiška
  */
 class NotificationContent extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.notification';
@@ -45,18 +41,16 @@ class NotificationContent extends Basic.AbstractContent {
     const { notification, showLoading } = this.props;
     const isNew = this._getIsNew();
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={
-            isNew
-            ?
-            this.i18n('titleNew')
-            :
-            this.i18n('title')
-          } />
+          isNew
+          ?
+          this.i18n('titleNew')
+          :
+          this.i18n('title')
+        }/>
 
-        <Basic.PageHeader>
-          <Basic.Icon value="fa:envelope"/>
-          {' '}
+        <Basic.PageHeader icon="fa:envelope">
           {
             isNew
             ?
@@ -66,15 +60,12 @@ class NotificationContent extends Basic.AbstractContent {
           }
         </Basic.PageHeader>
 
-        <Basic.Panel showLoading={showLoading} >
-          {
-            !notification
-            ||
-            <NotificationDetail notification={notification} isNew={isNew ? true : false} />
-          }
-        </Basic.Panel>
-
-      </div>
+        {
+          !notification
+          ||
+          <NotificationDetail notification={ notification } isNew={ !!isNew } showLoading={ showLoading } />
+        }
+      </Basic.Div>
     );
   }
 }

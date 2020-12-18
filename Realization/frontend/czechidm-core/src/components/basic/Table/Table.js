@@ -95,7 +95,7 @@ class Table extends AbstractComponent {
    * Appends property to given properties array - supports nested properties
    *
    * @param  {array[string]} properties
-   * @param  {string property
+   * @param  {string} property
    * @param  {object} propertyValue
    * @param  {string} propertyPrefix nested property prefix
    * @return {array} new properties

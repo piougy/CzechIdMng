@@ -296,8 +296,8 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			return attributeMappingService.transformValueToResource(uid, projection, attribute, dto);
 		}
 		// Default transformation of Identity state enum to string
-		if (IDENTITY_STATE_IDM_NAME.equals(attribute.getIdmPropertyName()) &&
-				StringUtils.isBlank(attribute.getTransformToResourceScript())) {
+		if (attribute != null && dto != null && IDENTITY_STATE_IDM_NAME.equals(attribute.getIdmPropertyName())
+				&& StringUtils.isBlank(attribute.getTransformToResourceScript())) {
 			return dto.getState().toString();
 		}
 		

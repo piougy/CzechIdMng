@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.config;
 
-import static eu.bcvsolutions.idm.core.api.service.ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX;
-
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Proxy.Type;
@@ -35,7 +33,7 @@ import eu.bcvsolutions.idm.core.config.flyway.CoreFlywayConfig;
 public class RestTemplateConfig {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RestTemplateConfig.class);
-	private static final String PROXY_KEY = IDM_PRIVATE_PROPERTY_PREFIX + "core.http.proxy";
+	private static final String PROXY_KEY = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.http.proxy";
 	
 	@Autowired private ConfigurationService configuration;
 	

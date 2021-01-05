@@ -575,14 +575,14 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
 			SynchronizationContext context) {
+
+		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes, context);
 		
 		// Provide default transformation to IdentityState enum if possible 
-		if (IDENTITY_STATE_IDM_NAME.equals(attribute.getIdmPropertyName()) &&
-				StringUtils.isBlank(attribute.getTransformFromResourceScript())) {
-			return defaultStateTransformation(attribute, icAttributes);
+		if (IDENTITY_STATE_IDM_NAME.equals(attribute.getIdmPropertyName())) {
+			return defaultStateTransformation(transformedValue);
 		}
-		
-		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes, context);
+
 		// Try to find projection (user-type) by code.
 		if (IdmIdentity_.formProjection.getName().equals(attribute.getIdmPropertyName())
 				&& attribute.isEntityAttribute()) {
@@ -676,26 +676,16 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @param icAttributes
 	 * @return
 	 */
-	private Object defaultStateTransformation(AttributeMapping attribute, List<IcAttribute> icAttributes) {		
-		Optional<IcAttribute> optionalIcAttribute = icAttributes.stream().filter(icAttribute -> {
-			return StringUtils.equals(attribute.getName(), icAttribute.getName());
-		}).findFirst();
-		
-		if (!optionalIcAttribute.isPresent()) {
-			return null;			
+	private Object defaultStateTransformation(Object attribute) {
+		if (attribute != null) {
+			String stateAttr = attribute.toString().toUpperCase();
+			try {
+				return IdentityState.valueOf(stateAttr);
+			} catch (Exception e) { // unable to find any item with supplied name
+				return attribute;
+			}
 		}
-		
-		Object stateAttrObj = optionalIcAttribute.get().getValue();
-		if (!(stateAttrObj instanceof String)) {
-			return stateAttrObj;
-		}
-		
-		String stateAttr = ((String) stateAttrObj).toUpperCase();
-		try {
-			return IdentityState.valueOf(stateAttr);
-		} catch (Exception e) { // unable to find any item with supplied name
-			return stateAttrObj;
-		}
+		return attribute;
 	}
 	
 }

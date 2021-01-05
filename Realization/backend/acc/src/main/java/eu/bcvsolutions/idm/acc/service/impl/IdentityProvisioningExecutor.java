@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -296,9 +295,9 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			return attributeMappingService.transformValueToResource(uid, projection, attribute, dto);
 		}
 		// Default transformation of Identity state enum to string
-		if (attribute != null && dto != null && IDENTITY_STATE_IDM_NAME.equals(attribute.getIdmPropertyName())
-				&& StringUtils.isBlank(attribute.getTransformToResourceScript())) {
-			return dto.getState().toString();
+		if (attribute != null && dto != null && IDENTITY_STATE_IDM_NAME.equals(attribute.getIdmPropertyName())) {
+			String state = dto.getState().toString();
+			return attributeMappingService.transformValueToResource(uid, state, attribute, dto);
 		}
 		
 		return super.getAttributeValue(uid, dto, attribute, system, mappingContext);

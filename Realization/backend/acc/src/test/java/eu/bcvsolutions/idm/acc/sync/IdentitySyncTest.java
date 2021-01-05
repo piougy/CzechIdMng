@@ -79,6 +79,7 @@ import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
@@ -119,6 +120,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * {@link DefaultSynchronizationServiceTest})
  * 
  * @author Svanda
+ * @author Ondrej Husnik
  *
  */
 public class IdentitySyncTest extends AbstractIntegrationTest {
@@ -130,6 +132,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String ATTRIBUTE_EMAIL = "email";
 	private static final String ATTRIBUTE_EMAIL_TWO = "emailTwo";
+	private static final String ATTRIBUTE_DESCRIP = "DESCRIP";
+	private static final String IDM_IDENTITY_STATE = "state";
 
 	@Autowired
 	private TestHelper helper;
@@ -303,6 +307,75 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 		syncConfigService.delete(config);
 	}
+	
+	@Test
+	public void testIdentityStateSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		
+		// no identity is in system, will be created during sync
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+		// DESCRIP attribute is used for holding STATE value 
+		setDescriptionMappedToState(system, false);
+
+		// Start sync for create identity
+		// set required STATE value in database table for test record
+		this.getBean().setStateToDescriptionValue(IDENTITY_ONE,"VALID");
+		helper.startSynchronization(config);
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(IdentityState.VALID,identities.get(0).getState());
+		syncLogService.delete(log);
+				
+		// update sync with the new value of STATE in DB 
+		this.getBean().setStateToDescriptionValue(IDENTITY_ONE,"NO_CONTRACT");
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(IdentityState.NO_CONTRACT,identities.get(0).getState());
+		syncLogService.delete(log);
+		
+		// update sync with the new value test case insensitivity
+		this.getBean().setStateToDescriptionValue(IDENTITY_ONE,"lEfT");
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(IdentityState.LEFT,identities.get(0).getState());
+		syncLogService.delete(log);
+		
+		// update sync with set transformation - always returns CREATED state
+		setDescriptionMappedToState(system, true);
+		this.getBean().setStateToDescriptionValue(IDENTITY_ONE,"NONEXISTENT_STATE");
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		Assert.assertEquals(IdentityState.CREATED,identities.get(0).getState());
+						
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+	
 	
 	@Test
 	public void testDifferntialSyncWithEntityChange() {
@@ -3024,6 +3097,37 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		entityManager.persist(resourceUserOne);
 
 	}
+	
+	@Transactional
+	public void setStateToDescriptionValue (String username, String status) {
+		//TestResource resourceUser = new TestResource();
+		TestResource resourceUser = entityManager.find(TestResource.class, username);
+		resourceUser.setDescrip(status);
+		//entityManager.persist(resourceUser);
+		//entityManager.merge(resourceUser);
+	}
+	
+	private void setDescriptionMappedToState(SysSystemDto system, boolean withTransfor) {
+		SysSystemAttributeMappingFilter descAttrMapFilt = new SysSystemAttributeMappingFilter();
+		descAttrMapFilt.setSystemId(system.getId());
+		descAttrMapFilt.setIdmPropertyName("description");
+		List<SysSystemAttributeMappingDto> mapAttrs = schemaAttributeMappingService.find(descAttrMapFilt,null).getContent();
+		if (mapAttrs.size() == 0) { // try if re-mapping has been already set
+			descAttrMapFilt.setIdmPropertyName(IDM_IDENTITY_STATE);
+			mapAttrs = schemaAttributeMappingService.find(descAttrMapFilt,null).getContent();
+		}
+		Assert.assertEquals(1, mapAttrs.size());
+		
+		SysSystemAttributeMappingDto descAttrMap = mapAttrs.get(0);
+		descAttrMap.setIdmPropertyName(IDM_IDENTITY_STATE);
+		descAttrMap.setName(ATTRIBUTE_DESCRIP);
+		if (withTransfor) {
+			StringBuilder sb = new StringBuilder("import eu.bcvsolutions.idm.core.api.domain.IdentityState;\n");
+			sb.append("return IdentityState.CREATED;\n");
+			descAttrMap.setTransformFromResourceScript(sb.toString());
+		}
+		schemaAttributeMappingService.save(descAttrMap);
+	}
 
 	private void createMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
 		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
@@ -3072,7 +3176,13 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 				attributeMappingTwo.setSchemaAttribute(schemaAttr.getId());
 				attributeMappingTwo.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMappingTwo);
-
+			} else if (ATTRIBUTE_DESCRIP.equalsIgnoreCase(schemaAttr.getName())) {
+				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
+				attributeMapping.setIdmPropertyName("description");
+				attributeMapping.setName(schemaAttr.getName().toLowerCase());
+				attributeMapping.setSchemaAttribute(schemaAttr.getId());
+				attributeMapping.setSystemMapping(entityHandlingResult.getId());
+				schemaAttributeMappingService.save(attributeMapping);
 			}
 		});
 	}

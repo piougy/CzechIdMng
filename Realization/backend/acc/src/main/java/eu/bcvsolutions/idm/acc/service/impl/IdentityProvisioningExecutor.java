@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -84,6 +85,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	public static final String NAME = "identityProvisioningService";
 	public final static String ASSIGNED_ROLES_FIELD = "assignedRoles";
 	public final static String ASSIGNED_ROLES_FOR_SYSTEM_FIELD = "assignedRolesForSystem";
+	public static final String IDENTITY_STATE_IDM_NAME = "state";
 
 	private final AccIdentityAccountService identityAccountService;
 	private final IdmIdentityService identityService;
@@ -293,6 +295,12 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			BaseDto projection = lookupService.lookupEmbeddedDto(dto, IdmIdentity_.formProjection);
 			return attributeMappingService.transformValueToResource(uid, projection, attribute, dto);
 		}
+		// Default transformation of Identity state enum to string
+		if (IDENTITY_STATE_IDM_NAME.equals(attribute.getIdmPropertyName()) &&
+				StringUtils.isBlank(attribute.getTransformToResourceScript())) {
+			return dto.getState().toString();
+		}
+		
 		return super.getAttributeValue(uid, dto, attribute, system, mappingContext);
 	}
 

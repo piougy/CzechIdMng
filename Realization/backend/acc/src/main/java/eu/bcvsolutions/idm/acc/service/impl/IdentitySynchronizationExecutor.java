@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -44,6 +46,7 @@ import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -75,6 +78,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * Identity sync executor
  *
  * @author svandav
+ * @author ohusnik
  *
  */
 @Component
@@ -82,6 +86,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		implements SynchronizationEntityExecutor {
 
 	private static final String PRIME_VALID_CONTRACT_KEY = "prime-valid-contract";
+	private static final String IDENTITY_STATE_IDM_NAME = "state";
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -570,6 +575,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
 			SynchronizationContext context) {
+		
+		// Provide default transformation to IdentityState enum if possible 
+		if (IDENTITY_STATE_IDM_NAME.equals(attribute.getIdmPropertyName()) &&
+				StringUtils.isBlank(attribute.getTransformFromResourceScript())) {
+			return defaultStateTransformation(attribute, icAttributes);
+		}
+		
 		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes, context);
 		// Try to find projection (user-type) by code.
 		if (IdmIdentity_.formProjection.getName().equals(attribute.getIdmPropertyName())
@@ -656,4 +668,34 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 					endOfProtectionString));
 		}
 	}
+	
+	/**
+	 * Provides default transformation of the state attribute from resource system to {@link IdentityState} enum
+	 * 
+	 * @param attribute
+	 * @param icAttributes
+	 * @return
+	 */
+	private Object defaultStateTransformation(AttributeMapping attribute, List<IcAttribute> icAttributes) {		
+		Optional<IcAttribute> optionalIcAttribute = icAttributes.stream().filter(icAttribute -> {
+			return StringUtils.equals(attribute.getName(), icAttribute.getName());
+		}).findFirst();
+		
+		if (!optionalIcAttribute.isPresent()) {
+			return null;			
+		}
+		
+		Object stateAttrObj = optionalIcAttribute.get().getValue();
+		if (!(stateAttrObj instanceof String)) {
+			return stateAttrObj;
+		}
+		
+		String stateAttr = ((String) stateAttrObj).toUpperCase();
+		try {
+			return IdentityState.valueOf(stateAttr);
+		} catch (Exception e) { // unable to find any item with supplied name
+			return stateAttrObj;
+		}
+	}
+	
 }

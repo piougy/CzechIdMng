@@ -352,6 +352,10 @@
           "systemMissingOwner":{
             "message":   "Upozornění: Kontrakt musí mít atribut mapující položku 'Vlastník'.",
             "info": ""
+          },
+          "identityStateUsedWithDisabled":{
+            "message":   "Upozornění: Mapování obsahuje atributy 'state' i 'disabled'.",
+            "info": "Je doporučeno používat vždy jen jeden z atributů. Hodnota 'state' nastavuje i hodnotu atributu 'disabled'."
           }
         }
       },

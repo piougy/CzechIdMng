@@ -4,10 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,6 +34,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
@@ -464,6 +467,59 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		assertNotNull(descriptionAttribute);
 		assertFalse(descriptionAttribute.isUid());
 		assertEquals(IdmRoleCatalogue_.description.getName(), descriptionAttribute.getIdmPropertyName());
+	}
+	
+	@Test
+	public void testIdentityStateAndDisabledWArning() {
+		SysSystemDto system = testHelper.createSystem(testHelper.createName());
+		SysSchemaObjectClassDto schema = this.createObjectClass(system);
+
+		SysSchemaAttributeDto nameSchemaAttr = createSchemaAttribute("name", schema);
+		SysSchemaAttributeDto stateSchemaAttr = createSchemaAttribute("state", schema);
+		SysSchemaAttributeDto disabledSchemaAttr = createSchemaAttribute("disabled", schema);
+		SysSystemMappingDto mappingDto = this.createProvisioningMappingSystem(SystemEntityType.IDENTITY, schema);
+
+		SysSystemAttributeMappingDto nameAttrMap = new SysSystemAttributeMappingDto();
+		nameAttrMap.setUid(true);
+		nameAttrMap.setEntityAttribute(true);
+		nameAttrMap.setSystemMapping(mappingDto.getId());
+		nameAttrMap.setIdmPropertyName("username");
+		nameAttrMap.setName(nameSchemaAttr.getName());
+		nameAttrMap.setSchemaAttribute(nameSchemaAttr.getId());
+		nameAttrMap = mappingAttributeService.save(nameAttrMap);
+
+		SysSystemAttributeMappingDto stateAttrMap = new SysSystemAttributeMappingDto();
+		stateAttrMap.setUid(false);
+		stateAttrMap.setEntityAttribute(true);
+		stateAttrMap.setSystemMapping(mappingDto.getId());
+		stateAttrMap.setIdmPropertyName("state");
+		stateAttrMap.setName(stateSchemaAttr.getName());
+		stateAttrMap.setSchemaAttribute(stateSchemaAttr.getId());
+		stateAttrMap = mappingAttributeService.save(stateAttrMap);
+		// SHOULD NOT THROW only state attribute mapped
+		mappingService.validate(mappingDto.getId());
+
+		SysSystemAttributeMappingDto disabledAttrMap = new SysSystemAttributeMappingDto();
+		disabledAttrMap.setUid(false);
+		disabledAttrMap.setEntityAttribute(true);
+		disabledAttrMap.setSystemMapping(mappingDto.getId());
+		disabledAttrMap.setIdmPropertyName("disabled");
+		disabledAttrMap.setName(disabledSchemaAttr.getName());
+		disabledAttrMap.setSchemaAttribute(disabledSchemaAttr.getId());
+		disabledAttrMap = mappingAttributeService.save(disabledAttrMap);
+
+		// both state and disabled attributes are mapped SHOULD THROW
+		try {
+			mappingService.validate(mappingDto.getId());
+			fail("Should throw");
+		} catch (ResultCodeException e) {
+			Assert.assertTrue(e.getError().getError().getParameters()
+					.containsKey(DefaultSysSystemMappingService.IDENTITY_STATE_USED_WITH_DISABLED));
+		}
+
+		mappingAttributeService.delete(stateAttrMap);
+		// SHOULD NOT THROW only disabled attribute mapped
+		mappingService.validate(mappingDto.getId());
 	}
 
 	private SysSchemaAttributeDto createSchemaAttribute(String name, SysSchemaObjectClassDto schema) {

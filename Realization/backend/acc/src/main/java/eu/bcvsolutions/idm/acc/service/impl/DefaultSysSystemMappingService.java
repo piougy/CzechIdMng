@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -89,6 +90,9 @@ public class DefaultSysSystemMappingService
 
 	private static final String SYSTEM_MISSING_IDENTIFIER = "systemMissingIdentifier";
 	private static final String SYSTEM_MISSING_OWNER = "systemMissingOwner";
+	public static final String IDENTITY_STATE_USED_WITH_DISABLED = "identityStateUsedWithDisabled";
+	private static final String IDENTITY_STATE_IDM_NAME = "state";
+	private static final String IDENTITY_DISABLED_IDM_NAME = "disabled";
 	//
 	private final SysSystemMappingRepository repository;
 	private final GroovyScriptService groovyScriptService;
@@ -296,6 +300,7 @@ public class DefaultSysSystemMappingService
 		//
 		errors = validateIdentifier(errors, systemMapping, attributesList);
 		errors = validateSynchronizationContracts(errors, systemMapping, attributesList);
+		errors = validateIdentityStateAndDisabled(errors, systemMapping, attributesList);
 
 		if (!errors.isEmpty()) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_VALIDATION, errors);
@@ -347,6 +352,34 @@ public class DefaultSysSystemMappingService
 			}
 			if (isError) {
 				errors.put(SYSTEM_MISSING_OWNER, "Synchronization does not have IdM key: identity");
+			}
+		}
+		return errors;
+	}
+	
+	/**
+	 * Detects and informs when there are used both IdentityState and Disabled attributes.
+	 * IdentityState is preferred over Disabled.
+	 * 
+	 * @param errors
+	 * @param systemMapping
+	 * @param attributesList
+	 * @return
+	 */
+	private Map<String, Object> validateIdentityStateAndDisabled(Map<String, Object> errors,
+			SysSystemMappingDto systemMapping, List<SysSystemAttributeMappingDto> attributesList) {
+		
+		if (SystemEntityType.IDENTITY == systemMapping.getEntityType()) {
+			Set<String> attrs = attributesList
+					.stream()
+					.map(SysSystemAttributeMappingDto::getIdmPropertyName)
+					.filter(name -> {
+				return IDENTITY_STATE_IDM_NAME.equals(name) ||
+						IDENTITY_DISABLED_IDM_NAME.equals(name);
+			}).collect(Collectors.toSet());
+		
+			if (attrs.size() > 1) {
+				errors.put(IDENTITY_STATE_USED_WITH_DISABLED, "Use either state or disabled identity attribute not both. State is preferred.");
 			}
 		}
 		return errors;

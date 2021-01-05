@@ -352,6 +352,10 @@
           "systemMissingOwner":{
             "message":  "Beware: The contractual relationship should have the attribute mapping the 'Owner' field.",
             "info": ""
+          },
+          "identityStateUsedWithDisabled":{
+            "message":   "Beware: The mapping contains both 'state' and 'disabled' attributes.",
+            "info": "It is recommanded using either of them. The value of the 'state' attribute controls the value of the 'disabled' attribute too."
           }
         }
       },

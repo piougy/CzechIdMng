@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import java.time.LocalDate;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.impl.IdentityProvisioningExecutor;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
@@ -63,6 +65,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Identity provisioning tests
  * 
  * @author Vít Švanda
+ * @author Ondrej Husnik
  *
  */
 @Service
@@ -443,5 +446,58 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 		resource = helper.findResource(identity.getUsername());
 		assertNotNull(resource);
 		assertEquals(identity.getFirstName(), resource.getFirstname());
+	}
+	
+	@Test
+	public void testIdentityState() {
+		SysSystemDto systemDto = helper.createTestResourceSystem(true);
+		SysSystemMappingDto defaultMapping = helper.getDefaultMapping(systemDto);
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(systemDto.getId());
+
+		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null)
+				.getContent();
+		SysSchemaAttributeDto descriptionSchemaAttribute = schemaAttributes.stream()
+				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equalsIgnoreCase(attribute.getName())).findFirst()
+				.get();
+
+		SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
+		attributeMapping.setUid(false);
+		attributeMapping.setEntityAttribute(true);
+		attributeMapping.setIdmPropertyName(IdentityProvisioningExecutor.IDENTITY_STATE_IDM_NAME);
+		attributeMapping.setName(descriptionSchemaAttribute.getName());
+		attributeMapping.setSchemaAttribute(descriptionSchemaAttribute.getId());
+		attributeMapping.setSystemMapping(defaultMapping.getId());
+		attributeMapping = schemaAttributeMappingService.save(attributeMapping);
+		
+		IdmRoleDto roleWithSystem = helper.createRole();
+		helper.createRoleSystem(roleWithSystem, systemDto);
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityRole(identity, roleWithSystem, null, null);
+
+		// the default state after identity creation  
+		TestResource resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		String valueOnResource = resource.getDescrip();
+		Assert.assertEquals(IdentityState.VALID.toString(), valueOnResource);
+		
+		// the identity state is changed manually  
+		identity.setState(IdentityState.DISABLED);
+		identityService.save(identity);
+		resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		valueOnResource = resource.getDescrip();
+		Assert.assertEquals(IdentityState.DISABLED.toString(), valueOnResource);
+		
+		// test transformation still works
+		attributeMapping.setTransformToResourceScript("return \"DELIBERATE_NONSENSE\";");
+		attributeMapping = schemaAttributeMappingService.save(attributeMapping);
+		identity.setState(IdentityState.LEFT);
+		identityService.save(identity);
+		resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		valueOnResource = resource.getDescrip();
+		Assert.assertEquals("DELIBERATE_NONSENSE", valueOnResource);
 	}
 }

@@ -68,6 +68,9 @@ export default class IdentityAttributeEnum extends AbstractEnum {
       case this.FORM_PROJECTION: {
         return 'formProjection';
       }
+      case this.STATE: {
+        return 'state';
+      }
       default: {
         return null;
       }
@@ -119,6 +122,9 @@ export default class IdentityAttributeEnum extends AbstractEnum {
       case 'formProjection': {
         return this.FORM_PROJECTION;
       }
+      case 'state': {
+        return this.STATE;
+      }
       default: {
         return null;
       }
@@ -150,6 +156,7 @@ IdentityAttributeEnum.PHONE = Symbol('PHONE');
 IdentityAttributeEnum.TITLE_BEFORE = Symbol('TITLE_BEFORE');
 IdentityAttributeEnum.TITLE_AFTER = Symbol('TITLE_AFTER');
 IdentityAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
+IdentityAttributeEnum.STATE = Symbol('STATE');
 IdentityAttributeEnum.ASSIGNED_ROLES = Symbol('ASSIGNED_ROLES');
 IdentityAttributeEnum.ASSIGNED_ROLES_FOR_SYSTEM = Symbol('ASSIGNED_ROLES_FOR_SYSTEM');
 IdentityAttributeEnum.FORM_PROJECTION = Symbol('FORM_PROJECTION');

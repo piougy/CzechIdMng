@@ -9,15 +9,11 @@ import NotificationDetail from '../NotificationDetail';
 const manager = new SmsManager();
 
 /**
- * Sms audit log detail content
+ * Sms audit log detail content.
  *
  * @author Peter Sourek
  */
 class SmsContent extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.sms';
@@ -34,7 +30,7 @@ class SmsContent extends Basic.AbstractContent {
   render() {
     const { entity, showLoading } = this.props;
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
 
         <Basic.PageHeader>
@@ -43,16 +39,14 @@ class SmsContent extends Basic.AbstractContent {
           {this.i18n('header')}
         </Basic.PageHeader>
 
-        <Basic.Panel>
-          <Basic.Loading isStatic showLoading={showLoading} />
-          {
-            !entity
-            ||
-            <NotificationDetail notification={ entity } showTopic={ false }/>
-          }
-        </Basic.Panel>
+        <Basic.Loading isStatic showLoading={showLoading} />
+        {
+          !entity
+          ||
+          <NotificationDetail notification={ entity } showTopic={ false }/>
+        }
 
-      </div>
+      </Basic.Div>
     );
   }
 }

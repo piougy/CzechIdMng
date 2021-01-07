@@ -26,7 +26,7 @@ export default class Emails extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
 
         <Basic.PageHeader>
@@ -39,7 +39,7 @@ export default class Emails extends Basic.AbstractContent {
           <EmailTable uiKey="email_table" emailManager={this.emailManager} filterOpened/>
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

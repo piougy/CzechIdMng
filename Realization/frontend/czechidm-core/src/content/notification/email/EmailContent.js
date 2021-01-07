@@ -9,13 +9,11 @@ import NotificationDetail from '../NotificationDetail';
 const emailManager = new EmailManager();
 
 /**
- * Email audit log detail content
+ * Email audit log detail content.
+ *
+ * @author Radek Tomiška
  */
 class EmailContent extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.email';
@@ -32,7 +30,7 @@ class EmailContent extends Basic.AbstractContent {
   render() {
     const { email, showLoading } = this.props;
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
 
         <Basic.PageHeader>
@@ -41,16 +39,14 @@ class EmailContent extends Basic.AbstractContent {
           {this.i18n('header')}
         </Basic.PageHeader>
 
-        <Basic.Panel>
-          <Basic.Loading isStatic showLoading={showLoading} />
-          {
-            !email
-            ||
-            <NotificationDetail notification={ email } showTopic={ false }/>
-          }
-        </Basic.Panel>
+        <Basic.Loading isStatic showLoading={showLoading} />
+        {
+          !email
+          ||
+          <NotificationDetail notification={ email } showTopic={ false }/>
+        }
 
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -301,6 +301,18 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
   }
 
   renderAttributesTable(showOnlyMapping, mapping, isNew, forceSearchParameters, systemId) {
+
+    let nameColumn = <Advanced.ColumnLink
+      to={`/system/${systemId}/attribute-mappings/:id/detail`}
+      property="name"
+      header={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
+      sort/>;
+    if (this.isWizard()) {
+      nameColumn = <Advanced.Column
+        property="name"
+        header={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
+        sort/>;
+    }
     return (
       <span>
         <Basic.ContentHeader rendered={!showOnlyMapping && mapping && !isNew} style={{marginBottom: 0, paddingLeft: 15}}>
@@ -369,11 +381,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.ColumnLink
-              to={`/system/${systemId}/attribute-mappings/:id/detail`}
-              property="name"
-              header={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
-              sort/>
+            {nameColumn}
             <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
             <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
             <Advanced.Column

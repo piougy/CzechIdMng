@@ -9,9 +9,12 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -71,6 +74,8 @@ public class CsvConnectorType extends AbstractConnectorType {
 	private SysSchemaObjectClassService objectClassService;
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private SysSyncConfigService syncConfigService;
 
 	@Override
 	public String getConnectorName() {
@@ -247,7 +252,12 @@ public class CsvConnectorType extends AbstractConnectorType {
 			List<Serializable> uidValue = new ArrayList<>();
 			uidValue.add("...random...");
 			formService.saveValues(systemDto, uidAttribute, uidValue);
-			// Beware, potential danger for already existed system show in the wizard.
+			// Load existing sync from system and delete them (because this wizard step could be repeated).
+			SysSyncConfigFilter syncConfigFilter = new SysSyncConfigFilter();
+			syncConfigFilter.setSystemId(systemDto.getId());
+			syncConfigService.find(syncConfigFilter, null)
+					.getContent()
+					.forEach(syncConfigDto -> syncConfigService.delete(syncConfigDto));
 			// Load existing object class from system and delete them (because this wizard step could be repeated).
 			SysSchemaObjectClassFilter objectClassFilter = new SysSchemaObjectClassFilter();
 			objectClassFilter.setSystemId(systemDto.getId());

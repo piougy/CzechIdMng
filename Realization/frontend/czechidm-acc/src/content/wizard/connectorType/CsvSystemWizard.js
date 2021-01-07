@@ -77,8 +77,10 @@ class CsvStepOne extends AbstractWizardStep {
     // If context contains connectorType, then we will used it.
     if (wizardContext && wizardContext.connectorType) {
       if (!wizardContext.connectorType.reopened) {
-        // primary schema attribute will be cleared only for new system (in reopened case is UID attribute not deleted).
+        // Primary schema attribute will be cleared only for new system (in reopened case is UID attribute not deleted).
         wizardContext.connectorType.metadata.primarySchemaAttributeId = null;
+        // Id of the sync will be cleared only for new system (in reopened case is UID attribute not deleted).
+        wizardContext.syncConfig = null;
       }
     }
   }

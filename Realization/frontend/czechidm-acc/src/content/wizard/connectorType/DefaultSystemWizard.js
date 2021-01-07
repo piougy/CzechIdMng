@@ -774,7 +774,9 @@ class SimpleMapping extends AbstractWizardStep {
               <Basic.Div style={{flex: 3}}>
                 <Basic.Div style={{display: 'flex', marginTop: 50}}>
                   <Basic.Div style={{flex: 1}}>
-                    <img style={{maxWidth: 120}} src="dist/images/czechidm-logo-big.png" alt="IdM logo"/>
+                    <header className="embedded">
+                      <Basic.Div className="home" style={{ margin: 0 }}/>
+                    </header>
                   </Basic.Div>
                   <Basic.Div style={{flex: 1, textAlign: 'center', fontSize: 'x-large'}}>
                     <Basic.Icon
@@ -783,7 +785,7 @@ class SimpleMapping extends AbstractWizardStep {
                   <Basic.Div style={{flex: 1}}>
                     <Basic.Icon
                       type="component"
-                      iconStyle="sm"
+                      iconSize="sm"
                       icon={_connectorType.iconKey}/>
                   </Basic.Div>
                 </Basic.Div>

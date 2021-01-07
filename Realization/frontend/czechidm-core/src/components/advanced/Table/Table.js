@@ -1176,7 +1176,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
     let _actionClassName;
     if (selectedRows.length <= 0) {
-      _actionClassName = _actionsWithoutSelection.length === 0 ? 'hidden' : 'bulk-action';
+      if (_actionsWithoutSelection.length === 0) {
+        _actionClassName = _actionsWithSelection.length === 0 ? 'hidden' : 'bulk-action';
+      } else {
+        _actionClassName = 'bulk-action';
+      }
     } else {
       _actionClassName = _actionsWithSelection.length === 0 ? 'hidden' : 'bulk-action';
     }
@@ -1184,7 +1188,18 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     const _isLoading = (_showLoading || showLoading) && !hideTableShowLoading;
     //
     // resolve bulk actions
-    let processActions = selectedRows.length <= 0 ? _actionsWithoutSelection : _actionsWithSelection;
+    let processActions = null;
+    let showActionsAsDisabled = false;
+    if (selectedRows.length <= 0) {
+      if (_actionsWithoutSelection.length === 0) {
+        showActionsAsDisabled = true;
+        processActions = _actionsWithSelection;
+      } else {
+        processActions = _actionsWithoutSelection;
+      }
+    } else {
+      processActions = _actionsWithSelection;
+    }
     // disabled by security reason
     processActions = processActions.filter(a => !a.disabled);
     // quick action buttons - configured
@@ -1248,7 +1263,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       buttonMenuIncludedActions = buttonActions.map(action => (
         <MenuItem
           title={ this.isDevelopment() ? `Action order: ${ action.order }, Action key: ${ action.actionKey }` : null }
-          onClick={ this.onBulkAction.bind(this, action) }>
+          onClick={ showActionsAsDisabled ? null : this.onBulkAction.bind(this, action) }
+          disabled={ showActionsAsDisabled }>
           <Basic.Icon icon={ action.icon } level={ action.level }/>
           { action.label || action.niceLabel }
         </MenuItem>
@@ -1322,6 +1338,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                               :
                               (action.label || action.niceLabel)
                             }
+                            disabled={ showActionsAsDisabled }
                             titlePlacement="bottom"
                             onClick={ this.onBulkAction.bind(this, action) }>
                             <Basic.Icon icon={ action.icon } level={ action.level }/>
@@ -1352,7 +1369,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                               return (
                                 <MenuItem
                                   title={ this.isDevelopment() ? `Action order: ${ action.order }, Action key: ${ action.actionKey }` : null }
-                                  onClick={ this.onBulkAction.bind(this, action) }>
+                                  onClick={ showActionsAsDisabled ? null : this.onBulkAction.bind(this, action) }
+                                  disabled={ showActionsAsDisabled }>
                                   <Basic.Icon icon={ action.icon } level={ action.level }/>
                                   { action.label || action.niceLabel }
                                 </MenuItem>
@@ -1369,7 +1387,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                               return (
                                 <MenuItem
                                   title={ this.isDevelopment() ? `Action order: ${ action.order }` : null }
-                                  onClick={ this.onBulkAction.bind(this, action) }>
+                                  onClick={ showActionsAsDisabled ? null : this.onBulkAction.bind(this, action) }
+                                  disabled={ showActionsAsDisabled }>
                                   <Basic.Icon icon={ action.icon } level={ action.level }/>
                                   { action.label || action.niceLabel }
                                 </MenuItem>

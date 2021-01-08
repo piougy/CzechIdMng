@@ -338,7 +338,15 @@ class SystemConnectorContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { formInstance, poolingFormInstance, optionsFormInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
+    const {
+      formInstance,
+      poolingFormInstance,
+      optionsFormInstance,
+      availableFrameworks,
+      availableRemoteFrameworks,
+      entity,
+      userContext
+    } = this.props;
     const { error, showLoading, remoteConnectorError, activeKey } = this.state;
     const _showLoading = showLoading || this.props._showLoading;
     const _availableConnectors = this._getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity);
@@ -372,6 +380,16 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 useDefaultValue/>
               <Basic.PanelFooter rendered={ !this.isWizard() && Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } className="marginable">
                 <Basic.Button
+                  type="button"
+                  level="link"
+                  rendered={
+                    Managers.SecurityManager.hasAllAuthorities(['FORMDEFINITION_READ', 'FORMATTRIBUTE_READ'], userContext)
+                  }
+                  onClick={ () => this.context.history.push(`/form-definitions/${ formInstance.getDefinition().id }/attributes`) }
+                  title={ this.i18n('component.advanced.EavForm.attributes.link.title') }>
+                  { this.i18n('component.advanced.EavForm.attributes.link.label') }
+                </Basic.Button>
+                <Basic.Button
                   type="submit"
                   level="success"
                   showLoadingIcon
@@ -383,8 +401,8 @@ class SystemConnectorContent extends Basic.AbstractContent {
           </Basic.Tab>
           <Basic.Tab eventKey={ 2 } title={ this.i18n('poolingConfiguration') } className="bordered">
             <form
-              style={{ paddingRight: 15, paddingLeft: 15, paddingTop: 10}}
-              onSubmit={this.savePoolingConfiguration.bind(this)}>
+              style={{ paddingRight: 15, paddingLeft: 15, paddingTop: 10 }}
+              onSubmit={ this.savePoolingConfiguration.bind(this) }>
               <Advanced.EavForm
                 ref="poolingEav"
                 formInstance={ poolingFormInstance }
@@ -392,11 +410,21 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 useDefaultValue/>
               <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } className="marginable">
                 <Basic.Button
+                  type="button"
+                  level="link"
+                  rendered={
+                    Managers.SecurityManager.hasAllAuthorities(['FORMDEFINITION_READ', 'FORMATTRIBUTE_READ'], userContext)
+                  }
+                  onClick={ () => this.context.history.push(`/form-definitions/${ poolingFormInstance.getDefinition().id }/attributes`) }
+                  title={ this.i18n('component.advanced.EavForm.attributes.link.title') }>
+                  { this.i18n('component.advanced.EavForm.attributes.link.label') }
+                </Basic.Button>
+                <Basic.Button
                   type="submit"
                   level="success"
                   showLoadingIcon
-                  showLoadingText={this.i18n('button.saving')}>
-                  {this.i18n('button.save')}
+                  showLoadingText={ this.i18n('button.saving') }>
+                  { this.i18n('button.save') }
                 </Basic.Button>
               </Basic.PanelFooter>
             </form>
@@ -404,7 +432,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
           <Basic.Tab eventKey={ 3 } title={ this.i18n('operationOptionsConfiguration.tab') } className="bordered">
             <form
               style={{ paddingRight: 15, paddingLeft: 15, paddingTop: 10}}
-              onSubmit={this.saveOperationOptionsConfigurations.bind(this)}>
+              onSubmit={ this.saveOperationOptionsConfigurations.bind(this) }>
               <Advanced.EavForm
                 ref="optionsEav"
                 formInstance={ optionsFormInstance }
@@ -416,7 +444,11 @@ class SystemConnectorContent extends Basic.AbstractContent {
                   ||
                   <Basic.Button
                     level="link"
-                    rendered={!this.isWizard()}
+                    rendered={
+                      !this.isWizard()
+                      &&
+                      Managers.SecurityManager.hasAllAuthorities(['FORMDEFINITION_READ', 'FORMATTRIBUTE_READ'], userContext)
+                    }
                     onClick={ () => {
                       this.context.history.push(`/form-definitions/${ encodeURIComponent(optionsFormInstance.definition.id) }/attributes`);
                     }}
@@ -503,6 +535,7 @@ SystemConnectorContent.defaultProps = {
 function select(state, component) {
   const { entityId } = component.match.params;
   return {
+    userContext: state.security.userContext,
     entity: manager.getEntity(state, entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
     formInstance: Managers.DataManager.getData(state, `${uiKey}-${entityId}`),

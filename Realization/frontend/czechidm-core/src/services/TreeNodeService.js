@@ -73,16 +73,16 @@ class TreeNodeService extends FormableEntityService {
    */
   getDefaultTreeNode() {
     return RestApiService
-    .get(this.getApiPath() + '/search/default')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/search/default`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }
 

@@ -352,9 +352,7 @@ class EavContent extends Basic.AbstractContent {
                   type="button"
                   level="link"
                   rendered={
-                    SecurityManager.hasAllAuthorities(['FORMDEFINITION_UPDATE', 'FORMATTRIBUTE_UPDATE'], userContext)
-                    &&
-                    this.isDevelopment()
+                    SecurityManager.hasAllAuthorities(['FORMDEFINITION_READ', 'FORMATTRIBUTE_READ'], userContext)
                   }
                   onClick={ () => this.context.history.push(`/form-definitions/${ _formInstance.getDefinition().id }/attributes`) }
                   title={ this.i18n('component.advanced.EavForm.attributes.link.title') }>

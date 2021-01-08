@@ -1,3 +1,5 @@
+@import '../../variables.less';
+
 .loading {
 	position: absolute;
 	z-index: 1030;
@@ -122,7 +124,7 @@
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
-	background: #bbb;
+	background: lighten(@idm-base-color, 15%);
 	animation: loading-logo 1.2s linear infinite;
 }
 .loading-logo div:nth-child(1) {

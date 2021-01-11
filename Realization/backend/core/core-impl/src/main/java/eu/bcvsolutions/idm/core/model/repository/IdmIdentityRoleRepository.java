@@ -104,4 +104,15 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	@Query(value = "select e from #{#entityName} e"
 			+ " where e.directRole is null and e.validTill is not null and e.validTill < :expirationDate")
 	Page<IdmIdentityRole> findDirectExpiredRoles(@Param("expirationDate") LocalDate expirationDate, Pageable page);
+	
+	/**
+	 * Returns all direct roles with date lower than given expiration date. Automatic roles are included, sub roles not.
+	 * 
+	 * @param expirationDate valid till < expirationDate
+	 * @return expired role identifiers (without sub roles)
+	 * @since 10.6.5, 10.8.0
+	 */
+	@Query(value = "select e.id from #{#entityName} e"
+			+ " where e.directRole is null and e.validTill is not null and e.validTill < :expirationDate")
+	List<UUID> findDirectExpiredRoleIds(@Param("expirationDate") LocalDate expirationDate);
 }

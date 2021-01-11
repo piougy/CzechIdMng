@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -14,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -105,5 +107,40 @@ public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractI
 		assignedRoles = identityRoleService.find(filter, null).getContent();
 		//
 		Assert.assertTrue(assignedRoles.isEmpty());
+	}
+	
+	@Test
+	public void testExpiredRoleAsync() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);	
+			IdmRoleDto role = getHelper().createRole();
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			IdmIdentityContractDto contract = getHelper().createContract(identity);
+			
+			// Role on contract
+			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+			identityRole.setIdentityContract(contract.getId());
+			identityRole.setRole(role.getId());
+			identityRole.setValidTill(LocalDate.now().minusDays(1));
+			identityRole = identityRoleService.save(identityRole);
+			
+			// Quick check
+			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertEquals(1, assignedRoles.size());
+			Assert.assertTrue(LocalDate.now().isAfter(assignedRoles.get(0).getValidTill()));
+			
+			IdentityRoleExpirationTaskExecutor lrt = new IdentityRoleExpirationTaskExecutor();
+			lrt.init(null);
+			lrtManager.execute(lrt);
+			
+			getHelper().waitForResult(res -> {
+				return !identityRoleService.findAllByIdentity(identity.getId()).isEmpty();
+			}, 1000, 30);
+			
+			assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertTrue(assignedRoles.isEmpty());
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 }

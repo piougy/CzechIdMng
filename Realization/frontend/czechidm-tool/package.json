@@ -1,6 +1,6 @@
 {
   "name": "czechidm-tool",
-  "version": "10.6.4",
+  "version": "10.6.5-snapshot",
   "description": "Tool module for CzechIdM devstack.",
   "main": "index.js",
   "scripts": {

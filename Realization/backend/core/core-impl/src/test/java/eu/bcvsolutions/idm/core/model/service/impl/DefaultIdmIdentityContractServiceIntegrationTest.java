@@ -460,6 +460,101 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	}
 	
 	@Test
+	public void testChangeContractPositionAndValidityWithAutomaticRolesAssigned() {
+		prepareAutomaticRoles();
+		//
+		// prepare identity and contract
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setWorkPosition(nodeD.getId());
+		LocalDate validTill = LocalDate.now().plusDays(1);
+		contract.setValidTill(validTill);
+		contract = service.save(contract);
+		// 
+		// test after create
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
+		IdmIdentityRoleDto automaticRole = identityRoles
+			.stream()
+			.filter(ir -> {
+				return roleA.getId().equals(ir.getRole());
+			})
+			.findFirst()
+			.orElse(null);
+		Assert.assertNotNull(automaticRole);
+		Assert.assertEquals(validTill, automaticRole.getValidTill());
+		//
+		contract.setWorkPosition(nodeB.getId()); // => role A is the same => down recursion
+		LocalDate newValidTill = LocalDate.now().plusDays(3);
+		contract.setValidTill(newValidTill);
+		contract = service.save(contract);
+		//
+		// test after change
+		identityRoles = identityRoleService.findAllByContract(contract.getId());
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleA.getId().equals(ir.getRole())
+					&& ir.getId().equals(automaticRole.getId()) // prevent drop and create
+					&& newValidTill.equals(ir.getValidTill()); // validity is changed
+		}));
+	}
+	
+	@Test
+	public void testChangeInvalidContractPositionAndValidityWithAutomaticRolesAssigned() {
+		prepareAutomaticRoles();
+		//
+		// prepare identity and contract
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setWorkPosition(nodeD.getId());
+		LocalDate validTill = LocalDate.now().plusDays(1);
+		contract.setValidTill(validTill);
+		contract = service.save(contract);
+		// 
+		// test after create
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByContract(contract.getId());
+		IdmIdentityRoleDto automaticRole = identityRoles
+			.stream()
+			.filter(ir -> {
+				return roleA.getId().equals(ir.getRole());
+			})
+			.findFirst()
+			.orElse(null);
+		Assert.assertNotNull(automaticRole);
+		Assert.assertEquals(validTill, automaticRole.getValidTill());
+		UUID automaticRoleId = automaticRole.getId();
+		//
+		// change validity of contract to past => LOOKOUT: internal method is used to test only 
+		LocalDate minusDays = LocalDate.now().minusDays(1);
+		contract.setValidTill(minusDays);
+		contract = service.saveInternal(contract);
+		Assert.assertEquals(minusDays, contract.getValidTill());
+		// assigned roles is still unchanged
+		identityRoles = identityRoleService.findAllByContract(contract.getId());
+		automaticRole = identityRoles
+			.stream()
+			.filter(ir -> {
+				return roleA.getId().equals(ir.getRole());
+			})
+			.findFirst()
+			.orElse(null);
+		Assert.assertNotNull(automaticRole);
+		Assert.assertEquals(validTill, automaticRole.getValidTill());
+		//
+		LocalDate newValidTill = LocalDate.now().plusDays(3);
+		contract.setValidTill(newValidTill);
+		contract = service.save(contract);
+		//
+		// test after change
+		identityRoles = identityRoleService.findAllByContract(contract.getId());
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
+			return roleA.getId().equals(ir.getRole())
+					&& ir.getId().equals(automaticRoleId) // prevent drop and create
+					&& newValidTill.equals(ir.getValidTill()); // validity is changed
+		}));
+	}
+	
+	@Test
 	public void testAssignAutomaticRoleToExistIdentitySync() {
 		IdmIdentityDto identityOne = getHelper().createIdentityOnly();
 		IdmIdentityDto identityTwo = getHelper().createIdentityOnly();

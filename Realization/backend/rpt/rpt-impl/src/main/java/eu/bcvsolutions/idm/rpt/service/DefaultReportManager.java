@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -276,6 +278,7 @@ public class DefaultReportManager implements ReportManager {
 	 * @param task
 	 * @param report
 	 */
+	@SuppressWarnings("rawtypes")
 	private RptReportDto initFormTask(RptReportDto report, ReportExecutor reportExecutor) {
 		UUID longRunningTaskId = report.getLongRunningTask();
 		if (longRunningTaskId == null) {
@@ -290,30 +293,40 @@ public class DefaultReportManager implements ReportManager {
 		task.setRunning(false);
 		task = taskManager.saveLongRunningTask(task);
 		//
-		List<IdmFormValueDto> values = task
-				.getTaskProperties()
-				.entrySet()
-				.stream()
-				.map(entry -> {
-					IdmFormAttributeDto formAttribute = formDefinition.getMappedAttributeByCode(entry.getKey());
-					if (formAttribute == null) {
-						return null;
+		List<IdmFormValueDto> values = new ArrayList<>();
+		for (Entry<String, Object> property : task.getTaskProperties().entrySet()) {
+			String propertyKey = property.getKey();
+			Object propertyValue = property.getValue();
+			//
+			if (propertyValue == null) {
+				continue;
+			}
+			//
+			IdmFormAttributeDto formAttribute = formDefinition.getMappedAttributeByCode(propertyKey);
+			if (formAttribute == null) {
+				continue;
+			}
+			//
+			if (!(propertyValue instanceof Serializable)) {
+				LOG.warn("Long running task property [{}] is not serializable, cannot be used in report parameters.", propertyKey);
+				continue;
+			}
+			if (propertyValue instanceof List) {
+				// multiple values are stored in List (see bellow)
+				for (Object singlePropertyValue : (List) propertyValue) {
+					IdmFormValueDto value = toFilledFormValue(formAttribute, propertyKey, singlePropertyValue);
+					if (value != null) {
+						values.add(value);
 					}
-					String propertyKey = entry.getKey();
-					Object propertyValue = entry.getValue();
-					if (!(propertyValue instanceof Serializable)) {
-						LOG.warn("Long running task property [{}] is not serializable, cannot be used in report parameters.", propertyKey);
-						return null;
-					}
-					//
-					IdmFormValueDto value = new IdmFormValueDto(formAttribute);
-					value.setValue((Serializable) propertyValue);
-					//
-					return value;
-				})
-				.filter(Objects::nonNull)
-				.filter(value -> !value.isEmpty())
-				.collect(Collectors.toList());
+				}
+			} else {
+				// single value
+				IdmFormValueDto value = toFilledFormValue(formAttribute, propertyKey, propertyValue);
+				if (value != null) {
+					values.add(value);
+				}
+			}
+		}
 		//
 		if (values.isEmpty()) {
 			// no filled values
@@ -329,11 +342,31 @@ public class DefaultReportManager implements ReportManager {
 	}
 	
 	/**
+	 * Convert single property value to form value.
+	 */
+	private IdmFormValueDto toFilledFormValue(IdmFormAttributeDto formAttribute, String propertyKey, Object propertyValue) {
+		if (propertyValue == null) {
+			return null;
+		}
+		if (!(propertyValue instanceof Serializable)) {
+			LOG.warn("Long running task property [{}] is not serializable, cannot be used in report parameters.", propertyKey);
+			return null;
+		}
+		//
+		IdmFormValueDto value = new IdmFormValueDto(formAttribute);
+		value.setValue((Serializable) propertyValue);
+		//
+		// filled value only
+		return value.isEmpty() ? null : value;
+	}
+	
+	/**
 	 * Transfer report filter parameter (eav) to task properties.
 	 * 
 	 * @param task
 	 * @param report
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void saveTaskProperties(RptReportDto report) {
 		UUID longRunningTaskId = report.getLongRunningTask();
 		IdmFormDto reportFilter = report.getFilter();
@@ -350,8 +383,22 @@ public class DefaultReportManager implements ReportManager {
 			.forEach(value -> {
 				IdmFormAttributeDto formAttribute = lookupService.lookupEmbeddedDto(value, IdmFormValueDto.PROPERTY_FORM_ATTRIBUTE);
 				//
-				// report can have single definition only => attribute code is unique
-				taskProperties.put(formAttribute.getCode(), value.getValue());
+				String attributeCode = formAttribute.getCode();
+				if (taskProperties.containsKey(attributeCode)) {
+					// multiple properties are supported
+					Object propertyValue = taskProperties.get(attributeCode);
+					List propertyValues;
+					if (propertyValue instanceof List) {
+						propertyValues = (List) propertyValue;
+					} else {
+						propertyValues = Lists.newArrayList(propertyValue);
+					}
+					propertyValues.add(value.getValue());
+					taskProperties.put(formAttribute.getCode(), propertyValues);
+				} else {	
+					// single property
+					taskProperties.put(formAttribute.getCode(), value.getValue());
+				}
 			});
 		// save filled task properties
 		if (!taskProperties.isEmpty()) {

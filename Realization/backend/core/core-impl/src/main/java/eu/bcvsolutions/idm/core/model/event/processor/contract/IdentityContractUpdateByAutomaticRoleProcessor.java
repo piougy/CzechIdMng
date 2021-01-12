@@ -199,7 +199,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			//
 			// change date - for unchanged assigned roles only
 			if (previous != null && EntityUtils.validableChanged(previous, contract)) {
-				changeValidable(contract, assignedRoles);
+				roleRequest.getConceptRoles().addAll(changeValidable(contract, assignedRoles));
 			}
 			//
 			// add identity roles

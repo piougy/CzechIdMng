@@ -6852,7 +6852,7 @@
     },
     "ENTITY_NOT_FOUND": {
       "title": "Nenalezeno",
-      "message": "Entita neexistuje."
+      "message": "Záznam nebyl nalezen."
     },
     "IDENTITY_NOT_FOUND": {
       "title": "Nenalezeno",

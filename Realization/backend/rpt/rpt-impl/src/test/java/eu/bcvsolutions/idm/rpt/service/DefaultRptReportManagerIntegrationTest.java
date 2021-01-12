@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -46,8 +47,10 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.rpt.RptModuleDescriptor;
 import eu.bcvsolutions.idm.rpt.api.dto.RptRenderedReportDto;
@@ -66,6 +69,7 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private SchedulerManager schedulerManager;
+	@Autowired private LongRunningTaskManager taskManager;
 	@Autowired private RptReportService reportService;
 	@Autowired private TestFilterReportExecutor testFilterReportExecutor;
 	@Autowired private IdmNotificationLogService notificationService;
@@ -161,6 +165,74 @@ public class DefaultRptReportManagerIntegrationTest extends AbstractIntegrationT
 		}
 		
 		attachmentManager.deleteAttachments(report);
+	}
+	
+	@Test
+	@SuppressWarnings("rawtypes")
+	public void testRerunReportWithFilter() throws IOException {
+		RptReportDto report = new RptReportDto();
+		report.setExecutorName(TestFilterReportExecutor.REPORT_NAME);
+		IdmFormDto filter = new IdmFormDto();
+		TestFilterReportExecutor testReportExecutor = context.getAutowireCapableBeanFactory().createBean(TestFilterReportExecutor.class);
+		IdmFormDefinitionDto definition = testReportExecutor.getFormDefinition();
+		IdmFormValueDto usernameOne = new IdmFormValueDto(definition.getMappedAttributeByCode(IdmIdentity_.username.getName()));
+		usernameOne.setValue(TestReportExecutor.identities.get(0).getUsername());
+		filter.getValues().add(usernameOne);
+		IdmFormValueDto usernameTwo = new IdmFormValueDto(definition.getMappedAttributeByCode(IdmIdentity_.username.getName()));
+		usernameTwo.setValue(getHelper().createName());
+		filter.getValues().add(usernameTwo);
+		filter.setFormDefinition(definition.getId());
+		report.setFilter(filter);
+		//
+		report = manager.generate(report);
+		final UUID reportId = report.getId();
+		Assert.assertNotNull(reportId);
+		Assert.assertNotNull(report.getData());
+		InputStream is = attachmentManager.getAttachmentData(report.getData());
+		try {
+			Assert.assertEquals(
+					mapper.writeValueAsString(Lists.newArrayList(TestReportExecutor.identities.get(0))), 
+					IOUtils.toString(is));
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
+		//
+		// filter is propaged to LRT properly
+		report = reportService.get(reportId);
+		Assert.assertNotNull(report.getLongRunningTask());
+		IdmLongRunningTaskDto longRunningTask = taskManager.getLongRunningTask(report.getLongRunningTask());
+		List propertyValue = (List) longRunningTask.getTaskProperties().get(IdmIdentity_.username.getName());
+		Assert.assertNotNull(propertyValue);
+		Assert.assertTrue(propertyValue.contains(TestReportExecutor.identities.get(0).getUsername()));
+		Assert.assertTrue(propertyValue.contains(usernameTwo.getValue()));
+		//
+		// rerun long running task
+		LongRunningFutureTask<?> recover = taskManager.recover(longRunningTask.getId());
+		UUID recoveredTask = recover.getExecutor().getLongRunningTaskId();
+		Assert.assertNotNull(recoveredTask);
+		Assert.assertNotEquals(longRunningTask.getId(), recoveredTask);
+		longRunningTask = taskManager.getLongRunningTask(recoveredTask);
+		Assert.assertEquals(OperationState.EXECUTED, longRunningTask.getResultState());
+		propertyValue = (List) longRunningTask.getTaskProperties().get(IdmIdentity_.username.getName());
+		Assert.assertNotNull(propertyValue);
+		Assert.assertTrue(propertyValue.contains(TestReportExecutor.identities.get(0).getUsername()));
+		Assert.assertTrue(propertyValue.contains(usernameTwo.getValue()));
+		//
+		RptReportFilter reportFilter = new RptReportFilter();
+		reportFilter.setLongRunningTaskId(recoveredTask);
+		List<RptReportDto> recoveredReports = reportService.find(reportFilter, null).getContent();
+		Assert.assertEquals(1, recoveredReports.size());
+		RptReportDto recoveredReport = recoveredReports.get(0);
+		Assert.assertEquals(OperationState.EXECUTED, recoveredReport.getResult().getState());
+		// recoveredReport.getFilter().
+		IdmFormInstanceDto reportProperties = new IdmFormInstanceDto(recoveredReport, testFilterReportExecutor.getFormDefinition(), recoveredReport.getFilter());
+		List<Serializable> persistentValues = reportProperties.toPersistentValues(IdmIdentity_.username.getName());
+		Assert.assertEquals(2, persistentValues.size());
+		Assert.assertTrue(persistentValues.contains(TestReportExecutor.identities.get(0).getUsername()));
+		Assert.assertTrue(persistentValues.contains(usernameTwo.getValue()));
+		//
+		attachmentManager.deleteAttachments(report);
+		attachmentManager.deleteAttachments(recoveredReport);
 	}
 	
 	@Test

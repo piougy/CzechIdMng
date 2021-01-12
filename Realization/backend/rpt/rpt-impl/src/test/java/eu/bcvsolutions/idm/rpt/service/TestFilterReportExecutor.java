@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
@@ -41,18 +41,23 @@ public class TestFilterReportExecutor extends AbstractReportExecutor {
 	
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
-		return Lists.newArrayList(new IdmFormAttributeDto(IdmIdentity_.username.getName(), "Username", PersistentType.TEXT));
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto(IdmIdentity_.username.getName(), "Username", PersistentType.TEXT);
+		attribute.setMultiple(true);
+		//
+		return Lists.newArrayList(attribute);
 	}
 	
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected IdmAttachmentDto generateData(RptReportDto report) {
 		try {
 			IdmFormInstanceDto formInstance = new IdmFormInstanceDto(report, getFormDefinition(), report.getFilter());
-			String username = (String) formInstance.toSinglePersistentValue(IdmIdentity_.username.getName());
+			//
+			List usernames = (List) formInstance.toPersistentValues(IdmIdentity_.username.getName());
 			List<IdmIdentityDto> results = TestReportExecutor.identities
 					.stream()
 					.filter(identity -> {						
-						return StringUtils.isEmpty(username) || username.equals(identity.getUsername());
+						return ObjectUtils.isEmpty(usernames) || usernames.contains(identity.getUsername());
 					})
 					.collect(Collectors.toList());
 			return createAttachment(report, IOUtils.toInputStream(getMapper().writeValueAsString(results)));

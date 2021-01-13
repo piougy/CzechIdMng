@@ -648,8 +648,8 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 	public void testRecountAutomaticRoleWithMissingContent() {
 		// create state with missing content
 		IdmEntityStateDto state = new IdmEntityStateDto();
-		UUID stateId = UUID.randomUUID();
-		state.setOwnerId(stateId);
+		UUID ownerId = UUID.randomUUID();
+		state.setOwnerId(ownerId);
 		state.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
 		state.setResult(
 				new OperationResultDto
@@ -659,7 +659,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		entityStateManager.saveState(null, state);
 		//
 		state = new IdmEntityStateDto();
-		state.setOwnerId(stateId);
+		state.setOwnerId(ownerId);
 		state.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
 		state.setResult(
 				new OperationResultDto
@@ -672,6 +672,23 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		LongRunningFutureTask<Boolean> executor = longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
 		IdmLongRunningTaskDto longRunningTask = longRunningTaskManager.getLongRunningTask(executor);
 		Assert.assertTrue(longRunningTask.getWarningItemCount() > 0);
+	}
+	
+	@Test
+	public void testRecountAutomaticRoleMultipleTimes() {
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.NO, true);
+		// create identity with contract on node
+		entityStateManager.createState(automaticRole, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+		entityStateManager.createState(automaticRole, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+		Assert.assertEquals(2, entityStateManager.findStates(automaticRole, null).getTotalElements());
+		//
+		// recount skipped automatic roles
+		LongRunningFutureTask<Boolean> executor = longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
+		IdmLongRunningTaskDto longRunningTask = longRunningTaskManager.getLongRunningTask(executor);
+		Assert.assertEquals(Long.valueOf(2), longRunningTask.getSuccessItemCount());
 	}
 	
 	@Test

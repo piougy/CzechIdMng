@@ -644,7 +644,6 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
-	@Transactional
 	public void testRecountAutomaticRoleWithMissingContent() {
 		// create state with missing content
 		IdmEntityStateDto state = new IdmEntityStateDto();

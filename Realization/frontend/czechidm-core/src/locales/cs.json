@@ -6068,11 +6068,11 @@
           },
           "include-role-composition": {
             "label": "Duplikovat podřazené role",
-            "help": "Vytvoří (či aktializuje) podřazené role dle definice business role (rekurzivně)."
+            "help": "Vytvoří (či aktualizuje) podřazené role dle definice business role (rekurzivně)."
           },
           "include-role-form-attribute": {
             "label": "Duplikovat atributy role",
-            "help": "Vytvoří (či aktializuje) nakonfigurované atributy role."
+            "help": "Vytvoří (či aktualizuje) nakonfigurované atributy role."
           },
           "include-role-authorization-policy": {
             "label": "Duplikovat oprávnění",

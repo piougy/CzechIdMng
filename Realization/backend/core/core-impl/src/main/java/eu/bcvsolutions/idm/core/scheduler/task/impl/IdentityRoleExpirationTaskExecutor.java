@@ -4,16 +4,15 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -68,21 +67,12 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableState
 	
 	@Override
 	public Page<IdmIdentityRoleDto> getItemsToProcess(Pageable pageable) {
-		// 0 => from start - roles from previous search are already removed
-		return identityRoleService.findDirectExpiredRoles(
-				expiration, 
-				// sort by identity
-				PageRequest.of(
-						0, 
-						pageable.getPageSize(), 
-						Sort.by(
-								Direction.ASC, 
-								// sort by identity - removed roles will grouped into role requests (TODO)
-								IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT + "." + IdmIdentityContractDto.PROPERTY_IDENTITY, 
-								IdmIdentityRoleDto.PROPERTY_VALID_TILL
-						)
-				)
-		);
+		// Lookout: uuid is returned only in artificial dto => prevent memory overusage
+		return new PageImpl<>(identityRoleService
+				.findDirectExpiredRoleIds(expiration)
+				.stream()
+				.map(id -> new IdmIdentityRoleDto(id))
+				.collect(Collectors.toList()));
 	}
 	
 	@Override
@@ -106,10 +96,12 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableState
     }
 	
 	@Override
-	public Optional<OperationResult> processItem(IdmIdentityRoleDto identityRole) {
-		LOG.info("Remove expired assigned role [{}], valid till is less than [{}]",  identityRole.getId(), expiration);
+	public Optional<OperationResult> processItem(IdmIdentityRoleDto identityRoleIdentifier) {
+		UUID identityRoleId = identityRoleIdentifier.getId();
+		LOG.info("Remove expired assigned role [{}], valid till is less than [{}]",  identityRoleId, expiration);
 		//
-		if (identityRoleService.get(identityRole) == null) {
+		IdmIdentityRoleDto identityRole = identityRoleService.get(identityRoleId);
+		if (identityRole == null) {
 			// already deleted - skipping
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
@@ -131,7 +123,7 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableState
 			roleRequest = roleRequestService.save(roleRequest);
 			//
 			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-			conceptRoleRequest.setIdentityRole(identityRole.getId());
+			conceptRoleRequest.setIdentityRole(identityRoleId);
 			conceptRoleRequest.setRole(identityRole.getRole());
 			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
 			conceptRoleRequest.setIdentityContract(contract.getId());
@@ -148,7 +140,7 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableState
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch (Exception ex) {
-			LOG.error("Removing expired assigned role [{}] failed", identityRole.getId(), ex);
+			LOG.error("Removing expired assigned role [{}] failed", identityRoleId, ex);
 			return Optional.of(new OperationResult.Builder(OperationState.EXCEPTION)
 					.setCause(ex)
 					.build());

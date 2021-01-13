@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -49,6 +50,7 @@ public class ProcessSkippedAutomaticRoleByTreeTaskExecutor extends AbstractSched
 	public static final String TASK_NAME = "core-process-skipped-automatic-role-by-tree-long-running-task";
 	//
 	@Autowired private LookupService lookupService;
+	@Autowired private IdmEntityStateService entityStateService;
 	@Autowired private EntityStateManager entityStateManager;
 	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	@Autowired private EntityEventManager entityEventManager;
@@ -102,7 +104,16 @@ public class ProcessSkippedAutomaticRoleByTreeTaskExecutor extends AbstractSched
 
 	@Override
 	public Optional<OperationResult> processItem(IdmEntityStateDto state) {
+		// check state is already processed by ProcessAutomaticRoleByTreeTaskExecutor 
+		// => automatic role recount can be skipped multiple times for the same automatic role.
 		UUID ownerId = state.getOwnerId();
+		state = entityStateService.get(state);
+		if (state == null) {
+			LOG.debug("Automatic roles for owner [{}] was already processed.", ownerId);
+			// we need some result - counter / count will match.
+			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
+		}
+		//
 		if (processedOwnerIds.contains(ownerId)) {
 			LOG.debug("Automatic roles for owner [{}] was already processed, delete state only.", ownerId);
 			// 

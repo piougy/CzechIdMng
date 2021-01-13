@@ -712,6 +712,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (BooleanUtils.isTrue(executed)) {
 			log.addToLog(MessageFormat.format("Recalculation automatic role by tree structure ended in [{0}].",
 					ZonedDateTime.now()));
+		} else if (executed == null) {
+			log.addToLog(MessageFormat.format("Recalculation of automatic roles by tree structure ended in [{0}], role requests will be processed asynchronously.",
+					ZonedDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
 		}

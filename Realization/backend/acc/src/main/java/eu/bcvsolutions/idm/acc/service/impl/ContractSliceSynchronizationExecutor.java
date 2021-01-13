@@ -725,16 +725,22 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		if (BooleanUtils.isTrue(executed)) {
 			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].",
 					ZonedDateTime.now()));
+		} else if (executed == null) {
+			log.addToLog(MessageFormat.format("Recalculation of automatic roles by attributes ended in [{0}], role requests will be processed asynchronously.",
+					ZonedDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
 		}
-		
+
 		log.addToLog(MessageFormat.format(
 				"We start recount automatic roles by tree structure (synchronously) now [{0}].",
 				ZonedDateTime.now()));
 		executed = longRunningTaskManager.executeSync(new ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor());
 		if (BooleanUtils.isTrue(executed)) {
 			log.addToLog(MessageFormat.format("Recalculation automatic role by tree structure ended in [{0}].",
+					ZonedDateTime.now()));
+		} else if (executed == null) {
+			log.addToLog(MessageFormat.format("Recalculation of automatic roles by tree structure ended in [{0}], role requests will be processed asynchronously.",
 					ZonedDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by tree structure is not executed correctly.");

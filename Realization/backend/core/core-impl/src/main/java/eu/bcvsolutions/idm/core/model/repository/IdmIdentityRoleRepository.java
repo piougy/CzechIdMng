@@ -110,7 +110,7 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	 * 
 	 * @param expirationDate valid till < expirationDate
 	 * @return expired role identifiers (without sub roles)
-	 * @since 10.6.5, 10.8.0
+	 * @since 10.6.5, 10.7.2
 	 */
 	@Query(value = "select e.id from #{#entityName} e"
 			+ " where e.directRole is null and e.validTill is not null and e.validTill < :expirationDate")

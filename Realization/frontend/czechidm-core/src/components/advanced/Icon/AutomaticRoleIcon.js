@@ -8,7 +8,8 @@ import AbstractIcon from './AbstractIcon';
  * Automatically assigned role icon.
  *
  * @author Radek Tomiška
- * @since 10.8.0
+
+ * @since 10.7.1
  */
 export default class AutomaticRoleIcon extends AbstractIcon {
 

@@ -89,7 +89,7 @@ public interface IdmIdentityRoleService extends
 	 * 
 	 * @param expirationDate valid till < expirationDate
 	 * @return expired role identifiers (without sub roles)
-	 * @since 10.6.5, 10.8.0
+	 * @since 10.6.5, 10.7.2
 	 */
 	List<UUID> findDirectExpiredRoleIds(LocalDate expirationDate);
 	

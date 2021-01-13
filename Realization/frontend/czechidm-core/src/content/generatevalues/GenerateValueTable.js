@@ -383,7 +383,7 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
                       rendered={ noProperties }
                       text={ this.i18n('noProperties') }/>
                     <Basic.Alert
-                      rendered={ !showProperties }
+                      rendered={ !showProperties && !noProperties }
                       text={ this.i18n('selectGenerator') }/>
 
                     <Basic.Alert

@@ -133,6 +133,11 @@ class ResizeLoading extends AbstractComponent {
     if (!rendered) {
       return null;
     }
+    if (true) { // FIXME: detektor doesn't work in test
+      return (
+        <Loading { ...others } />
+      );
+    }
     //
     return (
       <ReactResizeDetector

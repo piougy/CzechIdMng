@@ -17,13 +17,13 @@ Why is migration good for you:
 - Logger level can be changed by application configuration without restart is needed.
 
 # 🌗 Backend
-In this chapter will be describe migration for the backend part of IdM.
+This chapter describes migration for the backend part of IdM.
 
-> Note for **administator**:  is needed to read [Before ugrade](#before-upgrade) and [Configuration section](#configuration-properties).
+> Note for **administrator**: it is needed to read [Infrastructure changes](#infrastructure-changes), [Before upgrade](#before-upgrade) and [Configuration section](#configuration-properties).
 
-> Note for **module developer**: is needed to read [Update custom module guide](#update-custom-module) and related conceptual and breaking changes.
+> Note for **module developer**: it is needed to read [Update custom module guide](#update-custom-module) and related conceptual and breaking changes.
 
-> Note for **product developer:** is needed to read it all :).
+> Note for **product developer:** it is needed to read it all :).
 
 ### 🚀 Upgraded libraries
 
@@ -52,12 +52,20 @@ In this chapter will be describe migration for the backend part of IdM.
 - Spring Boot **Websocket** - websocket support removed.
 - **org.codehaus.jackson** - we are usign **com.fasterxml.jackson** only.
 
+## Infrastructure changes
+
+- **Apache Tomcat** application server version 7 is not compatible with CzechIdM 10. Upgrade/reinstall to a [supported version](https://wiki.czechidm.com/devel/documentation/compatibility#apache_tomcat) if you run CzechIdM on this application server.
+- **PostgresSQL database** versions pre 9.4 are not compatible with CzechIdM 10. [Upgrade PostgreSQL](https://wiki.czechidm.com/tutorial/adm/postgres_upgrade_tutorial) if you use older versions.
+
 ## Before upgrade
 
-- Delete all persisted events. Can be used:
+- 🟠 Delete all persisted events. You can use:
   - task ``DeleteExecutedEventTaskExecutor``
-  - or button on event agenda (available for super admin users).
-- Resolve all workflow task (complete or cancel). New workflow definitions version will be deployed automatically. Old workflow tasks will be alive, but its saver to resolve them before new version is deployed. Historic tasks and processes will be preserved untouched and their detail will be available.
+  - or button on **Entity events** agenda (available for super admin users).
+- 🟡 Resolve all workflow approval tasks (complete or cancel by their approvers)
+  - New workflow definitions version will be deployed automatically.
+  - Old workflow tasks will be alive, but its safer to resolve them before new version is deployed, because it's not guaranteed that they could be resolved afterwards. If you have a testing environment of IdM, you can test if resolving tasks works after upgrade in your environment.
+  - Historic tasks and processes will be preserved untouched and their detail will be available.
 
 ## Database migration
 
@@ -71,27 +79,32 @@ Updated Flyway version requires **PostgresSQL database version >= 9.4** ([suppor
 
 Based on upgraded libraries we have to add, remove or change configuration properties (mainly related to connection pool, hibernate and quartz).
 
+> Note for **administrator**: Most of these changes are already resolved by default settings in the upgraded product CzechIdM and you don't need to configure them specifically, if IdM is deployed in a standard way. The highlighted lines are important even for standard installations, so make sure to check them.
+When you search or set the properties for your project, please note that they could be either in configuration files on the server with IdM, or bundled inside the CzechIdM package, or overriden in the CzechIdM database - see [Application configuration tutorial](https://wiki.czechidm.com/tutorial/adm/application_configuration).
+
 ### Added properties
 
-- ``spring.jpa.properties.hibernate.jdbc.time_zone=UTC`` - datetime will be persisted in UTC in database.
-- ``spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true`` - disable warning during the boot, when Hibernate tries to retrieve some meta information from the database.
-- ``spring.datasource.hikari.maximumPoolSize=50`` - **enlarge pool size** by default. This property should be revised **for each project**. Size should be configured by task and event thread pool size - should be higher than sum of pool sizes.
-- ``spring.jpa.properties.hibernate.session_factory.interceptor=eu.bcvsolutions.idm.core.model.repository.listener.AuditableInterceptor`` - replaced deprecated Hiberante property.
-- ``spring.jpa.hibernate.use-new-id-generator-mappings=false`` - Spring boot 2 changed default to ``true``, but we are using ``IDENTITY`` identifier generators for mssql database.
-- ``spring.servlet.multipart.max-file-size=100MB`` - Spring boot 2 changed property name for file upload size.
-- ``spring.servlet.multipart.max-request-size=100MB`` - Spring boot 2 changed property name for file upload size.
-  - For these properties to work correctly, you have to update your Tomcat's ``server.xml``. In this file, locate configuration of HTTP connector (usually on port 8080) and add the ``maxSwallowSize="-1"`` property therein.
+- 🟡 ``spring.datasource.hikari.maximumPoolSize=50`` - **enlarge connection pool size** = the maximum number of active connections from CzechIdM to its database. This property should be revised **for each project**. The size should be configured by task and event thread pool size - should be higher than sum of pool sizes.
+  - Check if any property named ``maxPoolSize`` or ``corePoolSize`` is configured in your project. Typically, it isn't, in such case check the number of CPU cores, calculate ``2*CPU+2 + 2*CPU`` and check that it's lower than 50.
+  - If you increase the ``maximumPoolSize`` to more than 50 (for more complex projects), make sure it doesn't exceed the number of available connections in PostgreSQL database, which is by default 100 - the property ``max_connections`` in ``/data/pgsql/9.6/data/postgresql.conf`` (the path depends on your OS).
+- 🟢 ``spring.jpa.properties.hibernate.jdbc.time_zone=UTC`` - datetime will be persisted in UTC in database.
+- 🟢 ``spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true`` - disable warning during the boot, when Hibernate tries to retrieve some meta information from the database.
+- 🟢 ``spring.jpa.properties.hibernate.session_factory.interceptor=eu.bcvsolutions.idm.core.model.repository.listener.AuditableInterceptor`` - replaced deprecated Hiberante property.
+- 🟢 ``spring.jpa.hibernate.use-new-id-generator-mappings=false`` - Spring boot 2 changed default to ``true``, but we are using ``IDENTITY`` identifier generators for mssql database.
+- 🟢 ``spring.servlet.multipart.max-file-size=100MB`` - Spring boot 2 changed property name for file upload size. The original name was ``multipart.max-file-size`` - see below.
+- 🟠 ``spring.servlet.multipart.max-request-size=100MB`` - Spring boot 2 changed property name for file upload size.
+  - For these properties to work correctly, you have to **update your Tomcat's ``server.xml``**. In this file, locate configuration of HTTP connector (usually on port 8080) and add the ``maxSwallowSize="-1"`` property therein.
 
 
 ### Removed properties
 
-- ``spring.jpa.properties.jadira.usertype.autoRegisterUserTypes`` - we are using java time now, so configuration for Joda time is not needed.
-- ``spring.jpa.properties.hibernate.ejb.interceptor`` - replaced by new property above.
-- ``multipart.max-file-size=100Mb`` - replaced by new properties above.
+- 🟢 ``spring.jpa.properties.jadira.usertype.autoRegisterUserTypes`` - we are using java time now, so configuration for Joda time is not needed.
+- 🟢 ``spring.jpa.properties.hibernate.ejb.interceptor`` - replaced by new property above.
+- 🟢 ``multipart.max-file-size=100Mb`` - replaced by new properties above. Check if your project contained this property and if so, decide if you need to have a different value than the product sets by default - 100 MB (usually there is no reason => delete the old property from the properties file).
 
 ### Changed properties
 
-For project, where **CzechIdM version 10.x will be upgraded from any older version, change property ``org.quartz.scheduler.instanceName=schedulerFactoryBean`` in your ``quartz.properties`` file** in your project profiles => tasks will be scheduled under previously effective ``schedulerFactoryBean`` instance name and **previously scheduled task will be preserved**. Without this change, different instance name configured in ``quartz.properties`` file will be effective and you will need to schedule long running tasks again.
+🟠 For project, where **CzechIdM version 10.x will be upgraded from any older version, change property ``org.quartz.scheduler.instanceName=schedulerFactoryBean`` in your ``quartz.properties`` file** in your project profiles (typically the file ``/opt/czechidm/etc/quartz-production.properties`` located on the server with IdM) => tasks will be scheduled under previously effective ``schedulerFactoryBean`` instance name and **previously scheduled task will be preserved**. Without this change, different instance name configured in ``quartz.properties`` file would be effective, so you would lose all scheduled tasks and would need to schedule long running tasks again.
 
 Newly installed **CzechIdM version 10.x** will use ``idm-scheduler-instance`` as default and will respect your configuration in ``quartz.properties`` file by your profile, if different instance name is needed. But be aware, tasks need to be rescheduled after any instance name is changes.
 
@@ -121,53 +134,56 @@ Due to breaking changes above, custom module requires some refactoring, before i
 
 > Case sensitive find is expected.
 
-- ``org.hibernate.type.StringClobType`` ⇒ ``org.hibernate.type.TextType``
-- ``new PageRequest(`` ⇒ ``PageRequest.of(``
-- ``new Sort(`` ⇒ ``Sort.by(``
-- ``flyway.getTable()`` ⇒ ``flyway.getConfiguration().getTable()``
-- ``import org.joda.time.LocalDate;`` ⇒ ``import java.time.LocalDate;``
-- ``import org.joda.time.DateTime;`` ⇒ ``import java.time.ZonedDateTime;``
-- ``new DateTime()`` ⇒ ``ZonedDateTime.now()``
-- ``new LocalDate() ⇒ LocalDate.now()``
-- ``import org.joda.time.format.DateTimeFormatter;`` ⇒ ``import java.time.format.DateTimeFormatter;``
-- ``DateTimeFormat.forPattern(`` ⇒ ``DateTimeFormatter.ofPattern(``
-
+- 🟡 ``org.hibernate.type.StringClobType`` ⇒ ``org.hibernate.type.TextType``
+- 🟠 ``new PageRequest(`` ⇒ ``PageRequest.of(``
+- 🟠 ``new Sort(`` ⇒ ``Sort.by(``
+- 🟠 ``flyway.getTable()`` ⇒ ``flyway.getConfiguration().getTable()`` (a typical occurrence: the class ``<ProjectName>FlywayConfig``)
+- 🟠 ``import org.joda.time.LocalDate;`` ⇒ ``import java.time.LocalDate;``
+- 🟠 ``import org.joda.time.DateTime;`` ⇒ ``import java.time.ZonedDateTime;``
+- 🟠 ``new DateTime()`` ⇒ ``ZonedDateTime.now()``
+- 🟠 ``new LocalDate() ⇒ LocalDate.now()``
+- 🟠 ``import org.joda.time.format.DateTimeFormatter;`` ⇒ ``import java.time.format.DateTimeFormatter;``
+- 🟠 ``DateTimeFormat.forPattern(`` ⇒ ``DateTimeFormatter.ofPattern(``
 
 ### Manual changes / cookbook
 
 - *Replaces above are expected*
-- **Java time** usage:
-  - Try to find (whole word, case sensitive): ``DateTime`` and replace to ``ZonedDateTime`` - some constructorsusage has to be refactor manually, see bellow.
+- 🟠 **Java time** usage:
+  - Try to find (whole word, case sensitive): ``DateTime`` and replace to ``ZonedDateTime`` - some constructors usage has to be refactored manually, see below.
   - **date.getMilis()** ⇒ **ZonedDateTime.now().toInstant().toEpochMilli()**
   - ``.print(`` ⇒ ``.format(``
   - **date.toString(pattern)** ⇒ **date.format(formatter)**
     - Try to search `.toString(` and replace (**ONLY** there is parameter **DateTimeFormatter**) with `.format(`.
     - If value contains pattern in the String (for example "yyyyMMddHHmmss"). You need to change `toString("yyyyMMddHHmmss")` ⇒ `.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))`.
+  - **formatter.parse** methods ⇒ **LocalDate.parse(** or **LocalDateTime.parse(**. You must also use an **additional parameter** with DateTimeFormatter. It's recommended to create it by DateTimeFormatterBuilder if the number of milliseconds is not fixed - check the [tutorial](https://wiki.czechidm.com/tutorial/dev/groovy_scripts/converstringtolocaldate)
   - **date.plusMilis(1)** ⇒ **date.plus(1, ChronoUnit.MILLIS)**
     - Try to search `.plusMilis(1)` and replace with `.plus(1, ChronoUnit.MILLIS)`.
   - **Date date = Date.from(ZonedDateTime.now().toInstant());**
   - **ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(longValue), ZoneId.systemDefault());**
   - **ChronoUnit.SECONDS.between(authenticationDto.getExpiration(), newExpiration);**
-- **Mockito**:
+- 🟡 **Mockito**:
   - ``any(String.class)`` checker doesn't support ``null`` parameter value now ⇒ ``(String) any()`` can be used.
-- **Spring**:
+- 🟡 **Spring**:
   - data repository changes api - ``findOne`` renamed to ``findOneById`` and returns ``Optional<E>`` now.
-  - ``@Service`` annotation cannot be used for the integration test itself ⇒ ``applicationContext.getBean(this.getClass)`` doesn't work in interagtion tests ⇒ has to be refactored to ``applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass())`` - new instance is created, but can be overlooked in tests :).
+  - ``@Service`` annotation cannot be used for the integration test itself ⇒ ``applicationContext.getBean(this.getClass)`` doesn't work in integration tests ⇒ has to be refactored to ``applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass())`` - new instance is created, but can be overlooked in tests :).
   - ``@Service`` and ``@Component`` constructors was simplified - some constructor parameters was moved to ``@Autowired`` fields. If you are overriding service from IdM implementation package (``core-impl``), then update constructor usage.
-- **Workflow**:
+  - if your project implements own DTOs with annotations e.g. ``@NotEmpty``, check their package - ``javax.validation.constraints`` should be used. Example: ``org.hibernate.validator.constraints.NotEmpty`` ⇒ ``javax.validation.constraints.NotNull``
+- 🟡 **Workflow**:
   - find ``formService`` usage in workflow definitions and replace it with ``idmFormService ``.
   - check your workflow definitions. Mainly **prevent joda time usage** - replaces above should help to find all places, which have to be refactored.
-- **Groovy scripts**:
+- 🟠 **Groovy scripts**:
   - check your groovy scripts. Mainly **prevent joda time usage** (e.g. in transformation scripts) and replace usage with java time.
-  - Java time classes were added to global script authorities (``LocalDate``, ``ZonedDateTime``, ``ZoneId``, ``OffsetTime``, ``OffsetDateTime``, ``LocalDateTime``, ``LocalTime``, ``Instant``, ``DateTimeFormatter``).
+  - make sure to **redeploy** the changed Groovy scripts after you start new version of IdM in your environment, because Groovy scripts are not updated automatically. This will read new versions of Groovy scripts from your custom module and from product modules and upload them to IdM.
+  - Java time classes were added to global script authorities (``LocalDate``, ``ZonedDateTime``, ``ZoneId``, ``OffsetTime``, ``OffsetDateTime``, ``LocalDateTime``, ``LocalTime``, ``Instant``, ``DateTimeFormatter``), so you don't need to add these classes to Script authorities for every Groovy script anymore.
   - Joda time classes could be still used as input for extended attribute value (``IdmFormValueDto#setValue``) => will be converted automatically to java time (``IdmFormValueDto#getValue`` returns java time only).
-- **fix warnings**:
-  - ``Assert`` - add message
+- 🟡 **fix warnings**:
+  - ``Assert`` - add message (e.g. ``Assert.notNull(dto) ⇒ Assert.notNull(dto, "DTO cannot be null!")``)
   - ``IOUtils.closeQuietly`` - refactor with ``try-with-resources`` syntax.
   - ``class.newInstance()`` is deprecated - use ``class.getDeclaredConstructor().newInstance()`` - ``ReflectiveOperationException`` can be catched if needed.
-- Configure [logback](#logback-configuration) for tests.
-- Configure [application properties](#test-profile-properties) for tests.
-- Run tests (all green).
+- 🟡 Configure [logback](#logback-configuration) for tests.
+- 🟡 Configure [application properties](#test-profile-properties) for tests.
+- 🟡 Check usage of [DataSource](#integration-tests-using-datasource) in the tests.
+- 🟡 [Run tests](#run-the-integration-tests-in-the-custom-module) (all green)
 - Run application, test rest api or continue with frontend upgrade.
 
 
@@ -213,7 +229,7 @@ Example (from ``IdmConceptRoleRequestDto``):
 
 #### Logback configuration
 
-Configuration **file in test package ``logback-test.xml`` has to be changed**. New ``logback-test.xml`` content:
+Configuration **file in test package ``logback-test.xml`` has to be changed**. New ``src/test/resource/logback-test.xml`` content:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -244,11 +260,13 @@ Configuration **file in test package ``logback-test.xml`` has to be changed**. N
 </configuration>
 ```
 
-> Note for developer: every custom module has ``logback-test.xml`` and this file has to be removed. Test cannot run without this change.
+> Note for developer: every custom module has ``logback-test.xml`` and this file has to be changed. Test cannot run without this change, you would get the following exception: ``java.lang.NoSuchMethodError: ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP...``
 
 #### Test profile properties
 
-Configuration file in test package ``application.properties`` has to be **created/updated** (mainly jpa properties changed), use content (copy / paste):
+Configuration file in test package ``application.properties`` has to be **created/updated** (mainly jpa properties changed), use content (copy / paste) below.
+
+Note that a typical module already has a configuration file ``application-test.properties``. This file should be kept in the module unchanged, because it typically disables asynchronous events and many integration tests depend on this.
 
 ```
 ######
@@ -397,10 +415,27 @@ idm.sec.core.attachment.tempTtl=1209600000
 multipart.max-file-size=1Mb
 ```
 
+#### Integration tests using DataSource
 
+Check if some tests use ``org.apache.tomcat.jdbc.pool.DataSource`` when creating a system and using provisioning/synchronization.
+
+Replace ``org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);`` to ``HikariDataSource tomcatDataSource = ((HikariDataSource) dataSource);``
+
+If you use the method ``.getUrl()``, replace it to ``getJdbcUrl()``, and ``getPoolProperties().getPassword()`` to ``getPassword()``.
+
+#### Run the integration tests in the custom module
+
+The module should have 3 files in the folder ``src/test/resources``:
+* application.properties (the one added in the step above)
+* application-test.properties (the original file)
+* logback-test.xml
+
+Run the tests with VM arguments: ``-Dspring.profiles.active=test`` (profile).
+
+>New versions of IDE Eclipse may have issues when running the tests with the Test runner JUnit 5 ⇒ change it to JUnit 4.
 
 # 🌓 Frontend
-In this chapter will be describe migration for the frontend part of IdM.
+This chapter describes migration for the frontend part of IdM.
 
 The main goal of upgrading the frontend in **version 10** was to upgrade **React** to version **16**. Previous version **15** has already limited us in selecting new and upgrading existing components.
 

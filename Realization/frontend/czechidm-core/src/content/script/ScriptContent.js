@@ -71,9 +71,16 @@ ScriptDetail.defaultProps = {
 
 function select(state, component) {
   const { entityId } = component.match.params;
+  const entity = scriptManager.getEntity(state, entityId);
+  if (entity) {
+    entity.codeable = {
+      code: entity.code,
+      name: entity.name
+    };
+  }
   //
   return {
-    entity: scriptManager.getEntity(state, entityId),
+    entity,
     showLoading: scriptManager.isShowLoading(state, null, entityId)
   };
 }

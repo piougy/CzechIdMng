@@ -67,7 +67,6 @@ export default class ScriptDetail extends Basic.AbstractContent {
         name: entity.name
       };
       this.refs.codeable.focus();
-      this.refs.form.setData(entity);
     }
   }
 
@@ -158,6 +157,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
             <Basic.PanelBody style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
               <Basic.AbstractForm
                 ref="form"
+                data={entity}
                 uiKey={ uiKey }
                 readOnly={ !SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE') }>
 

@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +100,11 @@ public class DefaultIdmTokenService
 		ZonedDateTime expirationTill = filter.getExpirationTill();
 		if (expirationTill != null) {
 			predicates.add(builder.lessThanOrEqualTo(root.get(IdmToken_.expiration), expirationTill));
+		}
+		// type
+		List<String> tokenTypes = filter.getTokenTypes();
+		if (!CollectionUtils.isEmpty(tokenTypes)) {
+			predicates.add(root.get(IdmToken_.tokenType).in(tokenTypes));
 		}
 		//
 		return predicates;

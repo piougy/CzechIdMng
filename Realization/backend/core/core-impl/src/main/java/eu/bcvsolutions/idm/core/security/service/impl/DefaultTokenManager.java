@@ -144,6 +144,12 @@ public class DefaultTokenManager implements TokenManager {
 	
 	@Override
 	@Transactional
+	public void deleteToken(UUID tokenId, BasePermission... permission) {
+		tokenService.deleteById(tokenId, permission);
+	}
+	
+	@Override
+	@Transactional
 	public void disableTokens(Identifiable owner, BasePermission... permission) {
 		Assert.notNull(owner, "Owner is required.");
 		Assert.notNull(owner.getId(), "Owner identifier is required.");
@@ -177,12 +183,13 @@ public class DefaultTokenManager implements TokenManager {
 	private IdmTokenDto disableToken(IdmTokenDto token, BasePermission... permission) {
 		if (token.isDisabled()) {
 			LOG.trace("Persisted token with id [{}] is already disabled.", token.getId());
-			return null;
+			//
+			return token;
 		}
 		//
 		token.setDisabled(true);
 		if (token.getExpiration() == null || token.getExpiration().isAfter(ZonedDateTime.now())) {
-			token.setExpiration(ZonedDateTime.now()); // Remove token by LRT () depends on expiration time
+			token.setExpiration(ZonedDateTime.now()); // Remove token by scheduler depends on expiration time
 		}
 		return tokenService.save(token, permission);
 	}

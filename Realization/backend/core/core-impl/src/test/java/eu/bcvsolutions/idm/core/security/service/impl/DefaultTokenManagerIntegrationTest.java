@@ -219,20 +219,6 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 		Assert.assertTrue(token.isDisabled());
 	}
 	
-	protected IdmTokenDto createToken(IdmIdentityDto owner, String tokenType, ZonedDateTime expiration) {
-		IdmTokenDto token = new IdmTokenDto();
-		token.setIssuedAt(ZonedDateTime.now());
-		token.setToken("mock");
-		token.setExpiration(expiration);
-		if (tokenType != null) {
-			token.setTokenType(tokenType);
-		} else {
-			token.setTokenType("mock");
-		}
-		//
-		return manager.saveToken(owner, token);
-	}
-	
 	@Test
 	public void testDisableTokenAfterIdentityIsDeleted() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
@@ -271,5 +257,19 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 		manager.saveToken(owner, token);
 		//
 		Assert.assertNull(cacheManager.getValue(TokenManager.TOKEN_CACHE_NAME, token.getId()));
+	}
+	
+	protected IdmTokenDto createToken(IdmIdentityDto owner, String tokenType, ZonedDateTime expiration) {
+		IdmTokenDto token = new IdmTokenDto();
+		token.setIssuedAt(ZonedDateTime.now());
+		token.setToken("mock");
+		token.setExpiration(expiration);
+		if (tokenType != null) {
+			token.setTokenType(tokenType);
+		} else {
+			token.setTokenType("mock");
+		}
+		//
+		return manager.saveToken(owner, token);
 	}
 }

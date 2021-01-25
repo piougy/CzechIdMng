@@ -139,6 +139,16 @@ module.exports = {
                         icon: '',
                         path: '/identity/:entityId/password/detail',
                         access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORD_READ'] } ]
+                      },
+                      {
+                        id: 'profile-tokens',
+                        type: 'TAB',
+                        labelKey: 'content.tokens.header',
+                        titleKey: 'content.tokens.title',
+                        order: 600,
+                        icon: '',
+                        path: '/identity/:entityId/password/tokens',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TOKEN_READ'] } ]
                       }
                     ]
                   },
@@ -1580,6 +1590,14 @@ module.exports = {
             order: 400,
             path: '/export-imports',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['EXPORTIMPORT_READ'] } ],
+          },
+          {
+            id: 'tokens',
+            labelKey: 'content.tokens.header',
+            titleKey: 'content.tokens.title',
+            order: 500,
+            path: '/tokens',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TOKEN_READ'] } ],
           }
         ]
       },

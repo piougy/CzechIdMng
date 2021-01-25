@@ -7,7 +7,9 @@ import GenerateValueTable from './GenerateValueTable';
 const TABLE_UIKEY = 'generate-values-table-ui-key';
 
 /**
-* Content with all generate values
+* Content with all generate values.
+*
+* @author Ondřej Kopr
 */
 class GenerateValues extends Basic.AbstractContent {
 

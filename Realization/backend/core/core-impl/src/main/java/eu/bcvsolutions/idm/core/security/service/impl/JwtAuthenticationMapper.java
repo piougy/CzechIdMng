@@ -27,9 +27,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -62,6 +64,8 @@ public class JwtAuthenticationMapper {
 	public static final String PROPERTY_CURRENT_IDENTITY_ID = "currentIdentityId";
 	public static final String PROPERTY_ORIGINAL_USERNAME = "originalUsername";
 	public static final String PROPERTY_ORIGINAL_IDENTITY_ID = "originalIdentityId";
+	// @since 10.8.0 - Token expiration can be preset by caller
+	public static final String PROPERTY_PRESERVE_EXPIRATION = "core:token-preserve-expiration";
 	//
 	@Lazy
 	@Autowired private ObjectMapper mapper;
@@ -163,8 +167,8 @@ public class JwtAuthenticationMapper {
 		//
 		IdmIdentityDto identity = new IdmIdentityDto(currentIdentityId, dto.getCurrentUsername());
 		// try to load token or create a new one
-		IdmTokenDto token = dto.getId() == null ? null : tokenManager.getToken(dto.getId());
-		if (token == null) {
+		IdmTokenDto token;
+		if (dto.getId() == null) {
 			token = new IdmTokenDto();
 			// required not overridable properties
 			token.setTokenType(AUTHENTICATION_TOKEN_NAME);
@@ -179,13 +183,18 @@ public class JwtAuthenticationMapper {
 			properties.put(PROPERTY_ORIGINAL_USERNAME,  dto.getOriginalUsername());
 			properties.put(PROPERTY_ORIGINAL_IDENTITY_ID, dto.getOriginalIdentityId());
 			//
-			token.setId(dto.getId()); // preserve authentication id if given
-			if (token.getId() == null) {
-				// token id has to be written int token
-				token.setId(UUID.randomUUID());
-			}
+			// token id has to be written into token
+			token.setId(UUID.randomUUID());
 			token.setToken(getTokenHash(token));
 			token = tokenManager.saveToken(identity, token);
+		} else {
+			token = tokenManager.getToken(dto.getId());
+			// delete token => same behavior as logout @since 10.8.0
+			if (token == null) {
+				LOG.debug("Token [{}] not found. New authentication is required.");
+				//
+				throw new ResultCodeException(CoreResultCode.TOKEN_NOT_FOUND);
+			}
 		}
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				token.getId(),
@@ -280,7 +289,7 @@ public class JwtAuthenticationMapper {
 		if (token.getIssuedAt() == null) {
 			token.setIssuedAt(ZonedDateTime.now());
 		}
-		token.setExpiration(getNewExpiration());
+		//
 		ConfigurationMap properties = token.getProperties();
 		properties.put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
 		properties.put(PROPERTY_CURRENT_USERNAME, identity.getUsername());
@@ -292,6 +301,15 @@ public class JwtAuthenticationMapper {
 			// token id has to be written into token
 			token.setId(UUID.randomUUID());
 		}
+		// resolve expiration
+		if (properties.getBoolean(PROPERTY_PRESERVE_EXPIRATION)) {
+			token.setExpiration(preparedToken.getExpiration());
+			//
+			LOG.debug("Expiration for token [{}] is preserved, expiration is set to [{}].", token.getId(), token.getExpiration());
+		} else {
+			token.setExpiration(getNewExpiration());
+		}
+		//
 		token.setToken(getTokenHash(token));
 		token = tokenManager.saveToken(identity, token);
 		//

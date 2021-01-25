@@ -480,6 +480,26 @@ class Table extends AbstractComponent {
     );
     //
     const content = [];
+    /*
+    const kkk = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    content.push(columnsHeaders);
+    content.push(
+      kkk.map(row => (
+        <tr key="row-show-loading">
+          {
+            columns.map(columnsHeaders => (
+              <td style={{ padding: 0 }}>
+                <div style={{ height: 40, backgroundColor: '#efefef', borderRadius: 3, margin: 8 }} />
+              </td>
+            ))
+          }
+          <td style={{ padding: 0 }}>
+            <div style={{ height: 40, backgroundColor: '#efefef', borderRadius: 3, margin: 8 }} />
+          </td>
+        </tr>
+      ))
+    );*/
+
     if (!data || data.length === 0) {
       if (showLoading) {
         content.push(

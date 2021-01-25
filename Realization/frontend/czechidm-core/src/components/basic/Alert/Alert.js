@@ -7,7 +7,7 @@ import Icon from '../Icon/Icon';
 import Button from '../Button/Button';
 
 /**
- * Alert box
+ * Alert box.
  *
  * @author Radek Tomiška
  */
@@ -46,7 +46,7 @@ class Alert extends AbstractComponent {
     );
     if (showLoading) {
       return (
-        <div className={classNames} style={style}>
+        <div className={ classNames } style={ style }>
           <Icon type="fa" icon="refresh" showLoading/>
         </div>
       );

@@ -149,13 +149,14 @@ class CreatableSelectBox extends Basic.EnumSelectBox {
 
   getSelectComponent() {
     const { options } = this.state;
-    const { placeholder, fieldLabel } = this.props;
+    const { placeholder, fieldLabel, optionComponent, valueComponent } = this.props;
     const showLoading = this._evaluateShowLoading();
     return (
       <Select.Creatable
         ref="selectComponent"
         multi
         value={options}
+        options={ this.getOptions() }
         onChange={this._onChange.bind(this)}
         onInputChange={this._onInputChange.bind(this)}
         isLoading={showLoading}
@@ -164,7 +165,9 @@ class CreatableSelectBox extends Basic.EnumSelectBox {
         labelKey={fieldLabel}
         noResultsText={this.i18n('noResultsText')}
         searchPromptText={this.i18n('searchPromptText')}
-        promptTextCreator={this._promptTextCreator.bind(this)}/>
+        promptTextCreator={this._promptTextCreator.bind(this)}
+        optionComponent={ optionComponent }
+        valueComponent={ valueComponent }/>
     );
   }
 }
@@ -200,7 +203,19 @@ CreatableSelectBox.propTypes = {
     PropTypes.object,
     PropTypes.arrayOf(PropTypes.string),
     PropTypes.string
-  ])
+  ]),
+  /**
+   * Option decorator - generalize OptionDecorator.
+   *
+   * @since 10.8.0
+   */
+  optionComponent: PropTypes.func,
+  /**
+   * Value decorator - generalize ValueDecorator.
+   *
+   * @since 10.8.0
+   */
+  valueComponent: PropTypes.func
 };
 
 CreatableSelectBox.defaultProps = {

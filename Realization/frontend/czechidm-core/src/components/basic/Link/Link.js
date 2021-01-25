@@ -6,7 +6,7 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Icon from '../Icon/Icon';
 
 /**
- * Link (external)
+ * Link (external).
  *
  * TODO: use even for internal links with "to" parameter and context router?
  *
@@ -25,8 +25,8 @@ export default class Link extends AbstractComponent {
       className
     );
     return (
-      <a href={href} className={classNames} style={style} target={isExternal ? '_blank' : null}>
-        <Icon value="fa:globe" showLoading={showLoading} style={{ marginRight: 2 }} rendered={isExternal || showLoading}/>
+      <a href={ href } className={ classNames } style={ style } target={ isExternal ? '_blank' : null }>
+        <Icon value="fa:globe" showLoading={ showLoading } style={{ marginRight: 2 }} rendered={ isExternal || showLoading }/>
         { text }
         { children }
       </a>

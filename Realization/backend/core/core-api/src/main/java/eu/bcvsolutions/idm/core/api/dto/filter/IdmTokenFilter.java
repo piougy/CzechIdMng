@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,6 +24,7 @@ public class IdmTokenFilter
 	public static final String PARAMETER_OWNER_TYPE = "ownerType";
 	public static final String PARAMETER_EXPIRATION_TILL = "expirationTill"; // expiration <= expirationTill ~ invalid tokens
 	public static final String PARAMETER_EXPIRATION_FROM = "expirationFrom"; // expiration >= expirationFrom ~ valid tokens
+	public static final String PARAMETER_TOKEN_TYPE = "tokenType";
 	
 	public IdmTokenFilter() {
         this(new LinkedMultiValueMap<>());
@@ -88,4 +90,24 @@ public class IdmTokenFilter
 	public void setExpirationFrom(ZonedDateTime expirationFrom) {
 		set(PARAMETER_EXPIRATION_FROM, expirationFrom);
 	}
+	
+	/**
+	 * Token type.
+	 * 
+	 * @param tokenType token type
+	 * @since 10.8.0
+	 */
+	public void setTokenTypes(List<String> tokenTypes) {
+    	put(PARAMETER_TOKEN_TYPE, tokenTypes);
+    }
+    
+	/**
+	 * Token type.
+	 * 
+	 * @return token type
+	 * @since 10.8.0
+	 */
+    public List<String> getTokenTypes() {
+    	return getParameterConverter().toStrings(getData(), PARAMETER_TOKEN_TYPE);
+    }
 }

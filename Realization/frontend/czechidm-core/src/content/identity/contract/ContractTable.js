@@ -82,7 +82,7 @@ export class ContractTable extends Advanced.AbstractTableContent {
     } = this.props;
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -201,7 +201,7 @@ export class ContractTable extends Advanced.AbstractTableContent {
             sort
             rendered={ _.includes(columns, 'externe') }/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -51,10 +50,7 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 	@Autowired @Lazy private JwtAuthenticationMapper jwtTokenMapper;
 	@Autowired private AuthenticationExceptionContext ctx;
 	@Autowired private ConfigurationService configService;
-	@Lazy
-	@Autowired 
-	@Qualifier("objectMapper") 
-	private ObjectMapper mapper;
+	@Autowired @Lazy private ObjectMapper mapper;
 	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {

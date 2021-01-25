@@ -76,7 +76,7 @@ public interface TokenManager {
 	/**
 	 * Return valid token (not expired, not disabled), otherwise throws exception 
 	 * 
-	 * @param tokenId
+	 * @param tokenId token identifier
 	 * @param permission permissions to evaluate (AND)
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 * @return
@@ -91,6 +91,16 @@ public interface TokenManager {
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	void deleteTokens(Identifiable owner, BasePermission... permission);
+	
+	/**
+	 * Delete given token. 
+	 * 
+	 * @param tokenId token identifier
+	 * @param permission permissions to evaluate (AND)
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.8.0
+	 */
+	void deleteToken(UUID tokenId, BasePermission... permission);
 	
 	/**
 	 * Disable owner tokens - e.g. logout, when owner state is changed, owner looses some authority.

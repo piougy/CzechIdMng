@@ -6,8 +6,6 @@ const authPath = '/authentication';
 const remoteAuthPath = `${ authPath }/remote-auth`;
 const twoFactorPath = `${ authPath }/two-factor`;
 
-let lastToken = null;
-
 /**
  * Login / logout service
  * - uses local storage to persist user context
@@ -98,7 +96,7 @@ export default class AuthenticateService {
    * Clear security storage only (~logout FE)
    */
   clearStorage() {
-    delete localStorage['czechidm-storage'];
+    RestApiService.clearStorage();
   }
 
   /**
@@ -139,8 +137,10 @@ export default class AuthenticateService {
   }
 
   /**
-   * Returns logged user tokenCSRF
+   * Returns logged user tokenCSRF.
+   *
    * @return {string} token
+   * @unused @unsupported @beta
    */
   static getTokenCSRF() {
     const userContext = AuthenticateService.getUserContext();
@@ -151,32 +151,29 @@ export default class AuthenticateService {
   }
 
   /**
-   * Returns logged user CIDMST token
+   * Returns logged user CIDMST token.
+   *
    * @return {string} token
    */
   static getTokenCIDMST() {
-    const userContext = AuthenticateService.getUserContext();
-    if (!userContext || !userContext.isAuthenticated) {
-      return null;
-    }
-    return userContext.tokenCIDMST;
-  }
-
-  static getLastToken() {
-    const _lt = lastToken;
-    lastToken = null;
-    return _lt;
+    return RestApiService.getTokenCIDMST();
   }
 
   /**
-   * Returns logged user CIDMST token
+   * @deprecated @since 10.8.0 use RestApiService
+   */
+  static getLastToken() {
+    return RestApiService.getLastToken();
+  }
+
+  /**
+   * Returns logged user CIDMST token.
+   *
    * @return {string} token
+   * @deprecated @since 10.8.0 use RestApiService
    */
   static setTokenCIDMST(token) {
-    if (!token || token === null) {
-      return;
-    }
-    lastToken = token;
+    return RestApiService.setTokenCIDMST(token);
   }
 
   /**
@@ -207,36 +204,26 @@ export default class AuthenticateService {
   }
 
   /**
-   * Returns logged user context (username, roles etc.)
+   * Returns logged user context (username, roles etc.).
    *
    * @return {object} userContext
    */
   static getUserContext() {
-    if (!AuthenticateService.getSecurityStore()) {
-      return null;
-    }
-    return AuthenticateService.getSecurityStore().userContext;
+    return RestApiService.getUserContext();
   }
 
   /**
    * @return {object} redux security store from local storage
    */
   static getSecurityStore() {
-    const storage = AuthenticateService.getStorage();
-    if (!storage || !storage.security) {
-      return null;
-    }
-    return storage.security;
+    return RestApiService.getSecurityStore();
   }
 
   /**
    * @return {object} redux store from local storage
    */
   static getStorage() {
-    if (!localStorage['czechidm-storage']) {
-      return null;
-    }
-    return JSON.parse(localStorage['czechidm-storage']);
+    return RestApiService.getStorage();
   }
 
   /**

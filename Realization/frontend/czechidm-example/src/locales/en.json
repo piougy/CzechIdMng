@@ -95,7 +95,7 @@
         }
       },
       "icon": {
-        "header": "Ikony pro typy entit <small>registred in components.js</small>",
+        "header": "Icons by entity types <small>registred in components.js</small>",
         "usage": "Example usage"
       }
     },

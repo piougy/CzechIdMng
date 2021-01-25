@@ -587,7 +587,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
               <Basic.AbstractForm
                 ref="form"
                 data={ detail.entity }
-                showLoading={_showLoading}
+                showLoading={ _showLoading }
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
@@ -719,11 +719,11 @@ function select(state, component) {
     authorizableTypes: DataManager.getData(state, AuthorizationPolicyManager.UI_KEY_AUTHORIZABLE_TYPES),
     availableAuthorities: DataManager.getData(state, RoleManager.UI_KEY_AVAILABLE_AUTHORITIES),
     allAuthorities: DataManager.getData(state, RoleManager.UI_KEY_ALL_AUTHORITIES),
-    _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`)
+    _showLoading: Utils.Ui.isShowLoading(state, `${ component.uiKey }-detail`)
       || Utils.Ui.isShowLoading(state, AuthorizationPolicyManager.UI_KEY_SUPPORTED_EVALUATORS)
       || Utils.Ui.isShowLoading(state, AuthorizationPolicyManager.UI_KEY_AUTHORIZABLE_TYPES)
       || Utils.Ui.isShowLoading(state, RoleManager.UI_KEY_ALL_AUTHORITIES_UIKEY),
-    _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`)
+    _permissions: Utils.Permission.getPermissions(state, `${ component.uiKey }-detail`)
   };
 }
 

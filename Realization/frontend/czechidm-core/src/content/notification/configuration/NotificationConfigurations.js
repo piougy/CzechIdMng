@@ -13,7 +13,7 @@ const manager = new NotificationConfigurationManager();
 const notificationTemplateManager = new NotificationTemplateManager();
 
 /**
- * Notification configuration
+ * Notification configuration.
  *
  * @author Radek Tomiška
  */
@@ -101,7 +101,7 @@ class NotificationConfigurations extends Advanced.AbstractTableContent {
     const { detail, filterOpened } = this.state;
 
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader() }
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
@@ -155,9 +155,23 @@ class NotificationConfigurations extends Advanced.AbstractTableContent {
                 }
               }/>
             <Advanced.Column property="topic" width={ 200 } header={this.i18n('entity.NotificationConfiguration.topic')} sort face="text" />
-            <Advanced.Column property="level" width={ 75 } header={this.i18n('entity.NotificationConfiguration.level')} sort face="enum" enumClass={NotificationLevelEnum} />
-            <Advanced.Column property="notificationType" width="75px" header={this.i18n('entity.NotificationConfiguration.notificationType')} sort face="text" />
-            <Advanced.Column property="template" header={this.i18n('entity.NotificationConfiguration.template')} sort
+            <Advanced.Column
+              property="level"
+              width={ 75 }
+              header={ this.i18n('entity.NotificationConfiguration.level') }
+              sort
+              face="enum"
+              enumClass={ NotificationLevelEnum } />
+            <Advanced.Column
+              property="notificationType"
+              width={ 75 }
+              header={ this.i18n('entity.NotificationConfiguration.notificationType') }
+              sort
+              face="text" />
+            <Advanced.Column
+              property="template"
+              header={this.i18n('entity.NotificationConfiguration.template')}
+              sort
               cell={
                 ({ rowIndex, data }) => {
                   const templId = data[rowIndex].template;
@@ -173,8 +187,8 @@ class NotificationConfigurations extends Advanced.AbstractTableContent {
                       face="popover" />
                   );
                 }
-                }
-              />
+              }
+            />
             <Advanced.Column property="recipients" sort face="text" />
             <Advanced.Column property="redirect" width={ 75 } sort face="bool" />
             <Advanced.Column property="disabled" width={ 75 } sort face="bool" />
@@ -190,8 +204,14 @@ class NotificationConfigurations extends Advanced.AbstractTableContent {
           showLoading={_supportedNotificationTypesLoading}>
 
           <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.topic })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header') }
+              rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={!_showLoading}
+              text={this.i18n('edit.header', { name: detail.entity.topic })}
+              rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading}>
                 <Basic.TextField
@@ -200,13 +220,15 @@ class NotificationConfigurations extends Advanced.AbstractTableContent {
                   required/>
                 <Basic.EnumSelectBox
                   ref="level"
-                  enum={NotificationLevelEnum}
-                  useSymbol={false}
-                  label={this.i18n('entity.NotificationConfiguration.level')}/>
+                  enum={ NotificationLevelEnum }
+                  useSymbol={ false }
+                  label={ this.i18n('entity.NotificationConfiguration.level') }/>
                 <Basic.EnumSelectBox
                   ref="notificationType"
-                  label={this.i18n('entity.NotificationConfiguration.notificationType')}
-                  options={!_supportedNotificationTypes ? null : _supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}
+                  label={ this.i18n('entity.NotificationConfiguration.notificationType') }
+                  options={
+                    !_supportedNotificationTypes ? null : _supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })
+                  }
                   required/>
                 <Basic.SelectBox
                   ref="template"
@@ -233,22 +255,22 @@ class NotificationConfigurations extends Advanced.AbstractTableContent {
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
-                {this.i18n('button.close')}
+                onClick={ this.closeDetail.bind(this) }
+                showLoading={ _showLoading }>
+                { this.i18n('button.close') }
               </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={_showLoading}
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
-                {this.i18n('button.save')}
+                showLoadingText={ this.i18n('button.saving') }>
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

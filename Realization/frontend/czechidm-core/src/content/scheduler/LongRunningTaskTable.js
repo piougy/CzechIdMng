@@ -358,7 +358,11 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
 LongRunningTaskTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   manager: PropTypes.object.isRequired,
-  showRowSelection: PropTypes.boolean
+  showRowSelection: PropTypes.boolean,
+  /**
+   * Filter is opened / closed by default.
+   */
+  filterOpened: PropTypes.bool
 };
 
 LongRunningTaskTable.defaultProps = {

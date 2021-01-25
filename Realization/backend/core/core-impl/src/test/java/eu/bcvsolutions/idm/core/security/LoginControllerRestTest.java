@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
@@ -757,6 +758,41 @@ public class LoginControllerRestTest extends AbstractRestTest {
 				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isUnauthorized());
 		
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testUseDeletedToken() throws Exception {
+		IdmIdentityDto manager = getHelper().createIdentity();
+		getHelper().createIdentityRole(manager, roleConfiguration.getAdminRole());
+		//
+		// login as manager		
+		Map<String, String> login = new HashMap<>();
+		login.put("username", manager.getUsername());
+		login.put("password", manager.getPassword().asString());
+		String response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		UUID tokenId = getTokenId(response);
+		String token = getToken(response);
+		//
+		Assert.assertNotNull(tokenId);
+		IdmTokenDto tokenDto = tokenManager.getToken(tokenId);
+		Assert.assertFalse(tokenDto.isDisabled());
+		//
+		// delete tokem
+		tokenManager.deleteToken(tokenDto.getId());
+		//
+		// test call api
+		getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/identities")
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+				.contentType(TestHelper.HAL_CONTENT_TYPE));
 	}
 	
 	private ResultActions tryLogin(String username, String password) throws Exception {

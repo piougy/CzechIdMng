@@ -36,7 +36,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
 
         <ContractTable
           ref="table"
-          uiKey={ `identity-contracts-${entityId}` }
+          uiKey={ `identity-contracts-${ entityId }` }
           forceSearchParameters={ forceSearchParameters }
           className="no-margin"/>
 

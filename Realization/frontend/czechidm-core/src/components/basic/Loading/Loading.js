@@ -139,6 +139,11 @@ class ResizeLoading extends AbstractComponent {
       );
     }
     //
+    if (true) {
+      return (
+        <Loading { ...others } />
+      );
+    }
     return (
       <ReactResizeDetector
         handleHeight

@@ -52,7 +52,12 @@ module.exports = {
               path: 'detail',
               component: require('./src/content/identity/password/IdentityPasswordDetail'),
               access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORD_READ' ] } ]
-            }
+            },
+            {
+              path: 'tokens',
+              component: require('./src/content/identity/password/IdentityTokens'),
+              access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TOKEN_READ' ] } ]
+            },
           ]
         },
         {
@@ -1059,6 +1064,11 @@ module.exports = {
       path: 'generate-values',
       component: require('./src/content/generatevalues/GenerateValues'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['GENERATEVALUE_READ'] } ]
+    },
+    {
+      path: 'tokens',
+      component: require('./src/content/token/Tokens'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TOKEN_READ'] } ]
     },
     {
       path: 'notification/',

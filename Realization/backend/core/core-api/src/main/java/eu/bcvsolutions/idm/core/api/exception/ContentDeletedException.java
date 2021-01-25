@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 
 /**
  * Operation content was deleted in the meantime.
@@ -24,7 +25,7 @@ public class ContentDeletedException extends ResultCodeException {
 	
 	public ContentDeletedException(UUID ownerId, String ownerType) {
 		this(CoreResultCode.CONTENT_DELETED, ImmutableMap.of(
-				"ownerId", ownerId,
-				"ownerType", ownerType));
+				AttachableEntity.PARAMETER_OWNER_ID, ownerId,
+				AttachableEntity.PARAMETER_OWNER_TYPE, ownerType));
 	}
 }

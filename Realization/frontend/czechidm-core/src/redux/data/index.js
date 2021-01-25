@@ -86,6 +86,7 @@ import DelegationDefinitionManager from './DelegationDefinitionManager';
 import DelegationManager from './DelegationManager';
 import BulkActionManager from './BulkActionManager';
 import NotificationAttachmentManager from './NotificationAttachmentManager';
+import TokenManager from './TokenManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -168,8 +169,9 @@ const ManagerRoot = {
   ImportLogManager,
   DelegationDefinitionManager,
   DelegationManager,
-  BulkActionManager
+  BulkActionManager,
+  TokenManager
 };
 
-ManagerRoot.version = '10.6.0';
+ManagerRoot.version = '10.8.0';
 module.exports = ManagerRoot;

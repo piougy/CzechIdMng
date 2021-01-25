@@ -505,6 +505,9 @@ IdentityTable.propTypes = {
    * TODO: move to advanced table and add column sorting
    */
   columns: PropTypes.arrayOf(PropTypes.string),
+  /**
+   * Filter is opened / closed by default.
+   */
   filterOpened: PropTypes.bool,
   /**
    * "Hard filters"

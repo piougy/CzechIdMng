@@ -251,13 +251,14 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		Assert.assertNotNull(createdDto);
 		Assert.assertNotNull(createdDto.getId());
 		//
-		createdDto = getDto(createdDto.getId());
-		Assert.assertEquals(createdDto.getId(), createdDto.getId());
-		Assert.assertNotNull(createdDto.getCreator());
-		Assert.assertNotNull(createdDto.getCreatorId());
-		Assert.assertNotNull(createdDto.getCreated());
+		DTO getDto = getDto(createdDto.getId());
+		Assert.assertEquals(createdDto.getId(), getDto.getId());
+		Assert.assertNotNull(getDto.getCreator());
+		Assert.assertNotNull(getDto.getCreatorId());
+		Assert.assertNotNull(getDto.getCreated());
+		Assert.assertNotNull(getDto.getTransactionId());
 		//
-		// TODO: realm, transaction id
+		// TODO: realm
 	}
 	
 	@Test

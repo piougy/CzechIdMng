@@ -188,8 +188,17 @@ class EnumSelectBox extends SelectBox {
     }
     //
     const enumeration = this.props.enum;
+    const { options } = this.props;
+    //
     if (enumeration && enumeration.getIcon) {
       return enumeration.getIcon(rawValue);
+    }
+    if (options) {
+      for (const item in options) {
+        if (options[item].value === rawValue) {
+          return options[item].icon;
+        }
+      }
     }
     return null;
   }

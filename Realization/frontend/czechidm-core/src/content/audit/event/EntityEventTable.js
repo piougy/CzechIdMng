@@ -320,7 +320,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             property="ownerId"
             header={ this.i18n('entity.EntityEvent.owner.label') }
-            rendered={_.includes(columns, 'ownerId')}
+            rendered={ _.includes(columns, 'ownerId') }
             cell={
               ({ rowIndex, data, property }) => {
                 //

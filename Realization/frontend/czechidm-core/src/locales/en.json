@@ -629,7 +629,7 @@
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes.",
           "link": {
-            "label": "Edit form definition",
+            "label": "Manage attributes",
             "title": "Edit attributes setting in form definition"
           }
         },
@@ -713,6 +713,14 @@
       "helpBlock": {
         "APPLICATION": "Authentication code from your TOTP application (e.g. Google Authenticator).",
         "NOTIFICATION": "Authentication code from a text message (notification)."
+      }
+    },
+    "TokenTypeEnum": {
+      "CIDMST": "CIDMST",
+      "SYSTEM": "SYSTEM",
+      "helpBlock": {
+        "CIDMST": "User authentication.",
+        "SYSTEM": "System authentication."
       }
     },
     "AutomaticRoleRequestTypeEnum": {
@@ -1456,7 +1464,7 @@
         "notAllowed": "You do not have permission to edit the system configuration",
         "help": "Public items are accessible without logging. Confidential items can be public."
       },
-      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'> app configuration </a>.",
+      "nameDoesntContainPrefixAlert": "Be careful, you may be inserting a configuration option that does not have the prefix <strong>'{{prefix}}'</strong>. This option may not work correctly. For more information, visit <a href='$t(app.documentation.url)/devel/documentation/application_configuration/dev/backend' target='_blank'> app configuration </a>.",
       "forceSave": {
         "header": "Overwrite configurable item",
         "message": "Configurable item [<strong>{{name}}</strong>] is already existing with value [<strong>{{value}}</strong>]. Do you want to overwrite it?"
@@ -3994,6 +4002,31 @@
       "filter": {
         "dtoType": "Entity type"
       }
+    },
+    "tokens": {
+      "header": "Tokens",
+      "title": "Tokens",
+      "help": "Token can be used to access the <a href='$t(app.documentation.url)/devel/documentation/security/dev/security#authorization_and_jwt_token' target='_blank'>CzechIdM API</a>.",
+      "create": {
+        "header": "Generate new token",
+        "help": "Token can be used instead of a basic authentication to authenticate to the <a href='$t(app.documentation.url)/devel/documentation/security/dev/security#authorization_and_jwt_token' target='_blank'>CzechIdM API</a>.",
+        "success": "Make sure to copy your new authentication token now. You won’t be able to see it again!<br />Token you have generated can be used to access the <a href='$t(app.documentation.url)/devel/documentation/security/dev/security#authorization_and_jwt_token' target='_blank'>CzechIdM API</a>."
+      },
+      "edit": {
+        "header": "Token detail"
+      },
+      "button": {
+        "add": {
+          "label": "Generate new token"
+        },
+        "generate": {
+          "label": "Generate token"
+        },
+        "copy": {
+          "label": "Copy token into clipboard",
+          "success": "Token copied into clipboard."
+        }
+      }
     }
   },
   "entity": {
@@ -5557,6 +5590,46 @@
       "defaultValue": {
         "label": "Default value"
       }
+    },
+    "Token": {
+      "_type": "Token",
+      "disabled": {
+        "label": "Invalid",
+        "title": "Invalid token",
+        "help": "Invalid token. Token is disabled, when user is logged out for example."
+      },
+      "issuedAt": {
+        "label": "Issued at",
+        "title": "Token created date",
+        "help": "Token created date."
+      },
+      "expiration": {
+        "label": "Valid till",
+        "title": "Token expiration",
+        "help": "Token expiration."
+      },
+      "owner": {
+        "label": "Owner",
+        "title": "Token owner",
+        "help": "Token owner. Token will grant the same authorities and permissions as token owner."
+      },
+      "tokenType": {
+        "label": "Type",
+        "title": "Token type",
+        "help": "Token type."
+      },
+      "moduleId": {
+        "label": "Module",
+        "help": "Token was created by given module. Token can be created by custom authentication method (filter)."
+      },
+      "secretVerified": {
+        "label": "Verified token",
+        "help": "Token was verified, if two-factor authentication was enabled. Verified token is valid only and can be used. If two-factor authentication is not enabled, then token is verified automatically."
+      },
+      "token": {
+        "label": "Token hash",
+        "help": "Token hash. SHA256 algorithm is used."
+      }
     }
   },
   "wf": {
@@ -6095,6 +6168,16 @@
         "label": "$t(action.delete.action) attributes",
         "help": "$t(action.delete.action) selected attributes.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-token-delete-bulk-action": {
+        "label": "$t(action.delete.action) tokens",
+        "help": "$t(action.delete.action) selected tokens.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-token-disable-bulk-action": {
+        "label": "Disable tokens",
+        "help": "Disable selected tokens.",
+        "icon": "fa:ban"
       }
     },
     "authorization-evaluator": {

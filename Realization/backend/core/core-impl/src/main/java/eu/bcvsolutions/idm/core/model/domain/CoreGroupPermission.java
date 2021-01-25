@@ -327,6 +327,7 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.EXECUTE),
 	TOKEN(
 			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
@@ -648,6 +649,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String WORKFLOW_TASK_ADMIN = "WORKFLOWTASK" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String WORKFLOW_TASK_READ = "WORKFLOWTASK" + BasePermission.SEPARATOR + "READ";
 	public static final String WORKFLOW_TASK_EXECUTE = "WORKFLOWTASK" + BasePermission.SEPARATOR + "EXECUTE";
+	//
+	public static final String TOKEN_ADMIN = "TOKEN" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String TOKEN_COUNT = "TOKEN" + BasePermission.SEPARATOR + "COUNT";
+	public static final String TOKEN_READ = "TOKEN" + BasePermission.SEPARATOR + "READ";
+	public static final String TOKEN_CREATE = "TOKEN" + BasePermission.SEPARATOR + "CREATE";
+	public static final String TOKEN_UPDATE = "TOKEN" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String TOKEN_DELETE = "TOKEN" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String REQUEST_ADMIN = "REQUEST" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String REQUEST_READ = "REQUEST" + BasePermission.SEPARATOR + "READ";

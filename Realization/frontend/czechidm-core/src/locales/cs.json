@@ -662,7 +662,7 @@
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat.",
           "link": {
-            "label": "Upravit definici formuláře",
+            "label": "Spravovat atributy",
             "title": "Upravit nastavení atributů v definici formuláře"
           }
         },
@@ -746,6 +746,14 @@
       "helpBlock": {
         "APPLICATION": "Autentizační kód můžete vygenerovat pomocí TOTP aplikace (například Google Authenticator).",
         "NOTIFICATION": "Autentizační kód bude zaslán textovou zprávou (notifikací)."
+      }
+    },
+    "TokenTypeEnum": {
+      "CIDMST": "CIDMST",
+      "SYSTEM": "SYSTEM",
+      "helpBlock": {
+        "CIDMST": "Přihlášení pro uživatele.",
+        "SYSTEM": "Přihlášení pro systémy."
       }
     },
     "AutomaticRoleRequestTypeEnum": {
@@ -1496,7 +1504,7 @@
         "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace",
         "help": "Veřejné nastavení aplikace lze načíst bez přihlášení. Tajné nastavení nemůže být zároveň veřejným."
       },
-      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='$t(app.documentation.url)/devel/documentation/application_configuration/backend' target='_blank'>konfigurace aplikace</a>.",
+      "nameDoesntContainPrefixAlert": "Pozor, pravděpodobně vkládáte konfigurační volbu, která neobsahuje prefix <strong>'{{prefix}}'</strong>. Tato volba nemusí správně fungovat. Pro více informací navštivte stránku <a href='$t(app.documentation.url)/devel/documentation/application_configuration/dev/backend' target='_blank'>konfigurace aplikace</a>.",
       "forceSave": {
         "header": "Přepsání konfigurovatelné položky",
         "message": "Konfigurovatelná položka [<strong>{{name}}</strong>] již existuje s hodnotou [<strong>{{value}}</strong>]. Chcete ji přepsat?"
@@ -2306,7 +2314,7 @@
         "text": "Klíč / Typ majitele",
         "ownerId": "Id majitele",
         "key": "Klíč",
-        "ownerType": "Typ majitele",
+        "ownerType": "Typ vlastníka",
         "value": "Hodnota"
       },
       "edit": {
@@ -4047,6 +4055,31 @@
       "filter": {
         "dtoType": "Typ entity"
       }
+    },
+    "tokens": {
+      "header": "Tokeny",
+      "title": "Tokeny",
+      "help": "Tokeny slouží pro přístup k <a href='$t(app.documentation.url)/devel/documentation/security/dev/security#authorization_and_jwt_token' target='_blank'>CzechIdM API</a>.",
+      "create": {
+        "header": "Vygenerovat nový token",
+        "help": "Token lze použít namísto http basic autentizace pro přístup k <a href='$t(app.documentation.url)/devel/documentation/security/dev/security#authorization_and_jwt_token' target='_blank'>CzechIdM API</a>.",
+        "success": "Nezapomeňte si nyní zkopírovat nový autentizační token. Token již nebude možné zobrazit znovu!<br />Vygenerovaný token můžete použít pro přístup k <a href='$t(app.documentation.url)/devel/documentation/security/dev/security#authorization_and_jwt_token' target='_blank'>CzechIdM API</a>."
+      },
+      "edit": {
+        "header": "Detail tokenu"
+      },
+      "button": {
+        "add": {
+          "label": "Vygenerovat nový token"
+        },
+        "generate": {
+          "label": "Vygenerovat token"
+        },
+        "copy": {
+          "label": "Zkopírovat token do schránky",
+          "success": "Token zkopírován do schránky."
+        }
+      }
     }
   },
   "entity": {
@@ -4233,9 +4266,9 @@
       }
     },
     "ConfidentialStorageValue": {
-      "ownerId": "Id majitele",
+      "ownerId": "Id vlastníka",
       "key": "Klíč",
-      "ownerType": "Typ majitele",
+      "ownerType": "Typ vlastníka",
       "serializableValue": "Hodnota",
       "created": "$t(entity.created)",
       "creator": "$t(entity.creator)"
@@ -5609,6 +5642,46 @@
       "defaultValue": {
         "label": "Výchozí hodnota"
       }
+    },
+    "Token": {
+      "_type": "Token",
+      "disabled": {
+        "label": "Neplatný",
+        "title": "Neplatný token",
+        "help": "Neplatný token. Token je zneplatněn například při odhlášení uživatele."
+      },
+      "issuedAt": {
+        "label": "Datum vystavení",
+        "title": "Datum vytvoření tokenu",
+        "help": "Datum vytvoření tokenu."
+      },
+      "expiration": {
+        "label": "Platnost do",
+        "title": "Expirace tokenu",
+        "help": "Expirace tokenu."
+      },
+      "owner": {
+        "label": "Vlastník",
+        "title": "Vlastník tokenu",
+        "help": "Vlastník tokenu. Token bude přidělovat stejné autority a oprávnění jako má vlastník tokenu."
+      },
+      "tokenType": {
+        "label": "Typ",
+        "title": "Typ tokenu",
+        "help": "Typ tokenu."
+      },
+      "moduleId": {
+        "label": "Modul",
+        "help": "Token byl vytvořen prostřednictvím daného modulu. Token může vytvořit různá forma autentizace (autentizační filtr)."
+      },
+      "secretVerified": {
+        "label": "Token je ověřen",
+        "help": "Token byl oveřen, pokud byla vyžadována dvoufaktorová autentizace. Neoveřený token není validní a nelze jej použít. Pokud není vyžadována dvoufaktorová autentizace, tak je token ověřen automaticky. "
+      },
+      "token": {
+        "label": "Otisk tokenu (hash)",
+        "help": "Otisk tokenu. Je použit SHA256 algoritmus."
+      }
     }
   },
   "wf": {
@@ -6147,6 +6220,16 @@
         "label": "$t(action.delete.action) atributy",
         "help": "Smaže vybrané atributy formuláře.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-token-delete-bulk-action": {
+        "label": "$t(action.delete.action) tokeny",
+        "help": "Smaže vybrané tokeny.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-token-disable-bulk-action": {
+        "label": "Zneplatnit tokeny",
+        "help": "Vybrané tokeny budou zneplatněny.",
+        "icon": "fa:ban"
       }
     },
     "authorization-evaluator": {

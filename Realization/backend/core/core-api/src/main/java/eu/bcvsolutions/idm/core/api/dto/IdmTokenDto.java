@@ -9,6 +9,7 @@ import javax.validation.constraints.Size;
 
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
@@ -36,7 +37,7 @@ public class IdmTokenDto extends AbstractDto implements Disableable, ExternalIde
 	@NotNull
 	private String token;
 	@NotNull
-	private String tokenType; // cidmst, password reset, confirm...
+	private String tokenType; // CIDMST, LLT, password reset, confirm...
 	@NotNull
 	private ZonedDateTime issuedAt;
 	private ZonedDateTime expiration;
@@ -50,6 +51,10 @@ public class IdmTokenDto extends AbstractDto implements Disableable, ExternalIde
 	
 	public IdmTokenDto(UUID id) {
 		super(id);
+	}
+	
+	public IdmTokenDto(Auditable auditable) {
+		super(auditable);
 	}
 	
 	public String getOwnerType() {

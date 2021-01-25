@@ -378,11 +378,7 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 	
-	/**
-	 * Get available bulk actions for script definition
-	 *
-	 * @return
-	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
@@ -400,12 +396,7 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 		return super.getAvailableBulkActions();
 	}
 	
-	/**
-	 * Process bulk action for script definition
-	 *
-	 * @param bulkAction
-	 * @return
-	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")
@@ -424,12 +415,7 @@ public class IdmScriptController extends AbstractReadWriteDtoController<IdmScrip
 		return super.bulkAction(bulkAction);
 	}
 	
-	/**
-	 * Prevalidate bulk action for script definition
-	 *
-	 * @param bulkAction
-	 * @return
-	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCRIPT_READ + "')")

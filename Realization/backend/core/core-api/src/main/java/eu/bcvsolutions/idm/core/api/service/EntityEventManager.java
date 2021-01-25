@@ -214,6 +214,8 @@ public interface EntityEventManager extends ScriptEnabled {
 	/**
 	 * Returns given owner instance by event owner type and identifier.
 	 * 
+	 * TODO: move to LookupService.lookupOwner - refactor method usage
+	 * 
 	 * @param ownerType
 	 * @param ownerId
 	 * @return

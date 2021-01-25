@@ -597,7 +597,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 							ResultCodeException resultCodeException = (ResultCodeException) ex;
 							resultModel = resultCodeException.getError().getError();
 							if (resultCodeException.getStatus() == HttpStatus.ACCEPTED) {
-								resultState = OperationState.EXECUTED; // => concrete information is preserved in model t know, what happen
+								resultState = OperationState.EXECUTED; // => concrete information is preserved in model to know, what happen
 							}
 						} else {
 							resultModel = new DefaultResultModel(

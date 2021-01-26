@@ -135,7 +135,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 
 				IdmFormInstanceDto formInstance = this.getFormService().getFormInstance(system, poolingDefinition);
 				if (formInstance != null) {
-					formInstance.setId(formInstance.getFormDefinition().getId());
+					// Beware, form instance doesn't have a ID, we generate random UUID. We need unique ID, because we save exported json with ID in file name.
+					formInstance.setId(UUID.randomUUID());
 					this.getFormService().export(formInstance, getBatch());
 				}
 			}
@@ -156,7 +157,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 
 				IdmFormInstanceDto formInstance = this.getFormService().getFormInstance(system, operationOptions);
 				if (formInstance != null) {
-					formInstance.setId(formInstance.getFormDefinition().getId());
+					// Beware, form instance doesn't have a ID, we generate random UUID. We need unique ID, because we save exported json with ID in file name.
+					formInstance.setId(UUID.randomUUID());
 					this.getFormService().export(formInstance, getBatch());
 				}
 			}
@@ -180,7 +182,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 
 				IdmFormInstanceDto connectorFormInstance = this.getFormService().getFormInstance(system, definition);
 				if (connectorFormInstance != null) {
-					connectorFormInstance.setId(connectorFormInstance.getFormDefinition().getId());
+					// Beware, form instance doesn't have a ID, we generate random UUID. We need unique ID, because we save exported json with ID in file name.
+					connectorFormInstance.setId(UUID.randomUUID());
 					this.getFormService().export(connectorFormInstance, getBatch());
 				}
 			}

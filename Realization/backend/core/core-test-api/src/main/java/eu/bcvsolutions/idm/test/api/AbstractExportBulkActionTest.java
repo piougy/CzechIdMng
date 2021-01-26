@@ -1,8 +1,12 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
+import java.util.stream.Collectors;
+import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,7 +33,6 @@ import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
  * Abstract class for testing export and import bulk actions
  *
  * @author Ondrej Husnik
- *
  */
 
 public class AbstractExportBulkActionTest extends AbstractBulkActionTest {
@@ -40,42 +43,39 @@ public class AbstractExportBulkActionTest extends AbstractBulkActionTest {
 	private AttachmentManager attachmentManager;
 	@Autowired
 	private ImportManager importManager;
-	
+
 	public static final String EXECUTE_BEFORE_DTO_DELETE = "EXECUTE_BEFORE_DTO_DELETE";
 
-	
+
 	/**
 	 * Provides export and following import operation for supplied dto
-	 * 
-	 * @param dto 
-	 * @param actionName
-	 * @return
+	 *
 	 */
 	protected <DTO extends AbstractDto> IdmExportImportDto executeExportAndImport(DTO dto, String actionName) {
 		return executeExportAndImport(dto, actionName, null);
 	}
 
 	/**
-	 * Provides export and following import operation for supplied dto
-	 * It accepts a map of methods in order to supply
-	 * necessary operation between individual steps. 
-	 * 
-	 * @param dto
-	 * @param actionName
-	 * @param execute
-	 * @return
+	 * Provides export and following import operation for supplied dto It accepts a map of methods in order to supply necessary operation between individual steps.
+	 */
+	protected <DTO extends AbstractDto> IdmExportImportDto executeExportAndImport(DTO dto, String actionName, Map<String, Consumer<DTO>> execute) {
+		return executeExportAndImport(Lists.newArrayList(dto), dto.getClass(), actionName, execute);
+	}
+
+	/**
+	 * Provides export and following import operation for supplied dto It accepts a map of methods in order to supply necessary operation between individual steps.
 	 */
 	@SuppressWarnings("unchecked")
-	protected <DTO extends AbstractDto> IdmExportImportDto executeExportAndImport(DTO dto, String actionName, Map<String, Consumer<DTO>> execute) {
+	protected <DTO extends AbstractDto> IdmExportImportDto executeExportAndImport(List<DTO> dtos, Class dtoType, String actionName, Map<String, Consumer<DTO>> execute) {
 		String batchName = getHelper().createName();
-		Class<? extends BaseEntity> entityClass = getLookupService().getEntityClass(dto.getClass());
-
+		Class<? extends BaseEntity> entityClass = getLookupService().getEntityClass(dtoType);
+		Set<UUID> ids = dtos.stream().map(AbstractDto::getId).collect(Collectors.toSet());
 		// Bulk action preparation
 		IdmBulkActionDto bulkAction = findBulkAction(entityClass, actionName);
-		bulkAction.setIdentifiers(Sets.newHashSet(dto.getId()));
+		bulkAction.setIdentifiers(ids);
 		bulkAction.getProperties().put(AbstractExportBulkAction.PROPERTY_NAME, batchName);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-		checkResultLrt(processAction, 1l, null, null);
+		checkResultLrt(processAction, (long) dtos.size(), null, null);
 
 		// Export batch is created
 		IdmExportImportFilter exportImportFilter = new IdmExportImportFilter();
@@ -88,7 +88,7 @@ public class AbstractExportBulkActionTest extends AbstractBulkActionTest {
 
 		// Find export batch as attachment
 		List<IdmAttachmentDto> attachments = attachmentManager//
-				.getAttachments(batch.getId(),getLookupService().getEntityClass(IdmExportImportDto.class).getCanonicalName(), null)//
+				.getAttachments(batch.getId(), getLookupService().getEntityClass(IdmExportImportDto.class).getCanonicalName(), null)//
 				.getContent();//
 		Assert.assertEquals(1, attachments.size());
 		IdmAttachmentDto attachment = attachments.get(0);
@@ -102,16 +102,18 @@ public class AbstractExportBulkActionTest extends AbstractBulkActionTest {
 
 		// Get a service corresponding to the DTO type
 		ReadWriteDtoService<BaseDto, BaseFilter> service = ((ReadWriteDtoService<BaseDto, BaseFilter>) getLookupService()
-				.getDtoService(dto.getClass()));
-		
-		// Execute supplied action before original dto deletion
-		if (execute != null && execute.containsKey(EXECUTE_BEFORE_DTO_DELETE)) {
-			execute.get(EXECUTE_BEFORE_DTO_DELETE).accept(dto);
-		}
-		
-		// Original dto deletion
-		service.delete(dto);
-		Assert.assertNull(service.get(dto.getId()));
+				.getDtoService(dtoType));
+
+		dtos.forEach(dto -> {
+			// Execute supplied action before original dto deletion
+			if (execute != null && execute.containsKey(EXECUTE_BEFORE_DTO_DELETE)) {
+				execute.get(EXECUTE_BEFORE_DTO_DELETE).accept(dto);
+			}
+
+			// Original dto deletion
+			service.delete(dto);
+			Assert.assertNull(service.get(dto.getId()));
+		});
 
 		// Execute import
 		importBatch = importManager.executeImport(importBatch, false);

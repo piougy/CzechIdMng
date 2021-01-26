@@ -59,9 +59,6 @@ public class Task implements BaseDto {
 	private boolean recoverable;
 	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private ZonedDateTime modified;
-
-	public Task() {
-	}
 	
 	@Override
 	public String getId() {
@@ -240,5 +237,20 @@ public class Task implements BaseDto {
 	 */
 	public void setModified(ZonedDateTime modified) {
 		this.modified = modified;
+	}
+	
+	/**
+	 * Task is persisted in external scheduler, we don't have task modifications in our hands => reload is needed all time.
+	 * 
+	 * @return true
+	 * @since 10.8.0
+	 */
+	@JsonProperty(value = "_trimmed", access = Access.READ_ONLY)
+	@ApiModelProperty(
+			accessMode = AccessMode.READ_ONLY, 
+			notes = "Task is persisted in external scheduler, we don't have task modifications in our hands => reload is needed all time."
+	)
+	public boolean isTrimmed() {
+		return true;
 	}
 }

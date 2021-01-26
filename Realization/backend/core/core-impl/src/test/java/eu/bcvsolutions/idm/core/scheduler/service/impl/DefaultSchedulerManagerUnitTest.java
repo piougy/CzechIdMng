@@ -87,6 +87,7 @@ public class DefaultSchedulerManagerUnitTest extends AbstractUnitTest {
 		Task task = manager.getTask("test");
 		//
 		Assert.assertTrue(task.getTriggers().isEmpty());
+		Assert.assertTrue(task.isTrimmed());
 	}
 
 	@Test(expected = CoreException.class)

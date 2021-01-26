@@ -45,7 +45,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
@@ -308,7 +308,6 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TASK_FAILED, ex);
 		}
 		return getTask(task.getId());
-
 	}
 
 	@Override
@@ -403,7 +402,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		try {
 			if (!scheduler.unscheduleJob(new TriggerKey(triggerId, taskId))) {
 				try {
-					dependentTaskTriggerRepository.deleteById(EntityUtils.toUuid(triggerId));
+					dependentTaskTriggerRepository.deleteById(DtoUtils.toUuid(triggerId));
 				} catch (ClassCastException ex) {
 					throw new SchedulerException(CoreResultCode.SCHEDULER_DELETE_TRIGGER_FAILED, ex);
 				}				
@@ -468,7 +467,6 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			task.setModified((ZonedDateTime) jobDataMap.get(SchedulableTaskExecutor.PARAMETER_MODIFIED));
 			task.setTriggers(new ArrayList<>());
 			// task properties
-			// TODO: deprecated since 9.2.0 - remove in 10.x
 			for (Entry<String, Object> entry : jobDataMap.entrySet()) {
 				task.getParameters().put(entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString());
 			}

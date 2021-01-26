@@ -399,7 +399,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       parameters: task.parameters,
       formDefinition: task.formDefinition,
       disabled: task.disabled,
-      _icon:
+      _iconKey:
         task.formDefinition
         ?
         formAttributeManager.getLocalization(task.formDefinition, null, 'icon', 'component:scheduled-task')

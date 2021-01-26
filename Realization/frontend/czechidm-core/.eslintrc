@@ -24,7 +24,8 @@
     "$": false,
     "DEBUG": false,
     "LOGGER": false,
-    "serverUrl": true
+    "serverUrl": true,
+    "TEST_PROFILE": false
   },
   "rules": {
     "arrow-parens": ["off", "as-needed"],

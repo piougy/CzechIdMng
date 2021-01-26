@@ -8,8 +8,9 @@ import Immutable from 'immutable';
 const logger = log4js.getLogger();
 logger.setLevel('DEBUG');
 global.LOGGER = logger;
+global.TEST_PROFILE = true;
 
-// react + mocha integration - wee need to have document initialized for use react render in tests
+// react + mocha integration - we need to have document initialized for use react render in tests
 // http://www.hammerlab.org/2015/02/21/testing-react-web-apps-with-mocha-part-2/
 if (typeof document === 'undefined') {
   LOGGER.debug('test document init ... begin');

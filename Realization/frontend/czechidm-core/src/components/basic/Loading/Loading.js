@@ -46,7 +46,6 @@ class Loading extends AbstractComponent {
       // we don't want resize loading container
       return;
     }
-    // TODO: offset, scroll
     loading.css({
       top: panel.position().top,
       left: panel.position().left,
@@ -133,17 +132,12 @@ class ResizeLoading extends AbstractComponent {
     if (!rendered) {
       return null;
     }
-    if (true) { // FIXME: detektor doesn't work in test
+    if (global.TEST_PROFILE === true) { // fully initialize DOM is required for ReactResizeDetector => not available in tests
       return (
         <Loading { ...others } />
       );
     }
     //
-    if (true) {
-      return (
-        <Loading { ...others } />
-      );
-    }
     return (
       <ReactResizeDetector
         handleHeight

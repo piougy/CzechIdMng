@@ -62,10 +62,6 @@ export default class ScriptDetail extends Basic.AbstractContent {
         entity.description = '';
         entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, ScriptCategoryEnum.DEFAULT);
       }
-      entity.codeable = {
-        code: entity.code,
-        name: entity.name
-      };
       this.refs.codeable.focus();
     }
   }

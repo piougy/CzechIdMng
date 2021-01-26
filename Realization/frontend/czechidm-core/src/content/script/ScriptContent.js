@@ -15,10 +15,6 @@ const scriptManager = new ScriptManager();
  */
 class ScriptContent extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.scripts';
   }

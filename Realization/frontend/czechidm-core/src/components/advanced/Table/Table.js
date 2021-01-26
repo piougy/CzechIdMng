@@ -1173,33 +1173,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       .filter(action => { return action.showWithoutSelection; });
     // Remove prohibited actions
     _actionsWithoutSelection = this._removeProhibitedActions(_actionsWithoutSelection);
-
-    let _actionClassName;
-    if (selectedRows.length <= 0) {
-      if (_actionsWithoutSelection.length === 0) {
-        _actionClassName = _actionsWithSelection.length === 0 ? 'hidden' : 'bulk-action';
-      } else {
-        _actionClassName = 'bulk-action';
-      }
-    } else {
-      _actionClassName = _actionsWithSelection.length === 0 ? 'hidden' : 'bulk-action';
-    }
+    //
+    const _actionClassName = _actions.length === 0 ? 'hidden' : 'bulk-action';
     //
     const _isLoading = (_showLoading || showLoading) && !hideTableShowLoading;
     //
     // resolve bulk actions
-    let processActions = null;
-    let showActionsAsDisabled = false;
-    if (selectedRows.length <= 0) {
-      if (_actionsWithoutSelection.length === 0) {
-        showActionsAsDisabled = true;
-        processActions = _actionsWithSelection;
-      } else {
-        processActions = _actionsWithoutSelection;
-      }
-    } else {
-      processActions = _actionsWithSelection;
-    }
+    let processActions = _actions;
     // disabled by security reason
     processActions = processActions.filter(a => !a.disabled);
     // quick action buttons - configured
@@ -1218,6 +1198,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     } else if (!Utils.Ui.isEmpty(_quickButtonCount)) {
       buttonActionCount = parseInt(_quickButtonCount, 10);
     }
+    //
     for (let i = 0; i < processActions.length; i++) {
       const action = processActions[i];
       if (action.icon === null || action.icon === undefined) {
@@ -1263,8 +1244,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       buttonMenuIncludedActions = buttonActions.map(action => (
         <MenuItem
           title={ this.isDevelopment() ? `Action order: ${ action.order }, Action key: ${ action.actionKey }` : null }
-          onClick={ showActionsAsDisabled ? null : this.onBulkAction.bind(this, action) }
-          disabled={ showActionsAsDisabled }>
+          onClick={
+            (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+            ?
+            null
+            :
+            this.onBulkAction.bind(this, action)
+          }
+          disabled={ (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection) }>
           <Basic.Icon icon={ action.icon } level={ action.level }/>
           { action.label || action.niceLabel }
         </MenuItem>
@@ -1317,7 +1304,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                     multiSelect={ false }
                     options={ selectedRows.length <= 0 ? _actionsWithoutSelection : _actionsWithSelection }
                     placeholder={ this.i18n(`bulk-action.selection${ selectedRows.length === 0 ? '_empty' : '' }`, { count }) }
-                    rendered={ _actions.length > 0 && showRowSelection }
+                    rendered={
+                      (
+                        (selectedRows.length <= 0 && _actionsWithoutSelection.length > 0)
+                        ||
+                        (selectedRows.length > 0 && _actionsWithSelection.length > 0)
+                      )
+                      && showRowSelection
+                    }
                     searchable={ false }
                     emptyOptionLabel={ false }/>
                   :
@@ -1338,7 +1332,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                               :
                               (action.label || action.niceLabel)
                             }
-                            disabled={ showActionsAsDisabled }
+                            disabled={ (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection) }
                             titlePlacement="bottom"
                             onClick={ this.onBulkAction.bind(this, action) }>
                             <Basic.Icon icon={ action.icon } level={ action.level }/>
@@ -1369,8 +1363,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                               return (
                                 <MenuItem
                                   title={ this.isDevelopment() ? `Action order: ${ action.order }, Action key: ${ action.actionKey }` : null }
-                                  onClick={ showActionsAsDisabled ? null : this.onBulkAction.bind(this, action) }
-                                  disabled={ showActionsAsDisabled }>
+                                  onClick={
+                                    (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+                                    ?
+                                    null
+                                    : this.onBulkAction.bind(this, action)
+                                  }
+                                  disabled={ (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection) }>
                                   <Basic.Icon icon={ action.icon } level={ action.level }/>
                                   { action.label || action.niceLabel }
                                 </MenuItem>
@@ -1387,8 +1386,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                               return (
                                 <MenuItem
                                   title={ this.isDevelopment() ? `Action order: ${ action.order }` : null }
-                                  onClick={ showActionsAsDisabled ? null : this.onBulkAction.bind(this, action) }
-                                  disabled={ showActionsAsDisabled }>
+                                  onClick={
+                                    (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+                                    ?
+                                    null
+                                    :
+                                    this.onBulkAction.bind(this, action)
+                                  }
+                                  disabled={ (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection) }>
                                   <Basic.Icon icon={ action.icon } level={ action.level }/>
                                   { action.label || action.niceLabel }
                                 </MenuItem>

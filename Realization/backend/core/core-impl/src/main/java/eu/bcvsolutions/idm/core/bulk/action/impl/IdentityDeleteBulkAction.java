@@ -24,7 +24,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @SuppressWarnings("deprecation")
 @Component("identityDeleteBulkAction")
 @Description("Delete given identities.")

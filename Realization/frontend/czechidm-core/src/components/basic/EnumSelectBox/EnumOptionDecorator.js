@@ -1,4 +1,4 @@
-import OptionDecorator from '../../basic/SelectBox/OptionDecorator';
+import OptionDecorator from '../SelectBox/OptionDecorator';
 
 /**
  * Enum select option decorator.

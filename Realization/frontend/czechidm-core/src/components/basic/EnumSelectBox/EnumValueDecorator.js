@@ -1,4 +1,4 @@
-import ValueDecorator from '../../basic/SelectBox/ValueDecorator';
+import ValueDecorator from '../SelectBox/ValueDecorator';
 
 /**
  * Enum select value decorator.

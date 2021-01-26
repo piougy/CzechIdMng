@@ -196,7 +196,7 @@ class EnumSelectBox extends SelectBox {
     if (options) {
       for (const item in options) {
         if (options[item].value === rawValue) {
-          return options[item].icon;
+          return options[item]._iconKey;
         }
       }
     }

@@ -533,7 +533,7 @@ class Filter extends Advanced.Filter {
                     niceLabel: TokenTypeEnum.getNiceLabel(
                       TokenTypeEnum.findKeyBySymbol(TokenTypeEnum.CIDMST)
                     ),
-                    icon: 'component:identity',
+                    _iconKey: 'component:identity',
                     value: TokenTypeEnum.findKeyBySymbol(TokenTypeEnum.CIDMST),
                     description: this.i18n('core:enums.TokenTypeEnum.helpBlock.CIDMST')
                   },
@@ -541,7 +541,7 @@ class Filter extends Advanced.Filter {
                     niceLabel: TokenTypeEnum.getNiceLabel(
                       TokenTypeEnum.findKeyBySymbol(TokenTypeEnum.SYSTEM)
                     ),
-                    icon: TokenTypeEnum.getIcon(TokenTypeEnum.findKeyBySymbol(TokenTypeEnum.SYSTEM)),
+                    _iconKey: TokenTypeEnum.getIcon(TokenTypeEnum.findKeyBySymbol(TokenTypeEnum.SYSTEM)),
                     value: TokenTypeEnum.findKeyBySymbol(TokenTypeEnum.SYSTEM),
                     description: this.i18n('core:enums.TokenTypeEnum.helpBlock.SYSTEM')
                   },

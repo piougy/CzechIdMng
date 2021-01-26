@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.bulk.action.impl;
 
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -163,12 +165,43 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
 
-		IcConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);
+		checkConnectorConfiguration(system, originalConnectorConfiguration);
+	}
+	
+	@Test
+	public void testExportAndImportConnectorConfigsForTwoSystems() {
+		SysSystemDto systemOne = createSystem();
+		SysSystemDto systemTwo = createSystem();
+		// Load configurations
+		IcConnectorConfiguration originalConnectorConfigurationOne = systemService.getConnectorConfiguration(systemOne);
+		Assert.assertNotNull(originalConnectorConfigurationOne);
+		Assert.assertTrue(originalConnectorConfigurationOne.getConfigurationProperties().getProperties().size() > 0);
+	
+		IcConnectorConfiguration originalConnectorConfigurationTwo = systemService.getConnectorConfiguration(systemTwo);
+		Assert.assertNotNull(originalConnectorConfigurationTwo);
+		Assert.assertTrue(originalConnectorConfigurationTwo.getConfigurationProperties().getProperties().size() > 0);
+
+		ArrayList<AbstractDto> systems = Lists.newArrayList(systemOne, systemTwo);
+
+		// Make export, upload, delete system and import
+		executeExportAndImport(systems, SysSystemDto.class, SystemExportBulkAction.NAME, null);
+		
+		systemOne = systemService.get(systemOne.getId());
+		Assert.assertNotNull(systemOne);
+		systemTwo = systemService.get(systemTwo.getId());
+		Assert.assertNotNull(systemTwo);
+
+		checkConnectorConfiguration(systemOne, originalConnectorConfigurationOne);
+		checkConnectorConfiguration(systemTwo, originalConnectorConfigurationTwo);
+	}
+
+	private void checkConnectorConfiguration(SysSystemDto systemOne, IcConnectorConfiguration originalConnectorConfigurationOne) {
+		IcConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(systemOne);
 		Assert.assertNotNull(connectorConfiguration);
 
 		// Number of imported config non-confidential properties must be same as in
 		// source system.
-		long originalCountNoConfidentialConfigProperties = originalConnectorConfiguration.getConfigurationProperties()
+		long originalCountNoConfidentialConfigProperties = originalConnectorConfigurationOne.getConfigurationProperties()
 				.getProperties().stream()//
 				.filter(property -> !property.getName().equals("password"))//
 				.count();
@@ -180,7 +213,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 		Assert.assertEquals(originalCountNoConfidentialConfigProperties, countNoConfidentialConfigProperties);
 
 		// Confidential properties are not imported!
-		long originalCountConfidentialConfigProperties = originalConnectorConfiguration.getConfigurationProperties()
+		long originalCountConfidentialConfigProperties = originalConnectorConfigurationOne.getConfigurationProperties()
 				.getProperties().stream()//
 				.filter(property -> property.getName().equals("password"))//
 				.count();

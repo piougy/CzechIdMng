@@ -180,7 +180,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 
 				IdmFormInstanceDto connectorFormInstance = this.getFormService().getFormInstance(system, definition);
 				if (connectorFormInstance != null) {
-					connectorFormInstance.setId(connectorFormInstance.getFormDefinition().getId());
+					// Beware, form instance doesn't have a ID, we generate random UUID. We need unique ID, because we save exported json with ID in file name.
+					connectorFormInstance.setId(UUID.randomUUID());
 					this.getFormService().export(connectorFormInstance, getBatch());
 				}
 			}

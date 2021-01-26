@@ -61,9 +61,6 @@ public class IdmFormInstanceDto implements BaseDto {
 		this.ownerId = owner.getId();
 		this.ownerType = owner.getClass();
 		this.formDefinition = formDefinition;
-		if (formDefinition != null) {
-			this.id = formDefinition.getId();
-		}
 		this.values = values;
 	}
 	
@@ -77,8 +74,6 @@ public class IdmFormInstanceDto implements BaseDto {
 
 	public void setFormDefinition(IdmFormDefinitionDto formDefinition) {
 		Assert.notNull(formDefinition, "Form definition is required for form instance.");
-		
-		this.id = formDefinition.getId();
 		this.formDefinition = formDefinition;
 	}
 

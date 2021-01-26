@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -119,7 +120,8 @@ public class RoleExportBulkAction extends AbstractExportBulkAction<IdmRoleDto, I
 					// Export EAV form instance
 					IdmFormInstanceDto formInstance = this.getFormService().getFormInstance(role, definition);
 					if (formInstance != null) {
-						formInstance.setId(formInstance.getFormDefinition().getId());
+						// Beware, form instance doesn't have a ID, we generate random UUID. We need unique ID, because we save exported json with ID in file name.
+						formInstance.setId(UUID.randomUUID());
 						this.getFormService().export(formInstance, this.getBatch());
 					}
 				});

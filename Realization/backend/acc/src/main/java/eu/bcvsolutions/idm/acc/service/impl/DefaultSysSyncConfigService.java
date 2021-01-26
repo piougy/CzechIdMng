@@ -253,8 +253,8 @@ public class DefaultSysSyncConfigService
 			// Put tree-type to the node embedded (tree-type will be use for findByExample).
 			if (treeNode != null) {
 				treeNode.getEmbedded().put(SysSyncContractConfig_.defaultTreeType.getName(), treeType);
-				dto.getEmbedded().put(SysSyncContractConfig_.defaultTreeType.getName(), treeType);
 			}
+			dto.getEmbedded().put(SysSyncContractConfig_.defaultTreeType.getName(), treeType);
 			dto.getEmbedded().put(SysSyncContractConfig_.defaultTreeNode.getName(), treeNode);
 		}
 		return dto;

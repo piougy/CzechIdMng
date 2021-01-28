@@ -245,8 +245,8 @@ export class Navigation extends Basic.AbstractContent {
                 id={ `${ levelItem.id }-tooltip` }
                 placement="right"
                 value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
-                <a
-                  href={ levelItem.to ? `${ levelItem.to.indexOf('/') === 0 ? '/#' : '' }${ levelItem.to }` : '#' }
+                <Link
+                  to={ levelItem.to || '#' }
                   onClick={
                     this.toogleNavigationItem.bind(
                       this,
@@ -271,7 +271,7 @@ export class Navigation extends Basic.AbstractContent {
                         className="arrow-icon" />
                     </span>
                   }
-                </a>
+                </Link>
               </Basic.Tooltip>
               { children }
             </li>

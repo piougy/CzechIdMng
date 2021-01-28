@@ -43,7 +43,8 @@ export class Navigation extends Basic.AbstractContent {
     //
     this.state = {
       identityMenuShowLoading: false,
-      modals: new Immutable.Map({}) // opened modal windows
+      modals: new Immutable.Map({}), // opened modal windows
+      collapsed: false
     };
   }
 
@@ -389,6 +390,7 @@ export class Navigation extends Basic.AbstractContent {
 
   render() {
     const { environment, userContext, navigationCollapsed, rendered, i18nReady } = this.props;
+    const { collapsed } = this.state;
     //
     if (!rendered) {
       return false;
@@ -563,7 +565,10 @@ export class Navigation extends Basic.AbstractContent {
         <header>
           <nav className="navbar navbar-default navbar-static-top" style={{ marginBottom: 0 }}>
             <Basic.Div className="navbar-header">
-              <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+              <button
+                type="button"
+                className="navbar-toggle collapsed"
+                onClick={ () => this.setState({ collapsed: !collapsed }) }>
                 <span className="sr-only">{ this.i18n('navigation.toogle') }</span>
                 <span className="icon-bar"/>
                 <span className="icon-bar"/>
@@ -573,7 +578,7 @@ export class Navigation extends Basic.AbstractContent {
                 {' '}
               </Link>
             </Basic.Div>
-            <Basic.Div id="navbar" className="navbar-collapse">
+            <Basic.Div id="navbar" className={ classnames('navbar-collapse', { 'hidden-xs': collapsed }) }>
               {
                 !userContext.isExpired && !SecurityManager.isAuthenticated(userContext)
                 ?
@@ -585,7 +590,7 @@ export class Navigation extends Basic.AbstractContent {
               }
               <Basic.Div className="navbar-right">
                 <NavigationSearch
-                  className="navbar-form navbar-left"
+                  className="navbar-form navbar-left hidden-sm hidden-xs"
                   rendered={ !userContext.isExpired && SecurityManager.isAuthenticated(userContext) }/>
                 { environmentLabel }
                 {
@@ -629,8 +634,8 @@ export class Navigation extends Basic.AbstractContent {
             {
               !userContext.isExpired && SecurityManager.isAuthenticated(userContext)
               ?
-              <Basic.Div className={sidebarClassName} role="navigation">
-                <Basic.Div className="sidebar-nav navbar-collapse">
+              <Basic.Div className={ sidebarClassName } role="navigation">
+                <Basic.Div className={ classnames('sidebar-nav', 'navbar-collapse', { 'hidden-xs': collapsed }) }>
                   { sidebarItems }
                 </Basic.Div>
               </Basic.Div>

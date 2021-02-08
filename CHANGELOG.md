@@ -1,12 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [10.8.0]
+
+### Administrator
+
+- 🟢 [#2628](https://redmine.czechidm.com/issues/2628) - Remote connector server agenda was added. New agenda is available under ``Systems - Connector servers`` menu. **Remote connector server configuration moved from system detail to this standalone agenda**. Check remote servers are properly initialized automatically after upgrade (e.g. try to test system with remote connector server usage from system detail - configuration content).
+
 ## [10.7.0]
 
 ### Administrator
 
 - 🟡 [#2506](https://redmine.czechidm.com/issues/2506) - [Two-factor authentication](https://wiki.czechidm.com/devel/documentation/security/dev/security#two-factor_authentication) is supported optionally, but authentication mechanism was refactored from scratch. **Test your configured authentication method (e.g. sso, kerberos, authentication by header or by remote user, authentication by target systems) carefully after upgrade.**
-- 🟢 [#2506](https://redmine.czechidm.com/issues/2506) - **Basic authentication checks password, which must be changed - password with this requirement cannot be used now**. 
+- 🟢 [#2506](https://redmine.czechidm.com/issues/2506) - **Basic authentication checks password, which must be changed - password with this requirement cannot be used now**.
 The 'password must be changed' flag was not previously checked in basic authentication, **it is now**. If you are using basic authentication, verify that you do not have this flag active. Password has to be changed the standard way to use it in basic authentication.
 _**Basic authentication** = Non-standard login, typically from another external system (eg Scim, SIEM ... )._
 

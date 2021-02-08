@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
- * Configuration for provisioning
+ * Configuration for provisioning.
  * 
  * @author Radek Tomiška
  *

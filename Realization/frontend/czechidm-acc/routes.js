@@ -169,6 +169,33 @@ module.exports = {
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['SYSTEM_CREATE'] } ]
     },
     {
+      path: 'connector-servers/',
+      component: require('./src/content/connectorserver/ConnectorServers'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['REMOTESERVER_READ'] } ]
+    },
+    {
+      path: 'remote-servers/:entityId',
+      component: require('./src/content/connectorserver/RemoteServerRoutes'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['REMOTESERVER_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/connectorserver/RemoteServerDetail'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['REMOTESERVER_READ'] } ]
+        },
+        {
+          path: 'systems',
+          component: require('./src/content/connectorserver/RemoteServerSystems'),
+          access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['REMOTESERVER_READ', 'SYSTEM_READ'] } ]
+        },
+        {
+          path: 'connectors',
+          component: require('./src/content/connectorserver/RemoteServerConnectors'),
+          access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['REMOTESERVER_READ'] } ]
+        }
+      ]
+    },
+    {
       path: 'identity/:entityId/',
       component: require('czechidm-core/src/content/identity/Identity'),
       childRoutes: [

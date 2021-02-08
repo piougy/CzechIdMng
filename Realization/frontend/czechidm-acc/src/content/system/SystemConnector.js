@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
@@ -11,7 +10,7 @@ const uiKey = 'eav-connector-';
 const manager = new SystemManager();
 
 /**
- * System connector configuration
+ * System connector configuration.
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška
@@ -22,6 +21,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.state = {
       activeKey: 1,
       error: null,
@@ -472,24 +472,21 @@ class SystemConnectorContent extends Basic.AbstractContent {
     }
 
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
         <Basic.Confirm ref="confirm-change-connector" level="danger"/>
 
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <Basic.Panel showLoading={_showLoading} className="no-border no-margin">
           <Basic.AbstractForm
             rendered={_availableConnectors.length !== 0}
             ref="formConnector"
-            data={{connector: pickConnector ? pickConnector.value : null }}
-            uiKey={uiKey}
-            readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')}
+            data={{ connector: pickConnector ? pickConnector.value : null }}
+            uiKey={ uiKey }
+            readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
             style={{ paddingBottom: 0 }}>
 
-            <div style={{ display: 'inline-flex', width: '100%'}}>
+            <Basic.Div style={{ display: 'inline-flex', width: '100%'}}>
               <Basic.EnumSelectBox
                 ref="connector"
                 placeholder={ this.i18n('acc:entity.System.connectorKey.connectorName') }
@@ -502,21 +499,20 @@ class SystemConnectorContent extends Basic.AbstractContent {
               <Basic.Button
                 style={{ marginLeft: 5 }}
                 level="success"
-                disabled={error || remoteConnectorError}
-                onClick={this.save.bind(this, true)}
+                disabled={ error || remoteConnectorError }
+                onClick={ this.save.bind(this, true) }
                 rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') && pickConnector !== undefined }
                 title={ this.i18n('button.checkSystemTooltip') }
-                titlePlacement="bottom">
-                <Basic.Icon type="fa" icon="check-circle"/>
-                {' '}
+                titlePlacement="bottom"
+                icon="fa:check-circle">
                 { this.i18n('button.checkSystem') }
               </Basic.Button>
-            </div>
+            </Basic.Div>
 
           </Basic.AbstractForm>
           { content }
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

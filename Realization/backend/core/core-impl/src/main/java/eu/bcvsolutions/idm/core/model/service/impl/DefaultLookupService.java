@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DefaultDtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DefaultEntityLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
+import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookupByExample;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -50,6 +51,7 @@ public class DefaultLookupService implements LookupService {
 	private final EntityManager entityManager;
 	private final PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
 	private final PluginRegistry<DtoLookup<?>, Class<?>> dtoLookups;
+	private final PluginRegistry<DtoLookupByExample<?>, Class<?>> dtoLookupByExamples;
 	// loaded services cache
 	private final Map<Class<? extends Identifiable>, Object> services = new HashMap<>();
 	
@@ -58,16 +60,19 @@ public class DefaultLookupService implements LookupService {
 			ApplicationContext context,
 			EntityManager entityManager,
 			List<? extends EntityLookup<?>> entityLookups,
-			List<? extends DtoLookup<?>> dtoLookups) {
+			List<? extends DtoLookup<?>> dtoLookups,
+			List<? extends DtoLookupByExample<?>> dtoLookupByExamples) {
 		Assert.notNull(context, "Context is required.");
 		Assert.notNull(entityManager, "Manager is required.");
 		Assert.notNull(entityLookups, "Entity lookups are required");
 		Assert.notNull(dtoLookups, "Dto lookups are required");
+		Assert.notNull(dtoLookupByExamples, "Dto lookups by example are required");
 		//
 		this.context = context;
 		this.entityManager = entityManager;
 		this.entityLookups = OrderAwarePluginRegistry.create(entityLookups);
 		this.dtoLookups = OrderAwarePluginRegistry.create(dtoLookups);
+		this.dtoLookupByExamples = OrderAwarePluginRegistry.create(dtoLookupByExamples);
 	}
 	
 	@Override
@@ -141,15 +146,36 @@ public class DefaultLookupService implements LookupService {
 			PropertyDescriptor fieldDescriptor = EntityUtils.getFieldDescriptor(dto, attributeName);
 			Object fieldValue = fieldDescriptor.getReadMethod().invoke(dto);
 			if (!(fieldValue instanceof Serializable)) {
-				throw new IllegalArgumentException(String.format("Dto lookup for dto type [%s] attribute [%s] is not supported",
+				throw new IllegalArgumentException(String.format("Dto lookup for dto type [%s] attribute [%s] is not supported.",
 						dto.getClass(), attributeName));
 			}
 			//
 			return (DTO) lookupDto(embedded.dtoClass(), (Serializable) fieldValue);
 		} catch (ReflectiveOperationException | IntrospectionException ex) {
-			throw new IllegalArgumentException(String.format("Dto lookup for dto type [%s] attribute [%s] is not supported",
+			throw new IllegalArgumentException(String.format("Dto lookup for dto type [%s] attribute [%s] is not supported.",
 					dto.getClass(), attributeName), ex);
 		}
+	}
+	
+	@Override
+	public <DTO extends BaseDto> DTO lookupByExample(DTO example) {
+		Assert.notNull(example, "Example is required for lookup.");
+		//
+		Class<? extends BaseDto> identifiableType = example.getClass();
+		DtoLookupByExample<DTO> lookup = getDtoLookupByExample(identifiableType);
+		if (lookup == null) {
+			LOG.debug("Lookup by example is not supported for type [{}].");
+			return null;
+		}
+		DTO dto = lookup.lookup(example);
+		//
+		if (dto != null) {
+			LOG.trace("Identifiable type [{}] with identifier [{}] found by example.", identifiableType, dto.getId());
+		} else {
+			LOG.trace("Identifiable type [{}] with identifier not found by example.", identifiableType);
+		}
+		//
+		return dto;
 	}
 	
 	@Override
@@ -198,6 +224,21 @@ public class DefaultLookupService implements LookupService {
 				return new CodeableDtoLookup<I>((CodeableService<I>) service);
 			}
 			return new DefaultDtoLookup<I>(service);
+		}
+		return lookup;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private <I extends BaseDto> DtoLookupByExample<I> getDtoLookupByExample(Class<? extends Identifiable> identifiableType) {			
+		ReadDtoService service = getDtoService(identifiableType);
+		if (service == null) {
+			LOG.debug("Service for identifiable type [{}] is not found, lookup not found.", identifiableType);
+			return null;
+		}
+		//
+		DtoLookupByExample<I> lookup = (DtoLookupByExample<I>) dtoLookupByExamples.getPluginFor(service.getDtoClass());
+		if (lookup == null) {
+			// TODO: default lookup by reflection and filter properties?
 		}
 		return lookup;
 	}

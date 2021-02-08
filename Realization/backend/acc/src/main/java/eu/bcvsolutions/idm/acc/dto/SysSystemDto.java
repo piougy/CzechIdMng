@@ -27,6 +27,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 
 	private static final long serialVersionUID = 1L;
+	public static final String PROPERTY_REMOTE_SERVER = "remoteServer";
 
 	private String name;
 	private String description;
@@ -39,7 +40,7 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 	@JsonProperty(access = Access.READ_ONLY)
 	private boolean virtual;
 	private Long version; // Optimistic lock - will be used with ETag
-	private boolean remote;
+	private boolean remote; // @deprecated @since 10.8.0 - remoteServer is used now
 	@Embedded(dtoClass = IdmPasswordPolicyDto.class)
 	private UUID passwordPolicyValidate;
 	@Embedded(dtoClass = IdmPasswordPolicyDto.class)
@@ -47,6 +48,8 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 	private SysConnectorKeyDto connectorKey;
 	private SysConnectorServerDto connectorServer;
 	private SysBlockedOperationDto blockedOperation;
+	@Embedded(dtoClass = SysConnectorServerDto.class)
+	private UUID remoteServer;
 
 	public String getName() {
 		return name;
@@ -111,9 +114,13 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 	}
 
 	public boolean isRemote() {
-		return remote;
+		return remoteServer != null || remote;
 	}
 
+	/**
+	 * @deprecated @since 10.8.0 - use remoteServer field.
+	 */
+	@Deprecated
 	public void setRemote(boolean remote) {
 		this.remote = remote;
 	}
@@ -166,8 +173,8 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 	/**
 	 * Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
 	 * 
-	 * @since 9.6.0 
 	 * @param disabledProvisioning
+	 * @since 9.6.0 
 	 */
 	public void setDisabledProvisioning(boolean disabledProvisioning) {
 		this.disabledProvisioning = disabledProvisioning;
@@ -176,10 +183,30 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 	/**
 	 * Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
 	 * 
-	 * @since 9.6.0 
 	 * @return
+	 * @since 9.6.0 
 	 */
 	public boolean isDisabledProvisioning() {
 		return disabledProvisioning;
+	}
+	
+	/**
+	 * Remote server.
+	 * 
+	 * @return remote server identifier
+	 * @since 10.8.0
+	 */
+	public UUID getRemoteServer() {
+		return remoteServer;
+	}
+	
+	/**
+	 * Remote server.
+	 * 
+	 * @param remoteServer remote server identifier
+	 * @since 10.8.0
+	 */
+	public void setRemoteServer(UUID remoteServer) {
+		this.remoteServer = remoteServer;
 	}
 }

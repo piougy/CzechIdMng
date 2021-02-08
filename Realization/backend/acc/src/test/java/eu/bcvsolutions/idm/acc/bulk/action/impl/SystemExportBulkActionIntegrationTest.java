@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.acc.bulk.action.impl;
 
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.junit.After;
@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
@@ -33,9 +34,11 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
+import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -45,12 +48,14 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ExportImportType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
@@ -101,7 +106,11 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 	private ImportManager importManager;
 	@Autowired
 	private IdmTreeTypeService treeTypeService;
-
+	@Autowired
+	private SysRemoteServerService remoteServerService;
+	@Autowired 
+	private ConfidentialStorage confidentialStorage;
+	
 	@Before
 	public void login() {
 		loginAsAdmin();
@@ -130,25 +139,102 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 
 	@Test
 	public void testExportAndImportRemoteSystem() {
-		SysSystemDto system = createSystem();
-		system.setRemote(true);
 		SysConnectorServerDto connectorServer = new SysConnectorServerDto();
 		connectorServer.setHost(getHelper().createName());
+		connectorServer.setPort(43);
 		connectorServer.setPassword(new GuardedString("password"));
-		system.setConnectorServer(connectorServer);
+		connectorServer = remoteServerService.save(connectorServer);
+		SysSystemDto system = createSystem();
+		system.setRemoteServer(connectorServer.getId());
 		system = systemService.save(system);
 		Assert.assertFalse(system.isDisabled());
 
 		// Make export, upload, delete system and import
-		executeExportAndImport(system, SystemExportBulkAction.NAME);
-
+		executeExportAndImport(system, SystemExportBulkAction.NAME, 
+				ImmutableMap.of(EXECUTE_BEFORE_DTO_DELETE, this::deleteRemoteServer));
+		
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
+		Assert.assertNotNull(system.getRemoteServer());
 		Assert.assertTrue(system.isDisabled());
 		Assert.assertNotNull(system.getConnectorServer());
 		Assert.assertNotNull(system.getConnectorServer().getHost());
 		// Password is not imported -> for new created system must be null!
 		Assert.assertNull(system.getConnectorServer().getPassword());
+		//
+		// get remote server
+		SysConnectorServerDto importedConnectorServer = remoteServerService.get(system.getRemoteServer());
+		Assert.assertEquals(connectorServer.getHost(), importedConnectorServer.getHost());
+		Assert.assertEquals(connectorServer.getPort(), importedConnectorServer.getPort());
+		Assert.assertEquals(connectorServer.isUseSsl(), importedConnectorServer.isUseSsl());
+		Assert.assertEquals(connectorServer.getTimeout(), importedConnectorServer.getTimeout());
+		// Password is not imported -> for new created remote server must be null!
+		Assert.assertTrue(remoteServerService.getPassword(importedConnectorServer.getId()).asString().isEmpty());
+	}
+	
+	@Test
+	public void testExportAndUseRemoteSystem() {
+		SysConnectorServerDto connectorServer = new SysConnectorServerDto();
+		String host = getHelper().createName();
+		connectorServer.setHost(host);
+		connectorServer.setPort(43);
+		String password = "password";
+		connectorServer.setPassword(new GuardedString(password));
+		connectorServer = remoteServerService.save(connectorServer);
+		SysSystemDto system = createSystem();
+		system.setRemoteServer(connectorServer.getId());
+		system = systemService.save(system);
+		Assert.assertFalse(system.isDisabled());
+
+		// Make export, upload, delete system and import
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
+		
+		system = systemService.get(system.getId());
+		Assert.assertNotNull(system);
+		Assert.assertNotNull(system.getRemoteServer());
+		Assert.assertTrue(system.isDisabled());
+		Assert.assertNotNull(system.getConnectorServer());
+		Assert.assertNotNull(system.getConnectorServer().getHost());
+		// Password is preserved from remote server
+		Assert.assertEquals(password, confidentialStorage.getGuardedString(system.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD).asString());
+		//
+		// get remote server
+		SysConnectorServerDto importedConnectorServer = remoteServerService.get(system.getRemoteServer());
+		Assert.assertEquals(connectorServer.getId(), importedConnectorServer.getId());
+		Assert.assertEquals(connectorServer.getHost(), importedConnectorServer.getHost());
+		Assert.assertEquals(connectorServer.getPort(), importedConnectorServer.getPort());
+		Assert.assertEquals(connectorServer.isUseSsl(), importedConnectorServer.isUseSsl());
+		Assert.assertEquals(connectorServer.getTimeout(), importedConnectorServer.getTimeout());
+		// Password is preserved
+		Assert.assertEquals(password, remoteServerService.getPassword(importedConnectorServer.getId()).asString());
+		
+		// delete remote server and create new with the same setting => find by example
+		deleteRemoteServer(system);
+		//
+		connectorServer = new SysConnectorServerDto();
+		connectorServer.setHost(host);
+		connectorServer.setPort(43);
+		connectorServer.setPassword(new GuardedString(password));
+		connectorServer = remoteServerService.save(connectorServer);
+		
+		// Execute import (check authoritative mode)
+		importBatch = importManager.executeImport(importBatch, false);
+		Assert.assertNotNull(importBatch);
+		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
+		Assert.assertEquals(OperationState.EXECUTED, importBatch.getResult().getState());
+		//
+		system = systemService.get(system);
+		importedConnectorServer = remoteServerService.get(system.getRemoteServer());
+		Assert.assertEquals(connectorServer.getId(), importedConnectorServer.getId());
+		Assert.assertEquals(connectorServer.getHost(), importedConnectorServer.getHost());
+		Assert.assertEquals(connectorServer.getPort(), importedConnectorServer.getPort());
+		Assert.assertEquals(connectorServer.isUseSsl(), importedConnectorServer.isUseSsl());
+		Assert.assertEquals(connectorServer.getTimeout(), importedConnectorServer.getTimeout());
+		// Password is preserved
+		Assert.assertEquals(password, confidentialStorage.getGuardedString(system.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD).asString());
+		Assert.assertEquals(password, remoteServerService.getPassword(importedConnectorServer.getId()).asString());
 	}
 
 	@Test
@@ -947,6 +1033,17 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 		filter.setSystemId(system.getId());
 
 		return roleSystemService.find(filter, null).getContent();
+	}
+	
+	private void deleteRemoteServer(SysSystemDto system) {
+		if (system.getRemoteServer() == null) {
+			return;
+		}
+		UUID remoteServerId = system.getRemoteServer();
+		system.setRemoteServer(null);
+		systemService.save(system);
+		//
+		remoteServerService.deleteById(remoteServerId);
 	}
 
 }

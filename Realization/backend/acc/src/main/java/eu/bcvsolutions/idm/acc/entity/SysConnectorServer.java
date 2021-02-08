@@ -21,13 +21,12 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 
 /**
- *	Default implementation with remote connector servers persisted with target system
- *	Basic info about server (host, port, key)	
+ * Default implementation with remote connector servers persisted with target system
+ * Basic info about server (host, port, key)	
  *
- *	@author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @see SysRemoteServer
  */
-
 @Audited
 @Embeddable
 public class SysConnectorServer implements IcConnectorServer, Serializable {

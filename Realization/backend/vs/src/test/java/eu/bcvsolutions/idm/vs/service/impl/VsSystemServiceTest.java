@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -20,6 +21,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -68,6 +70,8 @@ public class VsSystemServiceTest extends AbstractIntegrationTest {
 	private SysSystemService systemService;
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
+	@Autowired
+	private SysRemoteServerService remoteServerService;
 
 	@After
 	public void logout() {
@@ -185,12 +189,16 @@ public class VsSystemServiceTest extends AbstractIntegrationTest {
 	 */
 	public void testPasswordNotOverriden() {
 		final String testPassword = "myPassword123456";
+		SysConnectorServerDto remoteServer = new SysConnectorServerDto();
+		remoteServer.setHost(getHelper().createName());
+		remoteServer.setPassword(new GuardedString(testPassword));
+		remoteServer = remoteServerService.save(remoteServer);
+		
 		VsSystemDto config = new VsSystemDto();
 		config.setName(helper.createName());
 		SysSystemDto system = helper.createVirtualSystem(config);
-		system.setRemote(true);
+		system.setRemoteServer(remoteServer.getId());
 		system.setVirtual(false);
-		system.getConnectorServer().setPassword(new GuardedString(testPassword));
 		system = systemService.save(system);
 				
 		String storedPassword = confidentialStorage.getGuardedString(system.getId(),

@@ -44,7 +44,7 @@ export class Navigation extends Basic.AbstractContent {
     this.state = {
       identityMenuShowLoading: false,
       modals: new Immutable.Map({}), // opened modal windows
-      collapsed: false
+      collapsed: true
     };
   }
 

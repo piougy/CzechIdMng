@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -44,7 +45,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 
 /**
- * Bulk operation to export the system
+ * Bulk operation to export the system.
  * 
  * @author Vít Švanda
  *
@@ -72,6 +73,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 	private SysSystemMappingService systemMappingService;
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private SysRemoteServerService remoteServerService;
 
 	@Override
 	protected void exportDto(SysSystemDto dto) {
@@ -79,7 +82,9 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		UUID systemId = systemDto.getId();
 		// Create new getBatch() (if doesn't exist)
 		initBatch("Export of systems");
-
+		
+		// Export related remote server
+		exportRemoteSystem(systemDto);
 		// Export system
 		systemService.export(systemDto.getId(), getBatch());
 		// Export break
@@ -98,6 +103,17 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		exportOperationOption(system);
 		// Export role systems
 		exportRoleSystems(systemId);
+	}
+	
+	private void exportRemoteSystem(SysSystemDto system) {
+		// Remote server is not defined, i need to resolve order.
+		UUID remoteServerId = system.getRemoteServer();
+		if (remoteServerId == null) {
+			remoteServerService.export(ExportManager.BLANK_UUID, getBatch());
+			return;
+		}
+		// export remote server properly
+		remoteServerService.export(remoteServerId, getBatch());
 	}
 
 	/**
@@ -165,7 +181,6 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		}
 	}
 	
-
 	/**
 	 * Export connector configuration
 	 * 

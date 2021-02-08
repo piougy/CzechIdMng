@@ -2,19 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import uuid from 'uuid';
 //
 import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
-import uuid from 'uuid';
+import { SystemManager } from '../../redux';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import SystemWizardDetail from '../wizard/SystemWizardDetail';
+import RemoteServerSelect from '../../components/RemoteServerSelect/RemoteServerSelect';
 
-//
+const systemManager = new SystemManager();
 
 /**
-* Table of target systems
+* Table of target systems.
 *
 * @author Radek Tomiška
-*
 */
 export class SystemTable extends Advanced.AbstractTableContent {
 
@@ -47,14 +48,52 @@ export class SystemTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.useFilterForm(this.refs.filterForm);
+    const filterData = Domain.SearchParameters.getFilterData(this.refs.filterForm);
+    //
+    // resolve additional filter options
+    if (this.refs.remoteServerId) {
+      const remoteServerId = this.refs.remoteServerId.getValue();
+      if (remoteServerId && remoteServerId.additionalOption) {
+        filterData.remoteServerId = null;
+        filterData.remote = 'false';
+      }
+    }
+    //
+    this.refs.table.useFilterData(filterData);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
+    if (this.refs.remoteServerId) {
+      this.refs.remoteServerId.setValue(null);
+    }
     this.refs.table.cancelFilter(this.refs.filterForm);
+  }
+
+  /**
+   * Loads filter from redux state or default.
+   */
+  loadFilter() {
+    if (!this.refs.filterForm) {
+      return;
+    }
+    //  filters from redux
+    const _searchParameters = this.getSearchParameters();
+    if (_searchParameters) {
+      const filterData = {};
+      _searchParameters.getFilters().forEach((v, k) => {
+        filterData[k] = v;
+      });
+      // set without catalogue option
+      if (filterData.remote) {
+        filterData.remote = null;
+        filterData.remoteServerId = this._getLocalServerOption();
+      }
+      //
+      this.refs.filterForm.setData(filterData);
+    }
   }
 
   showDetail(entity) {
@@ -119,6 +158,22 @@ export class SystemTable extends Advanced.AbstractTableContent {
     }, () => {
       // nothing
     });
+  }
+
+  onChangeRemoteServer(option) {
+    if (!option) {
+      const { uiKey, _searchParameters } = this.props;
+      // cleanup redux state search parameters for additional options
+      this.context.store.dispatch(this.getManager().setSearchParameters(_searchParameters.clearFilter('remote'), uiKey));
+    }
+  }
+
+  _getLocalServerOption() {
+    return {
+      [Basic.SelectBox.NICE_LABEL]: this.i18n('filter.remoteServerId.option.localServer.label'),
+      [Basic.SelectBox.ITEM_FULL_KEY]: this.i18n('filter.remoteServerId.option.localServer.label'),
+      [Basic.SelectBox.ITEM_VALUE]: 'acc:local-server'
+    };
   }
 
   getTableButtons(showAddButton) {
@@ -197,9 +252,31 @@ export class SystemTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection } = this.props;
+    const {
+      uiKey,
+      manager,
+      columns,
+      defaultSearchParameters,
+      forceSearchParameters,
+      showAddButton,
+      showRowSelection,
+      showFilterVirtual
+    } = this.props;
     const { filterOpened, showWizard, connectorType } = this.state;
-    const showFilterVirtual = !forceSearchParameters.filters.get('virtual');
+    const _showFilterVirtual = showFilterVirtual && !forceSearchParameters.filters.get('virtual');
+    const _showRemoteServer = !forceSearchParameters.getFilters().has('remote') && !forceSearchParameters.getFilters().has('remoteServerId');
+
+    let lgFilterButtons = 9;
+    if (_showFilterVirtual) {
+      lgFilterButtons -= 3;
+    }
+    if (_showRemoteServer && Managers.SecurityManager.hasAuthority('REMOTESERVER_AUTOCOMPLETE')) {
+      if (_showFilterVirtual) {
+        lgFilterButtons -= 3;
+      } else {
+        lgFilterButtons -= 5;
+      }
+    }
 
     return (
       <Basic.Div>
@@ -211,29 +288,38 @@ export class SystemTable extends Advanced.AbstractTableContent {
           uiKey={ uiKey }
           manager={ manager }
           filterOpened={ filterOpened }
+          defaultSearchParameters={ defaultSearchParameters }
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ showRowSelection }
           filter={
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 3 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={ this.i18n('acc:entity.System.name') }
                       help={ Advanced.Filter.getTextHelp() }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 2 }>
+                  <Basic.Col lg={ 3 } rendered={ _showFilterVirtual }>
                     <Advanced.Filter.BooleanSelectBox
                       ref="virtual"
                       placeholder={ this.i18n('acc:entity.System.systemType.label') }
-                      rendered={showFilterVirtual}
                       options={ [
                         { value: 'true', niceLabel: this.i18n('acc:entity.System.systemType.virtual') },
                         { value: 'false', niceLabel: this.i18n('acc:entity.System.systemType.notVirtual') }
                       ]}/>
                   </Basic.Col>
-                  <Basic.Col lg={ 6 } className="text-right">
+                  <Basic.Col
+                    lg={ _showFilterVirtual ? 3 : 5 }
+                    rendered={ _showRemoteServer && Managers.SecurityManager.hasAuthority('REMOTESERVER_AUTOCOMPLETE') }>
+                    <RemoteServerSelect
+                      ref="remoteServerId"
+                      placeholder={ this.i18n('filter.remoteServerId.placeholder') }
+                      additionalOptions={[ this._getLocalServerOption() ]}
+                      onChange={ this.onChangeRemoteServer.bind(this) }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ lgFilterButtons } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
@@ -295,7 +381,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="blockedOperation"
-            width="12%"
+            width={ 175 }
             cell={({ rowIndex, data }) => {
               return (
                 this._getBlockedOperations(data[rowIndex])
@@ -318,28 +404,32 @@ export class SystemTable extends Advanced.AbstractTableContent {
 
 SystemTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  manager: PropTypes.object.isRequired,
+  manager: PropTypes.object,
   columns: PropTypes.arrayOf(PropTypes.string),
   filterOpened: PropTypes.bool,
+  defaultSearchParameters: PropTypes.object,
   forceSearchParameters: PropTypes.object,
   showAddButton: PropTypes.bool,
-  showRowSelection: PropTypes.bool
+  showRowSelection: PropTypes.bool,
+  showFilterVirtual: PropTypes.bool
 };
 
 SystemTable.defaultProps = {
+  manager: systemManager,
   columns: ['name', 'description', 'state', 'virtual', 'queue', 'blockedOperation'],
   filterOpened: false,
   _showLoading: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,
-  showRowSelection: true
+  showRowSelection: true,
+  showFilterVirtual: true
 };
 
 function select(state, component) {
   return {
     i18nReady: state.config.get('i18nReady'),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    _showLoading: component.manager.isShowLoading(state, `${component.uiKey}-detail`)
+    _showLoading: (component.manager || systemManager).isShowLoading(state, `${ component.uiKey }-detail`)
   };
 }
 

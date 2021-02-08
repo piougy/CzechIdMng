@@ -24,6 +24,7 @@ import ContractSliceAccountService from './ContractSliceAccountService';
 import AttributeControlledValueService from './AttributeControlledValueService';
 import UniformPasswordService from './UniformPasswordService';
 import UniformPasswordSystemService from './UniformPasswordSystemService';
+import RemoteServerService from './RemoteServerService';
 
 const ServiceRoot = {
   SystemService,
@@ -51,7 +52,8 @@ const ServiceRoot = {
   ContractSliceAccountService,
   AttributeControlledValueService,
   UniformPasswordService,
-  UniformPasswordSystemService
+  UniformPasswordSystemService,
+  RemoteServerService
 };
 
 ServiceRoot.version = '0.1.0';

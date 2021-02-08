@@ -272,7 +272,7 @@ export default class SystemManager extends Managers.EntityManager {
       if (loaded) {
         // we dont need to load them again - change depends on BE restart
       } else {
-        dispatch( this.getDataManager().requestData(uiKey));
+        dispatch(this.getDataManager().requestData(uiKey));
         this.getService().getSupportedTypes()
           .then(json => {
             let types = new Immutable.Map();
@@ -281,11 +281,11 @@ export default class SystemManager extends Managers.EntityManager {
                 types = types.set(item.id, item);
               });
             }
-            dispatch( this.getDataManager().receiveData(uiKey, types));
+            dispatch(this.getDataManager().receiveData(uiKey, types));
           })
           .catch(error => {
             // TODO: data uiKey
-            dispatch( this.getDataManager().receiveError(null, uiKey, error));
+            dispatch(this.getDataManager().receiveError(null, uiKey, error));
           });
       }
     };

@@ -5,11 +5,12 @@ import { connect } from 'react-redux';
 //
 import { Basic, Managers, Utils, Enums } from 'czechidm-core';
 import { SystemManager } from '../../redux';
+import RemoteServerSelect from '../../components/RemoteServerSelect/RemoteServerSelect';
 
 const systemManager = new SystemManager();
 
 /**
- * Target system detail content
+ * Target system detail content.
  *
  * @author Radek Tomiška
  */
@@ -19,14 +20,8 @@ class SystemDetail extends Basic.AbstractContent {
     super(props, context);
     this.passwordPolicyManager = new Managers.PasswordPolicyManager();
     //
-    let showConfigurationRemoteServer = false;
-    if (props.entity) {
-      showConfigurationRemoteServer = props.entity.remote;
-    }
-
     this.state = {
-      _showLoading: false,
-      showConfigurationRemoteServer
+      _showLoading: false
     };
   }
 
@@ -72,20 +67,7 @@ class SystemDetail extends Basic.AbstractContent {
       } else {
         data.stateEnum = null;
       }
-
-      // connector is part of entity, not embedded
-      if (entity.connectorServer) {
-        // set data for connector server
-        data = {
-          ...data,
-          host: entity.connectorServer.host,
-          port: entity.connectorServer.port,
-          useSsl: entity.connectorServer.useSsl,
-          password: entity.connectorServer.password,
-          timeout: entity.connectorServer.timeout
-        };
-      }
-
+      //
       if (entity.blockedOperation) {
         data = {
           ...data,
@@ -121,13 +103,6 @@ class SystemDetail extends Basic.AbstractContent {
     }, () => {
       const saveEntity = {
         ...entity,
-        connectorServer: {
-          host: entity.host,
-          password: entity.password,
-          port: entity.port,
-          timeout: entity.timeout,
-          useSsl: entity.useSsl
-        },
         blockedOperation: {
           createOperation: entity.createOperation,
           updateOperation: entity.updateOperation,
@@ -147,15 +122,6 @@ class SystemDetail extends Basic.AbstractContent {
           this._afterSave(patchedEntity, newError, afterAction);
         }));
       }
-    });
-  }
-
-  /**
-   * Method show form for remote server configuration
-   */
-  _setRemoteServer(event) {
-    this.setState({
-      showConfigurationRemoteServer: event.currentTarget.checked
     });
   }
 
@@ -185,8 +151,6 @@ class SystemDetail extends Basic.AbstractContent {
         this.context.history.replace(`/systems`);
       } else {
         this._initForm(entity);
-        // set again confidential to password
-        this.refs.form.getComponent('password').openConfidential(false);
         this.context.history.replace(`/system/${entity.id}/detail`);
       }
     });
@@ -201,7 +165,7 @@ class SystemDetail extends Basic.AbstractContent {
 
   render() {
     const { uiKey, entity } = this.props;
-    const { _showLoading, showConfigurationRemoteServer } = this.state;
+    const { _showLoading } = this.state;
     //
     const blockedOperationLabels = [];
     if (entity && entity.blockedOperation) {
@@ -217,7 +181,7 @@ class SystemDetail extends Basic.AbstractContent {
     }
 
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
         <Basic.Panel className={Utils.Entity.isNew(entity) && !this.isWizard() ? '' : 'no-border last'}>
           <Basic.PanelHeader rendered={!this.isWizard()} text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
@@ -227,15 +191,16 @@ class SystemDetail extends Basic.AbstractContent {
             <Basic.AbstractForm
               ref="form"
               uiKey={ uiKey}
-              onSubmit={(event) => {
+              onSubmit={ (event) => {
                 this.save(this.isWizard() ? null : 'CONTINUE', event);
               }}
               readOnly={
-                  Utils.Entity.isNew(entity)
-                  ?
-                  !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE')
-                  :
-                  !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }>
+                Utils.Entity.isNew(entity)
+                ?
+                !Managers.SecurityManager.hasAuthority('SYSTEM_CREATE')
+                :
+                !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE')
+              }>
               <Basic.Alert
                 level="warning"
                 icon="exclamation-sign"
@@ -245,40 +210,14 @@ class SystemDetail extends Basic.AbstractContent {
 
               <Basic.TextField
                 ref="name"
-                label={this.i18n('acc:entity.System.name')}
+                label={ this.i18n('acc:entity.System.name') }
                 required
-                max={255}/>
-              <Basic.Checkbox
-                ref="remote"
-                onChange={this._setRemoteServer.bind(this)}
-                label={this.i18n('acc:entity.System.remoteConnector.label')}
-                helpBlock={this.i18n('acc:entity.System.remoteConnector.help')}/>
-              {/* definition for remote connector server */}
-              <Basic.TextField
-                ref="host"
-                label={this.i18n('acc:entity.ConnectorServer.host')}
-                hidden={!showConfigurationRemoteServer}
-                required={showConfigurationRemoteServer}
-                max={255}/>
-              <Basic.Checkbox
-                ref="useSsl"
-                label={this.i18n('acc:entity.ConnectorServer.useSsl')}
-                hidden={!showConfigurationRemoteServer}/>
-              <Basic.TextField
-                ref="port"
-                label={this.i18n('acc:entity.ConnectorServer.port')}
-                hidden={!showConfigurationRemoteServer}/>
-              <Basic.TextField
-                ref="password"
-                type="password"
-                confidential
-                label={this.i18n('acc:entity.ConnectorServer.password')}
-                hidden={!showConfigurationRemoteServer}/>
-              <Basic.TextField
-                ref="timeout"
-                label={this.i18n('acc:entity.ConnectorServer.timeout')}
-                hidden={!showConfigurationRemoteServer}/>
-              {/* end for connector server definition */}
+                max={ 255 }/>
+              <RemoteServerSelect
+                ref="remoteServer"
+                label={ this.i18n('acc:entity.System.remoteServer.label') }
+                placeholder={ this.i18n('acc:entity.System.remoteServer.placeholder') }
+                helpBlock={ this.i18n('acc:entity.System.remoteServer.help') }/>
               <Basic.SelectBox
                 ref="passwordPolicyValidate"
                 label={this.i18n('acc:entity.System.passwordPolicyValidate')}
@@ -295,10 +234,6 @@ class SystemDetail extends Basic.AbstractContent {
                 manager={this.passwordPolicyManager}
                 forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
                   .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.GENERATE))}/>
-              <Basic.TextArea
-                ref="description"
-                label={this.i18n('acc:entity.System.description')}
-                max={255}/>
               <Basic.EnumSelectBox
                 ref="stateEnum"
                 label={ this.i18n('acc:entity.System.state.label', { escape: false }) }
@@ -329,24 +264,28 @@ class SystemDetail extends Basic.AbstractContent {
                 ]}/>
               <Basic.Checkbox
                 ref="queue"
-                label={this.i18n('acc:entity.System.queue.label')}
-                hidden={this.isWizard()}
-                helpBlock={this.i18n('acc:entity.System.queue.help')}/>
+                label={ this.i18n('acc:entity.System.queue.label') }
+                hidden={ this.isWizard() }
+                helpBlock={ this.i18n('acc:entity.System.queue.help') }/>
               <Basic.Checkbox
                 ref="createOperation"
-                label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
-                hidden={this.isWizard()}
-                helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
+                label={ this.i18n('acc:entity.BlockedOperation.createOperation.label') }
+                hidden={ this.isWizard() }
+                helpBlock={ this.i18n('acc:entity.BlockedOperation.createOperation.help') }/>
               <Basic.Checkbox
                 ref="updateOperation"
                 label={ this.i18n('acc:entity.BlockedOperation.updateOperation.label') }
-                hidden={this.isWizard()}
+                hidden={ this.isWizard() }
                 helpBlock={ this.i18n('acc:entity.BlockedOperation.updateOperation.help') }/>
               <Basic.Checkbox
                 ref="deleteOperation"
                 label={ this.i18n('acc:entity.BlockedOperation.deleteOperation.label') }
-                hidden={this.isWizard()}
+                hidden={ this.isWizard() }
                 helpBlock={ this.i18n('acc:entity.BlockedOperation.deleteOperation.help') }/>
+              <Basic.TextArea
+                ref="description"
+                label={ this.i18n('acc:entity.System.description') }
+                max={ 2000 }/>
             </Basic.AbstractForm>
           </Basic.PanelBody>
 
@@ -374,7 +313,7 @@ class SystemDetail extends Basic.AbstractContent {
           </Basic.PanelFooter>
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

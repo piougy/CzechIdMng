@@ -1,17 +1,15 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-
 import java.util.stream.Collectors;
+
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Sets;
-import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractExportBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
@@ -65,7 +63,7 @@ public class AbstractExportBulkActionTest extends AbstractBulkActionTest {
 	/**
 	 * Provides export and following import operation for supplied dto It accepts a map of methods in order to supply necessary operation between individual steps.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected <DTO extends AbstractDto> IdmExportImportDto executeExportAndImport(List<DTO> dtos, Class dtoType, String actionName, Map<String, Consumer<DTO>> execute) {
 		String batchName = getHelper().createName();
 		Class<? extends BaseEntity> entityClass = getLookupService().getEntityClass(dtoType);

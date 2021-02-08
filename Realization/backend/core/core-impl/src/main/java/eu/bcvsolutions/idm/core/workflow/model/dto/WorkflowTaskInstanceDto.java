@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
 
@@ -46,7 +47,7 @@ public class WorkflowTaskInstanceDto implements BaseDto {
 	private String processDefinitionKey;
 	private String processDefinitionId;
 	private int priority;
-	@JsonProperty(value = "_dtotype", access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(value = AbstractDto.PROPERTY_DTO_TYPE, access = JsonProperty.Access.READ_ONLY)
 	private Class<? extends BaseDto> type = this.getClass();
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private IdmDelegationDefinitionDto delegationDefinition;

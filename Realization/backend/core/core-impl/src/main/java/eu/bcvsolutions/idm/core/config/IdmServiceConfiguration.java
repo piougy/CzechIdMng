@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
+import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookupByExample;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -240,6 +241,7 @@ public class IdmServiceConfiguration {
 	@Autowired private List<? extends FilterBuilder<?, ?>> filterBuilders;
 	@Autowired private List<? extends EntityLookup<?>> entityLookups;
 	@Autowired private List<? extends DtoLookup<?>> dtoLookups;
+	@Autowired private List<? extends DtoLookupByExample<?>> dtoLookupByExamples;
 
 	/**
 	 * Crypt service for confidential storage
@@ -315,7 +317,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(LookupService.class)
 	public LookupService lookupService() {
-		return new DefaultLookupService(context, entityManager, entityLookups, dtoLookups);
+		return new DefaultLookupService(context, entityManager, entityLookups, dtoLookups, dtoLookupByExamples);
 	}
 	
 	/**

@@ -127,21 +127,21 @@ class JdbcStepOne extends AbstractWizardStep {
             required
             max={255}/>
           <Basic.Div style={{display: 'flex'}}>
-            <Basic.Div style={{flex: 1, marginRight: 15}}>
-              <Basic.TextField
-                ref="port"
-                validation={Joi.number().integer().min(0).max(65535)}
-                label={this.i18n(`${locKey}.port.label`)}
-                helpBlock={this.i18n(`${locKey}.port.help`)}
-                required/>
-            </Basic.Div>
-            <Basic.Div style={{flex: 3}}>
+            <Basic.Div style={{flex: 3,marginRight: 15}}>
               <Basic.TextField
                 ref="host"
                 label={this.i18n(`${locKey}.host.label`)}
                 helpBlock={this.i18n(`${locKey}.host.help`)}
                 required
                 max={128}/>
+            </Basic.Div>
+            <Basic.Div style={{flex: 1}}>
+              <Basic.TextField
+                ref="port"
+                validation={Joi.number().integer().min(0).max(65535)}
+                label={this.i18n(`${locKey}.port.label`)}
+                helpBlock={this.i18n(`${locKey}.port.help`)}
+                required/>
             </Basic.Div>
           </Basic.Div>
           <Basic.TextField

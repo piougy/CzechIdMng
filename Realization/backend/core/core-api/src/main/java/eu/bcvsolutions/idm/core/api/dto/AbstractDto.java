@@ -40,6 +40,7 @@ import joptsimple.internal.Strings;
 public abstract class AbstractDto implements BaseDto, Auditable {
 	
 	private static final long serialVersionUID = 7512463222974374742L;
+	public static final String PROPERTY_DTO_TYPE = "_dtotype";
 	//
 	@JsonDeserialize(as = UUID.class)
 	@ApiModelProperty(required = true, notes = "Unique uuid identifier. Used as identifier in rest endpoints", dataType = "java.util.UUID")
@@ -80,7 +81,7 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@JsonProperty(value = "_embedded", access = Access.READ_ONLY)
 	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private Map<String, BaseDto> embedded;
-	@JsonProperty(value = "_dtotype", access = Access.READ_ONLY)
+	@JsonProperty(value = PROPERTY_DTO_TYPE, access = Access.READ_ONLY)
 	private Class<? extends BaseDto> type = this.getClass();
 	@JsonProperty(value = "_permissions", access = Access.READ_ONLY)
 	@ApiModelProperty(

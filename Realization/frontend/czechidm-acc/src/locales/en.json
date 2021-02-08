@@ -22,7 +22,17 @@
     },
     "systems": {
       "header": "Systems",
-      "title": "$t(acc:content.systems.header)"
+      "title": "$t(acc:content.systems.header)",
+      "filter": {
+        "remoteServerId": {
+          "placeholder": "Connector server",
+          "option": {
+            "localServer": {
+              "label": "-- local connectors (server) --"
+            }
+          }
+        }
+      }
     },
     "schema": {
 
@@ -413,6 +423,61 @@
         "header" : "Roles <small>Role assigns account in systems</small>"
       }
     },
+    "connector-servers": {
+      "label": "Connector servers",
+      "header": "Connector servers",
+      "title": "Connector servers",
+      "local": {
+        "header": "Local connectors <small>connectors installed on the same server together with IdM</small>"
+      }
+    },
+    "connector": {
+      "detail": {
+        "header": "{{record}}, {{version}}  <small>connector detail</small>",
+        "tabs": {
+          "basic": {
+            "title": "Basic information"
+          },
+          "systems": {
+            "title": "Systems"
+          }
+        }
+      }
+    },
+    "remote-servers": {
+      "label": "Remote servers",
+      "header": "Remote connector servers",
+      "title": "Remote connector servers",
+      "edit": {
+        "header": "{{record}} <small>remote connector server detail</small>",
+        "title": "Remote connector server detail"
+      },
+      "create": {
+        "title": "New remote connector server",
+        "header": "New remote connector server"
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Host or description"
+        }
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Remote connector server [{{record}}] successfully saved"
+      },
+      "connectors": {
+        "label": "Connectors",
+        "header": "Server connectors",
+        "title": "Server connectors"
+      },
+      "systems": {
+        "label": "Systems",
+        "header": "Systems",
+        "title": "Systems"
+      }
+    },
     "role": {
       "systems": {
         "header": "$t(acc:content.systems.header) <small>$t(acc:entity.RoleSystem._type)</small>",
@@ -739,13 +804,24 @@
       "connectorKey": {
         "_type": "Connector",
         "framework": "Framework",
+        "connectorDisplayName": {
+          "label": "Connector name"
+        },
         "connectorName": "Connector type",
         "bundleName": "Connector bundle",
-        "bundleVersion": "Connector version"
+        "bundleVersion": "Connector version",
+        "fullName": {
+          "label": "Full connector identifier"
+        }
       },
       "remoteConnector": {
         "label": "Use remote connector server",
         "help": "After check, local connectors will not be used."
+      },
+      "remoteServer": {
+        "label": "Use remote connector server",
+        "placeholder": "Use local connectors or select server ...",
+        "help": "Local connectors will be used by default or select remote server with available connectors."
       },
       "connectorHost": "Server with connectors",
       "disabledProvisioning": {
@@ -795,6 +871,32 @@
         "label": "Block delete operation",
         "help": "All deletion operations will be blocked",
         "short": "Delete"
+      }
+    },
+    "RemoteServer": {
+      "_type": "Remote connector server",
+      "host": {
+        "label": "Host",
+        "help": "Enter the name of the host where the connector server is running."
+      },
+      "port": {
+        "label": "Port",
+        "help": "Enter the TCP port number the connector server is listening on."
+      },
+      "password": {
+        "label": "Password"
+      },
+      "timeout": {
+        "label": "Timeout"
+      },
+      "useSsl": {
+        "label": "Use SSL"
+      },
+      "defaultRemoteServer": {
+        "short": "Default",
+        "label": "Default remote server",
+        "title": "Default remote server",
+        "help": "Default remote connector server is used e.g. for  export / import - imported systems will be related to default remote connector server even their configuration is different (host, port etc.)."
       }
     },
     "RoleSystem": {
@@ -1558,7 +1660,7 @@
           },
           "jdbcurltemplate": {
             "label": "JDBC Connection URL",
-            "help": "Specify the JDBC Driver Connection URL. Oracle template is <strong>jdbc:oracle:thin:@[host]:[port(1521)]:[DB]</strong>. MySQL template is <strong>jdbc:mysql://[host]:[port(3306)]/[db]</strong>. PostgreSQL template id <strong>jdbc:postgresql://[host]:[port(5432)]/[db]</strong>, for more info, read the JDBC driver documentation. Could be empty if datasource is provided.",
+            "help": "Specify the JDBC Driver Connection URL. Oracle template is <strong>jdbc:oracle:thin:@%h:%p:%d</strong>. MySQL template is <strong>jdbc:mysql://%h:%p/%d</strong>. PostgreSQL template id <strong>jdbc:postgresql://%h:%p/%d</strong>, for more info, read the JDBC driver documentation. Could be empty if datasource is provided.",
             "placeholder": ""
           },
           "enableemptystring": {
@@ -2159,6 +2261,11 @@
         "help": "$t(action.delete.action) selected systems. <strong>System must not contains any accounts and unresolved provisioning operations</strong>.",
         "icon": "$t(action.delete.icon)"
       },
+      "acc-remote-server-delete-bulk-action": {
+        "label": "$t(action.delete.action) remote connector servers",
+        "help": "$t(action.delete.action) selected remote connector servers. <strong>Server can be deleted, if it is not used for a target system</strong>.",
+        "icon": "$t(action.delete.icon)"
+      },
       "acc-system-mapping-delete-bulk-action": {
         "label": "$t(action.delete.action) mappings",
         "help": "$t(action.delete.action) selected mappings. <strong>Mapping must not be used in synchronization or provisioning</strong>.",
@@ -2682,6 +2789,10 @@
     "SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS": {
       "title": "Entity in system cannot be removed",
       "message": "Entity [{{uid}}] in system [{{system}}] cannot be removed. Active provisioning operations exist for the entity."
+    },
+    "REMOTE_SYSTEM_DELETE_FAILED_HAS_SYSTEMS": {
+      "title": "Server cannot be removed",
+      "message": "Remote connector server <strong class=\"highlight\">{{remoteServer}}</strong> cannot be removed. It is already used in configured systems."
     },
     "REMOTE_SERVER_INVALID_CREDENTIAL": {
       "title": "Bad password for remote connector server",

@@ -141,9 +141,17 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		//
 		deleteAll(getOwnerId(owner), owner.getClass());
 	}
+	
+	@Override
+	public boolean exists(UUID ownerId, Class<? extends Identifiable> ownerType, String key) {
+		Assert.notNull(ownerId, "Owner identifier is required");
+		Assert.notNull(ownerType, "Owner type is required.");
+		Assert.hasLength(key, "Key is required.");
+		//
+		return getStorageValue(ownerId, ownerType, key) != null;
+	}
 
 	@Override
-	@Transactional(readOnly = true)
 	public Serializable get(UUID ownerId, Class<? extends Identifiable> ownerType, String key) {
 		Assert.notNull(ownerId, "Owner identifier is required");
 		Assert.notNull(ownerType, "Owner type is required.");
@@ -154,7 +162,6 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
 	public Serializable get(Identifiable owner, String key) {
 		Assert.notNull(owner, "Owner is required.");
 		//
@@ -162,7 +169,6 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
 	public <T extends Serializable> T get(UUID ownerId, Class<? extends Identifiable> ownerType, String key, Class<T> valueType) {
 		Serializable storageValue = get(ownerId, ownerType, key);
 		if (storageValue == null) {
@@ -178,7 +184,6 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
 	public <T extends Serializable> T get(Identifiable owner, String key, Class<T> valueType) {
 		Assert.notNull(owner, "Owner is required.");
 		//
@@ -186,7 +191,6 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
 	public <T extends Serializable> T get(UUID ownerId, Class<? extends Identifiable> ownerType, String key, Class<T> valueType, T defaultValue) {
 		try {
 			T value = get(ownerId, ownerType, key, valueType);
@@ -198,7 +202,6 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	} 
 	
 	@Override
-	@Transactional(readOnly = true)
 	public <T extends Serializable> T get(Identifiable owner, String key, Class<T> valueType, T defaultValue) {
 		Assert.notNull(owner, "Owner is required.");
 		//
@@ -206,7 +209,6 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
 	public GuardedString getGuardedString(UUID ownerId, Class<? extends Identifiable> ownerType, String key) {
 		Serializable storageValue = get(ownerId, ownerType, key);
 		if (storageValue == null) {
@@ -216,7 +218,6 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
 	public GuardedString getGuardedString(Identifiable owner, String key) {
 		Assert.notNull(owner, "Owner is required.");
 		//

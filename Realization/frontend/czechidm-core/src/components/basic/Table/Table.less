@@ -11,9 +11,34 @@
     overflow-y: auto;
     max-height: 500px;
   }
+
   &.lg-vertical-scroll {
     overflow-y: auto;
     max-height: 750px;
+  }
+
+  /* embedded table */
+  &.no-margin {
+
+    > div > .basic-table > .alert {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .table .alert.no-data {
+      margin: 15px -15px 15px -15px;
+    }
+
+    .table > thead > tr, .table > tbody > tr {
+
+      td:first-child {
+        padding-left: 3px;
+      }
+
+      td:last-child {
+        padding-right: 3px;
+      }
+    }
   }
 }
 

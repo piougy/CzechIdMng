@@ -113,8 +113,7 @@ export class FormProjectionTable extends Advanced.AbstractTableContent {
                     onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 );
               }
-            }
-            sort={false}/>
+            }/>
           <Advanced.Column property="ownerType" sort rendered={ false }/>
           <Advanced.Column property="code" sort/>
           <Advanced.Column property="route" sort/>

@@ -127,12 +127,14 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs"
-                      onClick={this.showDetail.bind(this, {})}
-                      rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_CREATE')}>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.add')}
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={ this.showDetail.bind(this, {}) }
+                rendered={ SecurityManager.hasAuthority('PASSWORDPOLICY_CREATE') }
+                icon="fa:plus">
+                { this.i18n('button.add') }
               </Basic.Button>
             ]
           }
@@ -150,10 +152,15 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="type" sort
-            face="enum" width="75px"
-            enumClass={PasswordPolicyTypeEnum}/>
-          <Advanced.Column property="name" sort
+          <Advanced.Column
+            property="type"
+            sort
+            face="enum"
+            width={ 75 }
+            enumClass={ PasswordPolicyTypeEnum }/>
+          <Advanced.Column
+            property="name"
+            sort
             cell={
               ({ rowIndex, data }) => {
                 let name = data[rowIndex].name;

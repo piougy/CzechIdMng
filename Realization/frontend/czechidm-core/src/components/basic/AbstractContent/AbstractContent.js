@@ -140,7 +140,7 @@ export default class AbstractContent extends AbstractContextComponent {
       message.hidden = true;
     } else if (error.statusCode === 404) {
       if (error.parameters && error.parameters.entity) {
-        this.context.history.push(`/error/404?id=${error.parameters.entity}`);
+        this.context.history.push(`/error/404?id=${ error.parameters.entity }`);
         message.hidden = true;
       } else {
         this.context.history.push(`/error/404`);

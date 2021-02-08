@@ -6,7 +6,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
- * Target system configuration
+ * Target system configuration.
  * 
  * @author Radek Tomiška
  *

@@ -1,6 +1,6 @@
 # SystemInfo Component
 
-Information about role. If role doesn't exist, then short role's identifier will be shown.
+Information about target system. If system doesn't exist, then short system's identifier will be shown.
 
 ## Parameters
 

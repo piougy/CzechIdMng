@@ -83,6 +83,9 @@ public interface LookupService extends ScriptEnabled {
 	 */
 	<DTO extends BaseDto> DTO lookupDto(String identifiableType, Serializable entityId);
 	
+	
+	<DTO extends BaseDto> DTO lookupByExample(DTO example);
+	
 	/**
 	 * Returns {@link EntityLookup} for given identifiable class.
 	 * 

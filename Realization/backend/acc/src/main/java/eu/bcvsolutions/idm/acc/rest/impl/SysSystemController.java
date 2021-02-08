@@ -823,11 +823,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}
 
-	/**
-	 * Get available bulk actions for role
-	 *
-	 * @return
-	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
@@ -845,12 +841,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		return super.getAvailableBulkActions();
 	}
 
-	/**
-	 * Process bulk action for roles
-	 *
-	 * @param bulkAction
-	 * @return
-	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
@@ -869,12 +860,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		return super.bulkAction(bulkAction);
 	}
 
-	/**
-	 * Prevalidate bulk action for roles
-	 *
-	 * @param bulkAction
-	 * @return
-	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
@@ -1212,9 +1198,6 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 
 	@Override
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SysSystemFilter filter = new SysSystemFilter(parameters, getParameterConverter());
-		// Context property only
-		filter.setContainsRemoteServerPasswordProxyChars(Boolean.TRUE);
-		return filter;
+		return new SysSystemFilter(parameters, getParameterConverter());
 	}
 }

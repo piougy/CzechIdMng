@@ -52,7 +52,7 @@ export default class TokenTypeEnum extends AbstractEnum {
         return 'component:identity';
       }
       case this.SYSTEM: {
-        return 'component:system';
+        return 'component:setting';
       }
       default: {
         return null;

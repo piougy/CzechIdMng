@@ -40,6 +40,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.SysConnectorKey_;
+import eu.bcvsolutions.idm.acc.entity.SysRemoteServer_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
@@ -63,8 +65,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy_;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
@@ -88,7 +88,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
- * Default target system configuration service
+ * Default target system configuration service.
  *
  * @author Radek Tomiška
  * @author Ondrej Husnik
@@ -164,32 +164,6 @@ public class DefaultSysSystemService
 	}
 
 	@Override
-	public SysSystemDto get(Serializable id, SysSystemFilter filter, BasePermission... permission) {
-		SysSystemDto entity = super.get(id, filter, permission);
-		if (entity == null) {
-			return null;
-		}
-		//
-		// found if entity has filled password
-		if (entity.isRemote()) {
-			try {
-				if (filter != null && filter.isContainsRemoteServerPasswordProxyChars()) {
-					Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
-							SysSystemService.REMOTE_SERVER_PASSWORD);
-					if (password != null && entity.getConnectorServer() != null) {
-						entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
-					}
-				}
-			} catch (ResultCodeException ex) {
-				// decorator only - we has to log exception, because is not possible to change password, if error occurs in get ....
-				LOG.error("Remote connector server pasword for system [{}] is wrong, repair system configuration.", entity.getName(), ex);
-			}
-		}
-		//
-		return entity;
-	}
-
-	@Override
 	@Transactional
 	public SysSystemDto saveInternal(SysSystemDto dto) {
 		if (dto != null) {
@@ -199,6 +173,15 @@ public class DefaultSysSystemService
 			}
 		}
 		return super.saveInternal(dto);
+	}
+	
+	@Override
+	protected SysSystem toEntity(SysSystemDto dto, SysSystem entity) {
+		SysSystem system = super.toEntity(dto, entity);
+		if (system != null && system.getRemoteServer() != null) {
+			system.setRemote(false); // flag is deprecated @since 10.8.0
+		}
+		return system;
 	}
 
 	@Override
@@ -232,6 +215,51 @@ public class DefaultSysSystemService
 		}
 		if (filter.getPasswordPolicyValidationId() != null) {
 			predicates.add(builder.equal(root.get(SysSystem_.passwordPolicyValidate).get(IdmPasswordPolicy_.id), filter.getPasswordPolicyValidationId()));
+		}
+		//
+		UUID remoteServerId = filter.getRemoteServerId();
+		if (remoteServerId != null) {
+			predicates.add(builder.equal(root.get(SysSystem_.remoteServer).get(SysRemoteServer_.id), remoteServerId));
+		}
+		//
+		Boolean remote = filter.getRemote();
+		if (remote != null) {
+			if (remote) {
+				predicates.add(
+						builder.or(
+								builder.isNotNull(root.get(SysSystem_.remoteServer)), 
+								builder.isTrue(root.get(SysSystem_.remote)) // <= 10.7.x
+						)
+				);
+			} else {
+				// ~ local connector
+				predicates.add(
+						builder.and(
+								builder.isNull(root.get(SysSystem_.remoteServer)), 
+								builder.isFalse(root.get(SysSystem_.remote)) // <= 10.7.x
+						)
+				);
+			}
+		}
+		//
+		String connectorFramework = filter.getConnectorFramework();
+		if (StringUtils.isNotEmpty(connectorFramework)) {
+			predicates.add(builder.equal(root.get(SysSystem_.connectorKey).get(SysConnectorKey_.framework), connectorFramework));
+		}
+		//
+		String connectorName = filter.getConnectorName();
+		if (StringUtils.isNotEmpty(connectorName)) {
+			predicates.add(builder.equal(root.get(SysSystem_.connectorKey).get(SysConnectorKey_.connectorName), connectorName));
+		}
+		//
+		String connectorBundleName = filter.getConnectorBundleName();
+		if (StringUtils.isNotEmpty(connectorBundleName)) {
+			predicates.add(builder.equal(root.get(SysSystem_.connectorKey).get(SysConnectorKey_.bundleName), connectorBundleName));
+		}
+		//
+		String connectorVersion = filter.getConnectorVersion();
+		if (StringUtils.isNotEmpty(connectorVersion)) {
+			predicates.add(builder.equal(root.get(SysSystem_.connectorKey).get(SysConnectorKey_.bundleVersion), connectorVersion));
 		}
 		//
 		return predicates;
@@ -748,7 +776,7 @@ public class DefaultSysSystemService
 		IcConnectorConfiguration conf = null;
 		try {
 			conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
-		}catch(IcRemoteServerException ex) {
+		} catch(IcRemoteServerException ex) {
 			if (formDefinition != null) {
 				LOG.info("Connector definition cannot be updated, because connector returns remote-server exception."
 						+ " Exists definition will be used.", ex);

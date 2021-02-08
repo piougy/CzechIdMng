@@ -887,22 +887,22 @@ module.exports = {
       ]
     },
     {
-      path: 'form-projections/',
+      path: 'form-projections/:entityId',
       component: require('./src/content/form/FormProjectionRoutes'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ],
       childRoutes: [
         {
-          path: ':entityId/detail',
+          path: 'detail',
           component: require('./src/content/form/FormProjectionDetail'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
         },
         {
-          path: ':entityId/identities',
+          path: 'identities',
           component: require('./src/content/form/FormProjectionIdentities'),
           access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['FORMPROJECTION_READ', 'IDENTITY_READ'] } ]
         },
         {
-          path: ':entityId/localization',
+          path: 'localization',
           component: require('./src/content/form/FormProjectionLocalization'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
         }

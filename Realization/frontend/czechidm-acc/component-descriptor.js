@@ -18,6 +18,13 @@ module.exports = {
       manager: require('./src/redux').SystemManager
     },
     {
+      id: 'remote-server-info',
+      type: 'entity-info',
+      entityType: ['remoteServer', 'SysRemoteServer', 'SysRemoteServerDto', 'SysConnectorServerDto', 'SysConnectorServer'],
+      component: require('./src/components/RemoteServerInfo/RemoteServerInfo').default,
+      manager: require('./src/redux').RemoteServerManager
+    },
+    {
       id: 'schema-attribute-info',
       type: 'entity-info',
       entityType: ['schemaAttribute', 'SysSchemaAttribute', 'SysSchemaAttributeDto'],
@@ -175,6 +182,21 @@ module.exports = {
       type: 'connector-type',
       entityType: ['mysql-connector-type'],
       component: require('./src/content/wizard/connectorType/JdbcSqlSystemWizard')
-    }
+    },
+    {
+      id: 'remote-server-icon',
+      type: 'icon',
+      entityType: ['server', 'servers'],
+      component: 'fa:server'
+    },
+    {
+      id: 'remote-server-select-box',
+      type: 'entity-select-box',
+      priority: 0,
+      localizationKey: 'acc.entity.RemoteServer',
+      entityType: [ 'remoteServer' ],
+      searchInFields: ['host', 'description'],
+      manager: require('./src/redux').RemoteServerManager
+    },
   ]
 };

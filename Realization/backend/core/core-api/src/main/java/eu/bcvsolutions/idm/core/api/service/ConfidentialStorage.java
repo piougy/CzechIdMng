@@ -78,6 +78,17 @@ public interface ConfidentialStorage {
 	void deleteAll(Identifiable owner);
 	
 	/**
+	 * Value by owner and key is set to some value (~ value for given owner and key is set). Value can be "empty", 
+	 * 
+	 * @param ownerId values owner identifier
+	 * @param ownerType owner type
+	 * @param key storage value identifier
+	 * @return true - value is set
+	 * @since 10.8.0
+	 */
+	boolean exists(UUID ownerId, Class<? extends Identifiable> ownerType, String key);
+	
+	/**
 	 * Get value by owner and key
 	 * 
 	 * @param ownerId values owner identifier
@@ -147,7 +158,9 @@ public interface ConfidentialStorage {
 	<T extends Serializable> T get(Identifiable owner, String key, Class<T> valueType, T defaultValue);
 	
 	/**
-	 * Get value by owner and key as {@GuardedString}. Raw Serializable value is transformed toString internally. If value
+	 * Get value by owner and key as {@GuardedString}. 
+	 * Raw Serializable value is transformed toString internally. 
+	 * If value is not configured, then empty GuardedString is returned.
 	 * 
 	 * @param ownerId values owner identifier
 	 * @param ownerType
@@ -157,7 +170,9 @@ public interface ConfidentialStorage {
 	GuardedString getGuardedString(UUID ownerId, Class<? extends Identifiable> ownerType, String key);
 	
 	/**
-	 * Get value by owner and key as {@GuardedString}. Raw Serializable value is transformed toString internally. If value
+	 * Get value by owner and key as {@GuardedString}. 
+	 * Raw Serializable value is transformed toString internally.
+	 * If value is not configured, then empty GuardedString is returned.
 	 * 
 	 * @param owner
 	 * @param key

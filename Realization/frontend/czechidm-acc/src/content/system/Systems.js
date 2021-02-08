@@ -6,7 +6,7 @@ import { SystemManager } from '../../redux';
 import SystemTable from './SystemTable';
 
 /**
- * Content with table of systems
+ * Content with table of systems.
  *
  * @author Radek Tomiška
  */
@@ -30,14 +30,12 @@ class Systems extends Basic.AbstractContent {
     return 'sys-systems';
   }
 
-  showWizardDetail(entity) {
+  showWizardDetail(/* entity */) {
     this.context.history.push(`/connector-types`);
   }
 
 
   render() {
-    const { match, location } = this.props;
-
     return (
       <Basic.Div>
         { this.renderPageHeader() }

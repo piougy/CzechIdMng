@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -53,14 +54,11 @@ import eu.bcvsolutions.idm.core.api.dto.EmbeddedDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmImportLogDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.ImportContext;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmImportLogFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
@@ -68,11 +66,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.IdmExportImportService;
 import eu.bcvsolutions.idm.core.api.service.IdmImportLogService;
-import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.ImportManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ZipUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -83,7 +79,6 @@ import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -118,8 +113,6 @@ public class DefaultImportManager implements ImportManager {
 	private FormService formService;
 	@Autowired
 	private EntityManager entityManager;
-	@Autowired
-	private IdmTreeNodeService treeNodeService;
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultImportManager.class);
 
@@ -464,37 +457,63 @@ public class DefaultImportManager implements ImportManager {
 	/**
 	 * Find target DTO by example source DTO (typically by more then one filter field).
 	 *
-	 * TODO: Move to the find by example in service/lookup (not exists yet :-)).
 	 * @param dto
 	 * @param embeddedDto
 	 * @param context
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private BaseDto findByExample(BaseDto dto, EmbeddedDto embeddedDto, ImportContext context) throws IOException {
-		if (dto instanceof IdmTreeNodeDto) {
-			// We try to find exists tree-node by code and tree-type.
-			IdmTreeNodeDto node = (IdmTreeNodeDto) dto;
-			IdmTreeTypeDto embeddedTreeType = DtoUtils.getEmbedded(node, IdmTreeNode_.treeType, IdmTreeTypeDto.class, null);
-			if (embeddedTreeType == null && embeddedDto != null) {
-				// Embedded data cannot be deserialized by default. We need made deserialized item, which we need (tree-type).
-				JsonNode treeTypeString = embeddedDto.getEmbedded().get(IdmTreeNode_.treeType.getName());
-				embeddedTreeType  = this.convertStringToDto(treeTypeString.toString(), IdmTreeTypeDto.class, context);
-			}
-			if (embeddedTreeType != null) {
-				// Find tree-type by code.
-				BaseDto treeType = lookupService.lookupDto(IdmTreeTypeDto.class, ((Codeable) embeddedTreeType).getCode());
-				if (treeType != null) {
-					IdmTreeNodeFilter nodeFilter = new IdmTreeNodeFilter();
-					nodeFilter.setTreeTypeId((UUID) treeType.getId());
-					nodeFilter.setCode(node.getCode());
-					List<IdmTreeNodeDto> nodes = treeNodeService.find(nodeFilter, null).getContent();
-					if (nodes.size() == 1) {
-						return nodes.get(0);
-					}
-				}
-			}
+		// check, if we can include additional embedded dtos
+		if (embeddedDto == null) {
+			// additional embedded dtos not given
+			return lookupService.lookupByExample(dto);
 		}
-		return null;
+		if (!(dto instanceof AbstractDto)) {
+			// additional embedded dtos supports abstract dto only
+			return lookupService.lookupByExample(dto);
+		}
+		Map<String, JsonNode> jsons = embeddedDto.getEmbedded();
+		if (CollectionUtils.isEmpty(jsons)) {
+			// additional embedded dtos given, but empty
+			return lookupService.lookupByExample(dto);
+		}
+		//
+		// try to init embedded dtos (~ typed) from embedded json (~ string)
+		for (Entry<String, JsonNode> entry : jsons.entrySet()) {
+			AbstractDto abstractDto = (AbstractDto) dto;
+			String propertyName = entry.getKey();
+			if (abstractDto.getEmbedded().containsKey(propertyName)) {
+				// already filled
+				continue;
+			}
+			// get dto type
+			JsonNode json = entry.getValue();
+			JsonNode jsonDtoType = json.get(AbstractDto.PROPERTY_DTO_TYPE); // by convention
+			if (jsonDtoType == null) {
+				// dto type is not specified
+				continue;
+			}
+			// resolve dto type as class
+			String stringDtoType = jsonDtoType.asText();
+			try {
+				Class<?> dtoType = Class.forName(stringDtoType);
+				if (!BaseDto.class.isAssignableFrom(dtoType)) {
+					// base dto is supported in embedded only
+					continue;
+				}
+				BaseDto baseDto = this.convertStringToDto(json.toString(), (Class<? extends BaseDto>) dtoType, context);
+				if (baseDto != null) {
+					abstractDto.getEmbedded().put(propertyName, baseDto);
+				}										
+			} catch (Exception ex) {
+				LOG.warn("DTO type [{}] cannot be resolved from json, dto will not be set for find current dto by example.",
+						stringDtoType, ex);
+			}
+			
+		}
+		//
+		return lookupService.lookupByExample(dto);
 	}
 
 	/**

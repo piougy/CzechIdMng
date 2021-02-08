@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -13,28 +15,33 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
- * Save sys system, catch event UPDATE and CREATE
+ * Save target system, catch event UPDATE and CREATE.
  * 
  * @author svandav
  *
  */
 @Component
-@Description("Persists sys system.")
+@Description("Persists target system.")
 public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 
 	public static final String PROCESSOR_NAME = "system-save-processor";
 	private final SysSystemService service;
 	private final ConfidentialStorage confidentialStorage;
 	private final SysProvisioningBreakConfigService provisioningBreakConfigService;
+	//
+	@Autowired private LookupService lookupService;
+	@Autowired private SysRemoteServerService remoteServerService;
 	
 	@Autowired
 	public SystemSaveProcessor(
@@ -60,8 +67,15 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 	@Override
 	public EventResult<SysSystemDto> process(EntityEvent<SysSystemDto> event) {
 		SysSystemDto dto = event.getContent();
-		// create default connector server
-		if (dto.getConnectorServer() == null) {
+		SysSystemDto previousSystem = event.getOriginalSource();
+		// resolve connector server
+		UUID remoteServerId = dto.getRemoteServer();
+		if (remoteServerId != null && (previousSystem == null || !remoteServerId.equals(previousSystem.getRemoteServer()))) {
+			// fill remote system to system connector server (backward compatibility)
+			SysConnectorServerDto remoteServer = lookupService.lookupEmbeddedDto(dto, SysSystemDto.PROPERTY_REMOTE_SERVER);
+			dto.setConnectorServer(new SysConnectorServerDto(remoteServer));
+			dto.getConnectorServer().setPassword(remoteServerService.getPassword(remoteServerId));
+		} else if (dto.getConnectorServer() == null) {
 			dto.setConnectorServer(new SysConnectorServerDto());
 		}
 		// create default connector key
@@ -72,16 +86,16 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 		if (dto.getBlockedOperation() == null) {
 			dto.setBlockedOperation(new SysBlockedOperationDto());
 		}
-		if (!service.isNew(dto)) {
+		//
+		if (previousSystem != null) {
 			// Check if is connector changed
-			SysSystemDto oldSystem = service.get(dto.getId());
-			if (!dto.getConnectorKey().equals(oldSystem.getConnectorKey())) {
+			if (!dto.getConnectorKey().equals(previousSystem.getConnectorKey())) {
 				// If is connector changed, we set virtual to false. (Virtual
 				// connectors set this attribute on true by themselves)
 				dto.setVirtual(false);
 			}
 			// check blocked provisioning operation and clear provisioning break cache
-			clearProvisionignBreakCache(dto, oldSystem);
+			clearProvisionignBreakCache(dto, previousSystem);
 		}
 		SysSystemDto newSystem = service.saveInternal(dto);
 		event.setContent(newSystem);
@@ -96,7 +110,7 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 			// set asterix
 			newSystem.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
 		}
-		// TODO: clone content - mutable previous event content :/
+		//
 		return new DefaultEventResult<>(event, this);
 	}
 	

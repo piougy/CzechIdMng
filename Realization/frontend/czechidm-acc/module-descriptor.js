@@ -125,6 +125,47 @@ module.exports = {
             ]
           },
           {
+            id: 'sys-connector-servers',
+            labelKey: 'acc:content.connector-servers.label',
+            titleKey: 'acc:content.connector-servers.title',
+            order: 15,
+            priority: 0,
+            icon: 'component:servers',
+            path: '/connector-servers',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['REMOTESERVER_READ'] } ],
+            items: [
+              {
+                id: 'sys-remote-server-detail',
+                type: 'TAB',
+                labelKey: 'acc:content.remote-servers.detail.title',
+                icon: 'component:basic-info',
+                order: 10,
+                path: '/remote-servers/:entityId/detail',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['REMOTESERVER_READ'] } ]
+              },
+              {
+                id: 'sys-remote-server-connectors',
+                type: 'TAB',
+                labelKey: 'acc:content.remote-servers.connectors.label',
+                titleKey: 'acc:content.remote-servers.connectors.title',
+                icon: 'component:default-connector',
+                order: 20,
+                path: '/remote-servers/:entityId/connectors',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['REMOTESERVER_READ'] } ]
+              },
+              {
+                id: 'sys-remote-server-systems',
+                type: 'TAB',
+                labelKey: 'acc:content.remote-servers.systems.label',
+                titleKey: 'acc:content.remote-servers.systems.title',
+                icon: 'component:system',
+                order: 20,
+                path: '/remote-servers/:entityId/systems',
+                access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['REMOTESERVER_READ', 'SYSTEM_READ'] } ]
+              }
+            ]
+          },
+          {
             id: 'uniform-password',
             labelKey: 'acc:content.uniformPassword.label',
             titleKey: 'acc:content.uniformPassword.title',

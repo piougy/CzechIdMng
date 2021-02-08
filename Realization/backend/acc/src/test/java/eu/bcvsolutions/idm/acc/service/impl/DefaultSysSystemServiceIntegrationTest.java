@@ -878,6 +878,7 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 	 * Test that password of the remote server is not lost after getting a system with remote server.
 	 */
 	@Test
+	@SuppressWarnings("deprecation") // one test to cover old way, how to set remote server
 	public void testPasswordNotOverriden() {
 		final String testPassword = "myPassword123456";
 		final String name = helper.createName();

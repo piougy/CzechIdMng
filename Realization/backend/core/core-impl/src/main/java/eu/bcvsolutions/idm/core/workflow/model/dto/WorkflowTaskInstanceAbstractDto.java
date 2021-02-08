@@ -43,7 +43,7 @@ public class WorkflowTaskInstanceAbstractDto extends AbstractDto {
 	private String processDefinitionKey;
 	private String processDefinitionId;
 	private int priority;
-	@JsonProperty(value = "_dtotype", access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(value = PROPERTY_DTO_TYPE, access = JsonProperty.Access.READ_ONLY)
 	private Class<? extends BaseDto> type = this.getClass();
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private IdmDelegationDefinitionDto delegationDefinition;

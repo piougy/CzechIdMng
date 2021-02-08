@@ -6,23 +6,23 @@ let _moduleDescriptors = new Immutable.Map();
 
 // suported and default values for navigation item in module descriptor
 const MODULE_DESCRIPTOR_DEFAULTS = {
-  'id': undefined,
-  'type': 'DYNAMIC',
-  'section': 'main',
-  'label': undefined,
-  'labelKey': undefined,
-  'title': undefined,
-  'titleKey': undefined,
-  'icon': undefined,
-  'order': 0,
-  'priority': 0,
-  'path': undefined,
-  'access': [
+  id: undefined,
+  type: 'DYNAMIC',
+  section: 'main',
+  label: undefined,
+  labelKey: undefined,
+  title: undefined,
+  titleKey: undefined,
+  icon: undefined,
+  order: 0,
+  priority: 0,
+  path: undefined,
+  access: [
     {
-      'type': 'IS_AUTHENTICATED'
+      type: 'IS_AUTHENTICATED'
     }
   ],
-  'items': []
+  items: []
 };
 
 /**

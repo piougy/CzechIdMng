@@ -40,7 +40,8 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 @Table(name = "sys_system", indexes = {
 		@Index(name = "ux_system_name", columnList = "name", unique = true),
 		@Index(name = "idx_idm_password_pol_gen", columnList = "password_pol_val_id"),
-		@Index(name = "idx_idm_password_pol_val", columnList = "password_pol_gen_id")})
+		@Index(name = "idx_idm_password_pol_val", columnList = "password_pol_gen_id"),
+		@Index(name = "idx_idm_sys_remote_ser_id", columnList = "remote_server_id")})
 public class SysSystem extends AbstractEntity implements Codeable, FormableEntity, Disableable {
 
 	private static final long serialVersionUID = -8276147852371288351L;
@@ -87,8 +88,6 @@ public class SysSystem extends AbstractEntity implements Codeable, FormableEntit
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<SysRoleSystem> roleSystems; // only for hibernate mappnig - we dont want lazy lists
 	
 	@Audited
@@ -110,16 +109,17 @@ public class SysSystem extends AbstractEntity implements Codeable, FormableEntit
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "password_pol_val_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmPasswordPolicy passwordPolicyValidate;
 	
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "password_pol_gen_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmPasswordPolicy passwordPolicyGenerate;
+	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "remote_server_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	private SysRemoteServer remoteServer;
 
 	public String getName() {
 		return name;
@@ -238,8 +238,8 @@ public class SysSystem extends AbstractEntity implements Codeable, FormableEntit
 	/**
 	 * Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
 	 * 
-	 * @since 9.6.0 
 	 * @param disabledProvisioning
+	 * @since 9.6.0 
 	 */
 	public void setDisabledProvisioning(boolean disabledProvisioning) {
 		this.disabledProvisioning = disabledProvisioning;
@@ -248,10 +248,30 @@ public class SysSystem extends AbstractEntity implements Codeable, FormableEntit
 	/**
 	 * Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created.
 	 * 
-	 * @since 9.6.0 
 	 * @return
+	 * @since 9.6.0 
 	 */
 	public boolean isDisabledProvisioning() {
 		return disabledProvisioning;
+	}
+	
+	/**
+	 * System uses remote server.
+	 * 
+	 * @return remote server
+	 * @since 10.8.0
+	 */
+	public SysRemoteServer getRemoteServer() {
+		return remoteServer;
+	}
+	
+	/**
+	 * System uses remote server.
+	 * 
+	 * @param remoteServer remote server
+	 * @since 10.8.0
+	 */
+	public void setRemoteServer(SysRemoteServer remoteServer) {
+		this.remoteServer = remoteServer;
 	}
 }

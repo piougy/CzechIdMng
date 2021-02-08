@@ -25,8 +25,7 @@ public enum AccGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE,
 			SystemBasePermission.PASSWORDFILTERCHANGE,
-			SystemBasePermission.PASSWORDFILTERVALIDATE,
-			IdmBasePermission.DELETE),
+			SystemBasePermission.PASSWORDFILTERVALIDATE),
 	// RT: commented till system agenda will be secured properly
 	// SYSTEMATTRIBUTEMAPPING(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE, IdmBasePermission.AUTOCOMPLETE),
@@ -55,6 +54,14 @@ public enum AccGroupPermission implements GroupPermission {
 			IdmBasePermission.COUNT,
 			IdmBasePermission.READ),
 	UNIFORMPASSWORD(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE),
+	REMOTESERVER(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
@@ -149,7 +156,15 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String UNIFORM_PASSWORD_CREATE = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "CREATE";
 	public static final String UNIFORM_PASSWORD_UPDATE = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String UNIFORM_PASSWORD_DELETE = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "DELETE";
-
+	//
+	public static final String REMOTESERVER_ADMIN = "REMOTESERVER" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String REMOTESERVER_COUNT = "REMOTESERVER" + BasePermission.SEPARATOR + "COUNT";
+	public static final String REMOTESERVER_AUTOCOMPLETE = "REMOTESERVER" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String REMOTESERVER_READ = "REMOTESERVER" + BasePermission.SEPARATOR + "READ";
+	public static final String REMOTESERVER_CREATE = "REMOTESERVER" + BasePermission.SEPARATOR + "CREATE";
+	public static final String REMOTESERVER_UPDATE = "REMOTESERVER" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String REMOTESERVER_DELETE = "REMOTESERVER" + BasePermission.SEPARATOR + "DELETE";
+	
 	private final List<BasePermission> permissions;
 
 	private AccGroupPermission(BasePermission... permissions) {

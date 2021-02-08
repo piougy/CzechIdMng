@@ -35,6 +35,9 @@ public enum AccResultCode implements ResultCode {
 	SYSTEM_ATTRIBUTE_MAPPING_NOT_FOUND(HttpStatus.BAD_REQUEST, "Cannot find system attribute mapping for schema [%s] on system [%s]"),
 	SYSTEM_SCHEMA_ATTRIBUTE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Cannot find schema attribute for object class name [%s] and attribute name [%s]"),
 	//
+	// remote server
+	REMOTE_SYSTEM_DELETE_FAILED_HAS_SYSTEMS(HttpStatus.BAD_REQUEST, "Remote server [%s] cannot be deleted. It is already used in configured systems."),
+	//
 	// attribute mapping
 	ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "Attribute [%s] cannot be deleted. It is used in synchronization on this system!"),
 	SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "System mapping [%s] cannot be deleted. It is used in synchronization on this system!"),

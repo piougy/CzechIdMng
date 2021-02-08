@@ -24,6 +24,7 @@ import ContractSliceAccountManager from './ContractSliceAccountManager';
 import AttributeControlledValueManager from './AttributeControlledValueManager';
 import UniformPasswordManager from './UniformPasswordManager';
 import UniformPasswordSystemManager from './UniformPasswordSystemManager';
+import RemoteServerManager from './RemoteServerManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -51,7 +52,8 @@ const ManagerRoot = {
   ContractSliceAccountManager,
   AttributeControlledValueManager,
   UniformPasswordManager,
-  UniformPasswordSystemManager
+  UniformPasswordSystemManager,
+  RemoteServerManager
 };
 
 ManagerRoot.version = '0.0.1';

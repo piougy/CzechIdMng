@@ -15,9 +15,12 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -236,5 +239,39 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 	@Test
 	public void testLookupDtoNotExist() {
 		Assert.assertNull(lookupService.lookupDto(IdmIdentityRoleDto.class, UUID.randomUUID()));
+	}
+	
+	@Test
+	public void testLookupByExampleLookupNotRegistered() {
+		Assert.assertNull(lookupService.lookupByExample(new IdmIdentityDto(UUID.randomUUID())));
+	}
+	
+	@Test
+	public void testLookupTreeNodeByExample() {
+		IdmTreeTypeDto treeTypeOne = getHelper().createTreeType();
+		IdmTreeTypeDto treeTypeTwo = getHelper().createTreeType();
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode(treeTypeOne, null);
+		IdmTreeNodeDto nodeTwo = getHelper().createTreeNode(treeTypeOne, null);
+		IdmTreeNodeDto nodeTwoOther = getHelper().createTreeNode(treeTypeTwo, nodeTwo.getCode(), null);
+		//
+		IdmTreeNodeDto example = new IdmTreeNodeDto();
+		Assert.assertNull(lookupService.lookupByExample(example)); // more results => example is not specified correctly
+		//
+		example.setCode(getHelper().createName());
+		Assert.assertNull(lookupService.lookupByExample(example)); // no results => not found
+		//
+		example.setCode(nodeOne.getCode());
+		Assert.assertEquals(nodeOne, lookupService.lookupByExample(example)); // one is unique by code in all types
+		//
+		example.setCode(nodeTwo.getCode());
+		Assert.assertNull(lookupService.lookupByExample(example)); // more results in different tree type => example is not specified correctly
+		//
+		example.setTreeType(treeTypeOne.getId());
+		Assert.assertEquals(nodeTwo, lookupService.lookupByExample(example));
+		//
+		IdmTreeTypeDto treeTypeExample = new IdmTreeTypeDto();
+		treeTypeExample.setCode(treeTypeTwo.getCode());
+		example.getEmbedded().put(IdmTreeNode_.treeType.getName(), treeTypeExample);
+		Assert.assertEquals(nodeTwoOther, lookupService.lookupByExample(example));
 	}
 }

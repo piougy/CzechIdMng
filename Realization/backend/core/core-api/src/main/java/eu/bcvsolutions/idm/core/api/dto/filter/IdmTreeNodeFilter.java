@@ -20,9 +20,15 @@ public class IdmTreeNodeFilter
 
 	public static final String PARAMETER_CODE = "code"; // PARAMETER_CODEABLE_IDENTIFIER can be used too
 	/**
-	 * Tree type identifier
+	 * Tree type uuid identifier.
 	 */
 	public static final String PARAMETER_TREE_TYPE_ID = "treeTypeId";
+	/**
+	 * Tree type code.
+	 * 
+	 * @since 10.8.0
+	 */
+	public static final String PARAMETER_TREE_TYPE_CODE = "treeTypeCode";
 	/**
 	 * Parent tree node identifier
 	 * @since 9.4.0
@@ -62,6 +68,26 @@ public class IdmTreeNodeFilter
 
     public void setTreeTypeId(UUID treeTypeId) {
     	set(PARAMETER_TREE_TYPE_ID, treeTypeId);
+    }
+    
+    /**
+     * Tree type code.
+     * 
+     * @return tree type code
+     * @since 10.8.0
+     */
+    public String getTreeTypeCode() {
+        return getParameterConverter().toString(getData(), PARAMETER_TREE_TYPE_CODE);
+    }
+
+    /**
+     * Tree type code.
+     * 
+     * @param treeTypeCode tree type code
+     * @since 10.8.0
+     */
+    public void setTreeTypeCode(String treeTypeCode) {
+    	set(PARAMETER_TREE_TYPE_CODE, treeTypeCode);
     }
     
     public UUID getParent() {

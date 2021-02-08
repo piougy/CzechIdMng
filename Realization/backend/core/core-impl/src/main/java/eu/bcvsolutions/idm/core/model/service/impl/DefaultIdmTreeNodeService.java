@@ -66,6 +66,7 @@ public class DefaultIdmTreeNodeService
 		implements IdmTreeNodeService {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmTreeNodeService.class);
+	//
 	private final IdmTreeNodeRepository repository;
 	private final IdmTreeTypeService treeTypeService;
 	private final ConfigurationService configurationService;
@@ -199,9 +200,14 @@ public class DefaultIdmTreeNodeService
 				builder.like(builder.lower(root.get(IdmTreeNode_.name)), "%" + filter.getText().toLowerCase() + "%")
 			));
 		}
-		// tree type
+		// tree type identifier
 		if (filter.getTreeTypeId() != null) {
 			predicates.add(builder.equal(root.get(IdmTreeNode_.treeType).get(AbstractEntity_.id), filter.getTreeTypeId()));
+		}
+		// tree type code
+		String treeTypeCode = filter.getTreeTypeCode();
+		if (StringUtils.isNotEmpty(treeTypeCode)) {
+			predicates.add(builder.equal(root.get(IdmTreeNode_.treeType).get(IdmTreeType_.code), treeTypeCode));
 		}
 		// parent node
 		UUID parent = filter.getParent();

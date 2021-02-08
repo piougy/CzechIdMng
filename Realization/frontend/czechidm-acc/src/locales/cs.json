@@ -22,7 +22,17 @@
     },
     "systems": {
       "header": "Napojené systémy",
-      "title": "$t(acc:content.systems.header)"
+      "title": "$t(acc:content.systems.header)",
+      "filter": {
+        "remoteServerId": {
+          "placeholder": "Konektor server",
+          "option": {
+            "localServer": {
+              "label": "-- lokální konektory --"
+            }
+          }
+        }
+      }
     },
     "schema": {
 
@@ -413,6 +423,61 @@
         "header" : "Role <small>přiřazené role</small>"
       }
     },
+    "connector-servers": {
+      "label": "Konektor servery",
+      "header": "Konektor servery",
+      "title": "Konektor servery",
+      "local": {
+        "header": "Lokální konektory <small>konektory nainstalované na stejném serveru spolu s IdM</small>"
+      }
+    },
+    "connector": {
+      "detail": {
+        "header": "{{record}}, {{version}} <small>detail konektoru</small>",
+        "tabs": {
+          "basic": {
+            "title": "Základní informace"
+          },
+          "systems": {
+            "title": "Napojené systémy"
+          }
+        }
+      }
+    },
+    "remote-servers": {
+      "label": "Vzdálené servery",
+      "header": "Vzdálené konektor servery",
+      "title": "Vzdálené konektor servery",
+      "edit": {
+        "header": "{{record}} <small>detail vzdáleného serveru</small>",
+        "title": "Detail vzdáleného serveru"
+      },
+      "create": {
+        "title": "Nový vzdálený konektor server",
+        "header": "Nový vzdálený konektor server"
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Host či popis"
+        }
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "save": {
+        "success": "Vzdálený konektor server [{{record}}] byl úspěšně uložen"
+      },
+      "connectors": {
+        "label": "Konektory",
+        "header": "Konektory na serveru",
+        "title": "Konektory na serveru"
+      },
+      "systems": {
+        "label": "Napojené systémy",
+        "header": "Napojené systémy",
+        "title": "Napojené systémy"
+      }
+    },
     "role": {
       "systems": {
         "header": "$t(acc:content.systems.header) <small>$t(acc:entity.RoleSystem._type)</small>",
@@ -740,13 +805,24 @@
       "connectorKey": {
         "_type": "Konektor",
         "framework": "Framework",
+        "connectorDisplayName": {
+          "label": "Název konektoru"
+        },
         "connectorName": "Typ konektoru",
         "bundleName": "Bundle konektoru",
-        "bundleVersion": "Verze konektoru"
+        "bundleVersion": "Verze konektoru",
+        "fullName": {
+          "label": "Celý identifikátor konektoru"
+        }
       },
       "remoteConnector": {
         "label": "Použít vzdálený konektor server",
         "help": "Po zaškrtnutí nebudou použity lokální konektory a zobrazí se nabídka s informacemi o vzdáleném konektor serveru."
+      },
+      "remoteServer": {
+        "label": "Použít vzdálený konektor server",
+        "placeholder": "Budou použit lokální konektor nebo vyberte server ...",
+        "help": "Ponechte prázdné pro použití lokálního konektoru (výchozí) nebo vyberte vzdálený server s dostupnými konektory."
       },
       "connectorHost": "Server s konektory",
       "disabledProvisioning": {
@@ -796,6 +872,32 @@
         "label": "Blokování operace smazání",
         "help": "Všechny operace typu smazání budou blokovány",
         "short": "Smazání"
+      }
+    },
+    "RemoteServer": {
+      "_type": "Vzdálený konektor server",
+      "host": {
+        "label": "Host",
+        "help": "Zadejte název serveru, na kterém je vystaven server s konektory."
+      },
+      "port": {
+        "label": "Port",
+        "help": "Zadejte číslo portu TCP, na kterém je vystaven server s konektory."
+      },
+      "password": {
+        "label": "Heslo"
+      },
+      "timeout": {
+        "label": "Timeout"
+      },
+      "useSsl": {
+        "label": "Použít SSL"
+      },
+      "defaultRemoteServer": {
+        "short": "Výchozí",
+        "label": "Výchozí vzdálený server",
+        "title": "Výchozí vzdálený server",
+        "help": "Výchozí vzdálený konektor server se používá například při exportu / importu - importované systémy se párují mezi defaultními servery i pokud nemají stejné nastavení (host, port atd.)."
       }
     },
     "RoleSystem": {
@@ -1560,7 +1662,7 @@
           },
           "jdbcurltemplate": {
             "label": "JDBC Connection URL",
-            "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona <strong>jdbc:oracle:thin:@[host]:[port(1521)]:[db]</strong>. Pro MySQL je šablona <strong>jdbc:mysql://[host]:[port(3306)]/[db]</strong>. Pro PostgreSQL je šablona <strong>jdbc:postgresql://[host]:[port(5432)]/[db]</strong>, více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona <strong>jdbc:oracle:thin:@%h:%p:%d</strong>. Pro MySQL je šablona <strong>jdbc:mysql://%h:%p/%d</strong>. Pro PostgreSQL je šablona <strong>jdbc:postgresql://%h:%p/%d</strong>, více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
             "placeholder": ""
           },
           "enableemptystring": {
@@ -2161,6 +2263,11 @@
         "help": "Smaže vybrané systémy. <strong>Systém nesmí obsahovat žádné účty ani nevyřešené provisioning operace</strong>.",
         "icon": "$t(action.delete.icon)"
       },
+      "acc-remote-server-delete-bulk-action": {
+        "label": "$t(action.delete.action) vzdálené konektor servery",
+        "help": "Smaže vybrané vzdálené konektor servery. <strong>Server nesmí být používán žádným koncovým systémem</strong>.",
+        "icon": "$t(action.delete.icon)"
+      },
       "acc-system-mapping-delete-bulk-action": {
         "label": "$t(action.delete.action) mapování",
         "help": "Smaže vybraná mapování. <strong>Mapování nesmí být použito v synchronzaci nebo provisioningu</strong>.",
@@ -2683,6 +2790,10 @@
     "SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS": {
       "title": "Entita na systému nemůže být smazána",
       "message": "Entita [{{uid}}] na systému [{{system}}] nemůže být smazána. Pro entitu existují aktivní operace na provisioning."
+    },
+    "REMOTE_SYSTEM_DELETE_FAILED_HAS_SYSTEMS": {
+      "title": "Server nemůže být smazán",
+      "message": "Vzdálený konektor server <strong class=\"highlight\">{{remoteServer}}</strong> nemůže být smazán. Server používají nakonfigurované systémy."
     },
     "REMOTE_SERVER_INVALID_CREDENTIAL": {
       "title": "Špatné heslo ke vzdálenému konektoru",

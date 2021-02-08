@@ -17,11 +17,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -38,6 +42,8 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 
 	@Autowired private SysSystemController controller;
 	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private SysRemoteServerService remoteServerService;
+	@Autowired private ConfidentialStorage confidentialStorage;
 	
 	@Override
 	protected AbstractReadWriteDtoController<SysSystemDto, ?> getController() {
@@ -153,12 +159,13 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 	@Test
 	public void testGetRemoteServerPasswordContainsAsterisks() throws Exception {
 		String password = "testPassword123654";
-		SysSystemDto system = prepareDto();
-		system.setRemote(true);
 		SysConnectorServerDto conServer = new SysConnectorServerDto();
 		conServer.setPassword(new GuardedString(password));
 		conServer.setHost("localhost");
-		system.setConnectorServer(conServer);
+		conServer = remoteServerService.save(conServer);
+		//
+		SysSystemDto system = prepareDto();
+		system.setRemoteServer(conServer.getId());
 		system = createDto(system);
 		
 		ObjectMapper mapper = getMapper();
@@ -175,17 +182,40 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 		
 		Assert.assertNotNull(gotSystem);
 		Assert.assertEquals(GuardedString.SECRED_PROXY_STRING, gotSystem.getConnectorServer().getPassword().asString());
+		//
+		// check password is set in both agendas
+		Assert.assertEquals(password, remoteServerService.getPassword(conServer.getId()).asString());
+		Assert.assertEquals(password, confidentialStorage.getGuardedString(gotSystem.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD).asString());
+		Assert.assertEquals(conServer.getHost(), gotSystem.getConnectorServer().getHost());
+		Assert.assertEquals(conServer.getPort(), gotSystem.getConnectorServer().getPort());
+		Assert.assertEquals(conServer.isUseSsl(), gotSystem.getConnectorServer().isUseSsl());
+		Assert.assertEquals(conServer.getTimeout(), gotSystem.getConnectorServer().getTimeout());
+		//
+		// change password on remote server
+		password = "testPassword123654Update";
+		conServer.setPassword(new GuardedString(password));
+		conServer = remoteServerService.save(conServer);
+		Assert.assertEquals(GuardedString.SECRED_PROXY_STRING, conServer.getPassword().asString());
+		Assert.assertEquals(password, remoteServerService.getPassword(conServer.getId()).asString());
+		Assert.assertEquals(password, confidentialStorage.getGuardedString(gotSystem.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD).asString());
+		//
+		// resave remote server without password is defined
+		conServer.setPassword(null);
+		conServer = remoteServerService.save(conServer);
+		Assert.assertEquals(password, remoteServerService.getPassword(conServer.getId()).asString());
+		Assert.assertEquals(password, confidentialStorage.getGuardedString(gotSystem.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD).asString());
 	}
 	
 	@Test
 	public void testGetRemoteServerPasswordContainsAsterisksByCode() throws Exception {
 		String password = "testPassword123654";
-		SysSystemDto system = prepareDto();
-		system.setRemote(true);
 		SysConnectorServerDto conServer = new SysConnectorServerDto();
 		conServer.setPassword(new GuardedString(password));
 		conServer.setHost("localhost");
-		system.setConnectorServer(conServer);
+		conServer = remoteServerService.save(conServer);
+		//
+		SysSystemDto system = prepareDto();
+		system.setRemoteServer(conServer.getId());
 		system = createDto(system);
 		
 		ObjectMapper mapper = getMapper();
@@ -207,15 +237,15 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 	@Test
 	public void testGetRemoteServerPasswordContainsAsterisksByUUIDCode() throws Exception {
 		String password = "testPassword123654";
+		SysConnectorServerDto conServer = new SysConnectorServerDto();
+		conServer.setPassword(new GuardedString(password));
+		conServer.setHost("localhost");
+		conServer = remoteServerService.save(conServer);
 		SysSystemDto system = prepareDto();
 		// System name is UUID in string. For testing if will be used lookupService for get correct system.
 		String codeFromUUID = UUID.randomUUID().toString();
 		system.setName(codeFromUUID);
-		system.setRemote(true);
-		SysConnectorServerDto conServer = new SysConnectorServerDto();
-		conServer.setPassword(new GuardedString(password));
-		conServer.setHost("localhost");
-		system.setConnectorServer(conServer);
+		system.setRemoteServer(conServer.getId());
 		createDto(system);
 		
 		ObjectMapper mapper = getMapper();

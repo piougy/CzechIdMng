@@ -684,7 +684,7 @@ module.exports = {
     {
       id: 'setting-icon',
       type: 'icon',
-      entityType: ['setting', 'system'],
+      entityType: ['setting'],
       component: 'fa:cog'
     },
     {

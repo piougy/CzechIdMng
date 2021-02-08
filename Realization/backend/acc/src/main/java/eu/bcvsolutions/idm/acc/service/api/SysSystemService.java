@@ -18,10 +18,9 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 
 /**
- * Target system configuration service
+ * Target system configuration service.
  * 
  * @author Radek Tomiška
- *
  */
 public interface SysSystemService extends 
 		FormableDtoService<SysSystemDto, SysSystemFilter>,

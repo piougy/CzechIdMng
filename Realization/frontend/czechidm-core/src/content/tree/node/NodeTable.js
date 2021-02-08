@@ -204,11 +204,8 @@ class NodeTable extends Advanced.AbstractTableContent {
         <Basic.Alert
           title={ this.i18n('label.selected') }
           level="info"
-          style={{ margin: 0, maxWidth: 450 }}>
-          <Basic.Div style={{ display: 'flex'}}>
-            <Basic.Div style={{ flex: 1}}>
-              <Basic.ShortText text={ this.getManager().getNiceLabel(selectedNode) } maxLength={ 40 }/>
-            </Basic.Div>
+          style={{ margin: 0 }}
+          buttons={[
             <Basic.Button
               type="button"
               level="primary"
@@ -218,7 +215,8 @@ class NodeTable extends Advanced.AbstractTableContent {
               rendered={ this.getManager().canRead({ id: selectedNodeId}, _permissions) }>
               { this.i18n('component.advanced.EntityInfo.link.detail.label') }
             </Basic.Button>
-          </Basic.Div>
+          ]}>
+          { this.getManager().getNiceLabel(selectedNode) }
         </Basic.Alert>
       </Basic.Div>
     );

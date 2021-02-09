@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.api.domain;
 
 /**
- * Identity state
+ * Identity state.
  * 
  * @author Radek Tomiška
- *
+ * @since 7.6.0
  */
 public enum IdentityState {
 
@@ -12,7 +12,6 @@ public enum IdentityState {
 	NO_CONTRACT(true), 			// identity doesn't have a contract
 	FUTURE_CONTRACT(true),		// identity has future contract only
 	VALID(false), 				// the only valid state - valid contracts
-	// PASSWORD_EXPIRED(true), 	// TODO: password is expired
 	LEFT(true), 				// all contract are invalid
 	DISABLED(true), 			// automatically disabled ~ all contracts are excluded
 	DISABLED_MANUALLY(true); 	// manually disabled - can be activated manually again

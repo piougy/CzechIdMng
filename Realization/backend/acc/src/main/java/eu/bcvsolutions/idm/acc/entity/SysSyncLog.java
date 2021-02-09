@@ -37,9 +37,6 @@ public class SysSyncLog extends AbstractEntity  {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "synchronization_config_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSyncConfig synchronizationConfig;
 
 	@NotNull
@@ -60,9 +57,6 @@ public class SysSyncLog extends AbstractEntity  {
 	@Column(name = "token")
 	private String token;
 
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	@OneToMany(mappedBy = "syncLog", fetch = FetchType.LAZY)
 	private List<SysSyncActionLog> syncActionLogs;
 

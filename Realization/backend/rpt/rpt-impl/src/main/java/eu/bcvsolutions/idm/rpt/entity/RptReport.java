@@ -54,24 +54,20 @@ public class RptReport extends AbstractEntity implements FormableEntity, Attacha
 	private String executorName;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "data_id",
 			referencedColumnName = "id",
 			foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmAttachment data; // json data as string as stored in attachment manager
 	
 	@NotFound(action = NotFoundAction.IGNORE)
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "long_running_task_id",
 			referencedColumnName = "id",
 			foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmLongRunningTask longRunningTask;
 	
 	public void setName(String name) {

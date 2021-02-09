@@ -34,23 +34,17 @@ public class AccRoleCatalogueAccount extends AbstractEntity implements EntityAcc
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "account_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private AccAccount account;
 
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmRoleCatalogue roleCatalogue;
 
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "role_system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysRoleSystem roleSystem;
 
 	@Audited

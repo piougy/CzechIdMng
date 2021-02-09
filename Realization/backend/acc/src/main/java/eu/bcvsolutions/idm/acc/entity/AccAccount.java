@@ -65,21 +65,15 @@ public class AccAccount extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "system_entity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystemEntity systemEntity;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<AccIdentityAccount> identityAccounts;  // only for hibernate mappnig - we dont want lazy lists
 	
 	@Audited

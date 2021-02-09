@@ -50,23 +50,19 @@ public class IdmProcessedTaskItem extends AbstractEntity {
 	@NotEmpty
 	@Column(name = "referenced_dto_type", updatable = false)
 	private String referencedDtoType; //  FIXME: referencedEntityType - dtos cannot be in database
-	
-	@SuppressWarnings("deprecation")
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "long_running_task",
 		updatable = false,
 		referencedColumnName = "id",
 		foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmLongRunningTask longRunningTask;
-	
-	@SuppressWarnings("deprecation")
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "scheduled_task_queue_owner",
 		updatable = false,
 		referencedColumnName = "id",
 		foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmScheduledTask scheduledTaskQueueOwner;
 	
 	@Embedded

@@ -58,8 +58,6 @@ public class SysSystemMapping extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "object_class_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSchemaObjectClass objectClass;
 	@Audited
 	@NotNull
@@ -69,8 +67,6 @@ public class SysSystemMapping extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "tree_type_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeType treeType;
 	@Audited
 	@Column(name = "protection_enabled", nullable = true)

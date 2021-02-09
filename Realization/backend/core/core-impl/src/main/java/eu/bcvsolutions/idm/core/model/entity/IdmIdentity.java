@@ -114,8 +114,6 @@ public class IdmIdentity
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityContract> contracts; // only for hibernate mapping - we don't want lazy lists
 	
 	@Audited
@@ -133,8 +131,6 @@ public class IdmIdentity
 	@NotFound(action = NotFoundAction.IGNORE)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "form_projection_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmFormProjection formProjection; // @since 10.2.0
 
 	public IdmIdentity() {

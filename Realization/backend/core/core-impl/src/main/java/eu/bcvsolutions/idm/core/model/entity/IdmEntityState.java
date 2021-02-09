@@ -53,8 +53,6 @@ public class IdmEntityState extends AbstractEntity {
 	
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "event_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmEntityEvent event;
 	
 	@Column(name = "processed_order")

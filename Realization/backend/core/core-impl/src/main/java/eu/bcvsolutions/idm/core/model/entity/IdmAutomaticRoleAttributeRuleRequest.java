@@ -45,15 +45,11 @@ public class IdmAutomaticRoleAttributeRuleRequest extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "auto_role_att_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmAutomaticRoleRequest request;
 
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "form_attribute_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmFormAttribute formAttribute;
 
 	@Audited
@@ -84,8 +80,6 @@ public class IdmAutomaticRoleAttributeRuleRequest extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "rule_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmAutomaticRoleAttributeRule rule;
 
 	public IdmAutomaticRoleRequest getRequest() {

@@ -58,8 +58,6 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "identity_sender_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@NotFound(action = NotFoundAction.IGNORE)
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identitySender;
 
 	@OneToMany(mappedBy = "notification", cascade = CascadeType.ALL)
@@ -75,8 +73,6 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	@JsonIgnore
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "parent_notification_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmNotificationLog parent;
 
 	

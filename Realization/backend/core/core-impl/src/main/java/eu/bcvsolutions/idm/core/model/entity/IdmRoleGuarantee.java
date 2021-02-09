@@ -43,16 +43,12 @@ public class IdmRoleGuarantee extends AbstractEntity implements ExternalIdentifi
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmRole role; // owner
 
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "guarantee_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmIdentity guarantee; // guarantee as identity
 
 	@Audited

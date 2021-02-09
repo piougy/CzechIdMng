@@ -59,23 +59,19 @@ public class IdmExportImport extends AbstractEntity implements AttachableEntity 
 	private String executorName;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "data_id",
 			referencedColumnName = "id",
 			foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmAttachment data; // data stored in attachment manager
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "long_running_task_id",
 			referencedColumnName = "id",
 			foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmLongRunningTask longRunningTask;
 	
 	public void setName(String name) {

@@ -56,30 +56,22 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityContract identityContract;
 	
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "contract_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmContractPosition contractPosition;
 	
 	@NotNull
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 	
 	@Audited
 	@ManyToOne
 	@JoinColumn(name = "automatic_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmAutomaticRole automaticRole; // Assigned role depends on automatic role
 	
 	@Audited
@@ -93,15 +85,11 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 	@Audited
 	@ManyToOne
 	@JoinColumn(name = "direct_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityRole directRole;
 	
 	@Audited
 	@ManyToOne
 	@JoinColumn(name = "role_composition_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRoleComposition roleComposition;
 
 	public IdmIdentityRole() {

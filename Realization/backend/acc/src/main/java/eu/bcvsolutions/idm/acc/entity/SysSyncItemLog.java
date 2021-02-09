@@ -33,9 +33,6 @@ public class SysSyncItemLog extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "sync_action_log_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSyncActionLog syncActionLog;
 
 	@Size(max = DefaultFieldLengths.NAME)

@@ -59,8 +59,6 @@ public class IdmNotificationConfiguration extends AbstractEntity implements Disa
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "template_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmNotificationTemplate template;
 	
 	@Audited

@@ -59,9 +59,6 @@ public class VsRequest extends AbstractEntity implements ExternalIdentifiable {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSystem system;
 
 	/**
@@ -83,7 +80,7 @@ public class VsRequest extends AbstractEntity implements ExternalIdentifiable {
 	// "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	// @SuppressWarnings("deprecation") // jpa FK constraint does not work in
 	// // hibernate 4
-	// @org.hibernate.annotations.ForeignKey(name = "none")
+	// (name = "none")
 
 	// Limitation: We can use only one mapping on same entity type. When we
 	// using two relations on same entity (duplicant and previous for example),
@@ -95,9 +92,6 @@ public class VsRequest extends AbstractEntity implements ExternalIdentifiable {
 	@Audited
 	@ManyToOne
 	@JoinColumn(name = "previous_request_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private VsRequest previousRequest;
 
 	@Audited

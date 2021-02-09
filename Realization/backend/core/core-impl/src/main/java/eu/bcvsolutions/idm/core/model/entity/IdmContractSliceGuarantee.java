@@ -30,15 +30,11 @@ public class IdmContractSliceGuarantee extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "contract_slice_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmContractSlice contractSlice;
 
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "guarantee_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmIdentity guarantee;
 
 	public IdmContractSlice getContractSlice() {

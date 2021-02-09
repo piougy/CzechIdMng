@@ -32,11 +32,9 @@ public class IdmDelegation extends AbstractEntity {
 	private static final long serialVersionUID = 1L;
 
 	@Audited
-	@SuppressWarnings("deprecation")
 	@ManyToOne(optional = false)
 	@NotNull
 	@JoinColumn(name = "definition_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT), nullable = false)
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmDelegationDefinition definition;
 
 	@Audited

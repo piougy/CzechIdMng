@@ -37,8 +37,6 @@ public class IdmLoggingEventException implements BaseEntity {
 	@NotNull
 	@ManyToOne(optional = false, cascade = CascadeType.ALL)
 	@JoinColumn(name = "event_id", referencedColumnName = "event_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmLoggingEvent event;
 	
 	@Column(name = "trace_line", length = DefaultFieldLengths.NAME, nullable = false)

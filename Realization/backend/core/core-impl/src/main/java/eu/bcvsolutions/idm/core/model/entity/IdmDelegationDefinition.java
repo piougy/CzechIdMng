@@ -36,26 +36,20 @@ public class IdmDelegationDefinition extends AbstractEntity implements Validable
 	private static final long serialVersionUID = 1L;
 
 	@Audited
-	@SuppressWarnings("deprecation")
 	@ManyToOne(optional = true)
 	@NotNull
 	@JoinColumn(name = "delegator_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT), nullable = false)
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmIdentity delegator;
 
 	@Audited
-	@SuppressWarnings("deprecation")
 	@ManyToOne(optional = false)
 	@NotNull
 	@JoinColumn(name = "delegate_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT), nullable = false)
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmIdentity delegate;
 
 	@Audited
-	@SuppressWarnings("deprecation")
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "delegator_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT), nullable = true)
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmIdentityContract delegatorContract;
 
 	@Audited

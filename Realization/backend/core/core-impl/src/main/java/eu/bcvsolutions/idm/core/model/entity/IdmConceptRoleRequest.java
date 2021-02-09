@@ -49,16 +49,12 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "request_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRoleRequest roleRequest;
 	
 	@Audited
 	@ManyToOne(optional = true)
 	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "identity_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityContract identityContract;
 	
 	@Audited
@@ -69,24 +65,18 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	@ManyToOne(optional = true)
 	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 	
 	@Audited
 	@ManyToOne(optional = true)
 	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityRole identityRole;
 	
 	@Audited
 	@ManyToOne(optional = true)
 	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "automatic_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmAutomaticRole automaticRole;
 	
 	@Audited

@@ -26,8 +26,6 @@ public class IdmNotificationLog extends IdmNotification {
 	
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "parent")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmNotification> relatedNotifications;
 	
 	@Override

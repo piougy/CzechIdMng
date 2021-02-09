@@ -46,16 +46,12 @@ public class IdmRoleComposition extends AbstractEntity implements ExternalIdenti
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "superior_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private IdmRole superior;
 	
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "sub_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )	
+	@JoinColumn(name = "sub_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))	
 	private IdmRole sub;
 
 	public IdmRoleComposition() {

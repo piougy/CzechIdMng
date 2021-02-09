@@ -75,23 +75,17 @@ public class IdmTreeNode
 	@JsonProperty("parent") // required - BaseTreeEntity vs ForestContent setter are in conflict
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode parent;
 
 	@NotNull
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "tree_type_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeType treeType;
 	
 	@JsonIgnore
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "id", referencedColumnName = "content_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmForestIndexEntity forestIndex;
 	
 	@Audited
@@ -101,8 +95,6 @@ public class IdmTreeNode
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "workPosition")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityContract> contracts; // only for hibernate mapping - we dont want lazy lists
 
 	public String getName() {

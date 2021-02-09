@@ -50,16 +50,12 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysRoleSystem roleSystem;
 
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_attr_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystemAttributeMapping systemAttributeMapping;
 
 	@Audited

@@ -56,8 +56,6 @@ public class IdmIdentityContract
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identity;
 	
 	@Audited
@@ -71,8 +69,6 @@ public class IdmIdentityContract
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "work_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode workPosition;
 	
 	@Audited
@@ -107,14 +103,10 @@ public class IdmIdentityContract
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identityContract")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityRole> roles; // only for hibernate mapping - we don't want lazy lists (many roles)
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identityContract")
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmContractGuarantee> guarantees; // only for hibernate mapping - we don't want lazy lists (many roles)
 	
 	public IdmIdentityContract() {

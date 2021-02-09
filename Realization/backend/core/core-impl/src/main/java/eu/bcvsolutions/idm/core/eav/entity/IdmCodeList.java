@@ -58,8 +58,6 @@ public class IdmCodeList extends AbstractEntity implements Codeable, ExternalIde
 	
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "form_definition_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmFormDefinition formDefinition; // code list form definition
 
 	public String getCode() {

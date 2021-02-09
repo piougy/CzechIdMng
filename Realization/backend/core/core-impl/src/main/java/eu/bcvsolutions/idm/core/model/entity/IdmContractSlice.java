@@ -51,8 +51,6 @@ public class IdmContractSlice extends AbstractEntity
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identity;
 	
 	@Audited
@@ -66,8 +64,6 @@ public class IdmContractSlice extends AbstractEntity
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "work_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode workPosition;
 	
 	@Audited
@@ -103,9 +99,6 @@ public class IdmContractSlice extends AbstractEntity
 	@Audited
 	@ManyToOne
 	@JoinColumn(name = "parent_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmIdentityContract parentContract;
 	
 	@Audited

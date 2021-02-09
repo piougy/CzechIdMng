@@ -34,16 +34,12 @@ public class IdmRoleCatalogueRole extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private IdmRoleCatalogue roleCatalogue;
 	
 	@NotNull
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 
 	public IdmRole getRole() {

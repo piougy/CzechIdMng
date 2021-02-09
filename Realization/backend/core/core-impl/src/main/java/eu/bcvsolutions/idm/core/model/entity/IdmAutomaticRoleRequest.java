@@ -54,8 +54,6 @@ public class IdmAutomaticRoleRequest extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "auto_role_att_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmAutomaticRole automaticRole;
 
 	@Audited
@@ -66,15 +64,11 @@ public class IdmAutomaticRoleRequest extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmRole role;
 
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "tree_node_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmTreeNode treeNode;
 
 	@Audited

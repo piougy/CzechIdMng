@@ -32,16 +32,12 @@ public class AccIdentityRoleAccount extends AbstractEntity implements EntityAcco
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "account_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private AccAccount account;
 
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmIdentityRole identityRole;
 
 	@Audited

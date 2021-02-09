@@ -36,11 +36,9 @@ public class IdmImportLog extends AbstractEntity implements AttachableEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@NotNull
 	@JoinColumn(name = "batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT), nullable = false)
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmExportImport batch;
 	@Column(name = "dto", length = Integer.MAX_VALUE)
 	//@JsonDeserialize(using = BaseDtoDeserializer.class)

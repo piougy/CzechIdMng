@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.acc.config.domain.ConnectorServerConfiguration;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.core.api.rest.lookup.AbstractDtoLookupByExample;
@@ -22,7 +21,6 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.AbstractDtoLookupByExample;
 @Component
 public class SysRemoteServerDtoLookupByExample extends AbstractDtoLookupByExample<SysConnectorServerDto>{
 
-	@Autowired @Lazy private ConnectorServerConfiguration connectorServerConfiguration;
 	@Autowired @Lazy private SysRemoteServerService remoteServerService;
 
 	@Override

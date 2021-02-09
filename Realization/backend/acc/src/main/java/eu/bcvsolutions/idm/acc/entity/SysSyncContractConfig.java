@@ -37,22 +37,16 @@ public class SysSyncContractConfig extends SysSyncConfig{
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "default_tree_type_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeType defaultTreeType;
 	
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "default_tree_node_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode defaultTreeNode;
 	
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "default_leader_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity defaultLeader;
 	
 	/*

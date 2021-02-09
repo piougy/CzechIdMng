@@ -37,8 +37,6 @@ public class IdmIdentityRoleValidRequest extends AbstractEntity {
 	@JsonBackReference
 	@OneToOne(optional = false)
 	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityRole identityRole;
 	
 	@Embedded

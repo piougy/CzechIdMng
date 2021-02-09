@@ -34,8 +34,6 @@ public class IdmPasswordHistory extends AbstractEntity {
 
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identity;
 
 	public String getPassword() {

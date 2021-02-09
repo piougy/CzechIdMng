@@ -40,8 +40,6 @@ public class IdmCodeListItem extends AbstractEntity implements FormableEntity, E
 	
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "code_list_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmCodeList codeList;
 	
 	@Audited

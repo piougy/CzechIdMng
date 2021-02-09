@@ -39,15 +39,11 @@ public class IdmNotificationRecipient extends AbstractEntity {
 	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "notification_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmNotification notification;
 	
 	@ManyToOne(optional = true)
 	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "identity_recipient_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identityRecipient;
 	
 	@Size(max = DefaultFieldLengths.EMAIL_ADDRESS)

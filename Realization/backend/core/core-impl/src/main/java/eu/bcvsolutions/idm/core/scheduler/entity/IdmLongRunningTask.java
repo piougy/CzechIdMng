@@ -92,12 +92,10 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 	private OperationResult result;
 
 	@Audited
-	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "scheduled_task_id",
 		referencedColumnName = "id",
 		foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmScheduledTask scheduledTask;
 
 	@Audited

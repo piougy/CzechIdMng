@@ -113,11 +113,11 @@ export default class FilterDate extends Basic.AbstractFormComponent {
       }
       case DateFaceEnum.findKeyBySymbol(DateFaceEnum.LAST_MONTH): {
         resultValue[fromProperty] = this._getValue(mode, moment().startOf('month').subtract(1, 'months'));
-        resultValue[tillProperty] = this._getValue(mode, moment().endOf('month').subtract(1, 'months'));
+        resultValue[tillProperty] = this._getValue(mode, moment().startOf('month').subtract(1, 'months').endOf('month'));
         break;
       }
       case DateFaceEnum.findKeyBySymbol(DateFaceEnum.LAST_THIRTY_DAYS): {
-        resultValue[fromProperty] = this._getValue(mode, moment().startOf('day').subtract(1, 'months'));
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('day').subtract(30, 'days'));
         resultValue[tillProperty] = this._getValue(mode, moment().endOf('day'));
         break;
       }

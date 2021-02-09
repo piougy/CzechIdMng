@@ -433,7 +433,7 @@
     },
     "connector": {
       "detail": {
-        "header": "{{record}}, {{version}} <small>detail konektoru</small>",
+        "header": "{{record}}, {{version}} <small>Detail konektoru</small>",
         "tabs": {
           "basic": {
             "title": "Základní informace"
@@ -449,7 +449,7 @@
       "header": "Vzdálené konektor servery",
       "title": "Vzdálené konektor servery",
       "edit": {
-        "header": "{{record}} <small>detail vzdáleného serveru</small>",
+        "header": "{{record}} <small>Detail vzdáleného serveru</small>",
         "title": "Detail vzdáleného serveru"
       },
       "create": {

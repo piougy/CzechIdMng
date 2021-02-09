@@ -1438,6 +1438,7 @@ module.exports = {
               {
                 id: 'code-list-attributes',
                 labelKey: 'content.code-lists.attributes.title',
+                icon: 'component:form-attributes',
                 order: 200,
                 path: '/code-lists/:entityId/attributes',
                 type: 'TAB',
@@ -1458,7 +1459,7 @@ module.exports = {
                 id: 'form-definitions',
                 labelKey: 'content.formDefinitions.header',
                 titleKey: 'content.formDefinitions.title',
-                icon: '',
+                icon: 'component:form-definitions',
                 order: 40,
                 path: '/forms/form-definitions',
                 type: 'TAB',
@@ -1478,6 +1479,7 @@ module.exports = {
                     labelKey: 'content.formDefinitions.attributes.title',
                     order: 100,
                     path: '/form-definitions/:entityId/attributes',
+                    icon: 'component:form-attributes',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMATTRIBUTE_READ'] } ],
                     items: [
@@ -1495,6 +1497,7 @@ module.exports = {
                         labelKey: 'content.formAttributes.form-values.title',
                         order: 505,
                         path: '/form-definitions/attribute/:entityId/values',
+                        icon: 'component:form-values',
                         type: 'TAB',
                         access: [{ type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] }]
                       }
@@ -1505,6 +1508,7 @@ module.exports = {
                     labelKey: 'content.form-values.title',
                     order: 200,
                     path: '/form-definitions/:entityId/values',
+                    icon: 'component:form-values',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
                   },
@@ -1514,7 +1518,7 @@ module.exports = {
                     titleKey: 'content.formDefinitions.localization.title',
                     order: 900,
                     path: '/form-definitions/:entityId/localization',
-                    icon: 'fa:language',
+                    icon: 'component:localization',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
                   }
@@ -1524,7 +1528,7 @@ module.exports = {
                 id: 'form-projections',
                 labelKey: 'content.form-projections.header',
                 titleKey: 'content.form-projections.title',
-                icon: '',
+                icon: 'component:form-projections',
                 order: 45,
                 type: 'TAB',
                 path: 'forms/form-projections',
@@ -1553,7 +1557,7 @@ module.exports = {
                     labelKey: 'content.form-projections.localization.title',
                     order: 900,
                     path: '/form-projections/:entityId/localization',
-                    icon: 'fa:language',
+                    icon: 'component:localization',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
                   }

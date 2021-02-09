@@ -54,6 +54,7 @@ class FormProjectionRoutes extends Basic.AbstractContent {
           ||
           <Advanced.DetailHeader
             entity={ entity }
+            icon="component:form-projection"
             showLoading={ showLoading }
             back="/forms/form-projections">
             { manager.getNiceLabel(entity)} <small> { this.i18n('edit.title') }</small>

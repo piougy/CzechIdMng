@@ -84,8 +84,8 @@ class FormDefinitionLocalization extends Basic.AbstractContent {
     const missingAttributeCodes = this._localeMissingAttributeCodes(entity);
     //
     return (
-      <Basic.Panel className="no-border last">
-        <Basic.PanelHeader text={ this.i18n('title') } />
+      <Basic.Div>
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <Basic.Alert level="success" text={ this.i18n('check.found')} icon="ok" rendered={ this._localeExists(entity) }/>
         <Basic.Alert level="warning" text={ this.i18n('check.not-found')} icon="info-sign" rendered={ !this._localeExists(entity) }/>
@@ -96,42 +96,36 @@ class FormDefinitionLocalization extends Basic.AbstractContent {
           icon="info-sign"
           rendered={ this._localeExists(entity) && missingAttributeCodes.length > 0 }/>
 
-
-        <Basic.ContentHeader text={ this.i18n('how-to.header') } />
-
-        <Basic.PanelBody style={{ padding: 0 }}>
-
-          { this.i18n('how-to.message', { name: entity.module ? entity.module : 'core', escape: false }) }
-          {/* it's ugly, but works */}
-          <pre style={{ marginTop: 15 }}>
-            ...<br/>
-            {'  '}"eav": {'\u007b'} <br/>
-            {'    '}"{ Utils.Ui.spinalCase(entity.type) }": {'\u007b'}<br/>
-            {'      '}"{ Utils.Ui.spinalCase(entity.code) }": {'\u007b'}<br/>
-            {'        '}"label": "{ entity.name }",<br/>
-            {'        '}"help": "{ entity.description }",<br/>
-            {'        '}"attributes": {'\u007b'}<br/>
-            {
-              [...entity.formAttributes.map((attribute, index) => {
-                return (
-                  <div>
-                    {'          '}"{ Utils.Ui.spinalCase(attribute.code) }": {'\u007b'}<br/>
-                    {'            '}"label": "{ Utils.Ui.escapeDoubleQuotes(attribute.name) }",<br/>
-                    {'            '}"help": "{ Utils.Ui.escapeDoubleQuotes(attribute.description) }",<br/>
-                    {'            '}"placeholder": "{ Utils.Ui.escapeDoubleQuotes(attribute.placeholder) }"<br/>
-                    {'          '}{'\u007d'}{ index + 1 === entity.formAttributes.length ? '' : ','}<br/>
-                  </div>
-                );
-              }).values()]
-            }
-            {'        '}{'\u007d'}<br/>
-            {'      '}{'\u007d'}<br/>
-            {'    '}{'\u007d'}<br/>
-            {'  '}{'\u007d'},<br/>
-            ...
-          </pre>
-        </Basic.PanelBody>
-      </Basic.Panel>
+        { this.i18n('how-to.message', { name: entity.module ? entity.module : 'core', escape: false }) }
+        {/* it's ugly, but works */}
+        <pre style={{ marginTop: 15 }}>
+          ...<br/>
+          {'  '}"eav": {'\u007b'} <br/>
+          {'    '}"{ Utils.Ui.spinalCase(entity.type) }": {'\u007b'}<br/>
+          {'      '}"{ Utils.Ui.spinalCase(entity.code) }": {'\u007b'}<br/>
+          {'        '}"label": "{ entity.name }",<br/>
+          {'        '}"help": "{ entity.description }",<br/>
+          {'        '}"attributes": {'\u007b'}<br/>
+          {
+            [...entity.formAttributes.map((attribute, index) => {
+              return (
+                <div>
+                  {'          '}"{ Utils.Ui.spinalCase(attribute.code) }": {'\u007b'}<br/>
+                  {'            '}"label": "{ Utils.Ui.escapeDoubleQuotes(attribute.name) }",<br/>
+                  {'            '}"help": "{ Utils.Ui.escapeDoubleQuotes(attribute.description) }",<br/>
+                  {'            '}"placeholder": "{ Utils.Ui.escapeDoubleQuotes(attribute.placeholder) }"<br/>
+                  {'          '}{'\u007d'}{ index + 1 === entity.formAttributes.length ? '' : ','}<br/>
+                </div>
+              );
+            }).values()]
+          }
+          {'        '}{'\u007d'}<br/>
+          {'      '}{'\u007d'}<br/>
+          {'    '}{'\u007d'}<br/>
+          {'  '}{'\u007d'},<br/>
+          ...
+        </pre>
+      </Basic.Div>
     );
   }
 }

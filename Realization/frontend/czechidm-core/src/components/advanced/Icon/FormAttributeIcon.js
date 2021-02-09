@@ -1,14 +1,14 @@
 import AbstractLetterIcon from './AbstractLetterIcon';
 
 /**
- * Icon for form definition.
+ * Icon for form attribute.
  *
  * @author Radek Tomiška
  * @since 10.8.0
  */
-export default class FormDefinitionIcon extends AbstractLetterIcon {
+export default class FormAttributeIcon extends AbstractLetterIcon {
 
   renderLetter() {
-    return 'F';
+    return 'A';
   }
 }

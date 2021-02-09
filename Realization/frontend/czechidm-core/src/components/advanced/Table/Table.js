@@ -1317,7 +1317,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   :
                   <Basic.Div
                     className={ _actionClassName }
-                    style={ draggable ? { paddingLeft: 19 } : {} }
+                    style={ (draggable && _entities && _entities.length > 0) ? { paddingLeft: 19 } : {} }
                     rendered={ _actions.length > 0 && showRowSelection }>
                     {
                       buttonActions.map(action => {

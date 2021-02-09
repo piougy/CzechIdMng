@@ -31,18 +31,16 @@ class CodeListAttributes extends Basic.AbstractContent {
     const { entity, showLoading } = this.props;
     //
     return (
-      <Basic.Panel className="no-border last">
-        <Basic.PanelHeader text={ this.i18n('content.code-lists.attributes.title') } />
-        <Basic.PanelBody style={{ padding: 0 }}>
-          {
-            !entity || showLoading
-            ?
-            <Basic.Loading isStatic show />
-            :
-            <FormAttributeTable uiKey={ `code-list-attribute-${ entity.id }-table`} definitionId={ entity.formDefinition.id } className="no-margin" />
-          }
-        </Basic.PanelBody>
-      </Basic.Panel>
+      <Basic.Div>
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
+        {
+          !entity || showLoading
+          ?
+          <Basic.Loading isStatic show />
+          :
+          <FormAttributeTable uiKey={ `code-list-attribute-${ entity.id }-table`} definitionId={ entity.formDefinition.id } className="no-margin" />
+        }
+      </Basic.Div>
     );
   }
 }

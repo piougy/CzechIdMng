@@ -791,6 +791,30 @@ module.exports = {
       type: 'icon',
       entityType: ['form-definition', 'form-definitions'],
       component: require('./src/components/advanced/Icon/FormDefinitionIcon')
+    },
+    {
+      id: 'form-projection-icon',
+      type: 'icon',
+      entityType: ['form-projection', 'form-projections'],
+      component: require('./src/components/advanced/Icon/FormProjectionIcon')
+    },
+    {
+      id: 'form-attribute-icon',
+      type: 'icon',
+      entityType: ['form-attribute', 'form-attributes'],
+      component: require('./src/components/advanced/Icon/FormAttributeIcon')
+    },
+    {
+      id: 'form-value-icon',
+      type: 'icon',
+      entityType: ['form-value', 'form-values'],
+      component: require('./src/components/advanced/Icon/FormValueIcon')
+    },
+    {
+      id: 'localization-icon',
+      type: 'icon',
+      entityType: ['localization'],
+      component: 'fa:language'
     }
   ]
 };

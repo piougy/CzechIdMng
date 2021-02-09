@@ -2187,13 +2187,13 @@
         "title": "Basic information"
       },
       "form-values": {
-        "header": "Attribute's values",
-        "title": "Attribute's values"
+        "header": "Attribute values",
+        "title": "Attribute values"
       }
     },
     "form-values": {
-      "header": "Attribute's values",
-      "title": "Attribute's values",
+      "header": "Attribute values",
+      "title": "Attribute values",
       "filter": {
         "text": {
           "label": "Text",

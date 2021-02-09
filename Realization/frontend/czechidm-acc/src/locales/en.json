@@ -433,7 +433,7 @@
     },
     "connector": {
       "detail": {
-        "header": "{{record}}, {{version}}  <small>connector detail</small>",
+        "header": "{{record}}, {{version}}  <small>Connector detail</small>",
         "tabs": {
           "basic": {
             "title": "Basic information"
@@ -449,7 +449,7 @@
       "header": "Remote connector servers",
       "title": "Remote connector servers",
       "edit": {
-        "header": "{{record}} <small>remote connector server detail</small>",
+        "header": "{{record}} <small>Remote connector server detail</small>",
         "title": "Remote connector server detail"
       },
       "create": {

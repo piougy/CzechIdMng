@@ -66,6 +66,7 @@ class FormAttributeRoutes extends Basic.AbstractContent {
           <Advanced.DetailHeader
             entity={ entity }
             showLoading={ showLoading }
+            icon="component:form-attribute"
             back={ `/form-definitions/${ entity ? entity.formDefinition : this._getFormDefinitionId() }/attributes` }>
             { manager.getNiceLabel(entity)} <small> { this.i18n('edit.title') }</small>
           </Advanced.DetailHeader>

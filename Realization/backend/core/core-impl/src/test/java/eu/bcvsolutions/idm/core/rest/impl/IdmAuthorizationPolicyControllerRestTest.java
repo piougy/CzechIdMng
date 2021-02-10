@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -190,5 +191,17 @@ public class IdmAuthorizationPolicyControllerRestTest extends AbstractReadWriteD
 	@Test 
 	public void testEmptyPredicates() {
 		Assert.assertNull(authorizationPolicyByIdentityFilterBuilder.getPredicate(null, null, null, new IdmAuthorizationPolicyFilter()));
+	}
+	
+	@Test
+	public void testCreateLongPermissions() {
+		IdmAuthorizationPolicyDto prepareDto = prepareDto();
+		prepareDto.setBasePermissions(StringUtils.repeat('x', 2000));
+		//
+		IdmAuthorizationPolicyDto createDto = createDto(prepareDto);
+		//
+		Assert.assertEquals(prepareDto.getPermissions(), createDto.getPermissions());
+		
+		
 	}
 }

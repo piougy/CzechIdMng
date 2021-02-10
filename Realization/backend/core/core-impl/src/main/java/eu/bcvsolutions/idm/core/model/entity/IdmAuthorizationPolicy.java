@@ -56,9 +56,8 @@ public class IdmAuthorizationPolicy extends AbstractEntity implements Authorizat
 	@Column(name = "group_permission", length = DefaultFieldLengths.NAME)
 	private String groupPermission;
 	
-	@Size(max = DefaultFieldLengths.NAME)
-	@Column(name = "base_permissions", length = DefaultFieldLengths.NAME)
-	//@Convert(converter = StringSetConverter.class) // TODO: doesn't work with envers
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "base_permissions", length = DefaultFieldLengths.DESCRIPTION)
 	private String basePermissions;
 	
 	@NotEmpty

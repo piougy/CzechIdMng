@@ -7,7 +7,8 @@ import classnames from 'classnames';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { FormAttributeManager, CodeListManager } from '../../redux';
+import * as Domain from '../../domain';
+import { FormAttributeManager, CodeListManager, DataManager } from '../../redux';
 import PersistentTypeEnum from '../../enums/PersistentTypeEnum';
 import ComponentService from '../../services/ComponentService';
 //
@@ -42,16 +43,21 @@ class FormAttributeDetail extends Basic.AbstractContent {
     //
     const { entityId } = this.props.match.params;
     const { isNew, formDefinitionId, entity } = this.props;
+    //
+    this.context.store.dispatch(manager.fetchSupportedAttributeRenderers());
+    //
     if (isNew) {
       const _entity = entity || {
         persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
+        faceType: null,
         unmodifiable: false,
         formDefinition: formDefinitionId
       };
       //
       this.context.store.dispatch(manager.receiveEntity(entityId, _entity, null, () => {
         this.setState({
-          persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT)
+          persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
+          faceType: null
         }, () => {
           this.refs.codeable.focus();
         });
@@ -60,7 +66,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
       this.getLogger().debug(`[FormAttributeDetail] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(manager.fetchEntity(entityId, null, (_entity) => {
         this.setState({
-          persistentType: _entity.persistentType
+          persistentType: _entity.persistentType,
+          faceType: _entity.faceType
         }, () => {
           this.refs.codeable.focus();
         });
@@ -85,12 +92,22 @@ class FormAttributeDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
+    if (this.refs.formInstance) {
+      if (!this.refs.formInstance.isValid()) {
+        return;
+      }
+    }
     //
     this.setState({
       _showLoading: true
     }, () => {
       this.refs.form.processStarted();
       const entity = this.refs.form.getData();
+      //
+      // transform properties
+      if (this.refs.formInstance) {
+        entity.properties = this.refs.formInstance.getProperties();
+      }
       //
       const saveEntity = {
         ...entity,
@@ -159,6 +176,16 @@ class FormAttributeDetail extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * Change persistent type listener
+   * @param  {SelectBox.option} persistentType option from enum select box
+   */
+  onChangeFaceType(faceType) {
+    this.setState({
+      faceType: faceType ? faceType.value : null
+    });
+  }
+
   _supportsUniqueValidation(persistentType) {
     return this._supportsRegexValidation(persistentType);
   }
@@ -212,8 +239,25 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, _permissions } = this.props;
-    const { _showLoading, persistentType } = this.state;
+    const { entity, showLoading, _permissions, supportedAttributeRenderers } = this.props;
+    const { _showLoading, persistentType, faceType } = this.state;
+    //
+    let formAttributeRenderer = null;
+    if (faceType && supportedAttributeRenderers && supportedAttributeRenderers.has(faceType)) {
+      formAttributeRenderer = supportedAttributeRenderers.get(faceType);
+      if (formAttributeRenderer.disabled) {
+        formAttributeRenderer = null;
+      }
+    }
+
+    let formInstance = new Domain.FormInstance({});
+    if (formAttributeRenderer && formAttributeRenderer.formDefinition && entity) {
+      formInstance = new Domain.FormInstance(formAttributeRenderer.formDefinition).setProperties(entity.properties);
+    }
+    const showProperties = formInstance
+      && formAttributeRenderer
+      && formAttributeRenderer.formDefinition
+      && formAttributeRenderer.formDefinition.formAttributes.length > 0;
     //
     return (
       <Basic.Div>
@@ -276,6 +320,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       ref="faceType"
                       options={ this.getFaceTypes(persistentType) }
                       label={ this.i18n('entity.FormAttribute.faceType.label') }
+                      onChange={ this.onChangeFaceType.bind(this) }
                       helpBlock={ this.i18n('entity.FormAttribute.faceType.help') }
                       placeholder={ this.i18n('entity.FormAttribute.faceType.placeholder') }
                       hidden={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }
@@ -291,6 +336,16 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       required={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }
                       clearable={ false }
                       returnProperty="code"/>
+
+                    <Basic.Div style={ showProperties ? {} : { display: 'none' }}>
+                      <Advanced.EavForm
+                        ref="formInstance"
+                        formInstance={ formInstance }
+                        useDefaultValue={ Utils.Entity.isNew(entity) }
+                        readOnly={ !manager.canSave(entity, _permissions) }
+                        showAttributes/>
+                    </Basic.Div>
+
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField
@@ -424,7 +479,8 @@ function select(state, component) {
   return {
     entity,
     showLoading: manager.isShowLoading(state, null, entityId),
-    _permissions: manager.getPermissions(state, null, entityId)
+    _permissions: manager.getPermissions(state, null, entityId),
+    supportedAttributeRenderers: DataManager.getData(state, FormAttributeManager.UI_KEY_SUPPORTED_ATTRIBUTE_RENDERERS)
   };
 }
 

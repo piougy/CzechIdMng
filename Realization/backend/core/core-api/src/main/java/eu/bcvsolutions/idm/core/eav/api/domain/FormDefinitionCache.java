@@ -126,6 +126,7 @@ public class FormDefinitionCache implements Serializable {
 		clone.setEmbedded(original.getEmbedded());
 		clone.setUnmodifiable(original.isUnmodifiable());
 		clone.setDescription(original.getDescription());
+		clone.setProperties(original.getProperties());
 		//
 		return clone;
 	}

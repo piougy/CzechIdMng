@@ -5,21 +5,20 @@ import java.util.List;
 
 import org.springframework.core.Ordered;
 
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 
 /**
- * Form projection route - projection configuration.
+ * Form attribute renderer - attribute face type with custom configuration.
  * 
- * @param <O> evaluated {@link Identifiable} type - route is designed for owner type. 
  * @author Radek Tomiška
- * @since 10.3.0
+ * @since 10.8.0
  */
-public interface FormProjectionRoute<O extends Identifiable> extends Ordered, Configurable {
+public interface FormAttributeRenderer extends Ordered, Configurable {
 	
 	@Override
 	default String getConfigurableType() {
-		return "form-projection-route";
+		return "form-attribute-renderer";
 	}
 	
 	/**
@@ -30,19 +29,19 @@ public interface FormProjectionRoute<O extends Identifiable> extends Ordered, Co
 	String getId();
 	
 	/**
-	 * Returns owner type class, which supports this route.
+	 * Returns persistent type, which supports this renderer.
 	 * 
 	 * @return
 	 */
-	Class<O> getOwnerType();
+	PersistentType getPersistentType();
 	
 	/**
-	 * Returns true, when route supports given owner type
+	 * Returns true, when renderer supports given persistent type
 	 * 
-	 * @param authorizableType
+	 * @param persistentType
 	 * @return
 	 */
-	boolean supports(Class<?> ownerType);
+	boolean supports(PersistentType persistentType);
 	
 	/**
 	 * Returns configuration property names for this configurable object

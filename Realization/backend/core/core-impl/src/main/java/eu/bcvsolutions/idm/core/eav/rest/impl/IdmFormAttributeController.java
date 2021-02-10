@@ -33,8 +33,10 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.eav.api.dto.FormAttributeRendererDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
@@ -59,6 +61,8 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmFormAttributeController extends AbstractReadWriteDtoController<IdmFormAttributeDto, IdmFormAttributeFilter>  {
 
 	protected static final String TAG = "Form attributes";
+	//
+	@Autowired private FormService formService;
 	
 	@Autowired
 	public IdmFormAttributeController(IdmFormAttributeService service) {
@@ -268,6 +272,29 @@ public class IdmFormAttributeController extends AbstractReadWriteDtoController<I
 			@ApiParam(value = "Attribute's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
+	}
+	
+	/**
+	 * Returns all registered renderers.
+	 * 
+	 * @return registered renderers
+	 * @since 10.8.0
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET, value = "/search/supported-attribute-renderers")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_ATTRIBUTE_READ + "')")
+	@ApiOperation(
+			value = "Get all supported form attribute renderers", 
+			nickname = "getSupportedAttributeRenderers", 
+			tags = { IdmFormProjectionController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_ATTRIBUTE_READ, description = "") })
+				})
+	public Resources<FormAttributeRendererDto> getSupportedAttributeRenderers() {
+		return new Resources<>(formService.getSupportedAttributeRenderers());
 	}
 	
 	@Override

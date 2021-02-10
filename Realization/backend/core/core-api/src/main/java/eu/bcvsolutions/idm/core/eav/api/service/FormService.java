@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.FormAttributeRendererDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -1004,4 +1005,12 @@ public interface FormService extends ScriptEnabled {
 	 * @see IdmCacheManager#evictCache(String)
 	 */
 	void evictCache(IdmFormDefinitionDto definition);
+	
+	/**
+	 * Returns supported form attribute renderers.
+	 * 
+	 * @return supported renderers
+	 * @since 10.8.0
+	 */
+	List<FormAttributeRendererDto> getSupportedAttributeRenderers();
 }

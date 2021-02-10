@@ -169,7 +169,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
       validationErrors,
       formableManager,
       showAttributes,
-      condensed
+      condensed,
+      className
     } = this.props;
     //
     if (!rendered || !formInstance) {
@@ -193,10 +194,13 @@ export default class EavForm extends Basic.AbstractContextComponent {
     //
     return (
       <span className={
-        classnames({
-          'eav-form': true,
-          condensed
-        })
+        classnames(
+          {
+            'eav-form': true,
+            condensed
+          },
+          className
+        )
       }>
         {
           [...formInstance.getAttributes().map(attribute => {

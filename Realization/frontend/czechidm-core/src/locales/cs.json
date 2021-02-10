@@ -5939,6 +5939,17 @@
         "help": "Odeslat report po úspěšném dokončení na zadaný topic dle konfigurace notifikací. Ve výchozím nastavení je report zaslán uživateli, který report vytvořil. Pokud je report nakonfigurovaný jako naplánovaná úloha, je třeba nakonfigurovat příjemce v konfiguraci notifikací dle topicu (report je z plánovače tvořen pod systémovým uživatelem)."
       }
     },
+    "form-attribute-renderer": {
+      "tree-node-select": {
+        "attributes": {
+          "tree-type": {
+            "label": "Typ struktury",
+            "placeholder": "Všechny typy struktur nebo vyberte ...",
+            "help": "Výběr prvku stromu pouze ze zadaného typu stromové struktury."
+          }
+        }
+      }
+    },
     "bulk-action": {
       "identity-disable-bulk-action": {
         "label": "Deaktivovat - (manuálně)",

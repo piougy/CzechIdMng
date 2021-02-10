@@ -1,7 +1,10 @@
+import Immutable from 'immutable';
+//
 import EntityManager from './EntityManager';
 import { FormAttributeService } from '../../services';
 import ComponentService from '../../services/ComponentService';
 import FormDefinitionManager from './FormDefinitionManager';
+import DataManager from './DataManager';
 import * as Utils from '../../utils';
 
 /**
@@ -118,4 +121,39 @@ export default class FormAttributeManager extends EntityManager {
     //
     return `${ modulePrefix }${ definitionPrefix }.attributes.${ Utils.Ui.spinalCase(formAttribute.code) }`;
   }
+
+  /**
+   * Loads all registered form attribute renderes.
+   *
+   * @return {action}
+   * @since 10.8.0
+   */
+  fetchSupportedAttributeRenderers() {
+    const uiKey = FormAttributeManager.UI_KEY_SUPPORTED_ATTRIBUTE_RENDERERS;
+    //
+    return (dispatch, getState) => {
+      const loaded = DataManager.getData(getState(), uiKey);
+      if (loaded) {
+        // we dont need to load them again - change depends on BE restart
+      } else {
+        dispatch(this.dataManager.requestData(uiKey));
+        this.getService().getSupportedAttributeRenderers()
+          .then(json => {
+            let routes = new Immutable.Map();
+            if (json._embedded && json._embedded.formAttributeRenderers) {
+              json._embedded.formAttributeRenderers.forEach(item => {
+                routes = routes.set(item.id, item);
+              });
+            }
+            dispatch(this.dataManager.receiveData(uiKey, routes));
+          })
+          .catch(error => {
+            // TODO: data uiKey
+            dispatch(this.dataManager.receiveError(null, uiKey, error));
+          });
+      }
+    };
+  }
 }
+
+FormAttributeManager.UI_KEY_SUPPORTED_ATTRIBUTE_RENDERERS = 'form-attribute-supported-attribute-renderers';

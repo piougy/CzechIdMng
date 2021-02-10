@@ -13,6 +13,7 @@ import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Niceable;
@@ -47,6 +48,7 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	@NotNull
 	private PersistentType persistentType;
 	private String faceType;
+	private ConfigurationMap properties;
 	private boolean multiple;
 	private boolean required;
 	private boolean readonly;
@@ -331,5 +333,28 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	 */
 	public String getModule() {
 		return module;
+	}
+	
+	/**
+	 * Additional form attribute properties (by face type).
+	 * 
+	 * @return configured properties
+	 * @since 10.8.0
+	 */
+	public ConfigurationMap getProperties() {
+		if (properties == null) {
+			properties = new ConfigurationMap();
+		}
+		return properties;
+	}
+	
+	/**
+	 * Additional form attribute properties (by face type).
+	 * 
+	 * @param properties configured properties
+	 * @since 10.8.0
+	 */
+	public void setProperties(ConfigurationMap properties) {
+		this.properties = properties;
 	}
 }

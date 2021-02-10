@@ -1,6 +1,6 @@
 import AbstractService from './AbstractService';
-import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
+import SearchParameters from '../domain/SearchParameters';
 import * as Utils from '../utils';
 
 /**

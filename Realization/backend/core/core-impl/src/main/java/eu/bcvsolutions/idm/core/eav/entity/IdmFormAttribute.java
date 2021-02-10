@@ -28,6 +28,7 @@ import javax.validation.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.UnmodifiableEntity;
@@ -83,6 +84,9 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@Column(name = "face_type", length = 45)
 	@JsonProperty(access = Access.READ_ONLY)
 	private String faceType;
+	
+	@Column(name = "face_properties", length = Integer.MAX_VALUE)
+	private ConfigurationMap properties;
 	
 	@NotNull
 	@Column(name = "multiple", nullable = false)
@@ -385,5 +389,25 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	 */
 	public void setValidationMessage(String validationMessage) {
 		this.validationMessage = validationMessage;
+	}
+	
+	/**
+	 * Additional form attribute properties (by face type).
+	 * 
+	 * @return configured properties
+	 * @since 10.8.0
+	 */
+	public ConfigurationMap getProperties() {
+		return properties;
+	}
+	
+	/**
+	 * Additional form attribute properties (by face type).
+	 * 
+	 * @param properties configured properties
+	 * @since 10.8.0
+	 */
+	public void setProperties(ConfigurationMap properties) {
+		this.properties = properties;
 	}
 }

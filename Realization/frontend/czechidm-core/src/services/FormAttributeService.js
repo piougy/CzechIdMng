@@ -1,6 +1,8 @@
 import AbstractService from './AbstractService';
+import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
 import FormDefinitionService from './FormDefinitionService';
+import * as Utils from '../utils';
 
 /**
  * Eav form attributes.
@@ -56,6 +58,26 @@ class FormAttributeService extends AbstractService {
       .clearSort()
       .setSort('seq', 'asc')
       .setSort('code', 'asc');
+  }
+
+  /**
+   * Loads all registered attribute renderers.
+   *
+   * @return {promise}
+   * @since 10.8.0
+   */
+  getSupportedAttributeRenderers() {
+    return RestApiService
+      .get(`${ this.getApiPath() }/search/supported-attribute-renderers`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }
 

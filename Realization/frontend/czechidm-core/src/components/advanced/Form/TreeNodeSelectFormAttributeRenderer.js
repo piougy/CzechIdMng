@@ -1,12 +1,12 @@
 import React from 'react';
 //
+import SearchParameters from '../../../domain/SearchParameters';
 import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
 import SelectBoxFormAttributeRenderer from './SelectBoxFormAttributeRenderer';
 import TreeNodeSelect from '../TreeNodeSelect/TreeNodeSelect';
 
 /**
  * Tree select component
- * - TODO: supports multiple attributes
  * - TODO: validation
  *
  * @author Radek Tomiška
@@ -26,6 +26,12 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
     const { attribute, values, uiKey, validationErrors, className, style } = this.props;
     const showOriginalValue = !!originalValues;
     //
+    let forceSearchParameters = null;
+    if (attribute && attribute.properties && attribute.properties['tree-type']) {
+      // tree node from given tree type only
+      forceSearchParameters = new SearchParameters().setFilter('treeTypeId', attribute.properties['tree-type']);
+    }
+    //
     return (
       <TreeNodeSelect
         ref={ AbstractFormAttributeRenderer.INPUT }
@@ -36,6 +42,7 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
         placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
         showTreeType={ false }
+        forceSearchParameters={ forceSearchParameters }
         value={
           !attribute.multiple
           ?

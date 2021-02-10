@@ -7,9 +7,9 @@ import _ from 'lodash';
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Domain from '../../domain';
 import { FormProjectionManager, FormDefinitionManager, FormAttributeManager, DataManager } from '../../redux';
 import AbstractEnum from '../../enums/AbstractEnum';
-import * as Domain from '../../domain';
 
 const manager = new FormProjectionManager();
 const formDefinitionManager = new FormDefinitionManager();
@@ -521,7 +521,8 @@ class FormProjectionDetail extends Basic.AbstractContent {
                   ref="formInstance"
                   formInstance={ formInstance }
                   useDefaultValue={ Utils.Entity.isNew(projection) }
-                  readOnly={ !manager.canSave(projection, _permissions) }/>
+                  readOnly={ !manager.canSave(projection, _permissions) }
+                  showAttributes/>
               </Basic.Div>
 
               <Basic.TextArea

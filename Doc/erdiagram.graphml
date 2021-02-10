@@ -1480,7 +1480,7 @@ RoleType]]></x0:EntityRelationshipModel.title>
 		<node id="n27">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-335.45136670108593" Y="-2107.7858525150928" Width="133.94185746208137" Height="303.7270086657145"/>
+				<y:RectD X="-335.45136670108593" Y="-2123.7858525150937" Width="133.94185746208137" Height="335.7270086657145"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
@@ -1516,6 +1516,7 @@ RoleType]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[+ min]]></sys:String>
 									<sys:String><![CDATA[+ regex]]></sys:String>
 									<sys:String><![CDATA[+ validationMessage]]></sys:String>
+									<sys:String><![CDATA[+ faceProperties]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>

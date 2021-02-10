@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -61,6 +64,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.FormDefinitionCache;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.FormAttributeRendererDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.FormDefinitionAttributes;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -71,6 +75,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.api.service.FormAttributeRenderer;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
@@ -83,6 +88,7 @@ import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
@@ -99,12 +105,14 @@ public class DefaultFormService implements FormService {
 	//
 	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
 	//
+	@Autowired private ApplicationContext context;
 	@Autowired private IdmFormDefinitionService formDefinitionService;
 	@Autowired private IdmFormAttributeService formAttributeService;
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private LookupService lookupService;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private IdmCacheManager cacheManager;
+	@Autowired @Lazy private EnabledEvaluator enabledEvaluator;
 
 	@Autowired
 	public DefaultFormService(List<? extends FormValueService<?>> formValueServices) {
@@ -1426,6 +1434,30 @@ public class DefaultFormService implements FormService {
 				}
 			});
 		return results;
+	}
+	
+	@Override
+	public List<FormAttributeRendererDto> getSupportedAttributeRenderers() {
+		return context
+			.getBeansOfType(FormAttributeRenderer.class)
+			.values()
+			.stream()
+			.filter(enabledEvaluator::isEnabled)
+			.sorted(Comparator.comparing(FormAttributeRenderer::getOrder))
+			.map(renderer -> {
+				FormAttributeRendererDto rendererDto = new FormAttributeRendererDto();
+				rendererDto.setId(renderer.getId());
+				rendererDto.setName(renderer.getName());
+				rendererDto.setPersistentType(renderer.getPersistentType());
+				rendererDto.setModule(renderer.getModule());
+				rendererDto.setDescription(renderer.getDescription());
+				rendererDto.setFormDefinition(renderer.getFormDefinition());
+				rendererDto.setDisabled(renderer.isDisabled());
+				renderer.getPropertyNames();
+				//
+				return rendererDto;
+			})
+			.collect(Collectors.toList());
 	}
 
 	private InvalidFormAttributeDto validateAttribute(

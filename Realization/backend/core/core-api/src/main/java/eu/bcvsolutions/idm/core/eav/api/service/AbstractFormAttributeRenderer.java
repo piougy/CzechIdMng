@@ -2,32 +2,25 @@ package eu.bcvsolutions.idm.core.eav.api.service;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 
 /**
- * Abstract form projection route - projection configuration.
+ * Abstract form attribute renderer - attribute face type with custom configuration.
  * 
- * @param <O> evaluated {@link Identifiable} type - route is designed for owner type. 
+ * @param <O> evaluated {@link PersistentType} type - renederer is registered to persistent type. 
  * @author Radek Tomiška
- * @since 10.3.0
+ * @since 10.8.0
  */
-public abstract class AbstractFormProjectionRoute<O extends Identifiable> implements 
-		FormProjectionRoute<O>,
+public abstract class AbstractFormAttributeRenderer implements 
+		FormAttributeRenderer,
 		BeanNameAware {
 
-	private final Class<O> ownerType;
 	private String beanName; // spring bean name - used as id
 	//
 	@Autowired private ConfigurationService configurationService; // checks for processor is enabled
-
-	@SuppressWarnings({ "unchecked" })
-	public AbstractFormProjectionRoute() {
-		this.ownerType = (Class<O>) GenericTypeResolver.resolveTypeArgument(getClass(), FormProjectionRoute.class);
-	}
 	
 	@Override
 	public void setBeanName(String name) {
@@ -39,11 +32,6 @@ public abstract class AbstractFormProjectionRoute<O extends Identifiable> implem
 		return beanName;
 	}
 
-	@Override
-	public Class<O> getOwnerType() {
-		return ownerType;
-	}
-
 	/**
 	 * Could be used for ordering in select boxes.
 	 */
@@ -53,10 +41,10 @@ public abstract class AbstractFormProjectionRoute<O extends Identifiable> implem
 	}
 
 	@Override
-	public boolean supports(Class<?> ownerType) {
-		Assert.notNull(ownerType, "Owner type is required.");
+	public boolean supports(PersistentType persistentType) {
+		Assert.notNull(persistentType, "Persistent type is required.");
 		//
-		return this.ownerType.isAssignableFrom(ownerType);
+		return getPersistentType() == persistentType;
 	}
 	
 	@Override

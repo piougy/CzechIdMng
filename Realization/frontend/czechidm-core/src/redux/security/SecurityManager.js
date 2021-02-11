@@ -270,11 +270,7 @@ export default class SecurityManager {
   }
 
   receiveRemoteLoginError(error, redirect) {
-    return (dispatch, getState) => {
-      // add error message
-      if (error) {
-        getState().logger.warn('Remote login error occurred:', error);
-      }
+    return (dispatch) => {
       // redirect after login, if needed
       if (redirect) {
         redirect(false, error);

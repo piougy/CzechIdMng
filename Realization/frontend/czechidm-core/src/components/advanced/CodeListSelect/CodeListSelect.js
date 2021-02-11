@@ -42,8 +42,8 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   UNSAFE_componentWillReceiveProps(nextProps) {
     super.UNSAFE_componentWillReceiveProps(nextProps);
     //
-    const { items } = nextProps;
-    if (items !== this.props.items) {
+    const { items, code } = nextProps;
+    if (items !== this.props.items || code !== this.props.code) {
       this._loadOptions(nextProps);
     }
   }

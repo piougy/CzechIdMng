@@ -50,6 +50,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
       const _entity = entity || {
         persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
         faceType: null,
+        defaultValue: null,
         unmodifiable: false,
         formDefinition: formDefinitionId
       };
@@ -57,7 +58,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
       this.context.store.dispatch(manager.receiveEntity(entityId, _entity, null, () => {
         this.setState({
           persistentType: PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT),
-          faceType: null
+          faceType: null,
+          defaultValue: null
         }, () => {
           this.refs.codeable.focus();
         });
@@ -67,7 +69,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
       this.context.store.dispatch(manager.fetchEntity(entityId, null, (_entity) => {
         this.setState({
           persistentType: _entity.persistentType,
-          faceType: _entity.faceType
+          faceType: _entity.faceType,
+          defaultValue: _entity.defaultValue
         }, () => {
           this.refs.codeable.focus();
         });
@@ -107,6 +110,12 @@ class FormAttributeDetail extends Basic.AbstractContent {
       // transform properties
       if (this.refs.formInstance) {
         entity.properties = this.refs.formInstance.getProperties();
+      }
+      const defaultValue = this.refs.defaultValue.getValue();
+      if (defaultValue && defaultValue.value) {
+        entity.defaultValue = defaultValue.value;
+      } else {
+        entity.defaultValue = null;
       }
       //
       const saveEntity = {
@@ -154,15 +163,21 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   /**
-   * Change persistent type listener
+   * Change persistent type listener.
+   *
    * @param  {SelectBox.option} persistentType option from enum select box
    */
   onChangePersistentType(persistentType) {
     this.setState({
-      persistentType: persistentType.value
+      persistentType: persistentType.value,
+      faceType: null,
+      defaultValue: null
     }, () => {
+      // clear default value
+      this.refs.defaultValue.setValue(null);
       // clear selected face type
       this.refs.faceType.setValue(null);
+      // clear validations
       if (!this._supportsUniqueValidation(persistentType.value)) {
         this.refs.unique.setValue(false);
       }
@@ -177,12 +192,26 @@ class FormAttributeDetail extends Basic.AbstractContent {
   }
 
   /**
-   * Change persistent type listener
-   * @param  {SelectBox.option} persistentType option from enum select box
+   * Change face type listener
+   *
+   * @param  {SelectBox.option} faceType option from enum select box
    */
   onChangeFaceType(faceType) {
     this.setState({
-      faceType: faceType ? faceType.value : null
+      faceType: faceType ? faceType.value : null,
+      defaultValue: null
+    });
+  }
+
+  /**
+   * Change codelist listener.
+   *
+   * @param  {object} codelist option from enum select box
+   */
+  onChangeCodeList(codelist) {
+    this.setState({
+      faceType: codelist ? codelist.code : null,
+      defaultValue: null
     });
   }
 
@@ -240,7 +269,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
   render() {
     const { entity, showLoading, _permissions, supportedAttributeRenderers } = this.props;
-    const { _showLoading, persistentType, faceType } = this.state;
+    const { _showLoading, persistentType, faceType, defaultValue } = this.state;
     //
     let formAttributeRenderer = null;
     if (faceType && supportedAttributeRenderers && supportedAttributeRenderers.has(faceType)) {
@@ -258,6 +287,19 @@ class FormAttributeDetail extends Basic.AbstractContent {
       && formAttributeRenderer
       && formAttributeRenderer.formDefinition
       && formAttributeRenderer.formDefinition.formAttributes.length > 0;
+    //
+    const _attribute = entity ? { ...entity } : {};
+    _attribute.name = this.i18n('entity.FormAttribute.defaultValue');
+    _attribute.faceType = faceType;
+    _attribute.persistentType = persistentType || PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT);
+    //
+    const component = manager.getFormComponent(_attribute);
+    let FormValueComponent = null;
+    let ManagerType = null;
+    if (component) {
+      FormValueComponent = component.component;
+      ManagerType = component.manager;
+    }
     //
     return (
       <Basic.Div>
@@ -309,9 +351,17 @@ class FormAttributeDetail extends Basic.AbstractContent {
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField
-                      ref="defaultValue"
-                      label={ this.i18n('entity.FormAttribute.defaultValue') }
-                      max={ 255 }/>
+                      ref="seq"
+                      label={ this.i18n('entity.FormAttribute.seq.label') }
+                      helpBlock={ this.i18n('entity.FormAttribute.seq.help') }
+                      validation={
+                        Joi
+                          .number()
+                          .required()
+                          .integer()
+                          .min(-32768)
+                          .max(32767)
+                      }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
@@ -330,6 +380,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       ref="codeList"
                       manager={ codeListManager }
                       label={ this.i18n('entity.FormAttribute.codeList.label') }
+                      onChange={ this.onChangeCodeList.bind(this) }
                       helpBlock={ this.i18n('entity.FormAttribute.codeList.help') }
                       placeholder={ this.i18n('entity.FormAttribute.codeList.placeholder') }
                       hidden={ persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST) }
@@ -348,18 +399,26 @@ class FormAttributeDetail extends Basic.AbstractContent {
 
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
-                    <Basic.TextField
-                      ref="seq"
-                      label={ this.i18n('entity.FormAttribute.seq.label') }
-                      helpBlock={ this.i18n('entity.FormAttribute.seq.help') }
-                      validation={
-                        Joi
-                          .number()
-                          .required()
-                          .integer()
-                          .min(-32768)
-                          .max(32767)
-                      }/>
+                    {
+                      FormValueComponent && entity && persistentType !== PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ATTACHMENT)
+                      ?
+                      <FormValueComponent
+                        ref="defaultValue"
+                        attribute={ _attribute }
+                        useDefaultValue={ false }
+                        values={[ {
+                          value: defaultValue,
+                          stringValue: defaultValue
+                        }]}
+                        manager={ ManagerType ? new ManagerType() : null }
+                        component={ component }/>
+                      :
+                      <Basic.TextField
+                        ref="defaultValue"
+                        label={ this.i18n('entity.FormAttribute.defaultValue') }
+                        max={ 255 }
+                        readOnly={ persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.ATTACHMENT) }/>
+                    }
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>

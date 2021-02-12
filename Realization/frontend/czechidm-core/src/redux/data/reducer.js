@@ -373,7 +373,6 @@ export default function reduce(state = INITIAL_STATE, action) {
   }
 }
 
-
 /**
  * Simple function wrapper to assing name to default export
  */

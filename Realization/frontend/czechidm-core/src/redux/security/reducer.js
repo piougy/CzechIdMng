@@ -107,7 +107,9 @@ export default function reduce(state = INITIAL_STATE, action) {
     }
     case LOGOUT: {
       return _.merge({}, INITIAL_STATE, {
-        isTryRemoteLogin: false
+        userContext: _.merge({}, INITIAL_STATE.userContext, {
+          isTryRemoteLogin: action.isTryRemoteLogin === null || action.isTryRemoteLogin === undefined ? true : action.isTryRemoteLogin
+        })
       });
     }
     default:

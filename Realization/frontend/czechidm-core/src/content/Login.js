@@ -52,7 +52,7 @@ class Login extends Basic.AbstractContent {
     this.refs.username.focus();
     //
     const { userContext } = this.props;
-    if (!SecurityManager.isAuthenticated(userContext)) {
+    if (!SecurityManager.isAuthenticated(userContext) && userContext.isTryRemoteLogin) {
       this.context.store.dispatch(securityManager.remoteLogin((result, error) => {
         if (error && error.statusEnum) {
           if (error.statusEnum === 'MUST_CHANGE_IDM_PASSWORD') {

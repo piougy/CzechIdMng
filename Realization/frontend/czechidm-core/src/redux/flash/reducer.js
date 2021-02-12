@@ -9,11 +9,11 @@ const INITIAL_STATE = {
 };
 
 /**
- * Messages storage
+ * Messages storage.
  *
  * @author Radek Tomiška
  */
-export function messages(state = INITIAL_STATE, action) {
+export default function reduce(state = INITIAL_STATE, action) {
   switch (action.type) {
     case ADD_MESSAGE: {
       const messagesData = state.messages.toArray();
@@ -25,8 +25,8 @@ export function messages(state = INITIAL_STATE, action) {
         id: nextId
       });
       return merge({}, state, {
-        messages: state.messages.set(message.id, message).slice(-25) }
-      );
+        messages: state.messages.set(message.id, message).slice(-25)
+      });
     }
     case REMOVE_MESSAGE: {
       return merge({}, state, {
@@ -40,19 +40,26 @@ export function messages(state = INITIAL_STATE, action) {
     }
     case HIDE_ALL_MESSAGES:
     case HIDE_MESSAGE: {
-      const messagesData = state.messages.map(message =>
+      const messagesData = state.messages.map(message => (
         (action.type === HIDE_ALL_MESSAGES || message.id === action.id || message.key === action.id)
-          ?
-          merge({}, message, { hidden: true })
-          :
-          message
-      );
+        ?
+        merge({}, message, { hidden: true })
+        :
+        message
+      ));
       return merge({}, state, {
         messages: messagesData
-      } );
+      });
     }
 
     default:
       return state;
   }
+}
+
+/**
+ * Simple function wrapper to assing name to default export
+ */
+export function messages(state, action) {
+  return reduce(state, action);
 }

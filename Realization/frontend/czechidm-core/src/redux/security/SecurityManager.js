@@ -167,13 +167,14 @@ export default class SecurityManager {
           tokenCIDMST: json.token,
           tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
           authorities: json.authorities.map(authority => authority.authority),
-          originalUsername: json.authentication.originalUsername
+          originalUsername: json.authentication.originalUsername,
+          isTryRemoteLogin: false
         };
         //
         // remove all messages (only logout could be fond in messages after logout)
         dispatch(flashMessagesManager.removeAllMessages());
         // clean up previous redux state
-        dispatch(this.receiveLogout());
+        dispatch(this.receiveLogout(false));
         //
         // init FE by saved profile on BE
         if (profile) {
@@ -330,13 +331,10 @@ export default class SecurityManager {
     };
   }
 
-  receiveLogout() {
-    return dispatch => {
-      // logout from web sockets
-      // dispatch(SecurityManager.disconectStompClient());
-      dispatch({
-        type: LOGOUT
-      });
+  receiveLogout(isTryRemoteLogin = true) {
+    return {
+      type: LOGOUT,
+      isTryRemoteLogin
     };
   }
 

@@ -15,15 +15,11 @@ const accountManager = new AccountManager();
 const treeManager = new Managers.TreeNodeManager();
 
 /**
- * Tree accounts
+ * Tree accounts.
  *
- * @author Kučera
+ * @author Roname Kučera
  */
 class TreeAccounts extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -81,10 +77,11 @@ class TreeAccounts extends Advanced.AbstractTableContent {
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('treeNodeId', entityId);
-    const accountSearchParameters = new Domain.SearchParameters().setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE));
+    const accountSearchParameters = new Domain.SearchParameters()
+      .setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE));
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
@@ -215,7 +212,7 @@ class TreeAccounts extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

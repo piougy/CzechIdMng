@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import eu.bcvsolutions.idm.core.workflow.model.dto.IdentityLinkDto;
+import java.util.stream.Collectors;
+import org.activiti.engine.task.IdentityLinkType;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
@@ -1081,6 +1084,241 @@ public class RequestManagerTest extends AbstractCoreWorkflowIntegrationTest {
 		formService.deleteValues(role, attributeInt);
 		formService.deleteAttribute(attributeInt);
 
+	}
+
+	@Test
+	public void testChangeRoleWithDirectGuaranteeType() {
+		// Guarantee type -> set to null (default value).
+		getHelper().setConfigurationValue("idm.sec.core.request.idm-role.approval.guarantee-type", null);
+
+		String guaranteeTypeOne = getHelper().createName();
+		String guaranteeTypeTwo = getHelper().createName();
+		// Create role with guarantee
+		IdmIdentityDto guaranteeOne = getHelper().createIdentity();
+		IdmIdentityDto guaranteeTwo = getHelper().createIdentity();
+		IdmRoleDto changedRole = getHelper().createRole();
+		getHelper().createRoleGuarantee(changedRole, guaranteeOne, guaranteeTypeOne);
+		getHelper().createRoleGuarantee(changedRole, guaranteeTwo, guaranteeTypeTwo);
+
+		// Create request
+		IdmRequestDto request = createRequest(changedRole);
+
+		// Start request
+		IdmRequestDto executedRequest = requestManager.startRequest(request.getId(), true);
+		Assert.assertNotNull(executedRequest);
+		executedRequest = requestService.get(executedRequest.getId());
+		
+		// Role has guarantee, approval process must be started
+		Assert.assertEquals(RequestState.IN_PROGRESS, executedRequest.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setProcessInstanceId(executedRequest.getWfProcessId());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		Assert.assertEquals(1, tasks.size());
+
+		WorkflowTaskInstanceDto workflowTaskInstanceDto = tasks.get(0);
+		List<IdentityLinkDto> candidates = workflowTaskInstanceDto.getIdentityLinks()
+				.stream()
+				.filter(identityLinkDto -> IdentityLinkType.CANDIDATE.equals(identityLinkDto.getType()))
+				.collect(Collectors.toList());
+
+		Assert.assertEquals(2, candidates.size());
+		Assert.assertTrue(candidates.stream().anyMatch(candidate -> guaranteeOne.getId().toString().equals(candidate.getUserId())));
+		Assert.assertTrue(candidates.stream().anyMatch(candidate -> guaranteeTwo.getId().toString().equals(candidate.getUserId())));
+
+		// Guarantee type -> set to guaranteeTypeOne.
+		getHelper().setConfigurationValue("idm.sec.core.request.idm-role.approval.guarantee-type", guaranteeTypeOne);
+
+		// Create request for guarantee type ONE.
+		request = createRequest(changedRole);
+
+		// Start request
+		executedRequest = requestManager.startRequest(request.getId(), true);
+		Assert.assertNotNull(executedRequest);
+		executedRequest = requestService.get(executedRequest.getId());
+		
+		// Role has guarantee, approval process must be started
+		Assert.assertEquals(RequestState.IN_PROGRESS, executedRequest.getState());
+
+		taskFilter = new WorkflowFilterDto();
+		taskFilter.setProcessInstanceId(executedRequest.getWfProcessId());
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		Assert.assertEquals(1, tasks.size());
+
+		workflowTaskInstanceDto = tasks.get(0);
+		candidates = workflowTaskInstanceDto.getIdentityLinks()
+				.stream()
+				.filter(identityLinkDto -> IdentityLinkType.CANDIDATE.equals(identityLinkDto.getType()))
+				.collect(Collectors.toList());
+
+		Assert.assertEquals(1, candidates.size());
+		Assert.assertTrue(candidates.stream().anyMatch(candidate -> guaranteeOne.getId().toString().equals(candidate.getUserId())));
+		
+		// Guarantee type -> set to guaranteeTypeTwo.
+		getHelper().setConfigurationValue("idm.sec.core.request.idm-role.approval.guarantee-type", guaranteeTypeTwo);
+
+		// Create request for guarantee type TWO.
+		request = createRequest(changedRole);
+
+		// Start request
+		executedRequest = requestManager.startRequest(request.getId(), true);
+		Assert.assertNotNull(executedRequest);
+		executedRequest = requestService.get(executedRequest.getId());
+		
+		// Role has guarantee, approval process must be started
+		Assert.assertEquals(RequestState.IN_PROGRESS, executedRequest.getState());
+
+		taskFilter = new WorkflowFilterDto();
+		requestService.get(executedRequest.getId());
+		taskFilter.setProcessInstanceId(executedRequest.getWfProcessId());
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		Assert.assertEquals(1, tasks.size());
+
+		workflowTaskInstanceDto = tasks.get(0);
+		candidates = workflowTaskInstanceDto.getIdentityLinks()
+				.stream()
+				.filter(identityLinkDto -> IdentityLinkType.CANDIDATE.equals(identityLinkDto.getType()))
+				.collect(Collectors.toList());
+
+		Assert.assertEquals(1, candidates.size());
+		Assert.assertTrue(candidates.stream().anyMatch(candidate -> guaranteeTwo.getId().toString().equals(candidate.getUserId())));
+
+		// Clear after test:
+		// Guarantee type -> set to null (default value).
+		getHelper().setConfigurationValue("idm.sec.core.request.idm-role.approval.guarantee-type", null);
+	}
+	
+	@Test
+	public void testChangeRoleWithGuaranteeTypeByRole() {
+		// Guarantee type -> set to null (default value).
+		getHelper().setConfigurationValue("idm.sec.core.request.idm-role.approval.guarantee-type", null);
+
+		String guaranteeTypeOne = getHelper().createName();
+		String guaranteeTypeTwo = getHelper().createName();
+		// Create role with guarantee
+		IdmIdentityDto guaranteeOne = getHelper().createIdentity();
+		IdmIdentityDto guaranteeTwo = getHelper().createIdentity();
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		getHelper().createIdentityRole(guaranteeOne, roleOne);
+		getHelper().createIdentityRole(guaranteeTwo, roleTwo);
+		
+		IdmRoleDto changedRole = getHelper().createRole();
+		getHelper().createRoleGuaranteeRole(changedRole, roleOne, guaranteeTypeOne);
+		getHelper().createRoleGuaranteeRole(changedRole, roleTwo, guaranteeTypeTwo);
+
+		// Create request
+		IdmRequestDto request = createRequest(changedRole);
+
+		// Start request
+		IdmRequestDto executedRequest = requestManager.startRequest(request.getId(), true);
+		Assert.assertNotNull(executedRequest);
+		executedRequest = requestService.get(executedRequest.getId());
+		
+		// Role has guarantee, approval process must be started
+		Assert.assertEquals(RequestState.IN_PROGRESS, executedRequest.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setProcessInstanceId(executedRequest.getWfProcessId());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		Assert.assertEquals(1, tasks.size());
+
+		WorkflowTaskInstanceDto workflowTaskInstanceDto = tasks.get(0);
+		List<IdentityLinkDto> candidates = workflowTaskInstanceDto.getIdentityLinks()
+				.stream()
+				.filter(identityLinkDto -> IdentityLinkType.CANDIDATE.equals(identityLinkDto.getType()))
+				.collect(Collectors.toList());
+
+		Assert.assertEquals(2, candidates.size());
+		Assert.assertTrue(candidates.stream().anyMatch(candidate -> guaranteeOne.getId().toString().equals(candidate.getUserId())));
+		Assert.assertTrue(candidates.stream().anyMatch(candidate -> guaranteeTwo.getId().toString().equals(candidate.getUserId())));
+
+		// Guarantee type -> set to guaranteeTypeOne.
+		getHelper().setConfigurationValue("idm.sec.core.request.idm-role.approval.guarantee-type", guaranteeTypeOne);
+
+		// Create request for guarantee type ONE.
+		request = createRequest(changedRole);
+
+		// Start request
+		executedRequest = requestManager.startRequest(request.getId(), true);
+		Assert.assertNotNull(executedRequest);
+		executedRequest = requestService.get(executedRequest.getId());
+		
+		// Role has guarantee, approval process must be started
+		Assert.assertEquals(RequestState.IN_PROGRESS, executedRequest.getState());
+
+		taskFilter = new WorkflowFilterDto();
+		taskFilter.setProcessInstanceId(executedRequest.getWfProcessId());
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		Assert.assertEquals(1, tasks.size());
+
+		workflowTaskInstanceDto = tasks.get(0);
+		candidates = workflowTaskInstanceDto.getIdentityLinks()
+				.stream()
+				.filter(identityLinkDto -> IdentityLinkType.CANDIDATE.equals(identityLinkDto.getType()))
+				.collect(Collectors.toList());
+
+		Assert.assertEquals(1, candidates.size());
+		Assert.assertTrue(candidates.stream().anyMatch(candidate -> guaranteeOne.getId().toString().equals(candidate.getUserId())));
+		
+		// Guarantee type -> set to guaranteeTypeTwo.
+		getHelper().setConfigurationValue("idm.sec.core.request.idm-role.approval.guarantee-type", guaranteeTypeTwo);
+
+		// Create request for guarantee type TWO.
+		request = createRequest(changedRole);
+
+		// Start request
+		executedRequest = requestManager.startRequest(request.getId(), true);
+		Assert.assertNotNull(executedRequest);
+		executedRequest = requestService.get(executedRequest.getId());
+		
+		// Role has guarantee, approval process must be started
+		Assert.assertEquals(RequestState.IN_PROGRESS, executedRequest.getState());
+
+		taskFilter = new WorkflowFilterDto();
+		requestService.get(executedRequest.getId());
+		taskFilter.setProcessInstanceId(executedRequest.getWfProcessId());
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		Assert.assertEquals(1, tasks.size());
+
+		workflowTaskInstanceDto = tasks.get(0);
+		candidates = workflowTaskInstanceDto.getIdentityLinks()
+				.stream()
+				.filter(identityLinkDto -> IdentityLinkType.CANDIDATE.equals(identityLinkDto.getType()))
+				.collect(Collectors.toList());
+
+		Assert.assertEquals(1, candidates.size());
+		Assert.assertTrue(candidates.stream().anyMatch(candidate -> guaranteeTwo.getId().toString().equals(candidate.getUserId())));
+
+		// Clear after test:
+		// Guarantee type -> set to null (default value).
+		getHelper().setConfigurationValue("idm.sec.core.request.idm-role.approval.guarantee-type", null);
+	}
+
+	private IdmRequestDto createRequest(IdmRoleDto changedRole) {
+		IdmRequestDto request = requestManager.createRequest(changedRole);
+		Assert.assertNotNull(request);
+		Assert.assertEquals(request.getOwnerType(), changedRole.getClass().getName());
+		Assert.assertEquals(request.getOwnerId(), changedRole.getId());
+
+		// Change role (without save)
+		changedRole.setDescription(getHelper().createName());
+		changedRole.setPriority(1000);
+		// Create request item
+		IdmRoleDto requestable = requestManager.post(request.getId(), changedRole);
+		Assert.assertNotNull(requestable);
+		Assert.assertNotNull(requestable.getRequestItem());
+
+		// Is not same instance
+		Assert.assertNotSame(changedRole, requestable);
+		// Has same values as new role
+		Assert.assertEquals(changedRole.getPriority(), requestable.getPriority());
+		Assert.assertEquals(changedRole.getDescription(), requestable.getDescription());
+
+		IdmRoleDto currentRole = roleService.get(changedRole.getId());
+		Assert.assertNotEquals(changedRole.getPriority(), currentRole.getPriority());
+		Assert.assertNotEquals(changedRole.getDescription(), currentRole.getDescription());
+		return request;
 	}
 
 	/**

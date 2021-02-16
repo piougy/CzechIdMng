@@ -24,18 +24,7 @@ public class DefaultRequestConfiguration extends AbstractConfiguration implement
 		if (entityType == null) {
 			return null;
 		}
-		String entityNameCamel = entityType.getSimpleName();
-		StringBuilder entityNameBuilder = new StringBuilder();
-
-		for (String word : entityNameCamel.split(CAMEL_SPLIT_REGEX)) {
-			if(word.equalsIgnoreCase("dto")) {
-				continue;
-			}
-			entityNameBuilder.append(word.toLowerCase());
-			entityNameBuilder.append('-');
-		}
-		String entityName = entityNameBuilder.toString();
-		entityName = entityName.substring(0, entityName.length() - 1);
+		String entityName = getEntityName(entityType.getSimpleName());
 
 		return getConfigurationService().getValue(MessageFormat.format("{0}.{1}.wf", PROPERTY_WF_PREFIX, entityName), DEFAULT_APROVAL_PROCESS_KEY);
 	}
@@ -53,12 +42,30 @@ public class DefaultRequestConfiguration extends AbstractConfiguration implement
 		// On FE too!
 		entityType = IdmRoleDto.class;
 		//
-		
-		String entityNameCamel = entityType.getSimpleName();
+
+		String entityName = getEntityName(entityType.getSimpleName());
+
+		return getConfigurationService().getBooleanValue(MessageFormat.format("{0}.{1}.enabled", PROPERTY_PUBLIC_PREFIX, entityName), false);
+	}
+
+	@Override
+	public String getRequestApprovalGuaranteeType(Class<? extends Requestable> entityType) {
+		if (entityType == null) {
+			return null;
+		}
+		String entityName = getEntityName(entityType.getSimpleName());
+
+		return getConfigurationService().getValue(MessageFormat.format("{0}.{1}.approval.guarantee-type", PROPERTY_WF_PREFIX, entityName), null);
+	}
+
+	/**
+	 * Return entity name property key.
+	 */
+	private String getEntityName(String simpleName) {
 		StringBuilder entityNameBuilder = new StringBuilder();
-		// TODO: Use @SpinalCase utility + replace last -dto
-		for (String word : entityNameCamel.split(CAMEL_SPLIT_REGEX)) {
-			if(word.equalsIgnoreCase("dto")) {
+
+		for (String word : simpleName.split(CAMEL_SPLIT_REGEX)) {
+			if (word.equalsIgnoreCase("dto")) {
 				continue;
 			}
 			entityNameBuilder.append(word.toLowerCase());
@@ -66,8 +73,6 @@ public class DefaultRequestConfiguration extends AbstractConfiguration implement
 		}
 		String entityName = entityNameBuilder.toString();
 		entityName = entityName.substring(0, entityName.length() - 1);
-
-		return getConfigurationService().getBooleanValue(MessageFormat.format("{0}.{1}.enabled", PROPERTY_PUBLIC_PREFIX, entityName), false);
+		return entityName;
 	}
-
 }

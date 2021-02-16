@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import com.beust.jcommander.internal.Sets;
 import java.util.List;
 import java.util.Set;
 
@@ -410,7 +411,13 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 			@PathVariable String backendId) {	
 		IdmRoleDto role = getDto(backendId);
 		if (role == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			if (requestId == null) {
+				// If role was not found, then exception is throw only if request mode is not use (requestId is null).
+				// We are not able compute incompatible roles for not approving role.
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			} else {
+				return toResources(Sets.newLinkedHashSet(), ResolvedIncompatibleRoleDto.class);
+			}
 		}
 		//
 		// find all sub role composition

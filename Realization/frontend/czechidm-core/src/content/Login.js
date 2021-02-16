@@ -4,11 +4,13 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
 import * as Basic from '../components/basic';
-import { SecurityManager, DataManager } from '../redux';
+import { SecurityManager, DataManager, ConfigurationManager } from '../redux';
 import { HelpContent } from '../domain';
+import { AuthenticateService } from '../services';
 
 const securityManager = new SecurityManager();
 const dataManager = new DataManager();
+const authenticateService = new AuthenticateService();
 
 /**
  * Login box.
@@ -48,10 +50,13 @@ class Login extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    this.refs.form.setData({});
-    this.refs.username.focus();
+    const { userContext, casEnabled, casUrl, casLoginSuffix } = this.props;
     //
-    const { userContext } = this.props;
+    if (!casEnabled) {
+      this.refs.form.setData({});
+      this.refs.username.focus();
+    }
+
     if (!SecurityManager.isAuthenticated(userContext) && userContext.isTryRemoteLogin) {
       this.context.store.dispatch(securityManager.remoteLogin((result, error) => {
         if (error && error.statusEnum) {
@@ -67,6 +72,20 @@ class Login extends Basic.AbstractContent {
                 this.refs.verificationCode.focus();
               }
             });
+          }
+        }
+        if (casEnabled) {
+          if (!result) {
+            const currentUrl = window.location.href;
+            window.location.replace(`${casUrl}${casLoginSuffix}${currentUrl}`);
+            // set clear storage so isTryRemoteLogin will be true
+            this.context.store.dispatch(authenticateService.clearStorage());
+          } else {
+            // replace URL so we will get rid of token in URL
+            const origin = window.location.origin;
+            const pathname = window.location.pathname;
+            const hash = this.props.location.hash === '#/' ? '' : this.props.location.hash;
+            window.history.replaceState({}, '', origin + pathname + hash);
           }
         }
       }));
@@ -160,13 +179,12 @@ class Login extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext } = this.props;
+    const { userContext, casEnabled } = this.props;
     const { showTwoFactor } = this.state;
     //
     return (
       <Basic.Div>
         <Helmet title={ this.i18n('title') } />
-
         <Basic.Div rendered={ showTwoFactor }>
           <form onSubmit={ this.handleTwoFactor.bind(this) }>
             <Basic.Panel className="login-container" showLoading={ userContext.showLoading } style={{ maxWidth: 450 }}>
@@ -198,7 +216,7 @@ class Login extends Basic.AbstractContent {
           </form>
         </Basic.Div>
 
-        <Basic.Div rendered={ !showTwoFactor }>
+        <Basic.Div rendered={ !showTwoFactor && !casEnabled}>
           <form onSubmit={ this.handleSubmit.bind(this) }>
             <Basic.Panel className="login-container" showLoading={ userContext.showLoading }>
               <Basic.PanelHeader text={ this.i18n('header') }/>
@@ -247,7 +265,10 @@ Login.defaultProps = {
 function select(state) {
   return {
     i18nReady: state.config.get('i18nReady'),
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    casEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.cas-sso.enabled', false),
+    casUrl: ConfigurationManager.getValue(state, 'idm.pub.core.cas-url'),
+    casLoginSuffix: ConfigurationManager.getValue(state, 'idm.pub.core.cas-login-suffix'),
   };
 }
 

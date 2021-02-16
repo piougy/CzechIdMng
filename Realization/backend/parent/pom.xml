@@ -461,14 +461,22 @@
 			<artifactId>cache-api</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		
 		<!-- Two factor authentication - one time password -->
 		<dependency>
 		  <groupId>dev.samstevens.totp</groupId>
 		  <artifactId>totp-spring-boot-starter</artifactId>
 		  <version>1.7</version>
 		</dependency>
-
+		<!-- CAS authentication -->
+		<dependency>
+			<groupId>org.jasig.cas.client</groupId>
+			<artifactId>cas-client-core</artifactId>
+			<version>3.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-cas</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

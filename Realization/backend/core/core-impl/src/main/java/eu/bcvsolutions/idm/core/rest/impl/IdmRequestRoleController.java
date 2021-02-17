@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import com.beust.jcommander.internal.Sets;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;

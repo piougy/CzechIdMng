@@ -125,7 +125,7 @@ export default class CodeableField extends Basic.AbstractFormComponent {
       codeReadOnly,
       nameReadOnly
     } = this.props;
-    const {formReadOnly} = this.state;
+    const { formReadOnly } = this.state;
     //
     return (
       <Basic.Row>

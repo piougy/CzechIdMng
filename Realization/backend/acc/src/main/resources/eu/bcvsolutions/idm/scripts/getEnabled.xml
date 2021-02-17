@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<script>
+    <code>getEnabled</code>
+    <name>Calculates a enable value from an identity and an account.</name>
+    <category>TRANSFORM_TO</category>
+    <type>groovy</type>
+    <body><![CDATA[import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+
+org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("getEnabled");
+
+if (attributeValue) {
+    log.info("Identity with account [$uid] is disabled -> false.");
+    return false;
+}
+
+// Load an account.
+def account = uid != null ? accAccountService.getAccount(uid,system.getId()) : null;
+
+// If the account in AD is deleted (is in the protected mode), but the identity is still valid then it returns false.
+if(account && account.isInProtection()){
+    log.info("Account [$uid] is in protected mode -> false.");
+    return false;
+}
+
+return true;]]></body>
+    <services>
+        <service>
+            <name>accAccountService</name>
+        </service>
+    </services>
+    <allowClasses>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.acc.dto.AccAccountDto</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.core.api.domain.IdentityState</className>
+        </allowClass>
+    </allowClasses>
+    <description><![CDATA[<p>Calculates a enable value from an identity and an account.</p>
+<p>If the account in AD is deleted (is in the protected mode), but the identity is still valid then it returns false.</p>]]></description>
+</script>

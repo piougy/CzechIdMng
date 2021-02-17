@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +27,8 @@ public interface SysSystemService extends
 		FormableDtoService<SysSystemDto, SysSystemFilter>,
 		CodeableService<SysSystemDto>, 
 		CloneableService<SysSystemDto>, 
-		AuthorizableService<SysSystemDto> {
+		AuthorizableService<SysSystemDto>,
+		ScriptEnabled {
 
 	String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
 	String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";

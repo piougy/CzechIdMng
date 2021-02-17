@@ -5,10 +5,12 @@ import Steps from 'react-steps';
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Div from '../Div/Div';
 import Modal from '../Modal/Modal';
+import ShortText from '../ShortText/ShortText';
 import Button from '../Button/Button';
 import { Panel, PanelBody, PanelFooter, PanelHeader } from '../Panel/Panel';
 import Alert from '../Alert/Alert';
 import Icon from '../Icon/Icon';
+
 
 /**
  * Basic wizard component
@@ -60,6 +62,8 @@ export default class Wizard extends AbstractContextComponent {
       isDone: !!step.isDone,
       isFirst: false,
       isLast: false,
+      isLastOverridden: step.isLast,
+      hideFinishBtn: !!step.hideFinishBtn,
       isSkipable: !!step.isSkipable,
       hideFooter: step.hideFooter
     };
@@ -129,6 +133,12 @@ export default class Wizard extends AbstractContextComponent {
           if (localStep.wizardId !== step.wizardId) {
             localStep.wizardId = step.wizardId;
           }
+          if (localStep.isLastOverridden !== step.isLast) {
+            localStep.isLastOverridden = step.isLast;
+          }
+          if (localStep.hideFinishBtn !== step.hideFinishBtn) {
+            localStep.hideFinishBtn = step.hideFinishBtn;
+          }
         });
       if (stepFound) {
         newSteps.push(stepFound);
@@ -166,7 +176,11 @@ export default class Wizard extends AbstractContextComponent {
 
     if (nextStep) {
       nextStep.isActive = true;
-      nextStep.isLast = !this._getNextStep(nextStep);
+      if (nextStep.isLastOverridden) {
+        nextStep.isLast = nextStep.isLastOverridden;
+      } else {
+        nextStep.isLast = !this._getNextStep(nextStep);
+      }
     }
 
     step.isActive = false;
@@ -336,6 +350,8 @@ export default class Wizard extends AbstractContextComponent {
 
     const activeStep = (wizardContext && wizardContext.activeStep) ? wizardContext.activeStep : {};
     const isLast = activeStep.isLast;
+    const hideFinishBtn = !!activeStep.hideFinishBtn;
+    const isLastOverridden = !!activeStep.isLastOverridden;
     const isFirst = activeStep.isFirst;
     const isSkipable = activeStep.isSkipable;
 
@@ -372,7 +388,7 @@ export default class Wizard extends AbstractContextComponent {
           {this.i18n('component.basic.Wizard.button.skip')}
         </Button>
         <Button
-          rendered={!isLast}
+          rendered={!(isLast || isLastOverridden)}
           level="success"
           showLoading={_showLoading}
           onClick={this.onClickNext.bind(this, false, false, null)}
@@ -380,7 +396,7 @@ export default class Wizard extends AbstractContextComponent {
           {this.i18n('component.basic.Wizard.button.next')}
         </Button>
         <Button
-          rendered={isLast}
+          rendered={(isLast || isLastOverridden) && !hideFinishBtn}
           level="success"
           showLoading={_showLoading}
           onClick={this.onClickFinish.bind(this, false, false)}
@@ -400,6 +416,7 @@ export default class Wizard extends AbstractContextComponent {
       modal,
       show,
       onCloseWizard,
+      onShowDetailBtn,
       showLoading,
       icon
     } = this.props;
@@ -407,7 +424,7 @@ export default class Wizard extends AbstractContextComponent {
     if (rendered === null || rendered === undefined || rendered === '' || rendered === false) {
       return null;
     }
-
+    const showDetailBtn = onShowDetailBtn ? onShowDetailBtn() : false;
     const activeStep = this.getActiveStep(localSteps);
     const hideFooter = activeStep && activeStep.hideFooter;
     const wizardName = this._getWizardLabel();
@@ -422,13 +439,25 @@ export default class Wizard extends AbstractContextComponent {
             backdrop="static"
             keyboard={ false }>
             <Modal.Header closeButton>
+              <Button
+                style={{float: 'right'}}
+                rendered={showDetailBtn}
+                buttonSize="xs"
+                icon="fa:search"
+                onClick={onCloseWizard ? onCloseWizard.bind(null, true, this.context.wizardContext) : null}>
+              </Button>
               <div style={{display: 'flex', alignItems: 'center'}}>
                 <Icon
                   type="component"
                   iconSize="sm"
                   style={{marginRight: 10}}
                   icon={icon}/>
-                <h2>{wizardName || this.i18n('component.basic.Wizard.defaultHeader')}</h2>
+                <h2>
+                  <ShortText
+                    value={wizardName || this.i18n('component.basic.Wizard.defaultHeader')}
+                    cutChar=""
+                    maxLength="58"/>
+                </h2>
               </div>
             </Modal.Header>
             <Modal.Body>

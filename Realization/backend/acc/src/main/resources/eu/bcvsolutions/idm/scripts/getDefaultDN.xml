@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<script>
+    <code>getDefaultDN</code>
+    <name>Script for calculating the account DN on MS AD.</name>
+    <category>TRANSFORM_TO</category>
+    <type>groovy</type>
+    <body><![CDATA[import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import java.util.List;
+import java.util.UUID;
+import eu.bcvsolutions.idm.acc.connector.AdUserConnectorType
+
+org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("getDefaultDN");
+
+String firstName = entity.getFirstName();
+String lastName = entity.getLastName();
+String login = entity.getUsername();
+
+IdmFormDefinitionDto operationOptionsFormDefinition = defaultSysSystemService.getOperationOptionsConnectorFormDefinition(system.getConnectorInstance());
+
+String cn = "$firstName $lastName $login";
+String defaultOu = getValueFromConnectorInstance(AdUserConnectorType.NEW_USER_CONTAINER_KEY, system, operationOptionsFormDefinition);
+String defaultDn = "CN=$cn,$defaultOu"
+log.info("defaultDn: [$defaultDn]");
+String deletedOu = getValueFromConnectorInstance(AdUserConnectorType.DELETE_USER_CONTAINER_KEY, system, operationOptionsFormDefinition);
+String deletedDn = "CN=$cn,$deletedOu";
+log.info("deletedDn: [$deletedDn]");
+// Load an account.
+def accAccount = uid != null ? accAccountService.getAccount(uid,system.getId()) : null;
+if (accAccount && accAccount.isInProtection()) {
+    log.info("Account [$uid] is in protection and will be moved to OU for deleted accounts: new DN [$deletedDn]");
+    return deletedDn;
+}
+
+// Connector object (account for AD) is preloaded in the provisioning context.
+IcConnectorObject connectorObject = context.getConnectorObject();
+if (connectorObject == null) {
+    // No account found on the end system -> we will use the default value.
+    log.info("Account [$uid] will be created, using default DN [$defaultDn]");
+    return defaultDn;
+}
+IcAttribute attr = connectorObject.getAttributeByName("__NAME__");
+String originalDn = attr != null ? attr.getValue() : null;
+if (originalDn == null || originalDn.isEmpty()) {
+    log.warn("Cannot retrieve original DN of account [$uid], returning default DN [$defaultDn]");
+    return defaultDn;
+}
+
+if (originalDn.endsWith(deletedOu)) {
+    // Re-boarding -> we return to the default container.
+    log.info("Account [$uid] was deleted and is returning from [$originalDn], new DN: [$defaultDn]")
+    return defaultDn;
+}
+// Otherwise we do not move the user anywhere.
+return originalDn;
+
+
+private String getValueFromConnectorInstance(String attributeCode, SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
+		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(attributeCode);
+		List<IdmFormValueDto> values = formService.getValues(systemDto, attribute, IdmBasePermission.READ);
+		if (values != null && values.size() == 1) {
+			return values.get(0).getValue().toString();
+		}
+		return null;
+}
+]]></body>
+    <services>
+        <service>
+            <name>accAccountService</name>
+        </service>
+        <service>
+            <name>defaultSysSystemService</name>
+        </service>
+        <service>
+            <name>defaultSysSystemService</name>
+        </service>
+        <service>
+            <name>formService</name>
+        </service>
+        <service>
+            <name>sysSystemEntityService</name>
+        </service>
+    </services>
+    <allowClasses>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.acc.connector.AdUserConnectorType</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.core.api.dto.AbstractDto</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.core.api.dto.filter.DataFilter</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.ic.api.IcAttribute</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.ic.api.IcConnectorInstance</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.ic.api.IcConnectorObject</className>
+        </allowClass>
+        <allowClass>
+            <className>org.springframework.data.domain.Page</className>
+        </allowClass>
+    </allowClasses>
+    <description><![CDATA[<p>Script for calculating the account DN on MS AD.</p>
+<p>The DN consists of the [firstName] [lastName] [username] identity and the appropriate container.</p>
+<p>We use two containers, the first for new users, the second for deleted users. The values of the containers are stored in the system in the tab [Configuration / Additional connector settings].</p>
+<p>This script uses a loaded account from the target system [connectorObject]. Reading the current account from the AD allows us to detect that the DN has been changed directly in the AD (if it is not a re-boarding, then the DN from the obtained account will be used).</p>
+<p>Connector object (account for AD) is preloaded in the provisioning context. Check it on your system!</p>]]></description>
+</script>

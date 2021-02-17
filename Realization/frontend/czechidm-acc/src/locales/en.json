@@ -2236,6 +2236,42 @@
             "placeholder": ""
           }
         }
+      },
+      "operation-options-connector-configuration-connid-net-tirasa-connid-bundles-ad-adconnector-net-tirasa-connid-bundles-ad-1-3-4-27": {
+        "label": "operation-options-connector-configuration-connId: net.tirasa.connid.bundles.ad.ADConnector: net.tirasa.connid.bundles.ad: 1.3.4.27",
+        "help": "",
+        "attributes": {
+          "attrs-to-get": {
+            "label": "Returns attributes (ATTRS_TO_GET)",
+            "help": "Defines which attributes will be returned. This definition overloads the definition on a attribute schema (return by default).",
+            "placeholder": ""
+          },
+          "page-size": {
+            "label": "Page size (PAGE_SIZE)",
+            "help": "Defines the number of records in one response.",
+            "placeholder": ""
+          },
+          "newusercontainer": {
+            "label": "Container (OU) for creating new users",
+            "help": "DN of the container (OU) into which the newly created user accounts will be inserted.",
+            "placeholder": ""
+          },
+          "searchusercontainer": {
+            "label": "Container (OU) with existing users",
+            "help": "DN of the container (OU) from which user accounts will be retrieved.",
+            "placeholder": ""
+          },
+          "domaincontainer": {
+            "label": "UPN suffix",
+            "help": "Domain name that will be used to calculate the User Principal Name (UPN)",
+            "placeholder": ""
+          },
+          "deleteusercontainer": {
+            "label": "Container (OU) for blocked / terminated users",
+            "help": "DN of the container to which the accounts will be moved typically after the end of the contract.",
+            "placeholder": ""
+          }
+        }
       }
     },
     "bulk-action": {
@@ -2524,8 +2560,153 @@
         }
       }
     },
+    "ad-winrm-connector-type": {
+      "name": "MS AD (WinRM) - Users",
+      "description": "Allows you to manage users in MS Active Directory."
+    },
     "ad-connector-type": {
-      "name": "Active Directory"
+      "name": "MS AD - Users",
+      "description": "Allows you to manage users in MS Active Directory.",
+      "steps": {
+        "stepOne": {
+          "name": "Connection to AD",
+          "help": "In this step, <strong>choose the system name</strong> the way you want it to appear in IdM. Next, enter the data to access the connected Active Directory.",
+          "systemName": "System name in IdM",
+          "host": {
+            "label": "Host",
+            "help": "Enter the domain of the connected Active Directory.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "TCP port number.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "User",
+            "help": "A DN of a user with permission to work in Active Directory.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "Password",
+            "help": "Password of a user with permission to work in Active Directory.",
+            "placeholder": ""
+          },
+          "sslSwitch": {
+            "label": "Use LDAPS",
+            "help": "Use secure SSL communication to communicate with AD."
+          },
+          "sslOffAlert": {
+            "title": "You do not have SSL enabled.",
+            "text": "Not using LDAPS secure communication (SSL), may have functional effects (eg inability to create a password for the user)!"
+          }
+        },
+        "stepTwo": {
+          "name": "Certificate",
+          "subjectDN": "Subject of the certificate",
+          "crtValidityFrom": "Certificate Validity from",
+          "crtValidityTill": "Certificate Validity Until",
+          "downloadCertificate": {
+            "label": "Download certificate",
+            "title": "Download a certificate to access the Active Directory server."
+          },
+          "certificate": {
+            "title": "Certificate of highest authority found:",
+            "text": "<br><ul style = 'margin-left: 25px'><li><strong>Subject: </strong> {{subjectDN}}</li><li><strong>Cryptographic fingerprint (SH1):</strong>{{fingerPrint}}</li><li><strong>Valid from: </strong>{{crtValidityFrom}}</li><li><strong>Valid until: </strong> {{ crtValidityTill}}</li></ul><strong>Location of this authority's certificate on the IdM server:</strong><br> {{certificatePath}} "
+          },
+          "certificatePath": {
+            "title": "Location of this authority's certificate on the IdM server:"
+          },
+          "noTrustedCertificate": {
+            "title": "Active Directory server is not trusted!",
+            "text": "The server's certificate is not trusted. <strong>Ensure upload of this CA to the certificate's <strong>Java certificate keystore</strong> and restart the IdM. <strong>This step is now ended!</strong>"
+          },
+          "trustedCertificate": {
+            "title": "The Active Directory server is trusted.",
+            "text": "The server's certificate is currently trusted. A secure connection has been established. You may proceed to the next step."
+          },
+          "serverCertificate": {
+            "title": "Server Certificate:",
+            "text": "<br><ul style = 'margin-left: 25px'><li><strong>Subject:</strong> {{subjectDN}} </li><li><strong>Cryptographic fingerprint (SH1):</strong> {{fingerPrint}}</li><li><strong>Valid from:</strong> {{crtValidityFrom}} </li><li><strong>Valid until:</strong> {{ crtValidityTill}} </li></ul>"
+          },
+          "sslOffAlert": {
+            "title": "Validation and download of certificates against the AD server could not be performed because you do not have SSL communication enabled.",
+            "text": "Not using LDAPS (SSL) secure communication may have functional implications (eg inability to create a password for the user)!<br><br><strong>You may proceed to the next step.</strong>"
+          },
+          "youCanContinue": {
+            "title": "You can go to the next step."
+          }
+        },
+        "stepThree": {
+          "name": "Permissions",
+          "help": "In this step, we will try to verify that the user you entered has sufficient privileges on AD.",
+          "testUserName": "Test user name",
+          "testCreateUserBtn": {
+            "text": "Create user"
+          },
+          "testAssignGroupBtn": {
+            "text": "Assign to a group"
+          },
+          "testDeleteUserBtn": {
+            "text": "Delete user"
+          },
+          "testCreatedUserDN": {
+            "text": "Test user with DN: [{{dn}}] was created successfully."
+          },
+          "testDeletedUserDN": {
+            "text": "Test user with DN: [{{dn}}] was successfully deleted."
+          },
+          "testAssignedGroupDN": {
+            "text": "The group has been successfully assigned to the test user."
+          },
+          "permissionChecked": {
+            "text": "<strong> Verification of required permissions was successful. </strong> You can proceed to the next step."
+          },
+          "testGroup": {
+            "label": "Group",
+            "help": "DN of the group to which the test user will be inserted. By default, the 'Domain Guests' group is searched. If the group could not be found (DN is not filled in), then it is not possible to perform a group assignment permission test."
+          },
+          "userContainer": {
+            "label": "Container for inserting test user",
+            "help": "DN of the container into which the test user will be inserted. By default, the 'Users' container is searched, if the container could not be found (DN is not filled in), then for testing purposes, please fill in the existing container."
+          },
+          "testLabel": {
+            "label": "Run privilege test:",
+            "help": ""
+          }
+        },
+        "stepFour": {
+          "name": "Containers",
+          "help": "In this step, fill in the container for loading user accounts and the container for newly created user accounts.",
+          "searchUserContainer": {
+            "label": "Container with existing users",
+            "help": "DN of the container from which user accounts will be loaded."
+          },
+          "domainContainer": {
+            "label": "UPN suffix",
+            "help": "Domain name that will be used to calculate the User Principal Name (UPN)"
+          },
+          "newUserContainer": {
+            "label": "Container (OU) for creating new users",
+            "help": "DN of the container into which the newly created user accounts will be inserted."
+          },
+          "deleteUserContainer": {
+            "label": "Container (OU) for blocked/terminated users",
+            "help": "DN of the container to which the accounts will be moved typically after the end of the contract."
+          },
+          "pairingSyncSwitch": {
+            "label": "Create a pairing sync",
+            "help": "Creates pairing mappings and synchronizations that allow you to perform initial pairing of accounts in AD and IdM."
+          },
+          "protectedModeSwitch": {
+            "label": "Activate Protected Mode",
+            "help": "Prevents deleting blocked/terminated users."
+          },
+          "newRoleWithSystem": {
+            "label": "Create a default synchronization role"
+          }
+        }
+      }
     },
     "jdbc-connector-type": {
       "name": "Database table connection",
@@ -3090,6 +3271,46 @@
     "WIZARD_CSV_CONNECTOR_CSV_FILE_NOT_FOUND": {
       "title": "CSV file not found!",
       "message": "CSV file not found in the path you entered [{{path}}]!"
+    },
+    "WIZARD_AD_CONNECTOR_CRT_NOT_TRUSTED": {
+      "title": "Nalezený certifikát není důvěryhodný!",
+      "message": "Certifikát [{{serialNumber}}] v AD neprošel validací (porušený autentizační řetězec)!"
+    },
+    "WIZARD_AD_CONTAINER_NOT_FOUND": {
+      "title": "Kontejner nebyl nalezen!",
+      "message": "Kontejner [{{dn}}] nebyl v AD nalezen!"
+    },
+    "WIZARD_AD_COMMUNICATION_EXCEPTION": {
+      "title": "Chyba během komunikace s AD",
+      "message": "Během komunikace s AD [{{host}}] nastala chyba!"
+    },
+    "WIZARD_AD_AUTHENTICATION_FAILED": {
+      "title": "Chybné přihlašovací údaje",
+      "message": "Přihlašovací údaje pro AD jsou chybné!"
+    },
+    "WIZARD_AD_UNKNOWN_HOST": {
+      "title": "AD nebylo nalezeno",
+      "message": "Adresa [{{host}}] je neznámá!"
+    },
+    "WIZARD_AD_OPERATION_FAILED": {
+      "title": "Operace na AD selhala",
+      "message": "Operace [{{dn}}] selhala!"
+    },
+    "WIZARD_AD_GROUP_NOT_FOUND": {
+      "title": "Skupina nebyla nalezena",
+      "message": "Skupina s DN [{{dn}}] nebyla nalezena!"
+    },
+    "WIZARD_AD_CONNECTOR_DN_ALREADY_EXISTS": {
+      "title": "Objekt již existuje",
+      "message": "Objekt s DN [{{dn}}] na AD již existuje!"
+    },
+    "WIZARD_AD_CREATED_TEST_USER_DN": {
+      "title": "Testovací AD uživatel",
+      "message": "Testovací uživatel vytořený v rámci průvodce napojením systému."
+    },
+    "CONNECTOR_TEST_FAILED": {
+      "title": "Test konektoru selhal",
+      "message": "Test konektoru na systému [{{system}}] vrátil chybu [{{ex}}]"
     }
   },
   "processor": {

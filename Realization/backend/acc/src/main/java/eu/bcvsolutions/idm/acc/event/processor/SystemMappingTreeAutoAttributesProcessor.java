@@ -66,14 +66,8 @@ public class SystemMappingTreeAutoAttributesProcessor extends AbstractSystemMapp
 	}
 
 	@Override
-	public boolean conditional(EntityEvent<SysSystemMappingDto> event) {
-		if (SystemEntityType.TREE != event.getContent().getEntityType()) {
-			return false;
-		}
-		if (event.getBooleanProperty(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING)) {
-			return super.conditional(event);
-		}
-		return false;
+	SystemEntityType getSystemEntityType() {
+		return SystemEntityType.TREE;
 	}
 
 	/**

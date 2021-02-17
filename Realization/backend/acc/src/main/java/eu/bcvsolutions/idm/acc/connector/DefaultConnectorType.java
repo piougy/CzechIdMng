@@ -55,6 +55,10 @@ public class DefaultConnectorType extends AbstractConnectorType {
 		return connectorTypeDto;
 	}
 
+	public ConnectorManager getConnectorManager() {
+		return connectorManager;
+	}
+
 	@Override
 	public int getOrder() {
 		return 1000;

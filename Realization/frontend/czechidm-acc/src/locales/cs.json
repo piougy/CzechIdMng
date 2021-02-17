@@ -2238,6 +2238,42 @@
             "placeholder": ""
           }
         }
+      },
+      "operation-options-connector-configuration-connid-net-tirasa-connid-bundles-ad-adconnector-net-tirasa-connid-bundles-ad-1-3-4-27": {
+        "label": "operation-options-connector-configuration-connId:net.tirasa.connid.bundles.ad.ADConnector:net.tirasa.connid.bundles.ad:1.3.4.27",
+        "help": "",
+        "attributes": {
+          "attrs-to-get": {
+            "label": "Atributy, které budou vraceny (ATTRS_TO_GET)",
+            "help": "Definuje jaké atributy budou vraceny. Tato definice přetěžuje definici na atributu schéma (return by default).",
+            "placeholder": ""
+          },
+          "page-size": {
+            "label": "Velikost stránky (PAGE_SIZE)",
+            "help": "Definuje počet záznamů v jedné odpovědi.",
+            "placeholder": ""
+          },
+          "newusercontainer": {
+            "label": "Kontejner (OU) pro založení nových uživatelů",
+            "help": "DN kontejneru (OU), do kterého se budou vkládat nově vytvořené uživatelské účty.",
+            "placeholder": ""
+          },
+          "searchusercontainer": {
+            "label": "Kontejner (OU) s existujícími uživateli",
+            "help": "DN kontejneru (OU), ze kterého se budou načítat uživatelské účty.",
+            "placeholder": ""
+          },
+          "domaincontainer": {
+            "label": "UPN suffix",
+            "help": "Název domény, která bude použita pro výpočet UPN (User Principal Name)",
+            "placeholder": ""
+          },
+          "deleteusercontainer": {
+            "label": "Kontejner (OU) pro zablokované/ukončené uživatele",
+            "help": "DN kontejneru, do kterého se budou přesouvat účty typicky po ukončen kontraktu.",
+            "placeholder": ""
+          }
+        }
       }
     },
     "bulk-action": {
@@ -2408,7 +2444,7 @@
     "addSystemViaWizard": "Vytvořit nový systém pomocí průvodce",
     "openSystemViaWizard": "Otevřít systém v průvodci",
     "create-system": {
-      "name": "Průvodce napojením systému",
+      "name": "Průvodce napojením systému ({{connectorName}})",
       "steps": {
         "systemDetail": {
           "name":  "Název systému",
@@ -2494,7 +2530,7 @@
           },
           "newRoleWithSystem": {
             "label": "Vyplňte kód nové role.",
-            "help": "Pokud bude role s tímto kódem již existovat, bude systém navázán na ní."
+            "help": "Pokud bude role s tímto kódem již existovat, bude systém navázán na ni."
           },
           "roleWithSystem": {
             "label": "Nebo vyberte existující roli."
@@ -2595,8 +2631,154 @@
     "ldap-connector-type": {
       "name": "LDAP"
     },
+    "ad-winrm-connector-type": {
+      "name": "MS AD (WinRM) - Uživatelé",
+      "description": "Umožňuje spravování uživatelů v MS Active Directory."
+    },
     "ad-connector-type": {
-      "name": "Active Directory"
+      "name": "MS AD - Uživatelé",
+      "description": "Umožňuje spravování uživatelů v MS Active Directory.",
+      "steps": {
+        "stepOne": {
+          "name": "Připojení k AD",
+          "help": "V tomto kroku <strong>zvolte název systému</strong> tak, jak chcete aby se zobrazoval v IdM. Dále zadejte údaje pro přístup k připojovanému Active Directory.",
+          "systemName": "Název systému v IdM",
+          "host": {
+            "label": "Host",
+            "help": "Zadejte doménu připojovaného Active Directory.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "Číslo portu TCP.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "Uživatel",
+            "help": "DN uživatele s oprávněním pracovat v Active Directory.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "Heslo",
+            "help": "Heslo uživatele s oprávněním pracovat v Active Directory.",
+            "placeholder": ""
+          },
+          "sslSwitch": {
+            "label": "Použít LDAPS",
+            "help": "Pro komunikaci s AD použít zabezpečenou SSL komunikaci."
+          },
+          "sslOffAlert": {
+            "title": "Nemáte povolenou komunikaci přes SSL.",
+            "text": "Nepoužití zabezpečené komunikace LDAPS (SSL), může mít funkční dopady (např. nemožnost vytvoření hesla uživateli)!"
+          }
+        },
+        "stepTwo": {
+          "name": "Certifikát",
+          "subjectDN": "Předmět certifikátu",
+          "crtValidityFrom": "Platnost certifikátu od",
+          "crtValidityTill": "Platnost certifikátu do",
+          "downloadCertificate": {
+            "label": "Stáhnout certifikát",
+            "title": "Stáhnout certifikát pro přístup na Active Directory server."
+          },
+          "certificate": {
+            "title": "Certifikát nejvyšší nalezené autority:",
+            "text": " <br><ul style='margin-left: 25px'><li><strong>Předmět:</strong> {{subjectDN}}</li><li><strong>Kryptografický otisk (SH1):</strong> {{fingerPrint}}</li><li><strong>Platnost od:</strong> {{crtValidityFrom}}</li><li><strong>Platnost do:</strong> {{crtValidityTill}}</li></ul><strong>Umístění certifikátu této autority na serveru IdM:</strong><br>{{certificatePath}}"
+          },
+          "certificatePath": {
+            "title": "Umístění certifikátu této autority na serveru IdM:"
+          },
+          "noTrustedCertificate": {
+            "title": "Active Directory server není důvěryhodný!",
+            "text": "Certifikát serveru není důvěryhodný. <strong>Zajistěte nahrání certifikátu</strong> certifikáční autority do <strong>Java uložiště certifikátů</strong> a proveďte restart IdM. <strong>Průvodce tímto krokem nyní končí!</strong>"
+          },
+          "trustedCertificate": {
+            "title": "Active Directory server je důvěryhodný.",
+            "text": "Certifikát serveru je aktuálně důvěryhodný. Podařilo se navázat zabezpečené spojení. Můžete přejít na další krok."
+          },
+          "serverCertificate": {
+            "title": "Serverový certifikát:",
+            "text": " <br><ul style='margin-left: 25px'><li><strong>Předmět:</strong> {{subjectDN}}</li><li><strong>Kryptografický otisk (SH1):</strong> {{fingerPrint}}</li><li><strong>Platnost od:</strong> {{crtValidityFrom}}</li><li><strong>Platnost do:</strong> {{crtValidityTill}}</li></ul>"
+          },
+          "sslOffAlert": {
+            "title": "Kontrola a stažení certifikátů proti AD serveru nemohla být provedena, protože nemáte povolenou komunikaci přes SSL.",
+            "text": "Nepoužití zabezpečené komunikace LDAPS (SSL), může mít funkční dopady (např. nemožnost vytvoření hesla uživateli)!"
+          },
+          "youCanContinue": {
+            "title": "Můžete přejít na další krok."
+          }
+        },
+        "stepThree": {
+          "name": "Oprávnění",
+          "help": "V tomto kroku se pokusíme ověřit, zdali má Vámi zadaný uživatel na AD dostatečná oprávnění.",
+          "testUserName": "Jméno testovacího uživatele",
+          "btnTest": "Spustit test",
+          "testCreateUserBtn": {
+            "text": "Vytvořit uživatele"
+          },
+          "testAssignGroupBtn": {
+            "text": "Přiřadit do skupiny"
+          },
+          "testDeleteUserBtn": {
+            "text": "Smazat uživatele"
+          },
+          "testCreatedUserDN": {
+            "text": "Testovací uživatel s DN: [{{dn}}] byl úspěšně vytvořen."
+          },
+          "testDeletedUserDN": {
+            "text": "Testovací uživatel s DN: [{{dn}}] byl úspěšně smazán."
+          },
+          "testAssignedGroupDN": {
+            "text": "Skupina byl úspěšně přiřazena testovacímu uživateli."
+          },
+          "permissionChecked": {
+            "text": "<strong>Ověření potřebných oprávnění proběhlo úspěšně.</strong> Můžete pokračovat na další krok."
+          },
+          "testGroup": {
+            "label": "Testovací skupina",
+            "help": "DN skupiny, do které bude vložen testovací uživatel. Ve výchozím stavu je hledána skupina 'Domain Guests', pokud se skupina nepodařila nalézt (DN není vyplněno), pak není možné provést test oprávnění pro přiřazení skupiny."
+          },
+          "userContainer": {
+            "label": "Kontejner pro vložení testovacího uživatele",
+            "help": "DN kontejneru, do kterého bude vložen testovací uživatel. Ve výchozím stavu je hledán kontejner 'Users', pokud se kontejner nepodařila nalézt (DN není vyplněno), pak pro účely testu prosím vyplňte exitující kontejner."
+          },
+          "testLabel": {
+            "label": "Spusťte testy oprávnění:",
+            "help": ""
+          }
+        },
+        "stepFour": {
+          "name": "Další nastavení",
+          "help": "V tomto kroku vyplňte kontejner pro načítání uživatelských účtů a kontejner pro nově vytvořené/zablokované uživatelské účty.",
+          "searchUserContainer": {
+            "label": "Kontejner (OU) s existujícími uživateli",
+            "help": "DN kontejneru, ze kterého se budou načítat uživatelské účty."
+          },
+          "domainContainer": {
+            "label": "UPN suffix",
+            "help": "Název domény, která bude použita pro výpočet UPN (User Principal Name)"
+          },
+          "newUserContainer": {
+            "label": "Kontejner (OU) pro založení nových uživatelů",
+            "help": "DN kontejneru, do kterého se budou vkládat nově vytvořené uživatelské účty."
+          },
+          "deleteUserContainer": {
+            "label": "Kontejner (OU) pro zablokované/ukončené uživatele",
+            "help": "DN kontejneru, do kterého se budou přesouvat účty typicky po ukončen kontraktu."
+          },
+          "pairingSyncSwitch": {
+            "label": "Vytvořit párovací synchronizaci",
+            "help": "Vytvoří párovací mapování a synchronizaci, pomocí které budete moci provést iniciační spárování účtů v AD a v IdM."
+          },
+          "protectedModeSwitch": {
+            "label": "Aktivovat chráněný režim",
+            "help": "Zabrání smazání zablokovaných/ukončených uživatelů."
+          },
+          "newRoleWithSystem": {
+            "label": "Vytvořit výchozí roli synchronizace"
+          }
+        }
+      }
     }
   },
   "connector-type":  {
@@ -3091,6 +3273,46 @@
     "WIZARD_CSV_CONNECTOR_CSV_FILE_NOT_FOUND": {
       "title": "CSV soubor nebyl nalezen!",
       "message": "CSV soubor nebyl nalezen na Vámi zadané cestě [{{path}}]!"
+    },
+    "WIZARD_AD_CONNECTOR_CRT_NOT_TRUSTED": {
+      "title": "The certificate found in AD is not trusted!",
+      "message": "The certificate [{{serialNumber}}] in AD did not pass validation (broken authentication chain)!"
+    },
+    "WIZARD_AD_CONTAINER_NOT_FOUND": {
+      "title": "Container not found!",
+      "message": "The container [{{dn}}] was not found in the AD!"
+    },
+    "WIZARD_AD_COMMUNICATION_EXCEPTION": {
+      "title": "Error communicating with AD",
+      "message": "An error occurred while communicating with AD [{{host}}]!"
+    },
+    "WIZARD_AD_AUTHENTICATION_FAILED": {
+      "title": "Incorrect login information",
+      "message": "The login information for AD is incorrect!"
+    },
+    "WIZARD_AD_UNKNOWN_HOST": {
+      "title": "AD not found",
+      "message": "The address [{{host}}] is unknown!"
+    },
+    "WIZARD_AD_OPERATION_FAILED": {
+      "title": "AD operation failed",
+      "message": "Operation [{{dn}}] failed!"
+    },
+    "WIZARD_AD_GROUP_NOT_FOUND": {
+      "title": "Group not found",
+      "message": "Group with DN [{{dn}}] not found!"
+    },
+    "WIZARD_AD_CONNECTOR_DN_ALREADY_EXISTS": {
+      "title": "Object already exists",
+      "message": "Object with DN [{{dn}}] on AD already exists!"
+    },
+    "WIZARD_AD_CREATED_TEST_USER_DN": {
+      "title": "Test AD user",
+      "message": "A test user created as part of the system connection wizard."
+    },
+    "CONNECTOR_TEST_FAILED": {
+      "title": "Connector test failed",
+      "message": "Test connector on system [{{system}}] returned error [{{ex}}]"
     }
   },
   "processor": {

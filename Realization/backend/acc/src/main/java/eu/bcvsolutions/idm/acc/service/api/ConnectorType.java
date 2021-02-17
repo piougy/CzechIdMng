@@ -18,6 +18,8 @@ public interface ConnectorType extends Ordered {
 
 	String STEP_FINISH = "finish";
 	String CREATES_ROLE_WITH_SYSTEM = "createRoleWithSystem";
+	// For hide the dialog for create new role-system on summary step.
+	String SKIP_CREATES_ROLE_WITH_SYSTEM = "skipCreateRoleWithSystem";
 	String MAPPING_ID = "mappingId";
 	String SCHEMA_ID = "schemaId";
 	String NEW_ROLE_WITH_SYSTEM_CODE = "newRoleWithSystemCode";

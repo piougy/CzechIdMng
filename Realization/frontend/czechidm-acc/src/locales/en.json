@@ -32,6 +32,11 @@
             }
           }
         }
+      },
+      "button": {
+        "addDefault": {
+          "label": "Create a new system using default form"
+        }
       }
     },
     "schema": {

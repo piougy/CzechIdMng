@@ -32,6 +32,11 @@
             }
           }
         }
+      },
+      "button": {
+        "addDefault": {
+          "label": "Vytvořit nový systém výchozím formulářem"
+        }
       }
     },
     "schema": {

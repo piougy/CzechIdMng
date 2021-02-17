@@ -176,31 +176,6 @@ export class SystemTable extends Advanced.AbstractTableContent {
     };
   }
 
-  getTableButtons(showAddButton) {
-    return (
-      [
-        <Basic.Button
-          level="success"
-          key="add_wizard_button"
-          className="btn-xs"
-          onClick={ this.props.showWizardDetail }
-          rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
-          title={ this.i18n('acc:wizard.addSystemViaWizard') }
-          icon="fa:magic">
-          { this.i18n('button.add') }
-        </Basic.Button>,
-        <Basic.Button
-          level="success"
-          key="add_button"
-          className="btn-xs"
-          onClick={ this.showDetail.bind(this, { }) }
-          rendered={ false }
-          icon="fa:plus">
-          { this.i18n('button.add') }
-        </Basic.Button>
-      ]);
-  }
-
   /**
    * Return div with all labels for system with information about blocked operations.
    * There can't be used EnumLabel because every enumlable is on new line
@@ -329,34 +304,26 @@ export class SystemTable extends Advanced.AbstractTableContent {
           buttons={[
             <Basic.SplitButton
               level="success"
-              key="add_wizard_button"
-              className="btn-xs"
+              key="add-wizard-button"
+              buttonSize="xs"
               onClick={ this.props.showWizardDetail }
               rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
-              title={ this.i18n('acc:wizard.addSystemViaWizard') }
+              title={ this.i18n('button.add') }
               icon="fa:magic"
               pullRight>
               <Basic.MenuItem
                 eventKey="1"
-                onClick={ this.save.bind(this, 'EDIT') }>
-                { this.i18n('button.createContinue') }
+                onClick={ this.props.showWizardDetail }
+                icon="fa:magic">
+                { this.i18n('acc:wizard.addSystemViaWizard') }
               </Basic.MenuItem>
               <Basic.MenuItem
                 eventKey="2"
-                onClick={ this.save.bind(this, 'NEW') }>
-                { this.i18n('button.createNew') }
+                onClick={ this.showDetail.bind(this, { }) }
+                icon="fa:plus">
+                { this.i18n('button.addDefault.label') }
               </Basic.MenuItem>
-            </Basic.SplitButton>,
-            <Basic.Button
-              level="success"
-              key="add_wizard_button"
-              className="btn-xs"
-              onClick={ this.props.showWizardDetail }
-              rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
-              title={ this.i18n('acc:wizard.addSystemViaWizard') }
-              icon="fa:magic">
-              { this.i18n('button.add') }
-            </Basic.Button>
+            </Basic.SplitButton>
           ]}
           _searchParameters={ this.getSearchParameters() }>
 

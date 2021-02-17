@@ -5,14 +5,24 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Icon from '../Icon/Icon';
 
 /**
- * Quick continue button
+ * Quick continue button.
  *
  * @author Radek Tomiška
  */
 class BasicSplitButton extends AbstractComponent {
 
   render() {
-    const { level, rendered, showLoading, showLoadingIcon, showLoadingText, disabled, title, ...others } = this.props;
+    const {
+      level,
+      buttonSize,
+      icon,
+      rendered,
+      showLoading,
+      showLoadingIcon,
+      showLoadingText,
+      disabled,
+      title,
+      ...others } = this.props;
     if (!rendered) {
       return null;
     }
@@ -43,12 +53,23 @@ class BasicSplitButton extends AbstractComponent {
             { _showLoadingText }
           </span>
           :
-          title
+          <span>
+            <Icon
+              value={ icon }
+              className="icon-left"
+              style={ title ? { marginRight: 5 } : {} }/>
+            { title }
+          </span>
         }
       </span>
     );
     return (
-      <SplitButton bsStyle={ level } disabled={ disabled || showLoading } title={ _title } { ...others }>
+      <SplitButton
+        bsStyle={ level }
+        bsSize={ buttonSize }
+        disabled={ disabled || showLoading }
+        title={ _title }
+        { ...others }>
         { this.props.children }
       </SplitButton>
     );

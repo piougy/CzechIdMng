@@ -52,7 +52,7 @@ class Button extends AbstractComponent {
       { hidden },
       className
     );
-    let _showLoadingText = children;
+    let _showLoadingText = text || children;
     if (showLoadingText !== null) {
       _showLoadingText = showLoadingText;
     }

@@ -1,14 +1,17 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,12 +31,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRemoteServerFilter;
+import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -77,6 +83,7 @@ public class SysRemoteServerController extends AbstractReadWriteDtoController<Sy
 	protected static final String TAG = "Remote servers";
 	//
 	@Autowired private IcConfigurationFacade icConfiguration;
+	@Autowired private ConnectorManager connectorManager;
 	//
 	private SysRemoteServerService remoteServerService;
 	
@@ -396,6 +403,100 @@ public class SysRemoteServerController extends AbstractReadWriteDtoController<Sy
 		}
 		//
 		return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
+	}
+	
+	/**
+	 * Returns connector types registered on given remote server.
+	 *
+	 * @return connector types
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET, value = "/{backendId}/connector-types")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.REMOTESERVER_READ + "')")
+	@ApiOperation(
+			value = "Get supported connector types",
+			nickname = "getSupportedConnectorTypes",
+			tags = {SysSystemController.TAG},
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = AccGroupPermission.REMOTESERVER_READ, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = AccGroupPermission.REMOTESERVER_READ, description = "")})
+			})
+	public Resources<ConnectorTypeDto> getConnectorTypes(
+			@ApiParam(value = "Remote server uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		SysConnectorServerDto connectorServer = getDto(backendId);
+		if (connectorServer == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+ 		//
+ 		try {
+ 			List<IcConnectorInfo> connectorInfos = Lists.newArrayList();
+ 			for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
+ 				connectorServer.setPassword(remoteServerService.getPassword(connectorServer.getId()));
+ 				Set<IcConnectorInfo> availableRemoteConnectors = config.getAvailableRemoteConnectors(connectorServer);
+ 				if (CollectionUtils.isNotEmpty(availableRemoteConnectors)) {
+ 					connectorInfos.addAll(availableRemoteConnectors);
+ 				}
+			}
+			// Find connector types for existing connectors.
+			List<ConnectorTypeDto> connectorTypes = connectorManager.getSupportedTypes()
+					.stream()
+					.filter(connectorType -> {
+						return connectorInfos.stream()
+								.anyMatch(connectorInfo -> connectorType.getConnectorName()
+										.equals(connectorInfo.getConnectorKey().getConnectorName()));
+					})
+					.map(connectorType -> {
+						// Find connector info and set version to the connectorTypeDto.
+						IcConnectorInfo info = connectorInfos.stream()
+								.filter(connectorInfo -> connectorType.getConnectorName()
+										.equals(connectorInfo.getConnectorKey().getConnectorName()))
+								.findFirst()
+								.orElse(null);
+						ConnectorTypeDto connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
+						connectorTypeDto.setLocal(true);
+						if (info != null) {
+							connectorTypeDto.setVersion(info.getConnectorKey().getBundleVersion());
+							connectorTypeDto.setName(info.getConnectorDisplayName());
+						}
+						return connectorTypeDto;
+					})
+					.collect(Collectors.toList());
+
+			// Find connectors without extension (specific connector type).
+			List<ConnectorTypeDto> defaultConnectorTypes = connectorInfos.stream()
+					.map(info -> {
+						ConnectorTypeDto connectorTypeDto = connectorManager.convertIcConnectorInfoToDto(info);
+						connectorTypeDto.setLocal(true);
+						return connectorTypeDto;
+					})
+					.filter(type -> {
+						return !connectorTypes.stream()
+								.anyMatch(supportedType ->
+										supportedType.getConnectorName().equals(type.getConnectorName()) && supportedType.isHideParentConnector());
+					}).collect(Collectors.toList());
+			connectorTypes.addAll(defaultConnectorTypes);
+
+			return new Resources<>(
+					connectorTypes.stream()
+							.sorted(Comparator.comparing(ConnectorTypeDto::getOrder))
+							.collect(Collectors.toList())
+			);
+		} catch (IcInvalidCredentialException e) {
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_INVALID_CREDENTIAL,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
+		} catch (IcServerNotFoundException e) {
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_NOT_FOUND,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
+		} catch (IcCantConnectException e) {
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_CANT_CONNECT,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
+		} catch (IcRemoteServerException e) {
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_UNEXPECTED_ERROR,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e);
+		}
 	}
 
 	@Override

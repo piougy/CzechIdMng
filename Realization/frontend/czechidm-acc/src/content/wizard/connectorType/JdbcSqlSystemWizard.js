@@ -127,7 +127,7 @@ class JdbcStepOne extends AbstractWizardStep {
             required
             max={255}/>
           <Basic.Div style={{display: 'flex'}}>
-            <Basic.Div style={{flex: 3,marginRight: 15}}>
+            <Basic.Div style={{flex: 3, marginRight: 15}}>
               <Basic.TextField
                 ref="host"
                 label={this.i18n(`${locKey}.host.label`)}

@@ -44,7 +44,7 @@ public class DefaultConnectorType extends AbstractConnectorType {
 			SysConnectorKeyDto connectorKey = systemDto.getConnectorKey();
 			if (connectorKey == null) {
 				// Find connector key and set it to the system.
-				IcConnectorKey connectorKeyIc = connectorManager.findConnectorKey(connectorTypeDto.getConnectorName());
+				IcConnectorKey connectorKeyIc = connectorManager.findConnectorKey(connectorTypeDto);
 				Assert.notNull(connectorKeyIc, "Connector key was not found!");
 				systemDto.setConnectorKey(new SysConnectorKeyDto(connectorKeyIc));
 				systemDto = getSystemService().save(systemDto, IdmBasePermission.UPDATE);

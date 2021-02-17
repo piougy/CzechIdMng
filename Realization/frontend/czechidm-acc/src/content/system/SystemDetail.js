@@ -110,7 +110,8 @@ class SystemDetail extends Basic.AbstractContent {
         },
         readonly: entity.stateEnum === 'readonlyDisabledProvisioning' || entity.stateEnum === 'readonly',
         disabled: entity.stateEnum === 'disabledProvisioning' || entity.stateEnum === 'disabled',
-        disabledProvisioning: entity.stateEnum === 'readonlyDisabledProvisioning' || entity.stateEnum === 'disabledProvisioning'
+        disabledProvisioning: entity.stateEnum === 'readonlyDisabledProvisioning' || entity.stateEnum === 'disabledProvisioning',
+        remoteServer: this.isWizard() ? this.context.wizardContext.connectorType.remoteServer : entity.remoteServer
       };
       //
       if (Utils.Entity.isNew(saveEntity)) {
@@ -182,9 +183,9 @@ class SystemDetail extends Basic.AbstractContent {
 
     return (
       <Basic.Div>
-        <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
-        <Basic.Panel className={Utils.Entity.isNew(entity) && !this.isWizard() ? '' : 'no-border last'}>
-          <Basic.PanelHeader rendered={!this.isWizard()} text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
+        <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
+        <Basic.Panel className={ Utils.Entity.isNew(entity) && !this.isWizard() ? '' : 'no-border last' }>
+          <Basic.PanelHeader rendered={ !this.isWizard() } text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
           <Basic.PanelBody
             style={ Utils.Entity.isNew(entity) && !this.isWizard() ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }
             showLoading={ _showLoading } >
@@ -215,25 +216,29 @@ class SystemDetail extends Basic.AbstractContent {
                 max={ 255 }/>
               <RemoteServerSelect
                 ref="remoteServer"
+                hidden={ this.isWizard() }
                 label={ this.i18n('acc:entity.System.remoteServer.label') }
                 placeholder={ this.i18n('acc:entity.System.remoteServer.placeholder') }
                 helpBlock={ this.i18n('acc:entity.System.remoteServer.help') }/>
               <Basic.SelectBox
                 ref="passwordPolicyValidate"
-                label={this.i18n('acc:entity.System.passwordPolicyValidate')}
-                placeholder={this.i18n('acc:entity.System.passwordPolicyValidate')}
-                hidden={this.isWizard()}
-                manager={this.passwordPolicyManager}
-                forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
-                  .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.VALIDATE))}/>
+                label={ this.i18n('acc:entity.System.passwordPolicyValidate') }
+                placeholder={ this.i18n('acc:entity.System.passwordPolicyValidate') }
+                hidden={ this.isWizard() }
+                manager={ this.passwordPolicyManager }
+                forceSearchParameters={
+                  this.passwordPolicyManager
+                    .getDefaultSearchParameters()
+                    .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.VALIDATE))
+                } />
               <Basic.SelectBox
                 ref="passwordPolicyGenerate"
-                label={this.i18n('acc:entity.System.passwordPolicyGenerate')}
-                placeholder={this.i18n('acc:entity.System.passwordPolicyGenerate')}
-                hidden={this.isWizard()}
-                manager={this.passwordPolicyManager}
+                label={ this.i18n('acc:entity.System.passwordPolicyGenerate') }
+                placeholder={ this.i18n('acc:entity.System.passwordPolicyGenerate') }
+                hidden={ this.isWizard() }
+                manager={ this.passwordPolicyManager }
                 forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
-                  .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.GENERATE))}/>
+                  .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.GENERATE)) }/>
               <Basic.EnumSelectBox
                 ref="stateEnum"
                 label={ this.i18n('acc:entity.System.state.label', { escape: false }) }
@@ -294,11 +299,11 @@ class SystemDetail extends Basic.AbstractContent {
 
             <Basic.SplitButton
               level="success"
-              title={this.i18n('button.saveAndContinue')}
-              onClick={this.save.bind(this, 'CONTINUE')}
-              showLoading={_showLoading}
+              title={ this.i18n('button.saveAndContinue') }
+              onClick={ this.save.bind(this, 'CONTINUE') }
+              showLoading={ _showLoading }
               showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}
+              showLoadingText={ this.i18n('button.saving') }
               rendered={
                   Utils.Entity.isNew(entity)
                   ?
@@ -308,7 +313,7 @@ class SystemDetail extends Basic.AbstractContent {
               }
               pullRight
               dropup>
-              <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+              <Basic.MenuItem eventKey="1" onClick={ this.save.bind(this, 'CLOSE') }>{ this.i18n('button.saveAndClose') }</Basic.MenuItem>
             </Basic.SplitButton>
           </Basic.PanelFooter>
         </Basic.Panel>

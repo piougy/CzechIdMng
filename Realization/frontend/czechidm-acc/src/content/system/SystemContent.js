@@ -39,8 +39,8 @@ class SystemContent extends Basic.AbstractContent {
   }
 
   _isNew() {
-    if ( this.props.location) {
-      const { query } =  this.props.location;
+    if (this.props.location) {
+      const { query } = this.props.location;
       return (query) ? query.new : null;
     }
     return false;

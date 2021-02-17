@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  * @author Vít Švanda
  * @since 10.7.0
  */
-public interface ConnectorType extends Ordered{
+public interface ConnectorType extends Ordered {
 
 	String STEP_FINISH = "finish";
 	String CREATES_ROLE_WITH_SYSTEM = "createRoleWithSystem";

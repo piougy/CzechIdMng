@@ -167,8 +167,10 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 			systemDto = new SysSystemDto();
 		}
 		systemDto.setName(connectorType.getMetadata().get(SYSTEM_NAME));
+		// Resolve remote system.
+		systemDto.setRemoteServer(connectorType.getRemoteServer());
 		// Find connector key and set it to the system.
-		IcConnectorKey connectorKey = connectorManager.findConnectorKey(this.getConnectorName());
+		IcConnectorKey connectorKey = connectorManager.findConnectorKey(connectorType);
 		Assert.notNull(connectorKey, "Connector key was not found!");
 		systemDto.setConnectorKey(new SysConnectorKeyDto(connectorKey));
 		systemDto = getSystemService().save(systemDto, IdmBasePermission.CREATE);

@@ -1,10 +1,11 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -55,6 +57,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorType;
 import eu.bcvsolutions.idm.acc.service.api.PasswordFilterManager;
+import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -69,6 +72,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
@@ -111,8 +115,10 @@ import io.swagger.annotations.AuthorizationScope;;
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysSystemController extends AbstractReadWriteDtoController<SysSystemDto, SysSystemFilter> {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SysSystemController.class);
+	
 	public static final String PASSWORD_FILTER_BASE_ENDPOINT = "/password-filter";
-
+	
 	protected static final String TAG = "Systems";
 
 	private final SysSystemService systemService;
@@ -130,6 +136,8 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	private PasswordFilterManager passwordFilterManager;
 	@Autowired
 	private ConnectorManager connectorManager;
+	@Autowired
+	private SysRemoteServerService remoteServerService;
 
 	@Autowired
 	public SysSystemController(
@@ -978,7 +986,8 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		passwordFilterManager.change(request);
 		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
-
+	
+	
 	/**
 	 * Returns all registered connector types.
 	 *
@@ -998,63 +1007,102 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
 			})
 	public Resources<ConnectorTypeDto> getSupportedTypes() {
-
-		// TODO: Remote connectors !!!
+		Map<SysConnectorServerDto, List<IcConnectorInfo>> allConnectorInfos = new LinkedHashMap<>();
+		// all remote connectors - optionally, but with higher priority
+		try {
+			remoteServerService.find(null).forEach(connectorServer -> {
+				for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
+					connectorServer.setPassword(remoteServerService.getPassword(connectorServer.getId()));
+					Set<IcConnectorInfo> availableRemoteConnectors = config.getAvailableRemoteConnectors(connectorServer);
+					if (CollectionUtils.isNotEmpty(availableRemoteConnectors)) {
+						allConnectorInfos.put(connectorServer, Lists.newArrayList(availableRemoteConnectors));
+					}
+				}
+			});
+		} catch (IcInvalidCredentialException e) {
+			ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_INVALID_CREDENTIAL,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
+		} catch (IcServerNotFoundException e) {
+			ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_NOT_FOUND,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
+		} catch (IcCantConnectException e) {
+			ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_CANT_CONNECT,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
+		} catch (IcRemoteServerException e) {
+			ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_UNEXPECTED_ERROR,
+					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
+		}
+		// local connectors
 		Map<String, Set<IcConnectorInfo>> availableLocalConnectors = icConfiguration.getAvailableLocalConnectors();
 		if (availableLocalConnectors != null) {
-			List<IcConnectorInfo> connectorInfos = Lists.newArrayList();
+			List<IcConnectorInfo> localConnectorInfos = Lists.newArrayList();
 			availableLocalConnectors
-					.values()
-					.forEach(infos -> {
-						connectorInfos.addAll(infos);
-					});
-			// Find connector types for existing connectors.
-			List<ConnectorTypeDto> connectorTypes = connectorManager.getSupportedTypes()
-					.stream()
-					.filter(connectorType -> {
-						return connectorInfos.stream()
-								.anyMatch(connectorInfo -> connectorType.getConnectorName()
-										.equals(connectorInfo.getConnectorKey().getConnectorName()));
-					})
-					.map(connectorType -> {
-						// Find connector info and set version to the connectorTypeDto.
-						IcConnectorInfo info = connectorInfos.stream()
-								.filter(connectorInfo -> connectorType.getConnectorName()
-										.equals(connectorInfo.getConnectorKey().getConnectorName()))
-								.findFirst()
-								.orElse(null);
-						ConnectorTypeDto connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
-						connectorTypeDto.setLocal(true);
-						if (info != null) {
-							connectorTypeDto.setVersion(info.getConnectorKey().getBundleVersion());
-							connectorTypeDto.setName(info.getConnectorDisplayName());
-						}
-						return connectorTypeDto;
-					})
-					.collect(Collectors.toList());
-
-			// Find connectors without extension (specific connector type).
-			List<ConnectorTypeDto> defaultConnectorTypes = connectorInfos.stream()
-					.map(info -> {
-						ConnectorTypeDto connectorTypeDto = connectorManager.convertIcConnectorInfoToDto(info);
-						connectorTypeDto.setLocal(true);
-						return connectorTypeDto;
-					})
-					.filter(type -> {
-						return !connectorTypes.stream()
-								.anyMatch(supportedType ->
-										supportedType.getConnectorName().equals(type.getConnectorName()) && supportedType.isHideParentConnector());
-					}).collect(Collectors.toList());
-			connectorTypes.addAll(defaultConnectorTypes);
-
-			return new Resources<>(
-					connectorTypes.stream()
-							.sorted(Comparator.comparing(ConnectorTypeDto::getOrder))
-							.collect(Collectors.toList())
-			);
+				.values()
+				.forEach(infos -> {
+					localConnectorInfos.addAll(infos);
+				});
+			SysConnectorServerDto localServer = new SysConnectorServerDto();
+			localServer.setLocal(true);
+			allConnectorInfos.put(localServer, localConnectorInfos);
 		}
 
-		return new Resources<>(new ArrayList<>());
+		List<ConnectorTypeDto> resolvedConnectorTypes = Lists.newArrayList();
+		for (ConnectorType supportedConnectorType : connectorManager.getSupportedTypes()) {
+			// remote connector has higher priority => linked hash map => find first
+			// Find connector info and set version to the connectorTypeDto.
+			SysConnectorServerDto connectorServer = null;
+			IcConnectorInfo info = null;
+			for (Entry<SysConnectorServerDto, List<IcConnectorInfo>> entry : allConnectorInfos.entrySet()) {
+				for (IcConnectorInfo connectorInfo : entry.getValue()) {
+					if (supportedConnectorType.getConnectorName().equals(connectorInfo.getConnectorKey().getConnectorName())) {
+						connectorServer = entry.getKey();
+						info = connectorInfo;
+						break;
+					}
+				}
+				if (info != null) {
+					break;
+				}
+			}
+			if (info == null) {
+				// default connector types are resolved bellow
+				continue;
+			}
+
+			ConnectorTypeDto connectorType = connectorManager.convertTypeToDto(supportedConnectorType);
+			if (connectorServer != null) {
+				connectorType.setRemoteServer(connectorServer.getId());
+			}
+			connectorType.setLocal(connectorType.getRemoteServer() == null);
+			connectorType.setVersion(info.getConnectorKey().getBundleVersion());
+			connectorType.setName(info.getConnectorDisplayName());
+			resolvedConnectorTypes.add(connectorType);
+		}
+		
+		// Find connectors without extension (specific connector type).
+		List<ConnectorTypeDto> defaultConnectorTypes = Lists.newArrayList();
+		for (Entry<SysConnectorServerDto, List<IcConnectorInfo>> entry : allConnectorInfos.entrySet()) {
+			SysConnectorServerDto connectorServer = entry.getKey();
+			for (IcConnectorInfo connectorInfo : entry.getValue()) {
+				ConnectorTypeDto connectorType = connectorManager.convertIcConnectorInfoToDto(connectorInfo);
+				if (!resolvedConnectorTypes.stream().anyMatch(supportedType ->
+						supportedType.getConnectorName().equals(connectorType.getConnectorName()) && supportedType.isHideParentConnector())) {
+					if (connectorServer != null) {
+						connectorType.setRemoteServer(connectorServer.getId());
+					}
+					connectorType.setLocal(connectorType.getRemoteServer() == null);
+					
+					defaultConnectorTypes.add(connectorType);
+				}
+			}
+		}
+		resolvedConnectorTypes.addAll(defaultConnectorTypes);
+
+		return new Resources<>(
+				resolvedConnectorTypes.stream()
+						.sorted(Comparator.comparing(ConnectorTypeDto::getOrder))
+						.collect(Collectors.toList())
+		);
 	}
 
 	@ResponseBody
@@ -1114,6 +1162,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 				connectorTypeDto = newConnectorTypeDto;
 			}
 			connectorTypeDto.getEmbedded().put(AbstractConnectorType.SYSTEM_DTO_KEY, systemDto);
+			
 			ConnectorTypeDto result = connectorManager.load(connectorTypeDto);
 
 			return new ResponseEntity<ConnectorTypeDto>(result, HttpStatus.OK);

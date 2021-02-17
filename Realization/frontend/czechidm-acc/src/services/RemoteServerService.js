@@ -68,6 +68,26 @@ class RemoteServerService extends Services.AbstractService {
         return json;
       });
   }
+
+  /**
+   * Loads all registered connector types.
+   *
+   * @param  {string} remoteServerId remote server identifier
+   * @return {promise}
+   */
+  getConnectorTypes(remoteServerId) {
+    return Services.RestApiService
+      .get(Services.RestApiService.getUrl(`${ this.getApiPath() }/${ encodeURIComponent(remoteServerId) }/connector-types`))
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
 }
 
 export default RemoteServerService;

@@ -17,7 +17,7 @@ const treeManager = new Managers.TreeNodeManager();
 /**
  * Tree accounts.
  *
- * @author Roname Kučera
+ * @author Roman Kučera
  */
 class TreeAccounts extends Advanced.AbstractTableContent {
 

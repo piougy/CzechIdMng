@@ -326,7 +326,38 @@ export class SystemTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          buttons={ this.getTableButtons(showAddButton) }
+          buttons={[
+            <Basic.SplitButton
+              level="success"
+              key="add_wizard_button"
+              className="btn-xs"
+              onClick={ this.props.showWizardDetail }
+              rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
+              title={ this.i18n('acc:wizard.addSystemViaWizard') }
+              icon="fa:magic"
+              pullRight>
+              <Basic.MenuItem
+                eventKey="1"
+                onClick={ this.save.bind(this, 'EDIT') }>
+                { this.i18n('button.createContinue') }
+              </Basic.MenuItem>
+              <Basic.MenuItem
+                eventKey="2"
+                onClick={ this.save.bind(this, 'NEW') }>
+                { this.i18n('button.createNew') }
+              </Basic.MenuItem>
+            </Basic.SplitButton>,
+            <Basic.Button
+              level="success"
+              key="add_wizard_button"
+              className="btn-xs"
+              onClick={ this.props.showWizardDetail }
+              rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
+              title={ this.i18n('acc:wizard.addSystemViaWizard') }
+              icon="fa:magic">
+              { this.i18n('button.add') }
+            </Basic.Button>
+          ]}
           _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
@@ -39,6 +40,7 @@ public class ConnectorTypeDto extends AbstractComponentDto {
 	// Defines if that wizard is opened from existed system.
 	private boolean reopened = false;
 	private int order;
+	private UUID remoteServer;
 
 	public String getIconKey() {
 		return iconKey;
@@ -124,5 +126,25 @@ public class ConnectorTypeDto extends AbstractComponentDto {
 
 	public void setOrder(int order) {
 		this.order = order;
+	}
+	
+	/**
+	 * Remote server.
+	 * 
+	 * @return remote server identifier
+	 * @since 10.8.0
+	 */
+	public UUID getRemoteServer() {
+		return remoteServer;
+	}
+	
+	/**
+	 * Remote server.
+	 * 
+	 * @param remoteServer remote server identifier
+	 * @since 10.8.0
+	 */
+	public void setRemoteServer(UUID remoteServer) {
+		this.remoteServer = remoteServer;
 	}
 }

@@ -60,10 +60,7 @@ export default class RemoteServerManager extends Managers.EntityManager {
             });
             availableFrameworks = availableFrameworks.set(framework, availableConnectors);
           }
-          if (cb) {
-            cb(availableFrameworks);
-          }
-          dispatch(this.dataManager.receiveData(uiKey, availableFrameworks));
+          dispatch(this.dataManager.receiveData(uiKey, availableFrameworks, cb));
         })
         .catch(error => {
           if (cb) {
@@ -71,6 +68,39 @@ export default class RemoteServerManager extends Managers.EntityManager {
           }
           dispatch(this.receiveError(null, uiKey, error));
         });
+    };
+  }
+
+  /**
+   * Loads all registered connector types.
+   *
+   * @param  {string} remoteServerId remote server identifier
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
+  fetchConnectorTypes(remoteServerId, uiKey, cb = null) {
+    return (dispatch, getState) => {
+      const loaded = Managers.DataManager.getData(getState(), uiKey);
+      if (loaded) {
+        // we dont need to load them again - change depends on BE restart
+      } else {
+        dispatch(this.getDataManager().requestData(uiKey));
+        this.getService().getSupportedTypes()
+          .then(json => {
+            let types = new Immutable.Map();
+            if (json._embedded && json._embedded.connectorTypes) {
+              json._embedded.connectorTypes.forEach(item => {
+                types = types.set(item.id, item);
+              });
+            }
+            dispatch(this.getDataManager().receiveData(uiKey, types, cb));
+          })
+          .catch(error => {
+            // TODO: data uiKey
+            dispatch(this.getDataManager().receiveError(null, uiKey, error));
+          });
+      }
     };
   }
 }

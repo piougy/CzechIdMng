@@ -48,9 +48,20 @@ public interface ConnectorManager {
 	ConnectorTypeDto load(ConnectorTypeDto connectorType);
 
 	/**
-	 * Find connector key by connector name.
+	 * Find local connector key by connector name.
+	 * 
+	 * @see #findConnectorKey(ConnectorTypeDto)
 	 */
 	IcConnectorKey findConnectorKey(String connectorName);
+	
+	/**
+	 * Find connector key by connector type. Supports remote server connectors.
+	 * 
+	 * @param connectorType configured connector type
+	 * @return connector key or null if not found
+	 * @since 10.8.0
+	 */
+	IcConnectorKey findConnectorKey(ConnectorTypeDto connectorType);
 
 	/**
 	 * Find connector type by system.

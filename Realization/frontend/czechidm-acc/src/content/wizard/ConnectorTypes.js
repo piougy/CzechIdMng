@@ -6,7 +6,6 @@ import IdmContext from 'czechidm-core/src/context/idm-context';
 import { SystemManager } from '../../redux';
 import SystemWizardDetail from './SystemWizardDetail';
 
-
 const systemManager = new SystemManager();
 
 /**
@@ -27,7 +26,7 @@ class ConnectorTypes extends Basic.AbstractContextComponent {
     this.setState({
       showLoading: true
     }, () => {
-      systemManager.getService().loadConnectorType({reopened: false, ...connectorType})
+      systemManager.getService().loadConnectorType({ reopened: false, ...connectorType })
         .then((_connectorType) => {
           _connectorType.reopened = false;
           this.setState({showLoading: false, showWizard: true, connectorType: _connectorType});
@@ -106,8 +105,14 @@ class ConnectorTypes extends Basic.AbstractContextComponent {
   }
 
   renderConnectorTypes() {
-    const {supportedTypes} = this.props;
+    const { supportedTypes, showLoading } = this.props;
     const connectorTypeData = [];
+
+    if (showLoading) {
+      return (
+        <Basic.Loading isStatic show />
+      );
+    }
 
     if (supportedTypes) {
       supportedTypes.forEach(type => {
@@ -246,7 +251,8 @@ ConnectorTypes.defaultProps = {
 
 function select(state) {
   return {
-    supportedTypes: Managers.DataManager.getData(state, SystemManager.UI_KEY_SUPPORTED_TYPES)
+    supportedTypes: Managers.DataManager.getData(state, SystemManager.UI_KEY_SUPPORTED_TYPES),
+    showLoading: Managers.DataManager.isShowLoading(state, SystemManager.UI_KEY_SUPPORTED_TYPES)
   };
 }
 

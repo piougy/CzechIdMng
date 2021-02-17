@@ -1,5 +1,22 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import eu.bcvsolutions.idm.acc.connector.CsvConnectorType;
 import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
@@ -16,20 +33,6 @@ import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Tests for CSV connector type.
@@ -49,6 +52,8 @@ public class CsvConnectorTypeTest extends AbstractIntegrationTest {
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private CsvConnectorTypeController csvConnectorTypeController;
+	@Autowired
+	private CsvConnectorType csvConnectorType;
 
 	@Before
 	public void init() {
@@ -90,6 +95,7 @@ public class CsvConnectorTypeTest extends AbstractIntegrationTest {
 		ConnectorTypeDto mockCsvConnectorTypeDto = new ConnectorTypeDto();
 		mockCsvConnectorTypeDto.setReopened(false);
 		mockCsvConnectorTypeDto.setId(CsvConnectorType.NAME);
+		mockCsvConnectorTypeDto.setConnectorName(csvConnectorType.getConnectorName());
 
 		ConnectorTypeDto csvConnectorTypeDto = connectorManager.load(mockCsvConnectorTypeDto);
 		assertNotNull(csvConnectorTypeDto);
@@ -160,6 +166,7 @@ public class CsvConnectorTypeTest extends AbstractIntegrationTest {
 		ConnectorTypeDto mockCsvConnectorTypeDto = new ConnectorTypeDto();
 		mockCsvConnectorTypeDto.setReopened(false);
 		mockCsvConnectorTypeDto.setId(CsvConnectorType.NAME);
+		mockCsvConnectorTypeDto.setConnectorName(csvConnectorType.getConnectorName());
 
 		ConnectorTypeDto csvConnectorTypeDto = connectorManager.load(mockCsvConnectorTypeDto);
 		assertNotNull(csvConnectorTypeDto);
@@ -217,6 +224,7 @@ public class CsvConnectorTypeTest extends AbstractIntegrationTest {
 		ConnectorTypeDto mockCsvConnectorTypeDto = new ConnectorTypeDto();
 		mockCsvConnectorTypeDto.setReopened(false);
 		mockCsvConnectorTypeDto.setId(CsvConnectorType.NAME);
+		mockCsvConnectorTypeDto.setConnectorName(csvConnectorType.getConnectorName());
 
 		ConnectorTypeDto csvConnectorTypeDto = connectorManager.load(mockCsvConnectorTypeDto);
 		assertNotNull(csvConnectorTypeDto);

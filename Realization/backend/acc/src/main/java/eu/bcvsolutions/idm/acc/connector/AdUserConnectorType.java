@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.connector;
 
-import eu.bcvsolutions.idm.core.model.domain.Pair;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -97,6 +96,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.utils.CertificateUtils;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
+import eu.bcvsolutions.idm.core.eav.api.domain.Pair;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -813,9 +813,10 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Init default connector configurations.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void initDefaultConnectorSettings(SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
 		// Set the entry object classes.
-		List<Serializable> values = Lists.newArrayList(ENTRY_OBJECT_CLASSES_DEFAULT_VALUES);
+		List values = Lists.newArrayList(ENTRY_OBJECT_CLASSES_DEFAULT_VALUES);
 		this.setValueToConnectorInstance(ENTRY_OBJECT_CLASSES_KEY, values, systemDto, connectorFormDef);
 		// Set the object classes to sync.
 		values = Lists.newArrayList(ENTRY_OBJECT_CLASSES_DEFAULT_VALUES);

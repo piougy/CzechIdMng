@@ -133,6 +133,7 @@ export default class StepTwo extends AbstractWizardStep {
               <a
                 href={this.getDownloadCertificateUrl(formData.attachmentId)}
                 title={this.i18n(`${locKey}.downloadCertificate.title`)}
+                style={{ color: 'white' }}
                 className="btn btn-success">
                 <Basic.Icon value="fa:certificate"/>
                 {' '}
@@ -156,6 +157,7 @@ export default class StepTwo extends AbstractWizardStep {
               <a
                 href={this.getDownloadCertificateUrl(formData.serverAttachmentId)}
                 title={this.i18n(`${locKey}.downloadCertificate.title`)}
+                style={{ color: 'white' }}
                 className="btn btn-info">
                 <Basic.Icon value="fa:certificate"/>
                 {' '}

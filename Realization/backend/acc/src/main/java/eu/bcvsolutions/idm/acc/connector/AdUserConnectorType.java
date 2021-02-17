@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.connector;
 
+import eu.bcvsolutions.idm.core.model.domain.Pair;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -110,7 +111,6 @@ import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
-import javafx.util.Pair;
 
 /**
  * AD wizard for users.
@@ -857,46 +857,46 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			mappingSyncId = mappingDto.getId().toString();
 			connectorType.getMetadata().put(MAPPING_SYNC_ID, mappingSyncId);
 		}
-
-		// Creates default role with that system.
-		IdmRoleDto roleDto = this.createRoleSystem(connectorType);
-		connectorType.getMetadata().put(SKIP_CREATES_ROLE_WITH_SYSTEM, Boolean.TRUE.toString());
-		Assert.notNull(roleDto, "Role cannot be null!");
-
-		schemaAttributeFilter.setName(IcAttributeInfo.NAME);
-		SysSchemaAttributeDto nameSchemaAttribute = schemaAttributeService.find(schemaAttributeFilter, null)
-				.stream()
-				.findFirst()
-				.orElse(null);
-		Assert.notNull(nameSchemaAttribute, "Attribute __NAME__ cannot be null!");
-
-		// Create DN -> EAV attribute
-		SysSystemAttributeMappingDto dnEavMappingAttribute = new SysSystemAttributeMappingDto();
-		dnEavMappingAttribute.setEntityAttribute(false);
-		dnEavMappingAttribute.setExtendedAttribute(true);
-		dnEavMappingAttribute.setIdmPropertyName(pairingSyncAttributeCode);
-		dnEavMappingAttribute.setSchemaAttribute(nameSchemaAttribute.getId());
-		dnEavMappingAttribute.setUid(false);
-		dnEavMappingAttribute.setSystemMapping(UUID.fromString(mappingSyncId));
-		dnEavMappingAttribute.setCached(true);
-		dnEavMappingAttribute.setName("DN");
-		systemAttributeMappingService.save(dnEavMappingAttribute);
-
-		// Create the correlation attribute.
-		SysSystemAttributeMappingDto correlationAttribute = new SysSystemAttributeMappingDto();
-		correlationAttribute.setEntityAttribute(true);
-		correlationAttribute.setExtendedAttribute(false);
-		correlationAttribute.setIdmPropertyName(IdmIdentity_.username.getName());
-		correlationAttribute.setSchemaAttribute(sAMAccountNameAttribute.getId());
-		correlationAttribute.setUid(true);
-		correlationAttribute.setSystemMapping(UUID.fromString(mappingSyncId));
-		correlationAttribute.setCached(true);
-		correlationAttribute.setName(sAMAccountNameAttribute.getName());
-		correlationAttribute = systemAttributeMappingService.save(correlationAttribute);
-
+		
 		// Create identity mapping for pairing sync.
 		String pairingSyncId = connectorType.getMetadata().get(PAIRING_SYNC_ID);
 		if (pairingSyncId == null) {
+			// Creates default role with that system.
+			IdmRoleDto roleDto = this.createRoleSystem(connectorType);
+			connectorType.getMetadata().put(SKIP_CREATES_ROLE_WITH_SYSTEM, Boolean.TRUE.toString());
+			Assert.notNull(roleDto, "Role cannot be null!");
+
+			schemaAttributeFilter.setName(IcAttributeInfo.NAME);
+			SysSchemaAttributeDto nameSchemaAttribute = schemaAttributeService.find(schemaAttributeFilter, null)
+					.stream()
+					.findFirst()
+					.orElse(null);
+			Assert.notNull(nameSchemaAttribute, "Attribute __NAME__ cannot be null!");
+
+			// Create DN -> EAV attribute
+			SysSystemAttributeMappingDto dnEavMappingAttribute = new SysSystemAttributeMappingDto();
+			dnEavMappingAttribute.setEntityAttribute(false);
+			dnEavMappingAttribute.setExtendedAttribute(true);
+			dnEavMappingAttribute.setIdmPropertyName(pairingSyncAttributeCode);
+			dnEavMappingAttribute.setSchemaAttribute(nameSchemaAttribute.getId());
+			dnEavMappingAttribute.setUid(false);
+			dnEavMappingAttribute.setSystemMapping(UUID.fromString(mappingSyncId));
+			dnEavMappingAttribute.setCached(true);
+			dnEavMappingAttribute.setName("DN");
+			systemAttributeMappingService.save(dnEavMappingAttribute);
+
+			// Create the correlation attribute.
+			SysSystemAttributeMappingDto correlationAttribute = new SysSystemAttributeMappingDto();
+			correlationAttribute.setEntityAttribute(true);
+			correlationAttribute.setExtendedAttribute(false);
+			correlationAttribute.setIdmPropertyName(IdmIdentity_.username.getName());
+			correlationAttribute.setSchemaAttribute(sAMAccountNameAttribute.getId());
+			correlationAttribute.setUid(true);
+			correlationAttribute.setSystemMapping(UUID.fromString(mappingSyncId));
+			correlationAttribute.setCached(true);
+			correlationAttribute.setName(sAMAccountNameAttribute.getName());
+			correlationAttribute = systemAttributeMappingService.save(correlationAttribute);
+		
 			SysSyncIdentityConfigDto syncIdentityConfigDto = new SysSyncIdentityConfigDto();
 			syncIdentityConfigDto.setName(PAIRING_SYNC_NAME);
 			syncIdentityConfigDto.setReconciliation(true);

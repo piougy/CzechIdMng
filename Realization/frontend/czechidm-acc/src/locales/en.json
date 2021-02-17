@@ -3274,44 +3274,44 @@
       "message": "CSV file not found in the path you entered [{{path}}]!"
     },
     "WIZARD_AD_CONNECTOR_CRT_NOT_TRUSTED": {
-      "title": "Nalezený certifikát není důvěryhodný!",
-      "message": "Certifikát [{{serialNumber}}] v AD neprošel validací (porušený autentizační řetězec)!"
+      "title": "The certificate found in AD is not trusted!",
+      "message": "The certificate [{{serialNumber}}] in AD did not pass validation (broken authentication chain)!"
     },
     "WIZARD_AD_CONTAINER_NOT_FOUND": {
-      "title": "Kontejner nebyl nalezen!",
-      "message": "Kontejner [{{dn}}] nebyl v AD nalezen!"
+      "title": "Container not found!",
+      "message": "The container [{{dn}}] was not found in the AD!"
     },
     "WIZARD_AD_COMMUNICATION_EXCEPTION": {
-      "title": "Chyba během komunikace s AD",
-      "message": "Během komunikace s AD [{{host}}] nastala chyba!"
+      "title": "Error communicating with AD",
+      "message": "An error occurred while communicating with AD [{{host}}]!"
     },
     "WIZARD_AD_AUTHENTICATION_FAILED": {
-      "title": "Chybné přihlašovací údaje",
-      "message": "Přihlašovací údaje pro AD jsou chybné!"
+      "title": "Incorrect login information",
+      "message": "The login information for AD is incorrect!"
     },
     "WIZARD_AD_UNKNOWN_HOST": {
-      "title": "AD nebylo nalezeno",
-      "message": "Adresa [{{host}}] je neznámá!"
+      "title": "AD not found",
+      "message": "The address [{{host}}] is unknown!"
     },
     "WIZARD_AD_OPERATION_FAILED": {
-      "title": "Operace na AD selhala",
-      "message": "Operace [{{dn}}] selhala!"
+      "title": "AD operation failed",
+      "message": "Operation [{{dn}}] failed!"
     },
     "WIZARD_AD_GROUP_NOT_FOUND": {
-      "title": "Skupina nebyla nalezena",
-      "message": "Skupina s DN [{{dn}}] nebyla nalezena!"
+      "title": "Group not found",
+      "message": "Group with DN [{{dn}}] not found!"
     },
     "WIZARD_AD_CONNECTOR_DN_ALREADY_EXISTS": {
-      "title": "Objekt již existuje",
-      "message": "Objekt s DN [{{dn}}] na AD již existuje!"
+      "title": "Object already exists",
+      "message": "Object with DN [{{dn}}] on AD already exists!"
     },
     "WIZARD_AD_CREATED_TEST_USER_DN": {
-      "title": "Testovací AD uživatel",
-      "message": "Testovací uživatel vytořený v rámci průvodce napojením systému."
+      "title": "Test AD user",
+      "message": "A test user created as part of the system connection wizard."
     },
     "CONNECTOR_TEST_FAILED": {
-      "title": "Test konektoru selhal",
-      "message": "Test konektoru na systému [{{system}}] vrátil chybu [{{ex}}]"
+      "title": "Connector test failed",
+      "message": "Test connector on system [{{system}}] returned error [{{ex}}]"
     }
   },
   "processor": {

@@ -233,7 +233,10 @@ public class MsAdMappingIdentityAutoAttributesProcessor extends AbstractSystemMa
 		// Employee ID attribute.
 		schemaAttribute = getSchemaAttributeByCatalogue(schemaAttributes, this.getPersonalNumberCode());
 		if (schemaAttribute != null) {
-			createAttributeMappingBySchemaAttribute(dto, schemaAttribute, IdmIdentity_.externalCode.getName(), false);
+			SysSystemAttributeMappingDto attribute = createAttributeMappingBySchemaAttribute(dto, schemaAttribute, IdmIdentity_.externalCode.getName(), false);
+			// Set attribute as send only if value exists in the IDM.
+			attribute.setSendOnlyIfNotNull(true);
+			systemAttributeMappingService.save(attribute);
 		}
 
 		// Phone attribute

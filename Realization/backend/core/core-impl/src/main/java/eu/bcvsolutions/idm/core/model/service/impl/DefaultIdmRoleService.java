@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -78,6 +79,7 @@ public class DefaultIdmRoleService
 	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
 	@Autowired @Lazy private IdmIdentityService identityService;
 	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
+	@Autowired private RequestConfiguration requestConfiguration;
 	
 	@Autowired
 	public DefaultIdmRoleService(
@@ -335,14 +337,15 @@ public class DefaultIdmRoleService
 	@Override
 	public Page<IdmIdentityDto> findApproversByRoleId(UUID roleId, Pageable pageable) {
 		Assert.notNull(roleId, "Role is required.");
-
+		
 		IdmRoleDto role = this.get(roleId);
 		// Given role should be null (new role created with request)
 		if (role != null) {
 			IdmIdentityFilter filter = new IdmIdentityFilter();
+			// Set guarantee type (if is defined).
+			filter.setGuaranteeType(requestConfiguration.getRequestApprovalGuaranteeType(IdmRoleDto.class));
 			filter.setGuaranteesForRole(roleId);
 			long guaranteesCount = identityService.find(filter, pageable).getTotalElements();
-
 			if (guaranteesCount > 0) {
 				return identityService.find(filter, pageable);
 			}

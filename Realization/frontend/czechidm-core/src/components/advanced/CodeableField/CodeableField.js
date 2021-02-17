@@ -125,6 +125,7 @@ export default class CodeableField extends Basic.AbstractFormComponent {
       codeReadOnly,
       nameReadOnly
     } = this.props;
+    const {formReadOnly} = this.state;
     //
     return (
       <Basic.Row>
@@ -137,7 +138,7 @@ export default class CodeableField extends Basic.AbstractFormComponent {
             max={ 255 }
             required
             onChange={ this._onChangeCode.bind(this) }
-            readOnly={ codeReadOnly }/>
+            readOnly={ formReadOnly || codeReadOnly }/>
         </Basic.Col>
         <Basic.Col lg={ 8 }>
           <Basic.TextField
@@ -148,7 +149,7 @@ export default class CodeableField extends Basic.AbstractFormComponent {
             required
             min={ 0 }
             max={ 255 }
-            readOnly={ nameReadOnly }/>
+            readOnly={ formReadOnly || nameReadOnly }/>
         </Basic.Col>
       </Basic.Row>
     );

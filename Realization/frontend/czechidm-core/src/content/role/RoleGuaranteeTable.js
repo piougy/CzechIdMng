@@ -134,6 +134,7 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
             property="type"
             width={ 125 }
             face="text"
+            header={ this.i18n('entity.RoleGuarantee.type.label') }
             sort
             rendered={ guaranteeTypes.length > 0 }
             cell={

@@ -60,8 +60,6 @@ public interface RequestConfiguration extends Configurable {
 	/**
 	 * Get approval process key
 	 * 
-	 * @param entityType
-	 * @return
 	 */
 	String getRequestApprovalProcessKey(Class<? extends Requestable> entityType);
 	
@@ -69,8 +67,12 @@ public interface RequestConfiguration extends Configurable {
 	 * Is request mode enabled for given requestable class.
 	 * !!!All requestable classes are controlled by IdmRoleDto property for now!!!
 	 * 
-	 * @param entityType
-	 * @return
 	 */
 	boolean isRequestModeEnabled(Class<? extends BaseDto> entityType);
+
+	/**
+	 * Returns type of guarantee. Requests will be approving only by guarantee with this type.
+	 * If returns null, then all guarantees will be used for approving (no limitations).
+	 */
+	String getRequestApprovalGuaranteeType(Class<? extends Requestable> entityType);
 }

@@ -1,5 +1,11 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -31,7 +37,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 public class SystemMappingIdentityAutoAttributesProcessor extends AbstractSystemMappingAutoAttributesProcessor {
 
 	private static final String PROCESSOR_NAME = "system-mapping-auto-attributes-processor";
-
+	
 	@Autowired
 	public SystemMappingIdentityAutoAttributesProcessor() {
 		super(SystemMappingEventType.CREATE);
@@ -93,14 +99,8 @@ public class SystemMappingIdentityAutoAttributesProcessor extends AbstractSystem
 	}
 
 	@Override
-	public boolean conditional(EntityEvent<SysSystemMappingDto> event) {
-		if (SystemEntityType.IDENTITY != event.getContent().getEntityType()) {
-			return false;
-		}
-		if (event.getBooleanProperty(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING)) {
-			return super.conditional(event);
-		}
-		return false;
+	SystemEntityType getSystemEntityType() {
+		return SystemEntityType.IDENTITY;
 	}
 
 	/**

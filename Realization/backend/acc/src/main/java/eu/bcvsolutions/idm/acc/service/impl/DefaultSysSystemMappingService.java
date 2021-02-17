@@ -395,6 +395,9 @@ public class DefaultSysSystemMappingService
 			variables.put(SysSystemAttributeMappingService.ACCOUNT_UID, uid);
 			variables.put(SysSystemAttributeMappingService.SYSTEM_KEY, system);
 			variables.put(SysSystemAttributeMappingService.ENTITY_KEY, dto);
+			// Add null variables (because is using transformation to system).
+			variables.put(SysSystemAttributeMappingService.ATTRIBUTE_VALUE_KEY, null);
+			variables.put(SysSystemAttributeMappingService.CONTEXT_KEY, null);
 			// add default script evaluator, for call another scripts
 			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR,
 					pluginExecutors.getPluginFor(IdmScriptCategory.TRANSFORM_TO));

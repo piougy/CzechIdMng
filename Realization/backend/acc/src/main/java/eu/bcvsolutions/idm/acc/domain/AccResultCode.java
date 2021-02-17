@@ -20,6 +20,7 @@ public enum AccResultCode implements ResultCode {
 	CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector schema for system [%s] not found!"),
 	CONNECTOR_FORM_DEFINITION_NOT_FOUND(HttpStatus.BAD_REQUEST, "Configuration for remote server [%s] not found!"),
 	CONNECTOR_SCHEMA_GENERATION_EXCEPTION(HttpStatus.BAD_REQUEST, "During generation of system [%s] schema occurred exception: [%s]!"),
+	CONNECTOR_TEST_FAILED(HttpStatus.BAD_REQUEST, "Connector test for system [%s] failed [%s]!"),
 	// remote server
 	REMOTE_SERVER_INVALID_CREDENTIAL(HttpStatus.BAD_REQUEST, "Invalid password for server [%s]!"),
 	REMOTE_SERVER_NOT_FOUND(HttpStatus.BAD_REQUEST, "Remote connector server [%s], not found, or isn't running."),
@@ -166,7 +167,17 @@ public enum AccResultCode implements ResultCode {
 	PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST(HttpStatus.FORBIDDEN, "Echo validation in password change for identity id [%s] didn't pass by check. See IdM log for more information."),
 	// CSV wizard
 	WIZARD_CSV_CONNECTOR_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "CSV file cannot be uploaded!"),
-	WIZARD_CSV_CONNECTOR_CSV_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "CSV file was not found [%s]!");
+	WIZARD_CSV_CONNECTOR_CSV_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "CSV file was not found [%s]!"),
+	// AD wizard
+	WIZARD_AD_CONNECTOR_CRT_NOT_TRUSTED(HttpStatus.BAD_REQUEST, "Certificate [%s] is not trusted!"),
+	WIZARD_AD_CONTAINER_NOT_FOUND(HttpStatus.NOT_FOUND, "The container [%s] wasn't found!"),
+	WIZARD_AD_COMMUNICATION_EXCEPTION(HttpStatus.NOT_FOUND, "Communication exception with AD [%s] occurred!"),
+	WIZARD_AD_AUTHENTICATION_FAILED(HttpStatus.NOT_FOUND, "Authentication failed!"),
+	WIZARD_AD_UNKNOWN_HOST(HttpStatus.NOT_FOUND, "Unknown host [%s]!"),
+	WIZARD_AD_OPERATION_FAILED(HttpStatus.NOT_FOUND, "AD operation failed for DN [%s]!"),
+	WIZARD_AD_GROUP_NOT_FOUND(HttpStatus.NOT_FOUND, "The group [%s] wasn't found!"),
+	WIZARD_AD_CONNECTOR_DN_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "Entry with DN [%s] already exists!"),
+	WIZARD_AD_CREATED_TEST_USER_DN(HttpStatus.CREATED, "Test user with DN [%s] created.");
 
 	private final HttpStatus status;
 	private final String message;

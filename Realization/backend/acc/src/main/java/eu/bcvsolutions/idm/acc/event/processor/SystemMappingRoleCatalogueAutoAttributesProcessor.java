@@ -73,17 +73,12 @@ public class SystemMappingRoleCatalogueAutoAttributesProcessor extends AbstractS
 
 		return new DefaultEventResult<>(event, this);
 	}
-
+	
 	@Override
-	public boolean conditional(EntityEvent<SysSystemMappingDto> event) {
-		if (SystemEntityType.ROLE_CATALOGUE != event.getContent().getEntityType()) {
-			return false;
-		}
-		if (event.getBooleanProperty(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING)) {
-			return super.conditional(event);
-		}
-		return false;
+	SystemEntityType getSystemEntityType() {
+		return SystemEntityType.ROLE_CATALOGUE;
 	}
+	
 
 	/**
 	 * Code catalogue for primary key (UID). Order in the catalogue is use in search.

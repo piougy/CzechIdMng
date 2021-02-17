@@ -184,6 +184,18 @@ module.exports = {
       component: require('./src/content/wizard/connectorType/JdbcSqlSystemWizard')
     },
     {
+      id: 'ad-connector-type',
+      type: 'connector-type',
+      entityType: ['ad-connector-type'],
+      component: require('./src/content/wizard/connectorType/AdUserSystemWizard/AdUserSystemWizard')
+    },
+    {
+      id: 'ad-winrm-connector-type',
+      type: 'connector-type',
+      entityType: ['ad-winrm-connector-type'],
+      component: require('./src/content/wizard/connectorType/AdUserSystemWizard/AdUserSystemWizard')
+    },
+    {
       id: 'remote-server-icon',
       type: 'icon',
       entityType: ['server', 'servers'],
@@ -197,6 +209,6 @@ module.exports = {
       entityType: [ 'remoteServer' ],
       searchInFields: ['host', 'description'],
       manager: require('./src/redux').RemoteServerManager
-    },
+    }
   ]
 };

@@ -483,24 +483,47 @@ export default class DefaultSystemWizard extends Basic.AbstractContextComponent 
     };
   }
 
+  /**
+   * Button for show detail (show system), is hidden by default.
+   */
+  onShowDetailBtn() {
+    return false;
+  }
+
+  _getWizardLabel(connectorName) {
+    let label;
+    const locKey = `wizard.${this.getWizardId()}.name`;
+    label = this.i18n(`${this.getModule()}:${locKey}`, {connectorName});
+    if (label === locKey) {
+      label = null;
+    }
+    return label;
+  }
+
   render() {
     const {show, modal, connectorType} = this.props;
     const {showLoading} = this.state;
+    let wizardName;
+    if (connectorType
+      && connectorType._embedded
+      && connectorType._embedded.system) {
+      wizardName = connectorType._embedded.system.name;
+    }
+    if (!wizardName) {
+      wizardName = this._getWizardLabel(connectorType.name);
+    }
     return (
       <Basic.Wizard
         getSteps={this.getWizardSteps.bind(this)}
         modal={modal}
-        name={connectorType
-          && connectorType._embedded
-          && connectorType._embedded.system
-           ? connectorType._embedded.system.name
-           : null}
+        name={wizardName}
         showLoading={showLoading}
         show={show}
         icon={connectorType ? connectorType.iconKey : null}
         module={this.getModule()}
         id={this.getWizardId()}
-        onCloseWizard={this.props.closeWizard}/>
+        onCloseWizard={this.props.closeWizard}
+        onShowDetailBtn={this.onShowDetailBtn.bind(this)}/>
     );
   }
 }
@@ -598,6 +621,9 @@ class SummaryStep extends Basic.AbstractContent {
     const formData = {mappingSystemOnRole, newRoleWithSystem, roleWithSystem};
     const systemName = wizardContext.entity ? wizardContext.entity.name : null;
     const entityType = wizardContext.mapping ? wizardContext.mapping.entityType : null;
+    const skipCreateRoleWithSystem = wizardContext.connectorType.metadata
+      ? wizardContext.connectorType.metadata.skipCreateRoleWithSystem === 'true'
+      : false;
 
     const locKey = `acc:wizard.create-system.steps.summary`;
 
@@ -614,7 +640,7 @@ class SummaryStep extends Basic.AbstractContent {
             />
           </Basic.Col>
         </Basic.Row>
-        <Basic.Row rendered={entityType === 'IDENTITY'}>
+        <Basic.Row rendered={entityType === 'IDENTITY' && !skipCreateRoleWithSystem}>
           <Basic.Col lg={1} md={1}/>
           <Basic.Col lg={10} md={10}>
             <Basic.Panel style={{backgroundColor: '#d9edf7', borderColor: '#bce8f1', color: '#31708f'}}>

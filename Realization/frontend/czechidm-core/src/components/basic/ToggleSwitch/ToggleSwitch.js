@@ -16,7 +16,7 @@ class ToggleSwitch extends AbstractFormComponent {
 
   onChange(event) {
     if (this.props.onChange) {
-      this.props.onChange(event);
+      this.props.onChange(event, !this.state.value);
     }
     this.setState({
       value: !this.state.value

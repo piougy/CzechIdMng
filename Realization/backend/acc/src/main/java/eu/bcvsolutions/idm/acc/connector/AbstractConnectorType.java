@@ -147,8 +147,6 @@ public abstract class AbstractConnectorType implements
 
 	/**
 	 * Execute last step of default wizard. Creates role with that system.
-	 *
-	 * @param connectorType
 	 */
 	private void executeStepFinish(ConnectorTypeDto connectorType) {
 		// Validations:
@@ -156,6 +154,13 @@ public abstract class AbstractConnectorType implements
 		if (!(Boolean.parseBoolean(createRoleWithSystem))) {
 			return;
 		}
+		createRoleSystem(connectorType);
+	}
+
+	/**
+	 * Creates role with that system.
+	 */
+	protected IdmRoleDto createRoleSystem(ConnectorTypeDto connectorType) {
 		String newRoleWithSystemCode = connectorType.getMetadata().get(NEW_ROLE_WITH_SYSTEM_CODE);
 		Assert.isTrue(Strings.isNotBlank(newRoleWithSystemCode), "Code of the role cannot be null!");
 
@@ -193,6 +198,7 @@ public abstract class AbstractConnectorType implements
 
 			connectorType.getMetadata().put(ROLE_SYSTEM_ID, systemRole.getId().toString());
 		}
+		return newRole;
 	}
 
 	/**
@@ -270,10 +276,15 @@ public abstract class AbstractConnectorType implements
 		connectorTypeDto.getEmbedded().put(MAPPING_DTO_KEY, mappingDto);
 	}
 
-	protected void setValueToConnectorInstance(String attributeCode, String value, SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
+	protected void setValueToConnectorInstance(String attributeCode, Serializable value, SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
 		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(attributeCode);
 		List<Serializable> values = new ArrayList<>();
 		values.add(value);
+		formService.saveValues(systemDto, attribute, values);
+	}
+	
+	protected void setValueToConnectorInstance(String attributeCode, List<Serializable> values, SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
+		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(attributeCode);;
 		formService.saveValues(systemDto, attribute, values);
 	}
 
@@ -281,7 +292,19 @@ public abstract class AbstractConnectorType implements
 		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(attributeCode);
 		List<IdmFormValueDto> values = formService.getValues(systemDto, attribute, IdmBasePermission.READ);
 		if (values != null && values.size() == 1) {
-			return values.get(0).getStringValue();
+			return values.get(0).getValue().toString();
+		}
+		return null;
+	}
+	
+	protected String getConfidentialValueFromConnectorInstance(String attributeCode, SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
+		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(attributeCode);
+		if (attribute == null) {
+			return null;
+		}
+		List<IdmFormValueDto> values = formService.getValues(systemDto, attribute, IdmBasePermission.READ);
+		if (values != null && values.size() == 1) {
+			return formService.getConfidentialPersistentValue(values.get(0)).toString();
 		}
 		return null;
 	}
@@ -319,5 +342,9 @@ public abstract class AbstractConnectorType implements
 
 	protected SysSystemService getSystemService() {
 		return systemService;
+	}
+
+	protected FormService getFormService() {
+		return formService;
 	}
 }

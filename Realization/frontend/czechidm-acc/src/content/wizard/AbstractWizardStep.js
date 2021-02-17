@@ -1,3 +1,4 @@
+
 import { Basic } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
@@ -27,6 +28,10 @@ export default class AbstractWizardStep extends Basic.AbstractContextComponent {
 
   getLocKey() {
     return `${this.props.baseLocKey}.steps.${this.getStepId()}`;
+  }
+
+  getSystemManager() {
+    return systemManager;
   }
 
   wizardNext(event) {

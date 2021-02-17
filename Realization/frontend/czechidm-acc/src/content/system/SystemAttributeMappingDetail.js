@@ -347,7 +347,6 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                   readOnly={!Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
                   <Basic.Checkbox
                     ref="disabledAttribute"
-                    hidden={this.isWizard()}
                     onChange={this._checkboxChanged.bind(this, 'disabledAttribute', null)}
                     tooltip={this.i18n('acc:entity.SystemAttributeMapping.disabledAttribute.tooltip')}
                     label={this.i18n('acc:entity.SystemAttributeMapping.disabledAttribute.label')}/>

@@ -226,6 +226,35 @@ export class SystemTable extends Advanced.AbstractTableContent {
     return null;
   }
 
+  getTableButtons(showAddButton) {
+    return (
+      [
+        <Basic.SplitButton
+          level="success"
+          key="add-wizard-button"
+          buttonSize="xs"
+          onClick={ this.props.showWizardDetail }
+          rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
+          title={ this.i18n('button.add') }
+          icon="fa:magic"
+          pullRight>
+          <Basic.MenuItem
+            eventKey="1"
+            onClick={ this.props.showWizardDetail }
+            icon="fa:magic">
+            { this.i18n('acc:wizard.addSystemViaWizard') }
+          </Basic.MenuItem>
+          <Basic.MenuItem
+            eventKey="2"
+            onClick={ this.showDetail.bind(this, { }) }
+            icon="fa:plus">
+            { this.i18n('button.addDefault.label') }
+          </Basic.MenuItem>
+        </Basic.SplitButton>
+      ]
+    );
+  }
+
   render() {
     const {
       uiKey,
@@ -301,30 +330,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          buttons={[
-            <Basic.SplitButton
-              level="success"
-              key="add-wizard-button"
-              buttonSize="xs"
-              onClick={ this.props.showWizardDetail }
-              rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
-              title={ this.i18n('button.add') }
-              icon="fa:magic"
-              pullRight>
-              <Basic.MenuItem
-                eventKey="1"
-                onClick={ this.props.showWizardDetail }
-                icon="fa:magic">
-                { this.i18n('acc:wizard.addSystemViaWizard') }
-              </Basic.MenuItem>
-              <Basic.MenuItem
-                eventKey="2"
-                onClick={ this.showDetail.bind(this, { }) }
-                icon="fa:plus">
-                { this.i18n('button.addDefault.label') }
-              </Basic.MenuItem>
-            </Basic.SplitButton>
-          ]}
+          buttons={ this.getTableButtons(showAddButton) }
           _searchParameters={ this.getSearchParameters() }>
 
           <Advanced.Column

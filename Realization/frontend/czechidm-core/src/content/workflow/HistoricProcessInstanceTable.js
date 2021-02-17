@@ -64,31 +64,33 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
   }
 
   showDetail(entity) {
-    this.context.history.push('/workflow/history/processes/' + entity.id);
+    this.context.history.push(`/workflow/history/processes/${ entity.id }`);
   }
 
   _filter() {
-    return (<Advanced.Filter onSubmit={this._useFilter.bind(this)}>
-      <Basic.AbstractForm ref="filterForm">
-        <Basic.Row className="last">
-          <Basic.Col lg={ 4 }>
-            <Advanced.Filter.TextField
-              ref="name"
-              placeholder={this.i18n('name')}/>
-          </Basic.Col>
-          <Basic.Col lg={ 5 }>
-            <Advanced.Filter.SelectBox
-              ref="processDefinitionKey"
-              placeholder={this.i18n('filter.processDefinition.placeholder')}
-              multiSelect={false}
-              manager={workflowProcessDefinitionManager}/>
-          </Basic.Col>
-          <Basic.Col lg={ 3 } className="text-right">
-            <Advanced.Filter.FilterButtons cancelFilter={this._cancelFilter.bind(this)}/>
-          </Basic.Col>
-        </Basic.Row>
-      </Basic.AbstractForm>
-    </Advanced.Filter>);
+    return (
+      <Advanced.Filter onSubmit={this._useFilter.bind(this)}>
+        <Basic.AbstractForm ref="filterForm">
+          <Basic.Row className="last">
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="name"
+                placeholder={this.i18n('name')}/>
+            </Basic.Col>
+            <Basic.Col lg={ 5 }>
+              <Advanced.Filter.SelectBox
+                ref="processDefinitionKey"
+                placeholder={this.i18n('filter.processDefinition.placeholder')}
+                multiSelect={false}
+                manager={workflowProcessDefinitionManager}/>
+            </Basic.Col>
+            <Basic.Col lg={ 3 } className="text-right">
+              <Advanced.Filter.FilterButtons cancelFilter={this._cancelFilter.bind(this)}/>
+            </Basic.Col>
+          </Basic.Row>
+        </Basic.AbstractForm>
+      </Advanced.Filter>
+    );
   }
 
   _useFilter(event) {
@@ -127,6 +129,7 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
           manager={workflowHistoricProcessInstanceManager}
           showRowSelection={false}
           showId
+          showAuditLink={ false }
           filter={this._filter()}
           filterOpened={filterOpened}
           _searchParameters={ this.getSearchParameters() }>
@@ -144,7 +147,7 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
                 );
               }
             }
-          sort={false}/>
+            sort={false}/>
           <Advanced.Column
             header=""
             property="name"

@@ -182,7 +182,8 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             uiKey="table-tasks"
             pagination={false}
             forceSearchParameters={force}
-            manager={workflowHistoricTaskInstanceManager}>
+            manager={workflowHistoricTaskInstanceManager}
+            showAuditLink={ false }>
             <Advanced.Column
               header=""
               className="detail-button"

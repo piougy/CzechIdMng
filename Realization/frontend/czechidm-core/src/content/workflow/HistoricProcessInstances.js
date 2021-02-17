@@ -1,12 +1,13 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { WorkflowHistoricProcessInstanceManager } from '../../redux';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
 
 /**
- * List of instances historic processes
+ * List of instances historic processes.
+ *
+ * @author Vít Švanda
  */
 class HistoricProcessIntances extends Basic.AbstractContent {
 
@@ -25,18 +26,17 @@ class HistoricProcessIntances extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
-
-        <Basic.PageHeader>
-          <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
-        </Basic.PageHeader>
+      <Basic.Div>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
-          <HistoricProcessInstanceTable uiKey="historic_process_instance_table" workflowHistoricProcessInstanceManager={this.workflowHistoricProcessInstanceManager} filterOpened={false}/>
+          <HistoricProcessInstanceTable
+            uiKey="historic_process_instance_table"
+            workflowHistoricProcessInstanceManager={ this.workflowHistoricProcessInstanceManager }
+            filterOpened={ false }/>
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

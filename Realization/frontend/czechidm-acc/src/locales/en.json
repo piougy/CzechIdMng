@@ -2641,6 +2641,7 @@
           "name": "Permissions",
           "help": "In this step, we will try to verify that the user you entered has sufficient privileges on AD.",
           "testUserName": "Test user name",
+          "btnTest": "Run test",
           "testCreateUserBtn": {
             "text": "Create user"
           },

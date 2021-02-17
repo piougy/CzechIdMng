@@ -135,7 +135,7 @@ public abstract class AbstractSystemMappingAutoAttributesProcessor extends CoreE
 			return false;
 		}
 		// Attributes will be generated only for __ACCOUNT__ schema.
-		SysSchemaObjectClassDto objectClassDto = lookupService.lookupEmbeddedDto(systemMappingDto, SysSystemMapping_.OBJECT_CLASS);
+		SysSchemaObjectClassDto objectClassDto = lookupService.lookupEmbeddedDto(systemMappingDto, SysSystemMapping_.objectClass.getName());
 		if (!IcObjectClassInfo.ACCOUNT.equals(objectClassDto.getObjectClassName())) {
 			return false;
 		}

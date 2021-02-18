@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.eav.api.domain;
+package eu.bcvsolutions.idm.core.api.domain;
 
 /**
  * Pair implementation. Good if you want to return two variables at once.

@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,9 +23,13 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
@@ -40,18 +46,15 @@ public class IdentityAddContractGuaranteeBulkActionTest extends AbstractBulkActi
 
 	@Before
 	public void login() {
-		/* TODO prava
 		IdmIdentityDto identity = getHelper().createIdentity();
 		
 		IdmRoleDto createRole = getHelper().createRole();
-		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdentityBasePermission.CHANGEPERMISSION);
-		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITYCONTRACT, IdmIdentityContract.class, IdmBasePermission.AUTOCOMPLETE);
-		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.ROLEREQUEST, IdmRoleRequest.class, IdmBasePermission.ADMIN);
+		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdmBasePermission.COUNT, IdmBasePermission.AUTOCOMPLETE);
+		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.CONTRACTGUARANTEE, IdmContractGuarantee.class, IdmBasePermission.CREATE);
 		
 		getHelper().createIdentityRole(identity, createRole);
 		loginAsNoAdmin(identity.getUsername());
-		*/
-		loginAsAdmin();
+		//loginAsAdmin();
 	}
 	
 	@After
@@ -109,7 +112,7 @@ public class IdentityAddContractGuaranteeBulkActionTest extends AbstractBulkActi
 		bulkActionManager.processAction(bulkAction);
 		//checkResultLrt(processAction, 1l, null, null);
 
-		// test guarantes on all contracts
+		// test guarantees on all contracts
 		List<IdmContractGuaranteeDto> assigned = getGuaranteesForContract(contract1.getId());
 		// same guarantee is assigned only once
 		Assert.assertEquals(guarantees.size(), assigned.size());
@@ -117,6 +120,37 @@ public class IdentityAddContractGuaranteeBulkActionTest extends AbstractBulkActi
 		guarantees.forEach(guarantee -> {
 			Assert.assertTrue(assignedGuarUUID.contains(guarantee.getId()));
 		});
+	}
+	
+	@Test
+	@Transactional
+	public void withoutPermissionCreateGuarantee() {
+		IdmIdentityDto identityForLogin = getHelper().createIdentity();
+		IdmRoleDto permissionRole = getHelper().createRole();
+		getHelper().createBasePolicy(permissionRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdmBasePermission.COUNT);
+		//getHelper().createBasePolicy(permissionRole.getId(), CoreGroupPermission.CONTRACTGUARANTEE, IdmContractGuarantee.class, IdmBasePermission.CREATE);
+		getHelper().createIdentityRole(identityForLogin, permissionRole);
+		loginAsNoAdmin(identityForLogin.getUsername());
+		
+		List<IdmIdentityDto> guarantees = this.createIdentities(1);
+		IdmIdentityDto employee = getHelper().createIdentity();
+		IdmIdentityContractDto contract1 = getHelper().getPrimeContract(employee);
+		
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityAddContractGuaranteeBulkAction.NAME);
+		Set<UUID> ids = this.getIdFromList(Arrays.asList(employee));
+		bulkAction.setIdentifiers(ids);
+		
+		Map<String, Object> properties = new HashMap<>();
+		List<String> uuidStrings = guarantees.stream().map(AbstractDto::getId).map(Object::toString).collect(Collectors.toList());
+		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, uuidStrings);
+		bulkAction.setProperties(properties);
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		// one log record with warning level is expected
+		checkResultLrt(processAction, null, 0l, 1l);
+
+		// test guarantes on all contracts
+		List<IdmContractGuaranteeDto> assigned = getGuaranteesForContract(contract1.getId());
+		Assert.assertEquals(0, assigned.size());
 	}
 	
 	/**

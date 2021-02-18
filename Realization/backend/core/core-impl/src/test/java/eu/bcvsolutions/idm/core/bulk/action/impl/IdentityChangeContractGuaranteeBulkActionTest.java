@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,9 +22,13 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
@@ -38,18 +45,15 @@ public class IdentityChangeContractGuaranteeBulkActionTest extends AbstractBulkA
 
 	@Before
 	public void login() {
-		/* TODO prava
 		IdmIdentityDto identity = getHelper().createIdentity();
 		
 		IdmRoleDto createRole = getHelper().createRole();
-		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdentityBasePermission.CHANGEPERMISSION);
-		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITYCONTRACT, IdmIdentityContract.class, IdmBasePermission.AUTOCOMPLETE);
-		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.ROLEREQUEST, IdmRoleRequest.class, IdmBasePermission.ADMIN);
+		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdmBasePermission.COUNT, IdmBasePermission.AUTOCOMPLETE);
+		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.CONTRACTGUARANTEE, IdmContractGuarantee.class, IdmBasePermission.DELETE, IdmBasePermission.CREATE);
 		
 		getHelper().createIdentityRole(identity, createRole);
 		loginAsNoAdmin(identity.getUsername());
-		*/
-		loginAsAdmin();
+		//loginAsAdmin();
 	}
 	
 	@After
@@ -179,6 +183,86 @@ public class IdentityChangeContractGuaranteeBulkActionTest extends AbstractBulkA
 		Assert.assertEquals(newGuarantees.get(0).getId(), assigned.get(0).getGuarantee());
 	}
 	
+	@Test
+	@Transactional
+	public void withoutPermissionDeleteGuarantee() {
+		List<IdmIdentityDto> guarantees = this.createIdentities(2);
+		IdmIdentityDto employee = getHelper().createIdentity();
+		IdmIdentityContractDto contract1 = getHelper().getPrimeContract(employee);
+		Assert.assertEquals(0, getGuaranteesForContract(contract1.getId()).size());
+
+		// init guarantee to replace
+		createContractGuarantees(contract1, guarantees.subList(0, 1));
+		Assert.assertEquals(1, getGuaranteesForContract(contract1.getId()).size());
+		Assert.assertTrue(isContractGuarantee(contract1, guarantees.subList(0,1)).isEmpty());
+		
+		// Log as user without delete permission
+		IdmIdentityDto identityForLogin = getHelper().createIdentity();
+		IdmRoleDto permissionRole = getHelper().createRole();
+		getHelper().createBasePolicy(permissionRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdmBasePermission.COUNT);
+		getHelper().createBasePolicy(permissionRole.getId(), CoreGroupPermission.CONTRACTGUARANTEE, IdmContractGuarantee.class, IdmBasePermission.CREATE);
+		getHelper().createIdentityRole(identityForLogin, permissionRole);
+		loginAsNoAdmin(identityForLogin.getUsername());
+		
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityChangeContractGuaranteeBulkAction.NAME);
+		Set<UUID> ids = this.getIdFromList(Arrays.asList(employee));
+		bulkAction.setIdentifiers(ids);
+		
+		Map<String, Object> properties = new HashMap<>();
+		String oldGuarStr = String.valueOf(guarantees.get(0).getId());
+		String newGuarStr = String.valueOf(guarantees.get(1).getId());
+		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, oldGuarStr);
+		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, newGuarStr);
+		bulkAction.setProperties(properties);
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		// original guarantee was not removed
+		checkResultLrt(processAction, null, 0l, 1l);
+
+		//there stayed original guarantee 
+		List<IdmContractGuaranteeDto> assigned = getGuaranteesForContract(contract1.getId());
+		Assert.assertEquals(1, assigned.size());
+		Assert.assertTrue(isContractGuarantee(contract1, guarantees.subList(0, 1)).isEmpty());
+	}
+	
+	@Test
+	@Transactional
+	public void withoutPermissionCreateGuarantee() {
+		List<IdmIdentityDto> guarantees = this.createIdentities(2);
+		IdmIdentityDto employee = getHelper().createIdentity();
+		IdmIdentityContractDto contract1 = getHelper().getPrimeContract(employee);
+		Assert.assertEquals(0, getGuaranteesForContract(contract1.getId()).size());
+
+		// init guarantee to replace
+		createContractGuarantees(contract1, guarantees.subList(0, 1));
+		Assert.assertEquals(1, getGuaranteesForContract(contract1.getId()).size());
+		Assert.assertTrue(isContractGuarantee(contract1, guarantees.subList(0,1)).isEmpty());
+		
+		// Log as user without delete permission
+		IdmIdentityDto identityForLogin = getHelper().createIdentity();
+		IdmRoleDto permissionRole = getHelper().createRole();
+		getHelper().createBasePolicy(permissionRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdmBasePermission.COUNT);
+		getHelper().createBasePolicy(permissionRole.getId(), CoreGroupPermission.CONTRACTGUARANTEE, IdmContractGuarantee.class, IdmBasePermission.DELETE);
+		getHelper().createIdentityRole(identityForLogin, permissionRole);
+		loginAsNoAdmin(identityForLogin.getUsername());
+		
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityChangeContractGuaranteeBulkAction.NAME);
+		Set<UUID> ids = this.getIdFromList(Arrays.asList(employee));
+		bulkAction.setIdentifiers(ids);
+		
+		Map<String, Object> properties = new HashMap<>();
+		String oldGuarStr = String.valueOf(guarantees.get(0).getId());
+		String newGuarStr = String.valueOf(guarantees.get(1).getId());
+		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, oldGuarStr);
+		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, newGuarStr);
+		bulkAction.setProperties(properties);
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		// original guarantee was not removed
+		checkResultLrt(processAction, null, 0l, 1l);
+
+		// the original guarantee was removed, but the new one is not created because of lack of permissions
+		List<IdmContractGuaranteeDto> assigned = getGuaranteesForContract(contract1.getId());
+		Assert.assertEquals(0, assigned.size());
+	}
 
 	
 	/**

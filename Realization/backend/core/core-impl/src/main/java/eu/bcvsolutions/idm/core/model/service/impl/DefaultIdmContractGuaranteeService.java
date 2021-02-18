@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractGuaranteeRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -55,6 +56,13 @@ public class DefaultIdmContractGuaranteeService
 					root.get(IdmContractGuarantee_.guarantee).get(AbstractEntity_.id), 
 					filter.getGuaranteeId()));
 		}
+		// guaranteed person
+		if (filter.getIdentityId() != null) {
+			predicates.add(builder.equal(
+					root.get(IdmContractGuarantee_.identityContract).get(IdmIdentityContract_.identity).get(AbstractEntity_.id),
+					filter.getIdentityId()));
+		}
+		
 		return predicates;
 	}
 }

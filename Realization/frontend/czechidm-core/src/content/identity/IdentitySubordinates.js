@@ -46,6 +46,8 @@ export default class IdentitySubordinates extends Basic.AbstractContent {
           identityManager={ this.getManager() }
           filterOpened={ false }
           forceSearchParameters={ forceSearchParameters }
+          prohibitedActions={[ 'identity-delete-bulk-action' ]}
+          showRowSelection
           columns={ columns }
           className="no-margin"
           showAddButton={ false }/>

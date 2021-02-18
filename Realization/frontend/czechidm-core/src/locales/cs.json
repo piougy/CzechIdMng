@@ -6010,6 +6010,40 @@
           }
         }
       },
+      "identity-add-contract-guarantee-bulk-action": {
+        "label": "Přidání garanta kontraktů",
+        "icon": "component:contract-guarantee-add",
+        "attributes": {
+          "new-guarantee": {
+            "label": "Přidaní garanti",
+            "help": "Vybraní garanti budou nastaveni jako noví garanti kontraktů"
+          }
+        }
+      },
+      "identity-remove-contract-guarantee-bulk-action": {
+        "label": "Odebrání garanta kontraktů",
+        "icon": "component:contract-guarantee-remove",
+        "attributes": {
+          "old-guarantee": {
+            "label": "Odebraní garanti",
+            "help": "Vybraní garanti budou odebráni z garantů kontraktů"
+          }
+        }
+      },
+      "identity-change-contract-guarantee-bulk-action": {
+        "label": "Nahrazení garanta kontraktů",
+        "icon": "component:contract-guarantee-change",
+        "attributes": {
+          "old-guarantee": {
+            "label": "Původní garant",
+            "help": "Vybraný garant bude nahrazen novým garantem"
+          },
+          "new-guarantee": {
+            "label": "Nový garant",
+            "help": "Vybraný garant nahradí puvodního garanta"
+          }
+        }
+      },
       "core-identity-change-user-type-bulk-action": {
         "label": "Změnit typ uživatele",
         "icon": "component:identity-projection",
@@ -7320,6 +7354,10 @@
     "BULK_ACTION_IDENTITY_REMOVE_ROLE_FAILED": {
       "title": "Role nebyly odebrány",
       "message": "Role pro identitu [{{identity}}] nebyly odebrány. Role nebyly nalezeny nebo nemohou býti odebrány - jednalo o roli automackou, business roli nebo na odebrání role nepostačovalo Vaše oprávnění."
+    },
+    "BULK_ACTION_NOT_ATHORIZED_CONTRACT_GUARANTEE": {
+      "title": "Nedostatečná oprávnění pro změnu garanta kontraktu",
+      "message": "Uživatel nemá oprávnění k provedení operace [{{permission}}] garanta kontraktu pro kontrakt [{{contractId}}] a identity garanta [{{guaranteeId}}]."
     },
     "BULK_ACTION_CONTRACT_NOT_FOUND": {
       "title": "Nebyl nalezen kontrakt",

@@ -86,7 +86,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
       _searchParameters.getFilters().forEach((v, k) => {
         filterData[k] = v;
       });
-      // set without catalogue option
+      // set without option
       if (filterData.remote) {
         filterData.remote = null;
         filterData.remoteServerId = this._getLocalServerOption();
@@ -161,7 +161,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
   }
 
   onChangeRemoteServer(option) {
-    if (!option) {
+    if (!option || !option.additionalOption) {
       const { uiKey, _searchParameters } = this.props;
       // cleanup redux state search parameters for additional options
       this.context.store.dispatch(this.getManager().setSearchParameters(_searchParameters.clearFilter('remote'), uiKey));

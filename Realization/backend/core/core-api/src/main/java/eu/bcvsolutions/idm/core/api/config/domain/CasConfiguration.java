@@ -15,26 +15,26 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 public interface CasConfiguration extends Configurable, ScriptEnabled {
 
 	String PROPERTY_CAS_SSO_ENABLED = ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX +
-			"core.cas-sso.enabled";
+			"core.cas.sso.enabled";
 	boolean DEFAULT_PROPERTY_CAS_SSO_ENABLED = false;
 
 	String PROPERTY_CAS_URL = ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX +
-			"core.cas-url";
+			"core.cas.url";
 
 	String PROPERTY_IDM_URL = ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX +
-			"core.cas-idm-url";
+			"core.cas.idm-url";
 
 	String PROPERTY_CAS_LOGIN_SUFFIX = ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX +
-			"core.cas-login-suffix";
+			"core.cas.login-suffix";
 
 	String PROPERTY_CAS_LOGOUT_SUFFIX = ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX +
-			"core.cas-logout-suffix";
+			"core.cas.logout-suffix";
 
 	String PROPERTY_HEADER_NAME = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX +
-			"core.cas-header-name";
+			"core.cas.header-name";
 
 	String PROPERTY_HEADER_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX +
-			"core.cas-header-prefix";
+			"core.cas.header-prefix";
 
 	@Override
 	default String getConfigurableType() {

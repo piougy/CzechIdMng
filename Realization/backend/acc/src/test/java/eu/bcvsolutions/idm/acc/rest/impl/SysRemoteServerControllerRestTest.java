@@ -84,4 +84,21 @@ public class SysRemoteServerControllerRestTest extends AbstractReadWriteDtoContr
 	            .contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isBadRequest());
 	}
+	
+	@Test
+	public void testGetConnectorTypes() throws Exception {		
+		String text = getHelper().createName();
+		SysConnectorServerDto remoteServer = prepareDto();
+		remoteServer.setHost(text);
+		remoteServer.setPassword(new GuardedString(getHelper().createName()));
+		remoteServer.setDescription(getHelper().createName());
+		remoteServer = createDto(remoteServer);
+		//
+		// get connectors -> ends with exception => mock connection server 
+	
+		getMockMvc().perform(get(getDetailUrl(remoteServer.getId()) + "/connector-types")
+				.with(authentication(getAdminAuthentication()))
+	            .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isBadRequest());
+	}
 }

@@ -1045,8 +1045,8 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			localServer.setLocal(true);
 			allConnectorInfos.put(localServer, localConnectorInfos);
 		}
-
-		List<ConnectorTypeDto> resolvedConnectorTypes = Lists.newArrayList();
+		//
+		List<ConnectorTypeDto> resolvedConnectorTypes = Lists.newArrayListWithExpectedSize(allConnectorInfos.values().stream().mapToInt(List::size).sum());
 		for (ConnectorType supportedConnectorType : connectorManager.getSupportedTypes()) {
 			// remote connector has higher priority => linked hash map => find first
 			// Find connector info and set version to the connectorTypeDto.

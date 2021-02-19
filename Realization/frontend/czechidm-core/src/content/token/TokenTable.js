@@ -11,8 +11,8 @@ import { TokenManager } from '../../redux';
 //
 import AuthoritiesPanel from '../role/AuthoritiesPanel';
 import TokenTypeEnum from '../../enums/TokenTypeEnum';
-import EnumValueDecorator from '../../components/Basic/EnumSelectBox/EnumValueDecorator';
-import EnumOptionDecorator from '../../components/Basic/EnumSelectBox/EnumOptionDecorator';
+import EnumValueDecorator from '../../components/basic/EnumSelectBox/EnumValueDecorator';
+import EnumOptionDecorator from '../../components/basic/EnumSelectBox/EnumOptionDecorator';
 
 const manager = new TokenManager(); // default manager
 /**

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
+import DOMPurify from 'dompurify';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -248,7 +249,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
                     title={ this.i18n('entity.Notification.message.renderedHtmlMessage') }
                     className="bordered">
                     <Basic.Div style={{ padding: 10, minHeight: 450 }}>
-                      <span dangerouslySetInnerHTML={{ __html: bodyHtml || entity.bodyHtml || '' }}/>
+                      <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(bodyHtml || entity.bodyHtml || '') }}/>
                     </Basic.Div>
                   </Basic.Tab>
                 </Basic.Tabs>

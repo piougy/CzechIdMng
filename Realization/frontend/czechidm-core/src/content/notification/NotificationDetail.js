@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import DOMPurify from 'dompurify';
 //
 import { IdentityManager, NotificationManager, NotificationTemplateManager } from '../../redux';
 import * as Basic from '../../components/basic';
@@ -255,7 +256,7 @@ class NotificationDetail extends Basic.AbstractContent {
                 className="bordered"
                 rendered={ !isNew }>
                 <Basic.Div style={{ padding: 10 }}>
-                  <span dangerouslySetInnerHTML={{ __html: formData.htmlMessage || '' }}/>
+                  <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formData.htmlMessage || '') }}/>
                 </Basic.Div>
               </Basic.Tab>
             </Basic.Tabs>

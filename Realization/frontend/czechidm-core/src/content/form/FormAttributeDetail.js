@@ -292,6 +292,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
     _attribute.name = this.i18n('entity.FormAttribute.defaultValue');
     _attribute.faceType = faceType;
     _attribute.persistentType = persistentType || PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.SHORTTEXT);
+    _attribute.required = false;
+    _attribute.multiple = false;
     //
     const component = manager.getFormComponent(_attribute);
     let FormValueComponent = null;
@@ -407,8 +409,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
                         attribute={ _attribute }
                         useDefaultValue={ false }
                         values={[ {
-                          value: defaultValue,
-                          stringValue: defaultValue
+                          value: defaultValue || entity.defaultValue,
+                          stringValue: defaultValue || entity.defaultValue
                         }]}
                         manager={ ManagerType ? new ManagerType() : null }
                         component={ component }/>

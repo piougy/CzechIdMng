@@ -826,7 +826,7 @@
       },
       "remoteServer": {
         "label": "Použít vzdálený konektor server",
-        "placeholder": "Budou použit lokální konektor nebo vyberte server ...",
+        "placeholder": "Bude použit lokální konektor nebo vyberte server ...",
         "help": "Ponechte prázdné pro použití lokálního konektoru (výchozí) nebo vyberte vzdálený server s dostupnými konektory."
       },
       "connectorHost": "Server s konektory",

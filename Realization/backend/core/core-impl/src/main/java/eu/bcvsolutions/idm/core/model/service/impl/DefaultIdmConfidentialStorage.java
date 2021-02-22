@@ -256,6 +256,23 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		return ownerEntityType.getCanonicalName();
 	}
 	
+	@Override
+	@Transactional
+	public void renewVector(IdmConfidentialStorageValueDto value) {
+		Assert.notNull(value, "Value is required.");
+		//
+		IdmConfidentialStorageValue storageValue = getStorageValue(value.getOwnerId(), value.getOwnerType(), value.getKey());
+		Assert.notNull(storageValue, String.format("Value was not found in the confidential storage. Owner id [%s], owner type [%s], key [%s].",
+				value.getOwnerId(), value.getOwnerType(), value.getKey()));
+		//
+		byte[] decryptedValue = cryptService.decrypt(storageValue.getValue(), storageValue.getIv());
+		// Renew the vector
+		byte[] newInitVector = cryptService.generateVector();
+		storageValue.setIv(newInitVector);
+		// Save the confidential value with the new vector
+		storageValue.setValue(cryptService.encrypt(decryptedValue, newInitVector));
+		repository.save(storageValue);
+	}
 	
 	/**
 	 * Get persisted storage by owner and key

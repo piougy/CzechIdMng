@@ -27,10 +27,6 @@ export default class AdUserSystemWizard extends DefaultSystemWizard {
     return 'acc';
   }
 
-  onShowDetailBtn() {
-    return !!this.props.reopened;
-  }
-
   getWizardSteps(props, context) {
     const stepsDefault = super.getWizardSteps(props, context);
     // Remove name, connector, schema, mapping steps.

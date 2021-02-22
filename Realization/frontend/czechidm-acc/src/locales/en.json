@@ -2979,7 +2979,7 @@
     },
     "REMOTE_SYSTEM_DELETE_FAILED_HAS_SYSTEMS": {
       "title": "Server cannot be removed",
-      "message": "Remote connector server <strong class=\"highlight\">{{remoteServer}}</strong> cannot be removed. It is already used in configured systems."
+      "message": "Remote connector server {{remoteServer}} cannot be removed. It is already used in configured systems."
     },
     "REMOTE_SERVER_INVALID_CREDENTIAL": {
       "title": "Bad password for remote connector server",

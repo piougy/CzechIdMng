@@ -113,6 +113,8 @@ public abstract class AbstractConnectorType implements
 		SysSystemDto systemDto = (SysSystemDto) connectorType.getEmbedded().get(SYSTEM_DTO_KEY);
 		Assert.notNull(systemDto, "System must exists!");
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
+		// Set remote server ID to the connector type.
+		connectorType.setRemoteServer(systemDto.getRemoteServer());
 
 		// Load the mapping.
 		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();

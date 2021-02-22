@@ -484,10 +484,10 @@ export default class DefaultSystemWizard extends Basic.AbstractContextComponent 
   }
 
   /**
-   * Button for show detail (show system), is hidden by default.
+   * Button for show detail (show system).
    */
   onShowDetailBtn() {
-    return false;
+    return !!this.props.reopened;
   }
 
   _getWizardLabel(connectorName) {

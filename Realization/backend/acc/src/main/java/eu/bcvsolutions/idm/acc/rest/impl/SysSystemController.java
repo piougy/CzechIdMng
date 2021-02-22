@@ -1008,39 +1008,40 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			})
 	public Resources<ConnectorTypeDto> getSupportedTypes() {
 		Map<SysConnectorServerDto, List<IcConnectorInfo>> allConnectorInfos = new LinkedHashMap<>();
-		// all remote connectors - optionally, but with higher priority
-		try {
-			remoteServerService.find(null).forEach(connectorServer -> {
-				for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
-					connectorServer.setPassword(remoteServerService.getPassword(connectorServer.getId()));
-					Set<IcConnectorInfo> availableRemoteConnectors = config.getAvailableRemoteConnectors(connectorServer);
-					if (CollectionUtils.isNotEmpty(availableRemoteConnectors)) {
-						allConnectorInfos.put(connectorServer, Lists.newArrayList(availableRemoteConnectors));
+		// All remote connectors - optionally, but with higher priority.
+		remoteServerService.find(null)
+				.forEach(connectorServer -> {
+					for (IcConfigurationService config : icConfiguration.getIcConfigs().values()) {
+						try {
+							connectorServer.setPassword(remoteServerService.getPassword(connectorServer.getId()));
+							Set<IcConnectorInfo> availableRemoteConnectors = config.getAvailableRemoteConnectors(connectorServer);
+							if (CollectionUtils.isNotEmpty(availableRemoteConnectors)) {
+								allConnectorInfos.put(connectorServer, Lists.newArrayList(availableRemoteConnectors));
+							}
+						} catch (IcInvalidCredentialException e) {
+							ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_INVALID_CREDENTIAL,
+									ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
+						} catch (IcServerNotFoundException e) {
+							ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_NOT_FOUND,
+									ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
+						} catch (IcCantConnectException e) {
+							ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_CANT_CONNECT,
+									ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
+						} catch (IcRemoteServerException e) {
+							ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_UNEXPECTED_ERROR,
+									ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
+						}
 					}
-				}
-			});
-		} catch (IcInvalidCredentialException e) {
-			ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_INVALID_CREDENTIAL,
-					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
-		} catch (IcServerNotFoundException e) {
-			ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_NOT_FOUND,
-					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
-		} catch (IcCantConnectException e) {
-			ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_CANT_CONNECT,
-					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
-		} catch (IcRemoteServerException e) {
-			ExceptionUtils.log(LOG, new ResultCodeException(AccResultCode.REMOTE_SERVER_UNEXPECTED_ERROR,
-					ImmutableMap.of("server", e.getHost() + ":" + e.getPort()), e));
-		}
-		// local connectors
+				});
+		// Local connectors
 		Map<String, Set<IcConnectorInfo>> availableLocalConnectors = icConfiguration.getAvailableLocalConnectors();
 		if (availableLocalConnectors != null) {
 			List<IcConnectorInfo> localConnectorInfos = Lists.newArrayList();
 			availableLocalConnectors
-				.values()
-				.forEach(infos -> {
-					localConnectorInfos.addAll(infos);
-				});
+					.values()
+					.forEach(infos -> {
+						localConnectorInfos.addAll(infos);
+					});
 			SysConnectorServerDto localServer = new SysConnectorServerDto();
 			localServer.setLocal(true);
 			allConnectorInfos.put(localServer, localConnectorInfos);
@@ -1078,7 +1079,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			connectorType.setName(info.getConnectorDisplayName());
 			resolvedConnectorTypes.add(connectorType);
 		}
-		
+
 		// Find connectors without extension (specific connector type).
 		List<ConnectorTypeDto> defaultConnectorTypes = Lists.newArrayList();
 		for (Entry<SysConnectorServerDto, List<IcConnectorInfo>> entry : allConnectorInfos.entrySet()) {
@@ -1091,7 +1092,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 						connectorType.setRemoteServer(connectorServer.getId());
 					}
 					connectorType.setLocal(connectorType.getRemoteServer() == null);
-					
+
 					defaultConnectorTypes.add(connectorType);
 				}
 			}

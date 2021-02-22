@@ -2980,7 +2980,7 @@
     },
     "REMOTE_SYSTEM_DELETE_FAILED_HAS_SYSTEMS": {
       "title": "Server nemůže být smazán",
-      "message": "Vzdálený konektor server <strong class=\"highlight\">{{remoteServer}}</strong> nemůže být smazán. Server používají nakonfigurované systémy."
+      "message": "Vzdálený konektor server {{remoteServer}} nemůže být smazán. Server používají nakonfigurované systémy."
     },
     "REMOTE_SERVER_INVALID_CREDENTIAL": {
       "title": "Špatné heslo ke vzdálenému konektoru",

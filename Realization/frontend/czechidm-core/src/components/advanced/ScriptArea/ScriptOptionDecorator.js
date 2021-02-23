@@ -1,4 +1,7 @@
+import React from 'react';
+//
 import * as Basic from '../../basic';
+import ScriptCategoryEnum from '../../../enums/ScriptCategoryEnum';
 
 /**
  * Script select option decorator.
@@ -23,9 +26,26 @@ export default class ScriptOptionDecorator extends Basic.SelectBox.OptionDecorat
    * @return {string}
    */
   getDescription(entity) {
-    if (!entity || !entity.description) {
+    if (!entity) {
       return null;
     }
-    return entity.description.replace(/(<([^>]+)>)/ig, '');
+    return (
+      <Basic.Div>
+        <Basic.Div>
+          { this.i18n('entity.Script.category') }: <strong>{ ScriptCategoryEnum.getNiceLabel(entity.category) }</strong>
+        </Basic.Div>
+        {
+          entity.description
+          ?
+          (
+            <Basic.Div>
+              { entity.description.replace(/(<([^>]+)>)/ig, '') }
+            </Basic.Div>
+          )
+          :
+          null
+        }
+      </Basic.Div>
+    );
   }
 }

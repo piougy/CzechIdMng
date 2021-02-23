@@ -6,7 +6,7 @@ import Label from '../Label/Label';
 import Icon from '../Icon/Icon';
 
 /**
- * Simple enum formatter
+ * Simple enum formatter.
  *
  * @author Radek Tomiška
  */

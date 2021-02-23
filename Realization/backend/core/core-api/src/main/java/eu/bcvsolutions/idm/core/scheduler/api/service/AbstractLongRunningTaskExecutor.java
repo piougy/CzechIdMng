@@ -23,6 +23,8 @@ import eu.bcvsolutions.idm.core.api.domain.TransactionContext;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEventLock;
@@ -67,6 +69,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	private String beanName; // spring bean name - used as processor id
 	private ParameterConverter parameterConverter;	
 	private UUID longRunningTaskId;
+	private IdmEntityEventDto startTaskEvent = null;
 	protected Long count = null;
 	protected Long counter = null;
 	private Optional<V> result = null;
@@ -257,13 +260,17 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 				return null;
 			}
 			//
-			entityEventManager.registerAsynchronousTask(this);
+			this.startTaskEvent = entityEventManager.registerAsynchronousTask(this);
 			//
 			V result = process();
 			//
 			lock.lock();
 			try {
 				this.result = Optional.ofNullable(result);
+				// end long running task => waiting only if needed
+				if (this.startTaskEvent != null) {
+					entityEventManager.completeEvent(this.startTaskEvent);
+				}
 				// notify end will or was called instead already
 				if (!entityEventManager.deregisterAsynchronousTask(this)) {
 					IdmLongRunningTaskDto task = longRunningTaskService.get(longRunningTaskId);
@@ -335,6 +342,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		// after update state is send notification with information about end of LRT
 		task = longRunningTaskService.save(task);
 		//
+		// start event is not running
+		if (this.startTaskEvent != null) {
+			this.startTaskEvent.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
+			entityEventManager.saveEvent(this.startTaskEvent);
+		}
 		// publish event - LRT ended
 		// TODO: result is not persisted - propagate him in event?
 		entityEventManager.publishEvent(new LongRunningTaskEvent(LongRunningTaskEventType.END, task));

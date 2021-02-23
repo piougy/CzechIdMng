@@ -103,12 +103,16 @@ public class DefaultIdmEntityEventService
 		if (dto.getSuperOwnerId() == null) {
 			dto.setSuperOwnerId(dto.getOwnerId());
 		}
-		// start event
+		// start / end event
 		OperationResultDto result = dto.getResult();
-		if (result != null 
-				&& result.getState() == OperationState.RUNNING 
-				&& dto.getEventStarted() == null) {
-			dto.setEventStarted(ZonedDateTime.now());
+		if (result != null) {
+			if (result.getState() == OperationState.RUNNING 
+					&& dto.getEventStarted() == null) {
+				dto.setEventStarted(ZonedDateTime.now());
+			} else if (result.getState() == OperationState.EXECUTED 
+					&& dto.getEventEnded() == null) {
+				dto.setEventEnded(ZonedDateTime.now());
+			}
 		}
 		//
 		dto = super.saveInternal(dto);

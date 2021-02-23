@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
@@ -88,7 +89,11 @@ import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent;
+import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent.LongRunningTaskEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
@@ -254,11 +259,12 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	}
 	
 	@Override
-	public boolean registerAsynchronousTask(LongRunningTaskExecutor<?> executor) {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public IdmEntityEventDto registerAsynchronousTask(LongRunningTaskExecutor<?> executor) {
 		lock.lock();
 		try {
 			if (!isAsynchronous()) {
-				return false;
+				return null;
 			}
 			//
 			UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
@@ -268,7 +274,19 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			}
 			lrts.get(transactionId).add(executor);
 			//
-			return true;
+			// start long running task as event
+			IdmLongRunningTaskDto owner = new IdmLongRunningTaskDto(executor.getLongRunningTaskId());
+			IdmEntityEventDto event = toDto(new LongRunningTaskEvent(LongRunningTaskEventType.START, owner));
+			event.setId(null);
+			event.setOwnerId(owner.getId());
+			event.setOwnerType(getOwnerType(owner));
+			event.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build());
+			//
+			event = saveEvent(event);
+			//
+			addEventCache(event.getId(), event.getTransactionId());
+			//
+			return event;
 		} finally {
 			lock.unlock();
 		}
@@ -284,6 +302,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			notifiedLrts.remove(executor.getLongRunningTaskId());
 			return false;
 		}
+		//
+		
 		//
 		UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
 		ValueWrapper value = cacheManager.getValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
@@ -327,6 +347,11 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());
 		//
 		return dtos;
+	}
+	
+	@Override
+	public Page<IdmEntityEventDto> findEvents(IdmEntityEventFilter filter, Pageable pageable, BasePermission... permission) {
+		return entityEventService.find(filter, pageable, permission);
 	}
 	
 	@Override
@@ -848,6 +873,11 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		event.setContent(owner);
 		//
 		return event;
+	}
+	
+	@Override
+	public void completeEvent(IdmEntityEventDto event) {
+		completeEvent(event.getId(), event.getTransactionId());
 	}
 	
 	@Override

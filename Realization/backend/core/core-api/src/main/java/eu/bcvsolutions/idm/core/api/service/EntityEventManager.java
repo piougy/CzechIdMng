@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEvent;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
@@ -16,14 +18,17 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.EventContentDeletedException;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Entity processing based on synchronous {@link ApplicationEvent} publishing.
@@ -98,6 +103,19 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * @return
 	 */
 	List<EntityEventProcessorDto> find(EntityEventProcessorFilter filter);
+	
+	/**
+	 * Get events by given filter.
+	 * 
+	 * @see IdmEntityEventFilter
+	 * @param filter
+	 * @param pageable
+	 * @param permission base permissions to evaluate (AND) 
+	 * @return states
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.8.0
+	 */
+	Page<IdmEntityEventDto> findEvents(IdmEntityEventFilter filter, Pageable pageable, BasePermission... permission);
 	
 	/**
 	 * Returns registered and enabled processor to given event.
@@ -395,10 +413,10 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * Register long running task executor for nofity on end, when all events created from this executor are completed.
 	 * 
 	 * @param executor LRT
-	 * @return true, when executor is registered. False - task can end synchronously.
+	 * @return long running task event, when executor is registered. Null - task can end synchronously.
 	 * @since 10.6.0
 	 */
-	boolean registerAsynchronousTask(LongRunningTaskExecutor<?> executor);
+	IdmEntityEventDto registerAsynchronousTask(LongRunningTaskExecutor<?> executor);
 	
 	/**
 	 * Register long running task executor for nofity on end, when all events created from this executor are completed.
@@ -408,4 +426,14 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * @since 10.6.0
 	 */
 	boolean deregisterAsynchronousTask(LongRunningTaskExecutor<?> executor);
+	
+	/**
+	 * Complete event and check all event in the same transaction is completely processed.
+	 * If event is last in the same transaction, then notify about end is called for each registered LRT.
+	 * Event state is not updated internally.
+	 * 
+	 * @param event event to complete
+	 * @since 10.8.0
+	 */
+	void completeEvent(IdmEntityEventDto event);
 }

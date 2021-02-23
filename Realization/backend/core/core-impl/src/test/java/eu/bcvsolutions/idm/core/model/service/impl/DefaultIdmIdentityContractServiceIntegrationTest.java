@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -46,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
@@ -54,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
@@ -73,6 +76,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent.LongRunningTaskEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
@@ -106,6 +110,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private LookupService lookupService;
+	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private EntityStateManager entityStateManager;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private IdmLongRunningTaskService longRunningTaskService;
@@ -604,6 +609,24 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractOne.getId())));
 			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractTwo.getId())));
 			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractThree.getId())));
+			//
+			// check asynchronous LRT
+			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+			filter.setTransactionId(assignedRoles.get(0).getTransactionId());
+			List<IdmLongRunningTaskDto> lrts = taskManager.findLongRunningTasks(filter, null).getContent();
+			Assert.assertFalse(lrts.isEmpty());
+			Assert.assertTrue(lrts.stream().allMatch(lrt -> lrt.getResultState() == OperationState.EXECUTED));
+			//
+			// and check lrt start event is properly created and ended
+			IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
+			eventFilter.setOwnerType(entityEventManager.getOwnerType(IdmLongRunningTaskDto.class));
+			eventFilter.setTransactionId(assignedRoles.get(0).getTransactionId());
+			List<IdmEntityEventDto> events = entityEventManager.findEvents(eventFilter, null).getContent();
+			Assert.assertFalse(events.isEmpty());
+			Assert.assertTrue(events.stream().allMatch(event -> event.getResult().getState() == OperationState.EXECUTED));
+			Assert.assertTrue(events.stream().allMatch(event -> event.getEventStarted() != null));
+			Assert.assertTrue(events.stream().allMatch(event -> event.getEventEnded() != null));
+			Assert.assertTrue(events.stream().anyMatch(event -> event.getEventType().equals(LongRunningTaskEventType.START.name())));
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);

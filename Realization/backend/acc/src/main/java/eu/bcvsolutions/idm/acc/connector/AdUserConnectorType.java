@@ -179,7 +179,6 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	private static final String[] ENTRY_OBJECT_CLASSES_DEFAULT_VALUES = {"top", "user", "person", "organizationalPerson"};
 	public static final String SAM_ACCOUNT_NAME_ATTRIBUTE = "sAMAccountName";
 	public static final String PAIRING_SYNC_DN_ATTR_DEFAULT_VALUE = "distinguishedName";
-	private static final boolean USE_SORT_ATTRIBUTE_DEFAULT_VALUE = true;
 	private static final int PAGE_SIZE_DEFAULT_VALUE = 100;
 	private static final String PAIRING_SYNC_NAME = "Pairing sync";
 
@@ -711,7 +710,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			this.getSystemService().checkSystem(systemDto);
 		} catch (ConnectorException ex) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_TEST_FAILED,
-					ImmutableMap.of("system", systemDto.getName(), "ex", ex.getLocalizedMessage()));
+					ImmutableMap.of("system", systemDto.getName(), "ex", ex.getLocalizedMessage()), ex);
 		}
 		// Generate a system schema.
 		generateSchema(connectorType, systemDto);
@@ -822,7 +821,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		values = Lists.newArrayList(ENTRY_OBJECT_CLASSES_DEFAULT_VALUES);
 		this.setValueToConnectorInstance(OBJECT_CLASSES_TO_SYNC_KEY, values, systemDto, connectorFormDef);
 		// Set use VLV search.
-		this.setValueToConnectorInstance(USE_VLV_SORT_KEY, USE_SORT_ATTRIBUTE_DEFAULT_VALUE, systemDto, connectorFormDef);
+		this.setValueToConnectorInstance(USE_VLV_SORT_KEY, Boolean.TRUE, systemDto, connectorFormDef);
 		// Set the VLV attribute.
 		this.setValueToConnectorInstance(VLV_SORT_ATTRIBUTE_KEY, SAM_ACCOUNT_NAME_ATTRIBUTE, systemDto, connectorFormDef);
 		// Set the VLV page size attribute.
@@ -984,11 +983,11 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		});
 		Lists.reverse(roots).forEach(root -> {
 			stringBuilder.append(root.trim());
-			stringBuilder.append(",");
+			stringBuilder.append(',');
 		});
 		String root = stringBuilder.toString();
 		// Remove last comma.
-		if (root.contains(",")) {
+		if (Strings.isNotBlank(root) && root.contains(",")) {
 			root = root.substring(0, root.length() - 1);
 		}
 		return root;
@@ -1008,7 +1007,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 				SSLSession session = socket.getSession();
 				Certificate[] peerCertificates = session.getPeerCertificates();
 				if (peerCertificates.length > 0) {
-					return new Pair<>((X509Certificate) peerCertificates[0], true);
+					return new Pair<>((X509Certificate) peerCertificates[0], Boolean.TRUE);
 				}
 			} catch (SSLException e) {
 				LOG.info("Certificate is not trusted for connection to the AD.");
@@ -1028,7 +1027,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 
 				X509Certificate[] chain = tm.chain;
 				if (chain.length > 0) {
-					return new Pair<>(chain[0], false);
+					return new Pair<>(chain[0], Boolean.FALSE);
 				}
 			} finally {
 				if (socket != null && !socket.isClosed()) {

@@ -38,11 +38,11 @@ public class AdUserWinRMConnectorType extends AdUserConnectorType {
 	protected void initDefaultConnectorSettings(SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
 		super.initDefaultConnectorSettings(systemDto, connectorFormDef);
 		// Additional connector default connector settings for WinRM connector.
-		this.setValueToConnectorInstance("testViaAd", true, systemDto, connectorFormDef);
-		this.setValueToConnectorInstance("searchViaAd", true, systemDto, connectorFormDef);
-		this.setValueToConnectorInstance("deleteViaAd", true, systemDto, connectorFormDef);
-		this.setValueToConnectorInstance("updateViaAd", true, systemDto, connectorFormDef);
-		this.setValueToConnectorInstance("createViaAd", true, systemDto, connectorFormDef);
+		this.setValueToConnectorInstance("testViaAd", Boolean.TRUE, systemDto, connectorFormDef);
+		this.setValueToConnectorInstance("searchViaAd", Boolean.TRUE, systemDto, connectorFormDef);
+		this.setValueToConnectorInstance("deleteViaAd", Boolean.TRUE, systemDto, connectorFormDef);
+		this.setValueToConnectorInstance("updateViaAd", Boolean.TRUE, systemDto, connectorFormDef);
+		this.setValueToConnectorInstance("createViaAd", Boolean.TRUE, systemDto, connectorFormDef);
 	}
 
 	@Override

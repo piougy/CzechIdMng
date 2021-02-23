@@ -1655,7 +1655,7 @@ module.exports = {
         icon: 'fa:cog',
         modal: 'profile-modal',
         access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PROFILE_READ'] } ],
-        order: 800
+        order: 900
       },
       {
         id: 'identity-menu-switch-user',
@@ -1664,7 +1664,7 @@ module.exports = {
         icon: 'component:switch-user',
         modal: 'switch-user-modal',
         access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_SWITCHUSER'] } ],
-        order: 810
+        order: 800
       },
       {
         id: 'identity-menu-logout-separator',

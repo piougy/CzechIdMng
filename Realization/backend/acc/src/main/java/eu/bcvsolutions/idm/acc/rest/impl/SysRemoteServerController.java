@@ -415,8 +415,8 @@ public class SysRemoteServerController extends AbstractReadWriteDtoController<Sy
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.REMOTESERVER_READ + "')")
 	@ApiOperation(
 			value = "Get supported connector types",
-			nickname = "getSupportedConnectorTypes",
-			tags = {SysSystemController.TAG},
+			nickname = "getConnectorTypes",
+			tags = {SysRemoteServerController.TAG},
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = AccGroupPermission.REMOTESERVER_READ, description = "")}),

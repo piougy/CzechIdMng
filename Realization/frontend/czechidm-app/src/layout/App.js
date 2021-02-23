@@ -17,6 +17,7 @@ const dataManager = new Managers.DataManager();
  * Application entry point.
  *
  * @author Radek Tomiška
+ * @author Roman Kučera
  */
 export class App extends Basic.AbstractContent {
 
@@ -35,7 +36,17 @@ export class App extends Basic.AbstractContent {
   * Look out: This method is aplication entry point
   */
   componentDidUpdate() {
-    const { location, userContext, appReady } = this.props;
+    const { location, userContext, appReady, casEnabled } = this.props;
+
+    /**
+     * Perform logout from IdM if token is expired so IdM will redirect to /login, perform auth against CAS and user will be signed in again
+     */
+    if (userContext.isExpired && casEnabled) {
+      this.context.store.dispatch(securityManager.logout(() => {
+        this.context.history.replace('/login');
+      }));
+    }
+
     // select navigation
     if (location.pathname === '/') {
       this.selectNavigationItem('home');
@@ -145,7 +156,7 @@ export class App extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext, bulk, appReady, navigationCollapsed, hideFooter } = this.props;
+    const { userContext, bulk, appReady, navigationCollapsed, hideFooter, casEnabled } = this.props;
     const { isLogout, showTwoFactor } = this.state;
     const titleTemplate = `%s | ${ this.i18n('app.name') }`;
     const classnames = classNames(
@@ -220,7 +231,7 @@ export class App extends Basic.AbstractContent {
                   </form>
                 </Basic.Div>
 
-                <Basic.Div rendered={ !showTwoFactor }>
+                <Basic.Div rendered={ !showTwoFactor && !casEnabled }>
                   <form onSubmit={ this.login.bind(this) }>
                     <Basic.Modal.Header text={ this.i18n('error.LOG_IN.title') } />
                     <Basic.Modal.Body>
@@ -315,7 +326,8 @@ function select(state) {
     appReady: state.config.get('appReady'),
     i18nReady: state.config.get('i18nReady'),
     navigationCollapsed: state.security.userContext.navigationCollapsed,
-    hideFooter: state.config.get('hideFooter')
+    hideFooter: state.config.get('hideFooter'),
+    casEnabled: Managers.ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.cas.sso.enabled', false)
   };
 }
 

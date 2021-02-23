@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.client.validation.Assertion;
-import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -19,12 +18,16 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
+import eu.bcvsolutions.idm.core.security.api.exception.TwoFactorAuthenticationRequiredException;
 import eu.bcvsolutions.idm.core.security.api.filter.AbstractAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.service.impl.DefaultCasValidationService;
 
 /**
  * Filter which will authenticate user against CAS
+ *
  * @author Roman Kučera
  */
 
@@ -41,6 +44,8 @@ public class CasIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 	private CasConfiguration casConfiguration;
 	@Autowired
 	private JwtAuthenticationService jwtAuthenticationService;
+	@Autowired
+	private DefaultCasValidationService casValidationService;
 
 	@Override
 	public boolean authorize(String token, HttpServletRequest req, HttpServletResponse res) {
@@ -54,13 +59,11 @@ public class CasIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 
 		try {
 			if (StringUtils.isBlank(token)) {
-				LOG.info("No session from CAS");
+				LOG.info("No token from CAS");
 				return false;
 			}
 
-			Cas30ServiceTicketValidator validator = new Cas30ServiceTicketValidator(propertyCasUrl);
-			validator.setRenew(false);
-			Assertion assertion = validator.validate(token, propertyIdmUrl);
+			Assertion assertion = casValidationService.validate(token, propertyIdmUrl, propertyCasUrl);
 
 			if (assertion == null || assertion.getPrincipal() == null) {
 				LOG.info("No principal name.");
@@ -73,24 +76,26 @@ public class CasIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 				return false;
 			}
 
-			LOG.info("Username found [{}]", userName);
-
-			IdmIdentityDto identity = identityService.getByUsername(userName);
-
-			if (identity == null) {
-				throw new IdmAuthenticationException(MessageFormat.format(
-						"Check identity can login: The identity "
-								+ "[{0}] either doesn't exist or is deleted.",
-						userName));
-			}
+			LOG.debug("Username found [{}]", userName);
 
 			if (assertion.isValid()) {
+				IdmIdentityDto identity = identityService.getByUsername(userName);
+
+				if (identity == null) {
+					throw new IdmAuthenticationException(MessageFormat.format(
+							"Check identity can login: The identity "
+									+ "[{0}] either doesn't exist or is deleted.",
+							userName));
+				}
 				LoginDto fullLoginDto = jwtAuthenticationService.createJwtAuthenticationAndAuthenticate(createLoginDto(userName),
 						identity, CoreModuleDescriptor.MODULE_ID);
 				return fullLoginDto != null;
 			}
 
 			return false;
+		} catch (MustChangePasswordException | TwoFactorAuthenticationRequiredException ex) {
+			// publish additional authentication requirement
+			throw ex;
 		} catch (IdmAuthenticationException e) {
 			LOG.warn("Authentication exception raised during CAS authentication: [{}].", e.getMessage(), e);
 		} catch (Exception e) {

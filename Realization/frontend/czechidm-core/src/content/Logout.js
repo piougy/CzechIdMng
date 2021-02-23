@@ -9,6 +9,7 @@ const securityManager = new SecurityManager();
  * Logout page
  *
  * @author Radek Tomiška
+ * @author Roman Kučera
  */
 class Logout extends Basic.AbstractContent {
 
@@ -33,10 +34,10 @@ class Logout extends Basic.AbstractContent {
 
 function select(state) {
   return {
-    casEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.cas-sso.enabled', false),
-    casUrl: ConfigurationManager.getValue(state, 'idm.pub.core.cas-url'),
-    idmUrl: ConfigurationManager.getValue(state, 'idm.pub.core.cas-idm-url'),
-    casLogoutSuffix: ConfigurationManager.getValue(state, 'idm.pub.core.cas-logout-suffix')
+    casEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.cas.sso.enabled', false),
+    casUrl: ConfigurationManager.getValue(state, 'idm.pub.core.cas.url'),
+    idmUrl: ConfigurationManager.getValue(state, 'idm.pub.core.cas.idm-url'),
+    casLogoutSuffix: ConfigurationManager.getValue(state, 'idm.pub.core.cas.logout-suffix')
   };
 }
 

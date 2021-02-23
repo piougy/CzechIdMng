@@ -16,6 +16,7 @@ const authenticateService = new AuthenticateService();
  * Login box.
  *
  * @author Radek Tomiška
+ * @author Roman Kučera
  */
 class Login extends Basic.AbstractContent {
 
@@ -247,6 +248,10 @@ class Login extends Basic.AbstractContent {
             </Basic.Panel>
           </form>
         </Basic.Div>
+
+        <Basic.Div rendered={ casEnabled }>
+          <Basic.Loading className="global" showLoading />
+        </Basic.Div>
       </Basic.Div>
     );
   }
@@ -266,9 +271,9 @@ function select(state) {
   return {
     i18nReady: state.config.get('i18nReady'),
     userContext: state.security.userContext,
-    casEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.cas-sso.enabled', false),
-    casUrl: ConfigurationManager.getValue(state, 'idm.pub.core.cas-url'),
-    casLoginSuffix: ConfigurationManager.getValue(state, 'idm.pub.core.cas-login-suffix'),
+    casEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.cas.sso.enabled', false),
+    casUrl: ConfigurationManager.getValue(state, 'idm.pub.core.cas.url'),
+    casLoginSuffix: ConfigurationManager.getValue(state, 'idm.pub.core.cas.login-suffix'),
   };
 }
 

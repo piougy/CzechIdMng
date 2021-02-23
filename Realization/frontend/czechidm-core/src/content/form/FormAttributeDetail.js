@@ -30,7 +30,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       _showLoading: false,
-      persistentType: null
+      persistentType: null,
+      defaultValue: undefined
     };
   }
 
@@ -409,8 +410,8 @@ class FormAttributeDetail extends Basic.AbstractContent {
                         attribute={ _attribute }
                         useDefaultValue={ false }
                         values={[ {
-                          value: defaultValue || entity.defaultValue,
-                          stringValue: defaultValue || entity.defaultValue
+                          value: defaultValue === undefined ? entity.defaultValue : defaultValue,
+                          stringValue: defaultValue === undefined ? entity.defaultValue : defaultValue
                         }]}
                         manager={ ManagerType ? new ManagerType() : null }
                         component={ component }/>

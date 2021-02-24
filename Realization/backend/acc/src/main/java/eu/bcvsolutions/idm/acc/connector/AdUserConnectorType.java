@@ -122,21 +122,33 @@ public class AdUserConnectorType extends DefaultConnectorType {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AdUserConnectorType.class);
 
+	// Connector type ID.
 	public static final String NAME = "ad-connector-type";
-	private static final String STEP_ONE = "stepOne";
-	private static final String STEP_FOUR = "stepFour";
-	private static final String STEP_CREATE_USER_TEST = "stepCreateUserTest";
-	private static final String STEP_DELETE_USER_TEST = "stepDeleteUserTest";
-	private static final String STEP_ASSIGN_GROUP_TEST = "stepAssignToGroupTest";
-	private static final String HOST = "host";
-	private static final String PORT = "port";
-	private static final String USER = "user";
-	private static final String SSL_SWITCH = "sslSwitch";
+
+	public static final String USER_SEARCH_CONTAINER_KEY = "searchUserContainer";
+	public static final String NEW_USER_CONTAINER_KEY = "newUserContainer";
+	public static final String DELETE_USER_CONTAINER_KEY = "deleteUserContainer";
+	public static final String DOMAIN_KEY = "domainContainer";
+	public static final String LDAP_GROUPS_ATTRIBUTE = "ldapGroups";
+	public static final String HOST = "host";
+	public static final String PORT = "port";
+	public static final String USER = "user";
+	public static final String PASSWORD = "password";
+	public static final String SSL_SWITCH = "sslSwitch";
+	public static final String SYSTEM_NAME = "name";
+	public static final String STEP_ONE = "stepOne";
+	public static final String STEP_FOUR = "stepFour";
+	public static final String STEP_CREATE_USER_TEST = "stepCreateUserTest";
+	public static final String STEP_DELETE_USER_TEST = "stepDeleteUserTest";
+	public static final String STEP_ASSIGN_GROUP_TEST = "stepAssignToGroupTest";
+	public static final String TEST_CREATED_USER_DN_KEY = "testCreatedUserDN";
+	public static final String ENTITY_STATE_WITH_TEST_CREATED_USER_DN_KEY = "entityStateWithTestCreatedUserDN";
+	public static final String TEST_USERNAME_KEY = "testUserName";
+	public static final String TEST_USER_CONTAINER_KEY = "userContainer";
+	public static final String TEST_GROUP_KEY = "testGroup";
 	private static final String SSL = "ssl";
 	private static final String PRINCIPAL = "principal";
 	private static final String CREDENTIALS = "credentials";
-	private static final String PASSWORD = "password";
-	protected static final String SYSTEM_NAME = "name";
 	private static final String SCHEMA_ID_KEY = "schemaId";
 	private static final String CRT_ATTACHMENT_ID_KEY = "attachmentId";
 	private static final String CRT_SUBJECT_DN_KEY = "subjectDN";
@@ -150,11 +162,6 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	private static final String SERVER_CRT_VALIDITY_FROM_KEY = "serverCrtValidityFrom";
 	private static final String SERVER_CRT_VALIDITY_TILL_KEY = "serverCrtValidityTill";
 	private static final String HAS_TRUSTED_CA_KEY = "hasTrustedCa";
-	private static final String TEST_USERNAME_KEY = "testUserName";
-	private static final String TEST_USER_CONTAINER_KEY = "userContainer";
-	private static final String TEST_GROUP_KEY = "testGroup";
-	private static final String TEST_CREATED_USER_DN_KEY = "testCreatedUserDN";
-	private static final String ENTITY_STATE_WITH_TEST_CREATED_USER_DN_KEY = "entityStateWithTestCreatedUserDN";
 	private static final String ENTRY_OBJECT_CLASSES_KEY = "accountObjectClasses";
 	private static final String OBJECT_CLASSES_TO_SYNC_KEY = "objectClassesToSynchronize";
 	private static final String VLV_SORT_ATTRIBUTE_KEY = "vlvSortAttribute";
@@ -168,11 +175,6 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	private static final String PAIRING_SYNC_DN_ATTR_KEY = "pairingSyncEavDnAttribute";
 	private static final String MAPPING_SYNC_ID = "mappingSyncId";
 	private static final String PAIRING_SYNC_ID = "pairingSyncId";
-	public static final String USER_SEARCH_CONTAINER_KEY = "searchUserContainer";
-	public static final String NEW_USER_CONTAINER_KEY = "newUserContainer";
-	public static final String DELETE_USER_CONTAINER_KEY = "deleteUserContainer";
-	public static final String DOMAIN_KEY = "domainContainer";
-	public static final String LDAP_GROUPS_ATTRIBUTE = "ldapGroups";
 
 	// Default values
 	private static final String[] ENTRY_OBJECT_CLASSES_DEFAULT_VALUES = {"top", "user", "person", "organizationalPerson"};
@@ -803,7 +805,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Init default connector configurations.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected void initDefaultConnectorSettings(SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
 		// Set the entry object classes.
 		List values = Lists.newArrayList(ENTRY_OBJECT_CLASSES_DEFAULT_VALUES);
@@ -848,7 +850,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			mappingSyncId = mappingDto.getId().toString();
 			connectorType.getMetadata().put(MAPPING_SYNC_ID, mappingSyncId);
 		}
-		
+
 		// Create identity mapping for pairing sync.
 		String pairingSyncId = connectorType.getMetadata().get(PAIRING_SYNC_ID);
 		if (pairingSyncId == null) {
@@ -887,7 +889,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			correlationAttribute.setCached(true);
 			correlationAttribute.setName(sAMAccountNameAttribute.getName());
 			correlationAttribute = systemAttributeMappingService.save(correlationAttribute);
-		
+
 			SysSyncIdentityConfigDto syncIdentityConfigDto = new SysSyncIdentityConfigDto();
 			syncIdentityConfigDto.setName(PAIRING_SYNC_NAME);
 			syncIdentityConfigDto.setReconciliation(true);
@@ -1104,7 +1106,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Create test certificates.
 	 */
-	private String createTestUser(String username, String entryDN, String port, String host, String adUser, String adPassword, boolean ssl) {
+	protected String createTestUser(String username, String entryDN, String port, String host, String adUser, String adPassword, boolean ssl) {
 		DirContext ldapContext = null;
 		try {
 			// Init LDAP context.
@@ -1157,7 +1159,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Delete the wizard test user.
 	 */
-	private void deleteTestUser(String entryDN, String port, String host, String adUser, String adPassword, boolean ssl) {
+	protected void deleteTestUser(String entryDN, String port, String host, String adUser, String adPassword, boolean ssl) {
 		DirContext ldapContext = null;
 		try {
 			// Init LDAP context.
@@ -1190,7 +1192,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Assign the wizard test user to test group.
 	 */
-	private void assignTestUserToGroup(String userDN, String groupDN, String port, String host, String adUser, String adPassword, boolean ssl) {
+	protected void assignTestUserToGroup(String userDN, String groupDN, String port, String host, String adUser, String adPassword, boolean ssl) {
 		DirContext ldapContext = null;
 		try {
 			// Init LDAP context.
@@ -1227,7 +1229,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Find given DN. If not exists, then return null.
 	 */
-	private String findDn(String filter, String port, String host, String adUser, String adPassword, boolean ssl) {
+	protected String findDn(String filter, String port, String host, String adUser, String adPassword, boolean ssl) {
 		DirContext ldapContext = null;
 		try {
 			// Init LDAP context.
@@ -1276,7 +1278,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Find dnsHostName (domain) on the AD.
 	 */
-	private String findDnsHostName(String port, String host, String adUser, String adPassword, boolean ssl) {
+	protected String findDnsHostName(String port, String host, String adUser, String adPassword, boolean ssl) {
 		DirContext ldapContext = null;
 		try {
 			// Init LDAP context.

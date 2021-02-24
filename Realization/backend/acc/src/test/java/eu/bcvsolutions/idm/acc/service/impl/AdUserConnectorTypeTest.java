@@ -232,7 +232,57 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 		syncConfigFilter.setSystemId(systemDto.getId());
 		int syncCount = syncConfigService.find(syncConfigFilter, null).getContent().size();
 		assertEquals(0, syncCount);
+		
+		// Clean
+		systemService.delete(systemDto);
+	}
+	
+	@Test
+	public void testReopenSystem() {
+		ConnectorType connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);
+		ConnectorTypeDto connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
+		SysSystemDto systemDto = createSystem(this.getHelper().createName(), connectorTypeDto);
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.SYSTEM_DTO_KEY, systemDto.getId().toString());
 
+		String newUserContainerMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.NEW_USER_CONTAINER_KEY, newUserContainerMock);
+		String userContainerMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.USER_SEARCH_CONTAINER_KEY, userContainerMock);
+		String deletedUserContainerMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.DELETE_USER_CONTAINER_KEY, deletedUserContainerMock);
+		String domainMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.DOMAIN_KEY, domainMock);
+		String defaultRoleMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.NEW_ROLE_WITH_SYSTEM_CODE, defaultRoleMock);
+		connectorTypeDto.setWizardStepName(MockAdUserConnectorType.STEP_FOUR);
+		// Activate pairing sync.
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.PAIRING_SYNC_SWITCH_KEY, "true");
+		// Activate protected sync.
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.PROTECTED_MODE_SWITCH_KEY, "true");
+
+		// Generate mock schema.
+		generateMockSchema(systemDto);
+		//  Execute step four.
+		ConnectorTypeDto stepExecutedResult = connectorManager.execute(connectorTypeDto);
+
+		connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);
+		connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
+		connectorTypeDto.setReopened(true);
+		connectorTypeDto.getEmbedded().put(MockAdUserConnectorType.SYSTEM_DTO_KEY, systemDto);
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.SYSTEM_DTO_KEY, systemDto.getId().toString());
+		ConnectorTypeDto loadedConnectorTypeDto = connectorManager.load(connectorTypeDto);
+		assertNotNull(loadedConnectorTypeDto);
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.PORT));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.HOST));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.USER));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.SSL_SWITCH));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.DOMAIN_KEY));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.NEW_USER_CONTAINER_KEY));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.USER_SEARCH_CONTAINER_KEY));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.DELETE_USER_CONTAINER_KEY));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.MAPPING_ID));
+		assertNotNull(loadedConnectorTypeDto.getMetadata().get(MockAdUserConnectorType.PAIRING_SYNC_ID));
+		
 		// Clean
 		systemService.delete(systemDto);
 	}

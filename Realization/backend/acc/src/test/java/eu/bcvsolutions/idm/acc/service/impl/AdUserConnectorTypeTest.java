@@ -1,17 +1,27 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorType;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.mock.MockAdUserConnectorType;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -61,6 +71,10 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 	private SysSchemaObjectClassService schemaService;
 	@Autowired
 	private SysSystemAttributeMappingService attributeMappingService;
+	@Autowired
+	private SysSystemMappingService mappingService;
+	@Autowired
+	private SysSyncConfigService syncConfigService;
 	
 
 	@Before
@@ -160,7 +174,6 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testStepFour() {
-		
 		ConnectorType connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);
 		ConnectorTypeDto connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
 		SysSystemDto systemDto = createSystem(this.getHelper().createName(), connectorTypeDto);
@@ -213,7 +226,74 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 		assertTrue(attributeMappingDtos.stream().anyMatch(attribute -> IcAttributeInfo.ENABLE.equals(attribute.getName())));
 		assertTrue(attributeMappingDtos.stream().anyMatch(attribute -> MockAdUserConnectorType.LDAP_GROUPS_ATTRIBUTE.equals(attribute.getName())));
 		assertTrue(attributeMappingDtos.stream().anyMatch(attribute -> MockAdUserConnectorType.SAM_ACCOUNT_NAME_ATTRIBUTE.equals(attribute.getName())));
-		
+
+		// Pairing sync wasn't created.
+		SysSyncConfigFilter syncConfigFilter = new SysSyncConfigFilter();
+		syncConfigFilter.setSystemId(systemDto.getId());
+		int syncCount = syncConfigService.find(syncConfigFilter, null).getContent().size();
+		assertEquals(0, syncCount);
+
+		// Clean
+		systemService.delete(systemDto);
+	}
+	
+	@Test
+	public void testPairingSync() {
+		ConnectorType connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);
+		ConnectorTypeDto connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
+		SysSystemDto systemDto = createSystem(this.getHelper().createName(), connectorTypeDto);
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.SYSTEM_DTO_KEY, systemDto.getId().toString());
+
+		String newUserContainerMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.NEW_USER_CONTAINER_KEY, newUserContainerMock);
+		String userContainerMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.USER_SEARCH_CONTAINER_KEY, userContainerMock);
+		String deletedUserContainerMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.DELETE_USER_CONTAINER_KEY, deletedUserContainerMock);
+		String domainMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.DOMAIN_KEY, domainMock);
+		String defaultRoleMock = this.getHelper().createName();
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.NEW_ROLE_WITH_SYSTEM_CODE, defaultRoleMock);
+		connectorTypeDto.setWizardStepName(MockAdUserConnectorType.STEP_FOUR);
+		// Activate pairing sync.
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.PAIRING_SYNC_SWITCH_KEY, "true");
+		// Activate protected sync.
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.PROTECTED_MODE_SWITCH_KEY, "true");
+
+		// Generate mock schema.
+		generateMockSchema(systemDto);
+		//  Execute step four.
+		ConnectorTypeDto stepExecutedResult = connectorManager.execute(connectorTypeDto);
+
+		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
+		mappingFilter.setSystemId(systemDto.getId());
+		mappingFilter.setOperationType(SystemOperationType.PROVISIONING);
+		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
+
+		List<SysSystemMappingDto> mappingDtos = mappingService.find(mappingFilter, null).getContent();
+		assertEquals(1, mappingDtos.size());
+		// Protected mode is activated.
+		assertTrue(mappingDtos.get(0).isProtectionEnabled());
+		// Provisioning context is used.
+		assertTrue(mappingDtos.get(0).isAddContextConnectorObject());
+
+		mappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		mappingFilter.setEntityType(SystemEntityType.IDENTITY);
+
+		mappingDtos = mappingService.find(mappingFilter, null).getContent();
+		// Sync mapping must exists.
+		assertEquals(1, mappingDtos.size());
+
+		// Pairing sync should be created.
+		SysSyncConfigFilter syncConfigFilter = new SysSyncConfigFilter();
+		syncConfigFilter.setSystemId(systemDto.getId());
+		List<AbstractSysSyncConfigDto> configDtos = syncConfigService.find(syncConfigFilter, null).getContent();
+		assertEquals(1, configDtos.size());
+		SysSyncIdentityConfigDto sync = (SysSyncIdentityConfigDto) configDtos.get(0);
+		// Protected mode is activated.
+		assertEquals(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED, sync.getInactiveOwnerBehavior());
+		assertNotNull(sync.getDefaultRole());
+
 		// Clean
 		systemService.delete(systemDto);
 	}

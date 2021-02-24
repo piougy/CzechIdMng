@@ -147,6 +147,8 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	public static final String TEST_USERNAME_KEY = "testUserName";
 	public static final String TEST_USER_CONTAINER_KEY = "userContainer";
 	public static final String TEST_GROUP_KEY = "testGroup";
+	public static final String PAIRING_SYNC_SWITCH_KEY = "pairingSyncSwitch";
+	public static final String PROTECTED_MODE_SWITCH_KEY = "protectedModeSwitch";
 	private static final String SSL = "ssl";
 	private static final String PRINCIPAL = "principal";
 	private static final String CREDENTIALS = "credentials";
@@ -171,8 +173,6 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	private static final String DEFAULT_UID_KEY = "defaultIdAttribute";
 	private static final String BASE_CONTEXT_USER_KEY = "userBaseContexts";
 	private static final String ROOT_SUFFIXES_KEY = "baseContextsToSynchronize";
-	private static final String PAIRING_SYNC_SWITCH_KEY = "pairingSyncSwitch";
-	private static final String PROTECTED_MODE_SWITCH_KEY = "protectedModeSwitch";
 	private static final String PAIRING_SYNC_DN_ATTR_KEY = "pairingSyncEavDnAttribute";
 	private static final String MAPPING_SYNC_ID = "mappingSyncId";
 	private static final String PAIRING_SYNC_ID = "pairingSyncId";

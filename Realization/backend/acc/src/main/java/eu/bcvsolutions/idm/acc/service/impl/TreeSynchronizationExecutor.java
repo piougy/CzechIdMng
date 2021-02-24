@@ -151,7 +151,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			log.addToLog(MessageFormat.format("Start search with filter {0}.", "NONE"));
 			log = synchronizationLogService.save(log);
 
-			connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter, resultHandler);
+			connectorFacade.search(systemService.getConnectorInstance(system), connectorConfig, objectClass, filter, resultHandler);
 			// Execute sync for this tree and searched accounts
 			processTreeSync(context, accountsMap);
 			log = context.getLog();

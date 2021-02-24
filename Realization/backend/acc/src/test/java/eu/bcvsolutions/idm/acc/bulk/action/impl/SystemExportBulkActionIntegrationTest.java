@@ -66,7 +66,6 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ImportTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
-import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 import eu.bcvsolutions.idm.test.api.AbstractExportBulkActionTest;
 
@@ -317,9 +316,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 	public void testExportAndImportConnectorPoolingConfigs() {
 		SysSystemDto system = createSystem();
 
-		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
-		Assert.assertNotNull(connectorInstance);
-		IdmFormDefinitionDto formDefinition = systemService.getPoolingConnectorFormDefinition(connectorInstance);
+		IdmFormDefinitionDto formDefinition = systemService.getPoolingConnectorFormDefinition(system);
 		Assert.assertNotNull(formDefinition);
 		systemService.save(system);
 
@@ -406,9 +403,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 		final String testAttrsToGetVal = "testVAlue1";
 		SysSystemDto system = createSystem();
 
-		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
-		Assert.assertNotNull(connectorInstance);
-		IdmFormDefinitionDto formDefinition = systemService.getOperationOptionsConnectorFormDefinition(connectorInstance);
+		IdmFormDefinitionDto formDefinition = systemService.getOperationOptionsConnectorFormDefinition(system);
 		Assert.assertNotNull(formDefinition);
 		systemService.save(system);
 		

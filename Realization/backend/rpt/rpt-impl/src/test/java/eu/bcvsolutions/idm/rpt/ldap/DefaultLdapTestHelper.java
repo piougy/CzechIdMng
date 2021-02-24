@@ -63,7 +63,7 @@ public class DefaultLdapTestHelper implements LdapTestHelper {
 		system.setConnectorKey(new SysConnectorKeyDto(getLdapConnectorKey()));
 		system = systemService.save(system);
 
-		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system);
 
 		List<IdmFormValueDto> values = new ArrayList<>();
 

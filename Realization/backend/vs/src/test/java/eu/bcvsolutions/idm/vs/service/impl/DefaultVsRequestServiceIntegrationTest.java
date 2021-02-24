@@ -281,7 +281,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		IcConnectorConfiguration configuration = systemService.getConnectorConfiguration(system);
 		IcObjectClass objectClass = new IcObjectClassImpl("__ACCOUNT__");
 		List<String> uids = new ArrayList<>();
-		connectorFacade.search(system.getConnectorInstance(), configuration, objectClass, null, new IcResultsHandler() {
+		connectorFacade.search(systemService.getConnectorInstance(system), configuration, objectClass, null, new IcResultsHandler() {
 
 			@Override
 			public boolean handle(IcConnectorObject connectorObject) {

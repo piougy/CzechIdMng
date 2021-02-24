@@ -142,9 +142,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 	 * @param system
 	 */
 	private void exportPoolingConfig(SysSystemDto system) {
-		if (system.getConnectorInstance() != null && system.getConnectorKey() != null) {
-			IdmFormDefinitionDto poolingDefinition = systemService
-					.getPoolingConnectorFormDefinition(system.getConnectorInstance());
+		if (system.getConnectorKey() != null) {
+			IdmFormDefinitionDto poolingDefinition = systemService.getPoolingConnectorFormDefinition(system);
 			if (poolingDefinition != null) {
 				// Export EAV definition for pooling
 				formDefinitionService.export(poolingDefinition.getId(), getBatch());
@@ -165,9 +164,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 	 * @param system
 	 */
 	private void exportOperationOption(SysSystemDto system) {
-		if (system.getConnectorInstance() != null && system.getConnectorKey() != null) {
-			IdmFormDefinitionDto operationOptions = systemService
-					.getOperationOptionsConnectorFormDefinition(system.getConnectorInstance());
+		if (system.getConnectorKey() != null) {
+			IdmFormDefinitionDto operationOptions = systemService.getOperationOptionsConnectorFormDefinition(system);
 			if (operationOptions != null) {
 				formDefinitionService.export(operationOptions.getId(), getBatch());
 
@@ -189,8 +187,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 	 */
 	private SysSystemDto exportConnectorConfig(UUID systemId) {
 		SysSystemDto system = systemService.get(systemId);
-		if (system.getConnectorInstance() != null && system.getConnectorKey() != null) {
-			IdmFormDefinitionDto definition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		if (system.getConnectorKey() != null) {
+			IdmFormDefinitionDto definition = systemService.getConnectorFormDefinition(system);
 			if (definition != null) {
 				// Export EAV definition for connector
 				formDefinitionService.export(definition.getId(), getBatch());

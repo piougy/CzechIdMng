@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -115,8 +116,8 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 	private static final String SYSTEM_NAME_ONE = "test_system_one_" + System.currentTimeMillis();
 	private static final String SYSTEM_NAME_TWO = "test_system_two_" + System.currentTimeMillis();
 	
+	@Autowired private ApplicationContext context;
 	@Autowired private TestHelper helper;
-	@Autowired private SysSystemService systemService;	
 	@Autowired private IdmFormDefinitionService formDefinitionService;	
 	@Autowired private IdmFormAttributeService formAttributeService;	
 	@Autowired private FormService formService;	
@@ -139,9 +140,13 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 	@Autowired private SysSystemController systemController;
 	@Autowired private IdmPasswordPolicyService passwordPolicyService;
 	@Autowired private ConfidentialStorage confidentialStorage;
+	//
+	private DefaultSysSystemService systemService;
 	
 	@Before
 	public void login() {
+		systemService = context.getAutowireCapableBeanFactory().createBean(DefaultSysSystemService.class);
+		//
 		loginAsAdmin();
 	}
 	
@@ -664,9 +669,7 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 	public void testPoolingConnectorDefinition(){
 		// create test system
 		SysSystemDto system = helper.createTestResourceSystem(true);
-		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
-		Assert.assertNotNull(connectorInstance);
-		IdmFormDefinitionDto formDefinition = systemService.getPoolingConnectorFormDefinition(connectorInstance);
+		IdmFormDefinitionDto formDefinition = systemService.getPoolingConnectorFormDefinition(system);
 		Assert.assertNotNull(formDefinition);
 		
 		// Get pooling definition
@@ -690,9 +693,7 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 	public void testPoolingConnectorConfiguration(){
 		// create test system
 		SysSystemDto system = helper.createTestResourceSystem(true);
-		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
-		Assert.assertNotNull(connectorInstance);
-		IdmFormDefinitionDto formDefinition = systemService.getPoolingConnectorFormDefinition(connectorInstance);
+		IdmFormDefinitionDto formDefinition = systemService.getPoolingConnectorFormDefinition(system);
 		Assert.assertNotNull(formDefinition);
 		systemService.save(system);
 		
@@ -838,7 +839,7 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 		system.setConnectorKey(new SysConnectorKeyDto(key));
 		system = systemService.save(system);
 
-		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system);
 		//
 		// remove some attribute (e.g. first one)
 		Assert.assertFalse(formDefinition.getFormAttributes().isEmpty());
@@ -849,7 +850,7 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 		formService.deleteAttribute(lastAttribute);
 		Assert.assertEquals(attributesCount - 1, formService.getDefinition(formDefinition.getId()).getFormAttributes().size());
 		//
-		formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		formDefinition = systemService.getConnectorFormDefinition(system);
 		Assert.assertEquals(attributesCount, formDefinition.getFormAttributes().size());
 		//
 		IdmFormAttributeDto recreatedLastAttribute = formDefinition.getFormAttributes().get(attributesCount - 1);

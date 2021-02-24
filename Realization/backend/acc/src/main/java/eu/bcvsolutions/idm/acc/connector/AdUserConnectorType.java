@@ -108,7 +108,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
-import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 
@@ -232,8 +231,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		connectorType.getMetadata().put(SYSTEM_NAME, systemDto.getName());
 		Map<String, String> metadata = connectorType.getMetadata();
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		// Find attribute with port.
 		metadata.put(PORT, getValueFromConnectorInstance(PORT, systemDto, connectorFormDef));
 		// Find attribute with host.
@@ -243,8 +241,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		// Find attribute with ssl switch.
 		metadata.put(SSL_SWITCH, getValueFromConnectorInstance(SSL, systemDto, connectorFormDef));
 
-		IdmFormDefinitionDto operationOptionsFormDefinition = this.getSystemService()
-				.getOperationOptionsConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto operationOptionsFormDefinition = this.getSystemService().getOperationOptionsConnectorFormDefinition(systemDto);
 		if (operationOptionsFormDefinition != null) {
 			// Find attribute with domain.
 			metadata.put(DOMAIN_KEY, getValueFromConnectorInstance(DOMAIN_KEY, systemDto, operationOptionsFormDefinition));
@@ -397,8 +394,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		// Put new system to the connector type (will be returned to FE).
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		// Set the port.
 		this.setValueToConnectorInstance(PORT, port, systemDto, connectorFormDef);
 		// Set the host.
@@ -498,8 +494,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		SysSystemDto systemDto = this.getSystemService().get(systemId);
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		String port = getValueFromConnectorInstance(PORT, systemDto, connectorFormDef);
 		String host = getValueFromConnectorInstance(HOST, systemDto, connectorFormDef);
 		String user = getValueFromConnectorInstance(PRINCIPAL, systemDto, connectorFormDef);
@@ -539,8 +534,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		SysSystemDto systemDto = this.getSystemService().get(systemId);
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		String port = getValueFromConnectorInstance(PORT, systemDto, connectorFormDef);
 		String host = getValueFromConnectorInstance(HOST, systemDto, connectorFormDef);
 		String user = getValueFromConnectorInstance(PRINCIPAL, systemDto, connectorFormDef);
@@ -583,8 +577,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		SysSystemDto systemDto = this.getSystemService().get(systemId);
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		String port = getValueFromConnectorInstance(PORT, systemDto, connectorFormDef);
 		String host = getValueFromConnectorInstance(HOST, systemDto, connectorFormDef);
 		String user = getValueFromConnectorInstance(PRINCIPAL, systemDto, connectorFormDef);
@@ -624,8 +617,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		}
 		boolean protectedModeSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(PROTECTED_MODE_SWITCH_KEY));
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		String port = getValueFromConnectorInstance(PORT, systemDto, connectorFormDef);
 		String host = getValueFromConnectorInstance(HOST, systemDto, connectorFormDef);
 		String user = getValueFromConnectorInstance(PRINCIPAL, systemDto, connectorFormDef);
@@ -671,8 +663,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			}
 		}
 
-		IcConnectorInstance connectorInstance = getSystemService().getConnectorInstance(systemDto);
-		IdmFormDefinitionDto operationOptionsFormDefinition = getSystemService().getOperationOptionsConnectorFormDefinition(connectorInstance);
+		IdmFormDefinitionDto operationOptionsFormDefinition = getSystemService().getOperationOptionsConnectorFormDefinition(systemDto);
 		if (operationOptionsFormDefinition != null) {
 			// Set domain to system's operation options.
 			operationOptionsFormDefinition = initFormAttributeDefinition(operationOptionsFormDefinition, DOMAIN_KEY, (short) 3);

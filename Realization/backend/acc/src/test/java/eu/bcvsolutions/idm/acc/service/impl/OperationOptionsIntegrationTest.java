@@ -68,7 +68,7 @@ public class OperationOptionsIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void t0_testOperationOptionsCreation() {
 		SysSystemDto system = accTestHelper.createSystem(TestResource.TABLE_NAME, TEST_SYSTEM_NAME);
-		IdmFormDefinitionDto operationOptionsConnectorFormDefinition = systemService.getOperationOptionsConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto operationOptionsConnectorFormDefinition = systemService.getOperationOptionsConnectorFormDefinition(system);
 
 		final String defName = DefaultSysSystemService.OPERATION_OPTIONS_DEFINITION_KEY + "-" + system.getConnectorKey().getFullName();
 		IdmFormDefinitionDto definition = formService.getDefinition(SysSystem.class, defName);
@@ -88,8 +88,8 @@ public class OperationOptionsIntegrationTest extends AbstractIntegrationTest {
 		Mockito.when(mockFacadeFactory.getConnectorFacade(Mockito.any(), Mockito.any())).thenReturn(mockConnector);
 		SysSystemDto system = systemService.getByCode(TEST_SYSTEM_NAME);
 		SysSystemMappingDto mapping = accTestHelper.createMapping(system);
-		IcConnectorInstance connectorInstance = system.getConnectorInstance();
-		IdmFormDefinitionDto operationOptionsConnectorFormDefinition = systemService.getOperationOptionsConnectorFormDefinition(connectorInstance);
+		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
+		IdmFormDefinitionDto operationOptionsConnectorFormDefinition = systemService.getOperationOptionsConnectorFormDefinition(system);
 
 		IcObjectClassImpl icObjectClass = new IcObjectClassImpl(sysSchemaObjectClassService.get(mapping.getObjectClass()).getObjectClassName());
 		connIdIcConnectorService.search(connectorInstance, systemService.getConnectorConfiguration(system), icObjectClass, null, a -> true );

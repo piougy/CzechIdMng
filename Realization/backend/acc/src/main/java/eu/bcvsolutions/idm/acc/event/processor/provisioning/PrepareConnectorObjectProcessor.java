@@ -180,7 +180,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			// call the connector and auto mapping is not allowed.
 			if (!isWish || provisioningConfiguration.isAllowedAutoMappingOnExistingAccount()) {
 				IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
-				existsConnectorObject = connectorFacade.readObject(system.getConnectorInstance(), connectorConfig,
+				existsConnectorObject = connectorFacade.readObject(systemService.getConnectorInstance(system), connectorConfig,
 						objectClass, uidAttribute);
 			}
 			if (existsConnectorObject == null) {

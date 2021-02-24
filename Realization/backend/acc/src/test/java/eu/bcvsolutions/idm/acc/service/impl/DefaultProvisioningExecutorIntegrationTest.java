@@ -168,7 +168,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// check target account
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorInstance(), 
+				systemService.getConnectorInstance(system), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -181,7 +181,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME)).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
-				system.getConnectorInstance(), 
+				systemService.getConnectorInstance(system), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass,
 				uid, password);
@@ -224,7 +224,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorInstance(), 
+				systemService.getConnectorInstance(system), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -243,7 +243,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		// check target account
 		existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorInstance(), 
+				systemService.getConnectorInstance(system), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -256,7 +256,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME)).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
-				system.getConnectorInstance(), 
+				systemService.getConnectorInstance(system), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass,
 				uid, password);
@@ -299,7 +299,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorInstance(), 
+				systemService.getConnectorInstance(system), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -318,7 +318,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		// check target account
 		existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorInstance(), 
+				systemService.getConnectorInstance(system), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -331,7 +331,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME)).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
-				system.getConnectorInstance(), 
+				systemService.getConnectorInstance(system), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass,
 				uid, password);
@@ -544,7 +544,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	public void testRetryProvisioningAfterPrepareConnectorObjectFailed() {
 		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		// set the wrong password
-		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system);
 		List<IdmFormValueDto> values = new ArrayList<>();
 		IdmFormValueDto password = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("password"));
 		password.setValue("wrong");

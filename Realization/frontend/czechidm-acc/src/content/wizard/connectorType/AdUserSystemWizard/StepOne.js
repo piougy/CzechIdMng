@@ -83,6 +83,11 @@ export default class StepOne extends AbstractWizardStep {
         // We expecting the password was already filled for reopened system.
         formData.password = '********';
       }
+
+      // TODO delete it:
+      formData.host = 'adradic1.piskoviste.bcv';
+      formData.user = 'CN=Administrator,CN=Users,DC=piskoviste,DC=bcv';
+      formData.password = 'Demo123456';
     }
     const locKey = this.getLocKey();
 

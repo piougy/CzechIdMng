@@ -693,7 +693,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		system.setName(SYSTEM_NAME);
 		system = systemService.save(system);
 		// key to EAV
-		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system);
 		formService.saveValues(system, formDefinition, "keyColumn", ImmutableList.of("ID"));
 
 		// generate schema for system

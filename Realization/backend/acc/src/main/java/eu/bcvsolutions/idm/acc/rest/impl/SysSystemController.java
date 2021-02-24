@@ -1214,14 +1214,8 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		if (system.getConnectorKey() == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_FORM_DEFINITION_NOT_FOUND, ImmutableMap.of("system", system.getId()));
 		}
-		// for remote connector form definition we need password for remote connector server
-		if (system.isRemote()) {
-			SysConnectorServerDto connectorServer = system.getConnectorServer();
-			connectorServer.setPassword(this.confidentialStorage.getGuardedString(system.getId(), SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
-			system.setConnectorServer(connectorServer);
-		}
 		//
-		return systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		return systemService.getConnectorFormDefinition(system);
 	}
 
 	private synchronized IdmFormDefinitionDto getPoolingConnectorFormDefinition(SysSystemDto system) {
@@ -1232,7 +1226,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			throw new ResultCodeException(AccResultCode.CONNECTOR_FORM_DEFINITION_NOT_FOUND, ImmutableMap.of("system", system.getId()));
 		}
 		//
-		return systemService.getPoolingConnectorFormDefinition(system.getConnectorInstance());
+		return systemService.getPoolingConnectorFormDefinition(system);
 	}
 
 	private synchronized IdmFormDefinitionDto getOperationOptionsConnectorFormDefinition(SysSystemDto system) {
@@ -1243,7 +1237,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			throw new ResultCodeException(AccResultCode.CONNECTOR_FORM_DEFINITION_NOT_FOUND, ImmutableMap.of("system", system.getId()));
 		}
 		//
-		return systemService.getOperationOptionsConnectorFormDefinition(system.getConnectorInstance());
+		return systemService.getOperationOptionsConnectorFormDefinition(system);
 	}
 
 	@Override

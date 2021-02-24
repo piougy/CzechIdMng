@@ -258,7 +258,7 @@ public class RoleCatalogueSyncTest extends AbstractIntegrationTest {
 		system.setName(helper.createName());
 		system = systemService.save(system);
 		// key to EAV
-		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system);
 		formService.saveValues(system, formDefinition, "keyColumn", ImmutableList.of("ID"));
 
 		// generate schema for system

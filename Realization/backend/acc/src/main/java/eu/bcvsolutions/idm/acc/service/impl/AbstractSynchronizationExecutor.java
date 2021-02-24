@@ -273,13 +273,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				IcFilter filter = resolveSynchronizationFilter(config);
 				log.addToLog(MessageFormat.format("Start search with filter [{0}].", filter != null ? filter : "NONE"));
 
-				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter,
+				connectorFacade.search(systemService.getConnectorInstance(system), connectorConfig, objectClass, filter,
 						new DefaultResultHandler(context, systemAccountsList));
 			} else {
 				// Inner Sync
 				log.addToLog("Synchronization will use inner connector synchronization implementation.");
 				DefalutSyncResultHandler syncResultsHandler = new DefalutSyncResultHandler(context, systemAccountsList);
-				connectorFacade.synchronization(system.getConnectorInstance(), connectorConfig, objectClass,
+				connectorFacade.synchronization(systemService.getConnectorInstance(system), connectorConfig, objectClass,
 						lastIcToken, syncResultsHandler);
 			}
 

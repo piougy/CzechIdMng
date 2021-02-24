@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -157,7 +158,12 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 		this.connectorServer = connectorServer;
 	}
 	
+	/**
+	 * @deprecated @since 10.8.0 - remote connector server is not supported here
+	 * => use {@link SysSystemService#getConnectorInstance(SysSystemDto)} instead 
+	 */
 	@JsonIgnore
+	@Deprecated
 	public IcConnectorInstance getConnectorInstance() {
 		return new IcConnectorInstanceImpl(this.getConnectorServer(), this.getConnectorKey(), this.isRemote());
 	}

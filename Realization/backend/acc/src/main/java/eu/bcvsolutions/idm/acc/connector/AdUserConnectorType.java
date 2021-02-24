@@ -814,7 +814,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Init default connector configurations.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected void initDefaultConnectorSettings(SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
 		// Set the entry object classes.
 		List values = Lists.newArrayList(ENTRY_OBJECT_CLASSES_DEFAULT_VALUES);
@@ -859,7 +859,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			mappingSyncId = mappingDto.getId().toString();
 			connectorType.getMetadata().put(MAPPING_SYNC_ID, mappingSyncId);
 		}
-		
+
 		// Create identity mapping for pairing sync.
 		String pairingSyncId = connectorType.getMetadata().get(PAIRING_SYNC_ID);
 		if (pairingSyncId == null) {
@@ -898,7 +898,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			correlationAttribute.setCached(true);
 			correlationAttribute.setName(sAMAccountNameAttribute.getName());
 			correlationAttribute = systemAttributeMappingService.save(correlationAttribute);
-		
+
 			SysSyncIdentityConfigDto syncIdentityConfigDto = new SysSyncIdentityConfigDto();
 			syncIdentityConfigDto.setName(PAIRING_SYNC_NAME);
 			syncIdentityConfigDto.setReconciliation(true);

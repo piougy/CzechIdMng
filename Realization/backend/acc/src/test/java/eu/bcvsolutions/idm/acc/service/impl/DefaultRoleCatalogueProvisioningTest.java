@@ -243,7 +243,7 @@ public class DefaultRoleCatalogueProvisioningTest extends AbstractIntegrationTes
 		system.setName(SYSTEM_NAME);
 		system = systemService.save(system);
 		// key to EAV
-		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system);
 		IdmFormAttributeDto attributeKeyColumn = savedFormDefinition.getMappedAttributeByCode("keyColumn");
 		formService.saveValues(system, attributeKeyColumn, ImmutableList.of("ID"));
 

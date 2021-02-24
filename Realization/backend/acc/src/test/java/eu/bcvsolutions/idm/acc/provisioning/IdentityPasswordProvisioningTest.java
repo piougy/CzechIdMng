@@ -435,7 +435,7 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		identityService.save(identity);
 		
 		// Break the system (change the password column to not exists) - we need make a exception.
-		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system);
 		IdmFormAttributeDto formAttribute = savedFormDefinition.getMappedAttributeByCode("passwordColumn");
 		formService.saveValues(system, formAttribute, Lists.newArrayList("not-exist-column-password"));
 

@@ -917,7 +917,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		}
 
 		// Call IC module for check authenticate
-		return connectorFacade.authenticateObject(system.getConnectorInstance(), connectorConfig, null, username,
+		return connectorFacade.authenticateObject(systemService.getConnectorInstance(system), connectorConfig, null, username,
 				password);
 	}
 

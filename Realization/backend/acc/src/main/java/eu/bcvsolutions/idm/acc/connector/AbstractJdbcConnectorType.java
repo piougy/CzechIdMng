@@ -86,8 +86,7 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		connectorType.getMetadata().put(SYSTEM_NAME, systemDto.getName());
 		Map<String, String> metadata = connectorType.getMetadata();
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		// Find attribute with port.
 		metadata.put(PORT, getValueFromConnectorInstance(PORT, systemDto, connectorFormDef));
 		// Find attribute with host.
@@ -178,8 +177,7 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 		// Put new system to the connector type (will be returned to FE).
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		// Set the port.
 		this.setValueToConnectorInstance(PORT, port, systemDto, connectorFormDef);
 		// Set the host.
@@ -225,8 +223,7 @@ public abstract class AbstractJdbcConnectorType extends DefaultConnectorType {
 			return false;
 		}
 
-		IdmFormDefinitionDto connectorFormDef = this.getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		// Find attribute with drive name.
 		String jdbcDriverName = getValueFromConnectorInstance(JDBC_DRIVER, systemDto, connectorFormDef);
 

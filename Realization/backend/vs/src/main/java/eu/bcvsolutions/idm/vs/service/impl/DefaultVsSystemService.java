@@ -236,8 +236,7 @@ public class DefaultVsSystemService implements VsSystemService {
 		system = this.systemService.save(system, IdmBasePermission.CREATE);
 
 		// Find and update attribute for implementers
-		IdmFormDefinitionDto connectorFormDef = this.systemService
-				.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = this.systemService.getConnectorFormDefinition(system);
 		IdmFormAttributeDto implementersFormAttr = connectorFormDef.getMappedAttributeByCode(IMPLEMENTERS_PROPERTY);
 		formService.saveValues(system, implementersFormAttr, new ArrayList<>(vsSystem.getImplementers()));
 

@@ -74,8 +74,21 @@ public interface SysSystemService extends
 	 * 
 	 * @param connectorKey
 	 * @return
+	 * @deprecated @since 10.8.0 use {@link #getConnectorFormDefinition(SysSystemDto)}
 	 */
+	@Deprecated
 	IdmFormDefinitionDto getConnectorFormDefinition(IcConnectorInstance connectorInstance);
+	
+	/**
+	 * Returns form definition to given connector key. If no definition for
+	 * connector type is found, then new definition is created by connector
+	 * properties.
+	 * 
+	 * @param system
+	 * @return form definition
+	 * @since 10.8.0
+	 */
+	IdmFormDefinitionDto getConnectorFormDefinition(SysSystemDto system);
 	
 	/**
 	 * Returns form-definition (for pool configuration) by given connector key. If no definition for
@@ -84,8 +97,21 @@ public interface SysSystemService extends
 	 * 
 	 * @param connectorInstance
 	 * @return
+	 * @deprecated @since 10.8.0 use {@link #getPoolingConnectorFormDefinition(SysSystemDto)}
 	 */
+	@Deprecated
 	IdmFormDefinitionDto getPoolingConnectorFormDefinition(IcConnectorInstance connectorInstance);
+	
+	/**
+	 * Returns form-definition (for pool configuration) by given connector key. If no definition for
+	 * connector type is found, then new definition is created by connector
+	 * pool configuration.
+	 * 
+	 * @param system
+	 * @return form definition
+	 * @since 10.8.0
+	 */
+	IdmFormDefinitionDto getPoolingConnectorFormDefinition(SysSystemDto system);
 
 	/**
 	 * Check if is connector works fine
@@ -113,7 +139,23 @@ public interface SysSystemService extends
 	 */
 	IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass);
 
+	/**
+	 * @param connectorInstance
+	 * @return
+	 * @since 10.2.0
+	 * @deprecated @since 10.8.0 use {@link #getOperationOptionsConnectorFormDefinition(SysSystemDto)}
+	 */
+	@Deprecated
 	IdmFormDefinitionDto getOperationOptionsConnectorFormDefinition(IcConnectorInstance connectorInstance);
+	
+	/**
+	 * Returns definition for additional operation options.
+	 * 
+	 * @param connectorInstance
+	 * @return
+	 * @since 10.8.0
+	 */
+	IdmFormDefinitionDto getOperationOptionsConnectorFormDefinition(SysSystemDto system);
 
 	/**
 	 * Duplicate (create/persist new) system with all configurations

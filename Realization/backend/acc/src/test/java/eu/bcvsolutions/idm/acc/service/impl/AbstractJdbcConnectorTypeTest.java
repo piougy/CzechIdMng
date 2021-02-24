@@ -106,8 +106,7 @@ public abstract class AbstractJdbcConnectorTypeTest extends AbstractIntegrationT
 		assertEquals("net.tirasa.connid.bundles.db.table.DatabaseTableConnector",
 				connectorInstance.getConnectorKey().getConnectorName());
 
-		IdmFormDefinitionDto connectorFormDef = this.systemService
-				.getConnectorFormDefinition(connectorInstance);
+		IdmFormDefinitionDto connectorFormDef = this.systemService.getConnectorFormDefinition(systemDto);
 		// Check host.
 		Assert.assertEquals(this.getHost(),
 				getValueFromConnectorInstance(AbstractJdbcConnectorType.HOST, systemDto, connectorFormDef));

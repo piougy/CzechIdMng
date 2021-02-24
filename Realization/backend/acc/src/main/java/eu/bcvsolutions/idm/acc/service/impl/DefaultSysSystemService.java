@@ -65,6 +65,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy_;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
@@ -73,6 +74,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
@@ -81,6 +83,7 @@ import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMIm
 import eu.bcvsolutions.idm.ic.exception.IcRemoteServerException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectPoolConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
@@ -274,15 +277,11 @@ public class DefaultSysSystemService
 		}
 		IcConnectorConfiguration connectorConfig = null;
 		// load connector properties, different between local and remote
-		IcConnectorInstance connectorInstance = system.getConnectorInstance();
-		if (system.isRemote() && connectorInstance.getConnectorServer() != null) {
-			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(),
-					SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
-		}
+		IcConnectorInstance connectorInstance = getConnectorInstance(system);
 		connectorConfig = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 
 		// load filled form values
-		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(connectorInstance);
 		IdmFormInstanceDto formInstance = getFormService().getFormInstance(system, formDefinition);
 		Map<String, List<IdmFormValueDto>> attributeValues = formInstance.toValueMap();
 
@@ -332,8 +331,12 @@ public class DefaultSysSystemService
 		SysSystemDto system = this.get(systemId);
 		Assert.notNull(system, "System cannot be null!");
 
-		return connectorFacade.readObject(system.getConnectorInstance(), this.getConnectorConfiguration(system),
-				objectClass, new IcUidAttributeImpl(null, uid, null));
+		return connectorFacade.readObject(
+				getConnectorInstance(system),
+				getConnectorConfiguration(system),
+				objectClass, 
+				new IcUidAttributeImpl(null, uid, null)
+		);
 
 	}
 
@@ -358,7 +361,7 @@ public class DefaultSysSystemService
 		}
 
 		// Call IC module
-		icConfigurationFacade.test(system.getConnectorInstance(), connectorConfig);
+		icConfigurationFacade.test(getConnectorInstance(system), connectorConfig);
 	}
 
 	@Override
@@ -386,7 +389,7 @@ public class DefaultSysSystemService
 		IcSchema icSchema = null;
 
 		try {
-			icSchema = icConfigurationFacade.getSchema(system.getConnectorInstance(), connectorConfig);
+			icSchema = icConfigurationFacade.getSchema(getConnectorInstance(system), connectorConfig);
 		} catch (Exception ex) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_SCHEMA_GENERATION_EXCEPTION,
 					ImmutableMap.of("system", system.getName(), "exception", ex.getLocalizedMessage()), ex);
@@ -487,6 +490,14 @@ public class DefaultSysSystemService
 		//
 		return formDefinition;
 	}
+	
+	@Override
+	@Transactional
+	public IdmFormDefinitionDto getConnectorFormDefinition(SysSystemDto system) {
+		Assert.notNull(system, "System is required to create connector form definition.");
+		//
+		return getConnectorFormDefinition(getConnectorInstance(system));
+	}
 
 	@Override
 	@Transactional
@@ -502,6 +513,14 @@ public class DefaultSysSystemService
 		}
 		return formDefinitionPooling;
 	}
+	
+	@Override
+	@Transactional
+	public IdmFormDefinitionDto getPoolingConnectorFormDefinition(SysSystemDto system) {
+		Assert.notNull(system, "System is required to create pooling connector form definition.");
+		//
+		return getPoolingConnectorFormDefinition(getConnectorInstance(system));
+	}
 
 	@Override
 	@Transactional
@@ -516,6 +535,14 @@ public class DefaultSysSystemService
 			formDefinition = createOperationOptionsFormDefinition(connectorInstance);
 		}
 		return formDefinition;
+	}
+	
+	@Override
+	@Transactional
+	public IdmFormDefinitionDto getOperationOptionsConnectorFormDefinition(SysSystemDto system) {
+		Assert.notNull(system, "System is required to create additional options connector form definition.");
+		//
+		return getOperationOptionsConnectorFormDefinition(getConnectorInstance(system));
 	}
 
 	@Override
@@ -539,7 +566,7 @@ public class DefaultSysSystemService
 		Map<UUID, UUID> mappedAttributesCache = new HashMap<UUID, UUID>();
 
 		// Duplicate connector configuration values in EAV
-		IcConnectorInstance connectorInstance = originalSystem.getConnectorInstance();
+		IcConnectorInstance connectorInstance = getConnectorInstance(originalSystem);
 
 		if (connectorInstance != null && connectorInstance.getConnectorKey() != null && connectorInstance.getConnectorKey().getFramework() != null) {
 			IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(connectorInstance);
@@ -1161,14 +1188,24 @@ public class DefaultSysSystemService
 
 	@Override
 	public IcConnectorInstance getConnectorInstance(SysSystemDto system) {
-		IcConnectorInstance connectorInstance = system.getConnectorInstance();
-		//
-		if (system.isRemote() && connectorInstance.getConnectorServer() != null) {
-			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system.getId(),
-					SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD));
+		IcConnectorServer connectorServer = system.getConnectorServer();
+		if (connectorServer != null && system.isRemote()) {
+			GuardedString password = connectorServer.getPassword();
+			if (password == null || GuardedString.SECRED_PROXY_STRING.equals(password.asString())) { // password is not loaded properly yet
+				connectorServer.setPassword(
+						confidentialStorage.getGuardedString(
+							system.getId(),
+							SysSystem.class, 
+							SysSystemService.REMOTE_SERVER_PASSWORD
+						)
+				);
+			}
 		}
 		//
-		return connectorInstance;
+		return new IcConnectorInstanceImpl(
+				connectorServer,
+				system.getConnectorKey(),
+				system.isRemote());
 	}
 	
 }

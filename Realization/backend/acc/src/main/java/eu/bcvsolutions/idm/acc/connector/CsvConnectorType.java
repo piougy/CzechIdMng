@@ -149,8 +149,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 		connectorType.getMetadata().put(SYSTEM_NAME, systemDto.getName());
 
 		// Find attribute with CSV file path.
-		IdmFormDefinitionDto connectorFormDef = getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = getSystemService().getConnectorFormDefinition(systemDto);
 		IdmFormAttributeDto csvFilePathAttribute = connectorFormDef.getMappedAttributeByCode(CONNECTOR_SOURCE_PATH);
 		List<IdmFormValueDto> values = formService.getValues(systemDto, csvFilePathAttribute, IdmBasePermission.READ);
 		if (values != null && values.size() == 1) {
@@ -225,8 +224,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 
 		// Find and update attribute with CSV file path.
-		IdmFormDefinitionDto connectorFormDef = getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = getSystemService().getConnectorFormDefinition(systemDto);
 		IdmFormAttributeDto csvFilePathAttribute = connectorFormDef.getMappedAttributeByCode(CONNECTOR_SOURCE_PATH);
 		List<Serializable> csvFileValue = new ArrayList<>();
 		csvFileValue.add(csvFilePath.toString());
@@ -313,8 +311,7 @@ public class CsvConnectorType extends AbstractConnectorType {
 		Assert.notNull(systemDto, "System cannot be null!");
 
 		// Find and update attribute defines UID attribute.
-		IdmFormDefinitionDto connectorFormDef = getSystemService()
-				.getConnectorFormDefinition(systemDto.getConnectorInstance());
+		IdmFormDefinitionDto connectorFormDef = getSystemService().getConnectorFormDefinition(systemDto);
 		IdmFormAttributeDto uidAttribute = connectorFormDef.getMappedAttributeByCode(CONNECTOR_UID);
 		List<Serializable> uidValue = new ArrayList<>();
 		uidValue.add(schemaAttributeDto.getName());

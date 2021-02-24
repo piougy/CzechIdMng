@@ -362,7 +362,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		SysSystemMappingDto systemMapping = systemMappingService.get(syncConfigCustom.getSystemMapping());
 		SysSystemDto system = systemService.get(schemaObjectClassService.get(systemMapping.getObjectClass()).getSystem());
 		
-		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system);
 		IdmFormAttributeDto changeLogColumn = savedFormDefinition.getMappedAttributeByCode("changeLogColumn");
 		formService.saveValues(system, changeLogColumn, ImmutableList.of("modified"));
 

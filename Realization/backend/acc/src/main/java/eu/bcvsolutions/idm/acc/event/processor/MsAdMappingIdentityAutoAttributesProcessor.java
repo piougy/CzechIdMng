@@ -105,10 +105,8 @@ public class MsAdMappingIdentityAutoAttributesProcessor extends AbstractSystemMa
 			SysSystemDto systemDto = lookupService.lookupEmbeddedDto(objectClassDto, SysSchemaObjectClass_.system);
 			ConnectorType connectorType = connectorManager.findConnectorTypeBySystem(systemDto);
 			if (connectorType != null) {
-				ConnectorTypeDto connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
 				// Only for AD user and AD+WinRM user wizards.
-				return AdUserConnectorType.NAME.equals(connectorTypeDto.getName()) ||
-						AdUserWinRMConnectorType.NAME.equals(connectorTypeDto.getName());
+				return connectorType instanceof AdUserConnectorType;
 			}
 		}
 		return false;

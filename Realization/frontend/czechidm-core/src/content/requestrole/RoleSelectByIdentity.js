@@ -281,10 +281,14 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     if (event) {
       event.preventDefault();
     }
-
-    const currentTargetValue = event.currentTarget.checked;
+    const showOnlyDirectRoles = event.currentTarget.checked;
     const { selectedIdentity, selectedIdentityContract, environment } = this.state;
-    this._changeIdentityOrContract(selectedIdentity, selectedIdentityContract, currentTargetValue, environment);
+    //
+    this.setState({
+      showOnlyDirectRoles
+    }, () => {
+      this._changeIdentityOrContract(selectedIdentity, selectedIdentityContract, showOnlyDirectRoles, environment);
+    });
   }
 
   _selectedIdentityContract(identityContract) {
@@ -549,7 +553,6 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
           </Basic.Div>
 
           <Basic.Checkbox
-            ref="showOnlyDirectRoles"
             value={ showOnlyDirectRoles }
             label={ this.i18n('showOnlyDirectRoles.label', { escape: false }) }
             helpBlock={ this.i18n('showOnlyDirectRoles.help', { escape: false }) }

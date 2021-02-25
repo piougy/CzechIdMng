@@ -1,11 +1,21 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
+import org.springframework.stereotype.Component;
+
 import com.google.common.collect.Sets;
+
 import eu.bcvsolutions.idm.acc.connector.AdUserConnectorType;
-import eu.bcvsolutions.idm.acc.connector.AdUserWinRMConnectorType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -32,15 +42,6 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
-import org.springframework.plugin.core.OrderAwarePluginRegistry;
-import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.stereotype.Component;
 
 /**
  * Processor for automatic creation of identity mapped attributes by common schema attributes for MS AD connector (MS AD+WinRM connector).

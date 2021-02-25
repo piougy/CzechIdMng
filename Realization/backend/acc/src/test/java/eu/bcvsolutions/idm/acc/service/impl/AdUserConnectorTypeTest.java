@@ -1,5 +1,19 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
 import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -33,21 +47,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
-import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.util.List;
-import java.util.UUID;
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Tests for CSV connector type.
@@ -192,12 +193,11 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 		// Generate mock schema.
 		generateMockSchema(systemDto);
 		//  Execute step four.
-		ConnectorTypeDto stepExecutedResult = connectorManager.execute(connectorTypeDto);
+		connectorManager.execute(connectorTypeDto);
 
 		// Check containers on the system's operationOptions.
 		systemDto = systemService.get(systemDto.getId());
-		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(systemDto);
-		IdmFormDefinitionDto operationOptionsFormDefinition = systemService.getOperationOptionsConnectorFormDefinition(connectorInstance);
+		IdmFormDefinitionDto operationOptionsFormDefinition = systemService.getOperationOptionsConnectorFormDefinition(systemDto);
 		String newUserContainer = getValueFromConnectorInstance(MockAdUserConnectorType.NEW_USER_CONTAINER_KEY, systemDto, operationOptionsFormDefinition);
 		assertEquals(newUserContainerMock, newUserContainer);
 		String deletedUserContainer = getValueFromConnectorInstance(MockAdUserConnectorType.DELETE_USER_CONTAINER_KEY, systemDto, operationOptionsFormDefinition);
@@ -263,7 +263,7 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 		// Generate mock schema.
 		generateMockSchema(systemDto);
 		//  Execute step four.
-		ConnectorTypeDto stepExecutedResult = connectorManager.execute(connectorTypeDto);
+		connectorManager.execute(connectorTypeDto);
 
 		connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);
 		connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
@@ -313,7 +313,7 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 		// Generate mock schema.
 		generateMockSchema(systemDto);
 		//  Execute step four.
-		ConnectorTypeDto stepExecutedResult = connectorManager.execute(connectorTypeDto);
+		connectorManager.execute(connectorTypeDto);
 
 		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
 		mappingFilter.setSystemId(systemDto.getId());

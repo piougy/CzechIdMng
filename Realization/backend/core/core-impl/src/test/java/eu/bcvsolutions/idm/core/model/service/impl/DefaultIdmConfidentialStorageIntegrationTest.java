@@ -42,17 +42,15 @@ import eu.bcvsolutions.idm.core.audit.rest.impl.IdmAuditController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ChangeConfidentialStorageKeyTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.GenerateConfidentialStorageInitializationVectorsTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.CryptService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultCryptService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Tests for "naive" confidential storage (values are persisted in standard database).
- * Test for LRT {@link ChangeConfidentialStorageKeyTaskExecutor}. The LRT change confidential
+ * Tests for "naive" confidential storage (values are persisted in standard database)
+ * and test for LRT {@link ChangeConfidentialStorageKeyTaskExecutor}. The LRT change confidential
  * storage crypt key.
- * Test for LRT {@link GenerateConfidentialStorageInitializationVectorsTaskExecutor}.
  * 
  * @author Radek Tomiška
  *
@@ -562,30 +560,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		serializable = confidentalStorage.get(identity, identity.getUsername());
 		assertEquals(password, serializable);
 	}
-	
-	@Test
-	@Transactional
-	public void testGenerateNewInitializationVectorsTask() {
-		IdmIdentityDto identity = getHelper().createIdentity(getHelper().createName(), null);
-		String password = "testPassword-" + getHelper().createName();
-		confidentalStorage.saveGuardedString(identity.getId(), IdmIdentity.class, identity.getUsername(), new GuardedString(password));
-
-		Serializable serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
-		Assert.assertEquals(password, serializable);
-		IdmConfidentialStorageValueDto valueDto = getConfidentialValueForIdentity(identity);
-
-		byte[] originalIV = valueDto.getIv();
-
-		runGenerateInitializationVectorsTask();
-
-		valueDto = getConfidentialValueForIdentity(identity);
-		serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
-
-		// still the same confidential value
-		assertEquals(password, serializable);
-		// different initialization vector
-		assertNotEquals(originalIV, valueDto.getIv());
-	}
 
 	@Test
 	public void testRemoveOwnerAndCheckAudit() {
@@ -644,17 +618,6 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		Map<String, Object> properties = new HashMap<>();
 		properties.put(ChangeConfidentialStorageKeyTaskExecutor.PARAMETER_OLD_CONFIDENTIAL_KEY, oldKey);
 		task.init(properties);
-		//
-		Boolean executed = longRunningTaskManager.executeSync(task);
-		Assert.assertTrue(executed);
-	}
-	
-	/**
-	 * Create and run task for generating a new initialization vector for values in the confidential storage.
-	 * Task {@link GenerateConfidentialStorageInitializationVectorTaskExecutor}
-	 */
-	private void runGenerateInitializationVectorsTask() {
-		GenerateConfidentialStorageInitializationVectorsTaskExecutor task = new GenerateConfidentialStorageInitializationVectorsTaskExecutor();
 		//
 		Boolean executed = longRunningTaskManager.executeSync(task);
 		Assert.assertTrue(executed);

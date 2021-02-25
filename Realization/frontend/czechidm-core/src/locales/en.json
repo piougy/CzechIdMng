@@ -6660,11 +6660,6 @@
           }
         }
       },
-      "core-generate-confidential-storage-initialization-vectors-long-running-task": {
-        "label": "Generate initialization vectors for the confidential storage",
-        "help": "Generate initialization vectors for the values saved in the confidential storage. This task can be used for using stronger security after upgrading the application from versions older than 10.6.",
-        "icon": "component:scheduled-task"
-      },
       "core-identity-role-valid-request-long-running-task": {
         "label": "Assigned roles - start of validity",
         "help": "Creates accounts for new assigned valid roles in target system.",

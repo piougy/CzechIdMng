@@ -72,7 +72,7 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
     }
   }
 
-/*  getDefaultSearchParameters() {
+  /* getDefaultSearchParameters() {
     // TODO make this work!!!
     return this.getManager().getDefaultSearchParameters();
   }*/
@@ -144,60 +144,59 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
-            <Advanced.ColumnLink
-              to={`${linkMenu}/:id/detail`}
-              property="name"
-              rendered={_.includes(columns, 'name')}
-              header={this.i18n('acc:entity.RoleSystemAttribute.name.label')}
-              sort />
-            <Advanced.Column
-              property="idmPropertyName"
-              rendered={_.includes(columns, 'idmPropertyName')}
-              header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
-              sort/>
-            <Advanced.Column
-              property="_embedded.roleSystem._embedded.role.name"
-              rendered={_.includes(columns, 'role')}
-              header={this.i18n('acc:entity.RoleSystem.role')}
-              />
-            <Advanced.Column
-              property="uid"
-              rendered={_.includes(columns, 'uid')}
-              face="boolean"
-              header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}
-              sort/>
-            <Advanced.Column
-              property="strategyType"
-              rendered={_.includes(columns, 'strategyType')}
-              width="100px"
-              face="enum"
-              enumClass={AttributeMappingStrategyTypeEnum}
-              header={this.i18n('acc:entity.RoleSystemAttribute.strategyType')}
-              sort/>
-            <Advanced.Column
-              property="entityAttribute"
-              rendered={_.includes(columns, 'entityAttribute')}
-              face="boolean"
-              header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
-              sort/>
-            <Advanced.Column
-              property="extendedAttribute"
-              rendered={_.includes(columns, 'extendedAttribute')}
-              face="boolean"
-              header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
-              sort/>
-            <Advanced.Column
-              property="disabledDefaultAttribute"
-              rendered={_.includes(columns, 'disabledDefaultAttribute')}
-              face="boolean"
-              header={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')}
-              sort/>
-            <Advanced.Column
-              property="transformScript"
-              rendered={_.includes(columns, 'transformScript')}
-              face="boolean"
-              header={this.i18n('acc:entity.RoleSystemAttribute.transformScriptTable')}/>
-          </Advanced.Table>
+          <Advanced.ColumnLink
+            to={`${linkMenu}/:id/detail`}
+            property="name"
+            rendered={_.includes(columns, 'name')}
+            header={this.i18n('acc:entity.RoleSystemAttribute.name.label')}
+            sort />
+          <Advanced.Column
+            property="idmPropertyName"
+            rendered={_.includes(columns, 'idmPropertyName')}
+            header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
+            sort/>
+          <Advanced.Column
+            property="_embedded.roleSystem._embedded.role.name"
+            rendered={_.includes(columns, 'role')}
+            header={this.i18n('acc:entity.RoleSystem.role')} />
+          <Advanced.Column
+            property="uid"
+            rendered={_.includes(columns, 'uid')}
+            face="boolean"
+            header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}
+            sort/>
+          <Advanced.Column
+            property="strategyType"
+            rendered={_.includes(columns, 'strategyType')}
+            width="100px"
+            face="enum"
+            enumClass={AttributeMappingStrategyTypeEnum}
+            header={this.i18n('acc:entity.RoleSystemAttribute.strategyType')}
+            sort/>
+          <Advanced.Column
+            property="entityAttribute"
+            rendered={_.includes(columns, 'entityAttribute')}
+            face="boolean"
+            header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
+            sort/>
+          <Advanced.Column
+            property="extendedAttribute"
+            rendered={_.includes(columns, 'extendedAttribute')}
+            face="boolean"
+            header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
+            sort/>
+          <Advanced.Column
+            property="disabledDefaultAttribute"
+            rendered={_.includes(columns, 'disabledDefaultAttribute')}
+            face="boolean"
+            header={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')}
+            sort/>
+          <Advanced.Column
+            property="transformScript"
+            rendered={_.includes(columns, 'transformScript')}
+            face="boolean"
+            header={this.i18n('acc:entity.RoleSystemAttribute.transformScriptTable')}/>
+        </Advanced.Table>
       </div>
     );
   }

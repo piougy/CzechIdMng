@@ -245,7 +245,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       showAddLoading,
       isDefaultFormProjection,
       rowClass,
-      projections
+      projections,
+      skipDashboard
     } = this.props;
     const { filterOpened, showAddModal } = this.state;
     //
@@ -404,6 +405,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           <Advanced.ColumnLink
             to={ ({ rowIndex, data, event }) => {
               this.showDetail(data[rowIndex], event);
+            }}
+            href={ ({ rowIndex, data }) => {
+              return !skipDashboard ? `/identity/${ encodeURIComponent(data[rowIndex].username) }/dashboard` : manager.getDetailLink(data[rowIndex]);
             }}
             property="username"
             width="20%"

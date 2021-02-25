@@ -229,6 +229,14 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
                   this.showDetail(data[rowIndex]);
                 }
               }
+              href={
+                ({ rowIndex, data }) => {
+                  const entity = data[rowIndex];
+                  const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.match.params.entityId;
+                  //
+                  return `/system/${ system }/object-classes/${ entity.id }/detail`;
+                }
+              }
               property="objectClassName"
               header={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
               sort />

@@ -60,13 +60,23 @@ function _linkFunction(to, rowIndex, data, event) {
  *
  * @author Radek Tomiška
  */
-const LinkCell = ({ rowIndex, data, property, to, className, title, target, access, ...props }) => {
+const LinkCell = ({ rowIndex, data, property, to, href, className, title, target, access, ...props }) => {
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
   const accessItems = (access && !Array.isArray(access)) ? [access] : access;
   // when is property and accessItems null, then return only default cell
   if (!propertyValue) {
     return <DefaultCell {...props}/>;
   }
+  // construct html link href
+  let _href = '#';
+  if (_.isFunction(to) && href) {
+    if (_.isFunction(href)) {
+      _href = href({ data, rowIndex, property});
+    } else {
+      _href = href;
+    }
+  }
+  //
   return (
     <DefaultCell {...props}>
       {
@@ -116,10 +126,15 @@ const LinkCell = ({ rowIndex, data, property, to, className, title, target, acce
           {
             _.isFunction(to)
             ?
-            <a href="#" onClick={_linkFunction.bind(this, to, rowIndex, data)}>{propertyValue}</a>
+            <Link
+              to={ _href }
+              onClick={ _linkFunction.bind(this, to, rowIndex, data) }
+              title={ title }>
+              { propertyValue }
+            </Link>
             :
-            <Link to={_resolveToWithParameters(to, data[rowIndex], target)} title={title} className={className}>
-              {propertyValue}
+            <Link to={ _resolveToWithParameters(to, data[rowIndex], target) } title={ title } className={ className }>
+              { propertyValue }
             </Link>
           }
         </span>

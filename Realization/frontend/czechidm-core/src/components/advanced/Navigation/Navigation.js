@@ -494,7 +494,7 @@ export class Navigation extends Basic.AbstractContent {
             </ul>
             :
             <ul className="dropdown-menu">
-              <li className="identity-image ">
+              <li className="identity-image">
                 <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
                   <Basic.Div>
                     {
@@ -505,11 +505,10 @@ export class Navigation extends Basic.AbstractContent {
                       <Basic.Icon
                         value="component:identity"
                         identity={ identity }
-                        className="text-center img-thumbnail"
+                        className="text-center img-thumbnail profile-default-icon"
                         style={{
                           backgroundColor: Utils.Entity.isDisabled(identity) ? '#FCF8E3' : '#DFF0D8',
                           width: 50,
-                          height: 50,
                           fontSize: '20px',
                           lineHeight: '35px'
                         }}

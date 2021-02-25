@@ -892,7 +892,8 @@
         "label": "Password"
       },
       "timeout": {
-        "label": "Timeout"
+        "label": "Timeout (Milliseconds)",
+        "help": "Time to wait for a response to be received. If there is no response within the specified time period, the operation will be aborted. Value 0 means there is no limit."
       },
       "useSsl": {
         "label": "Use SSL"

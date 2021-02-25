@@ -158,12 +158,13 @@ class RemoteServerDetail extends Basic.AbstractContent {
               <Basic.TextField
                 ref="timeout"
                 label={ this.i18n('acc:entity.RemoteServer.timeout.label') }
+                helpBlock={ this.i18n('acc:entity.RemoteServer.timeout.help') }
                 validation={
                   Joi
                     .number()
                     .integer()
                     .min(0)
-                    .max(65535)
+                    .max(2147483647)
                     .allow(null)
                 }/>
               <Basic.TextArea

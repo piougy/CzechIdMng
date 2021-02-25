@@ -893,7 +893,8 @@
         "label": "Heslo"
       },
       "timeout": {
-        "label": "Timeout"
+        "label": "Timeout (Milisekundy)",
+        "help": "Čas, který bude konektor čekat na odpověď. Pokud nedostane odpověď, tak bude operace zrušena. Hodnota 0 nebo menší znamená žádný limit."
       },
       "useSsl": {
         "label": "Použít SSL"

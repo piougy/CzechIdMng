@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Administrator
 
-- 🟢 [#2628](https://redmine.czechidm.com/issues/2628) - Remote connector server agenda was added. New agenda is available under ``Systems - Connector servers`` menu. **Remote connector server configuration moved from system detail to this standalone agenda**. Check remote servers are properly initialized automatically after upgrade (e.g. try to test system with remote connector server usage from system detail - configuration content).
+- 🟢 [#2628](https://redmine.czechidm.com/issues/2628) - Remote connector server agenda was added. New agenda is available under ``Systems - Connector servers`` menu. **Remote connector server configuration moved from system detail to this standalone agenda**. Check if remote servers are properly initialized after upgrade (e.g. try to test system with remote connector server usage from system detail - configuration content).
 
 ## [10.7.0]
 

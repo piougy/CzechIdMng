@@ -6712,6 +6712,11 @@
           }
         }
       },
+      "core-generate-confidential-storage-initialization-vectors-long-running-task": {
+        "label": "Vygenerovat inicializační vektory pro šifrované úložiště",
+        "help": "Vygenerovat inicializační vektory pro hodnoty uložené v šifrovaném úložišti. Úloha slouží pro použití silnějšího zabezpečení po aktualizaci aplikace z verzí starších než 10.6.",
+        "icon": "component:scheduled-task"
+      },
       "core-identity-role-valid-request-long-running-task": {
         "label": "Začátek platnosti přiřazených rolí",
         "help": "Pro nově platné přidělené role vytvoří účty na koncových systémech.",

@@ -438,14 +438,20 @@ export default class Wizard extends AbstractContextComponent {
             onHide={onCloseWizard ? onCloseWizard.bind(null, false, this.context.wizardContext) : null}
             backdrop="static"
             keyboard={ false }>
-            <Modal.Header closeButton>
-              <Button
-                style={{float: 'right'}}
-                rendered={showDetailBtn}
-                buttonSize="xs"
-                icon="fa:search"
-                onClick={onCloseWizard ? onCloseWizard.bind(null, true, this.context.wizardContext) : null}>
-              </Button>
+            <Modal.Header
+              closeButton
+              buttons={[
+                <Icon
+                  rendered={ showDetailBtn }
+                  icon="fa:search"
+                  style={{
+                    color: '#ccc',
+                    marginTop: -3,
+                    cursor: 'pointer'
+                  }}
+                  onClick={ onCloseWizard ? onCloseWizard.bind(null, true, this.context.wizardContext) : null }
+                  title={ this.i18n('component.advanced.EntityInfo.link.detail.label') }/>
+              ]}>
               <div style={{display: 'flex', alignItems: 'center'}}>
                 <Icon
                   type="component"

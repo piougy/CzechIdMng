@@ -232,4 +232,11 @@ public interface ConfidentialStorage {
 	 */
 	String getOwnerType(Class<? extends Identifiable> ownerType);
 	
+	/**
+	 * Generates a new initialization vector and uses it for encrypting and saving given confidential storage value.
+	 * 
+	 * @param value
+	 * @since 10.8.0
+	 */
+	void renewVector(IdmConfidentialStorageValueDto value);
 }

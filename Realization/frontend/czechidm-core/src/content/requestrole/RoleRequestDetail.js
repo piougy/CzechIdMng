@@ -8,7 +8,7 @@ import moment from 'moment';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleRequestManager, IdentityRoleManager, DataManager, ConfigurationManager } from '../../redux';
+import { RoleRequestManager, IdentityRoleManager, DataManager, ConfigurationManager, SecurityManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import RequestIdentityRoleTable from './RequestIdentityRoleTable';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
@@ -396,7 +396,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                     style={{ marginTop: 25, marginRight: 0, marginLeft: 0 }}
                     title={ this.i18n('Přidat novou roli') }
                     text={ this.i18n('Přidat do žádosti novou roli.') }
-                    rendered={ this.isDevelopment() }
+                    rendered={ this.isDevelopment() && SecurityManager.hasAuthority('ROLE_CANBEREQUESTED') }
                     buttons={[
                       <Basic.Button
                         icon="fa:plus"

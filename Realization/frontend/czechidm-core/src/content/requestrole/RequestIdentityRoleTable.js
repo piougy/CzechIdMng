@@ -5,7 +5,7 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RequestIdentityRoleManager, RoleRequestManager, IdentityContractManager } from '../../redux';
+import { RequestIdentityRoleManager, RoleRequestManager, IdentityContractManager, SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import RoleSelectByIdentity from './RoleSelectByIdentity';
 import RoleConceptDetail from './RoleConceptDetail';
@@ -538,7 +538,9 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                   />
                 </Basic.AbstractForm>
               </div>
-              <div className="pull-right">
+              <Basic.Div
+                className="pull-right"
+                rendered={ SecurityManager.hasAuthority('ROLE_CANBEREQUESTED') }>
                 <Basic.Button
                   level="success"
                   className="btn-xs"
@@ -556,7 +558,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                   icon="fa:plus"
                   text={ this.i18n('addByIdentity.header') }
                   style={{ marginLeft: 3 }}/>
-              </div>
+              </Basic.Div>
             </div>
           </Basic.Toolbar>
           <Advanced.Table

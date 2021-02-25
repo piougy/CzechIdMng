@@ -5958,6 +5958,40 @@
           }
         }
       },
+      "identity-add-contract-guarantee-bulk-action": {
+        "label": "Add contract guarantee",
+        "icon": "component:contract-guarantee-add",
+        "attributes": {
+          "new-guarantee": {
+            "label": "Guarantees to add",
+            "help": "Selected guarantees will be set as new contract guarantees"
+          }
+        }
+      },
+      "identity-remove-contract-guarantee-bulk-action": {
+        "label": "Remove contract guarantee",
+        "icon": "component:contract-guarantee-remove",
+        "attributes": {
+          "old-guarantee": {
+            "label": "Guarantees to remove",
+            "help": "Selected guarantees will be removed from contract guarantees"
+          }
+        }
+      },
+      "identity-change-contract-guarantee-bulk-action": {
+        "label": "Replace contract guarantee",
+        "icon": "component:contract-guarantee-change",
+        "attributes": {
+          "old-guarantee": {
+            "label": "Original guarantee",
+            "help": "Selected guarantee will be replaced with the new one"
+          },
+          "new-guarantee": {
+            "label": "New guarantee",
+            "help": "Selected guarantee will replace the original one"
+          }
+        }
+      },
       "core-identity-change-user-type-bulk-action": {
         "label": "Change user type",
         "icon": "component:identity-projection",
@@ -7268,6 +7302,10 @@
     "BULK_ACTION_IDENTITY_REMOVE_ROLE_FAILED": {
       "title": "Roles not removed",
       "message": "Roles for identity [{{identity}}] not removed. Roles not found or cannot be removed (its automatic role, business role or for insufficient permissions)."
+    },
+    "BULK_ACTION_NOT_ATHORIZED_CONTRACT_GUARANTEE": {
+      "title": "Insufficient permissions for contract guarantee change",
+      "message": "User is not autorized to perform [{{permission}}] operation with contract guarantee for contract [{{contractId}}] and identity of guarantee [{{guaranteeId}}]."
     },
     "BULK_ACTION_CONTRACT_NOT_FOUND": {
       "title": "Contract not found",

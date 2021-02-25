@@ -774,6 +774,24 @@ module.exports = {
       component: require('./src/components/advanced/Icon/IdentityRoleRemoveIcon')
     },
     {
+      id: 'contract-guarantee-add-icon',
+      type: 'icon',
+      entityType: ['contract-guarantee-add'],
+      component: require('./src/components/advanced/Icon/ContractGuaranteeAddIcon')
+    },
+    {
+      id: 'contract-guarantee-remove-icon',
+      type: 'icon',
+      entityType: ['contract-guarantee-remove'],
+      component: require('./src/components/advanced/Icon/ContractGuaranteeRemoveIcon')
+    },
+    {
+      id: 'contract-guarantee-change-icon',
+      type: 'icon',
+      entityType: ['contract-guarantee-change'],
+      component: require('./src/components/advanced/Icon/ContractGuaranteeChangeIcon')
+    },
+    {
       id: 'role-catalogue-icon',
       type: 'icon',
       entityType: ['role-catalogue'],

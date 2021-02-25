@@ -316,6 +316,7 @@ public enum CoreResultCode implements ResultCode {
 	BULK_ACTION_CONTRACT_NOT_FOUND(HttpStatus.NOT_FOUND, "Contract for identity: [%s] not found."),
 	BULK_ACTION_ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "Roles for remove not found for identity: [%s]."),
 	BULK_ACTION_IDENTITY_REMOVE_ROLE_FAILED(HttpStatus.NOT_FOUND, "Roles for identity [%s] not removed. Roles not found or cannot be removed (its automatic role, business role or for insufficient permissions)."),
+	BULK_ACTION_NOT_ATHORIZED_CONTRACT_GUARANTEE (HttpStatus.FORBIDDEN, "Insufficient permissions [%s] for the guarantee [%s] for contract [%s]."),
 	// Role bulk actions
 	ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES(HttpStatus.FOUND, "Role [%s] has [%s] role-identities."),
 	ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY(HttpStatus.FOUND, "[%s] request concepts need to be modified. It may tak a while."),

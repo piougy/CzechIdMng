@@ -412,6 +412,8 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			this.setValueToConnectorInstance(CREDENTIALS, password, systemDto, connectorFormDef);
 		} else {
 			Assert.notNull(passwordInSystem, "Password cannot be null!");
+			// Load from confidential storage.
+			password = getConfidentialValueFromConnectorInstance(CREDENTIALS, systemDto, connectorFormDef);
 		}
 
 		// Find domain DN.

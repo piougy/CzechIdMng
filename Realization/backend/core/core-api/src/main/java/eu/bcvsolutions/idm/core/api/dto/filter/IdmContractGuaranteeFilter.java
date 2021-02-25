@@ -11,12 +11,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
  * Filter for identity contract's guarantees
  * 
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  *
  */
 public class IdmContractGuaranteeFilter extends DataFilter implements ExternalIdentifiableFilter {
 
 	private UUID identityContractId;
 	private UUID guaranteeId;
+	private UUID identityId; // person contract of which is guaranteed
 	
 	public IdmContractGuaranteeFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -40,5 +42,13 @@ public class IdmContractGuaranteeFilter extends DataFilter implements ExternalId
 	
 	public void setGuaranteeId(UUID guaranteeId) {
 		this.guaranteeId = guaranteeId;
+	}
+
+	public UUID getIdentityId() {
+		return identityId;
+	}
+
+	public void setIdentityId(UUID identityId) {
+		this.identityId = identityId;
 	}
 }

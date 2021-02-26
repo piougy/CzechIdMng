@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.bulk.action.impl;
+package eu.bcvsolutions.idm.core.bulk.action.impl.contract;
 
 import java.util.List;
 import java.util.Map;
@@ -26,9 +26,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  * @author Ondrej Husnik
  *
  */
-
 @Enabled(CoreModuleDescriptor.MODULE_ID)
-@Component("identityRemoveContractGuaranteeBulkAction")
+@Component(IdentityRemoveContractGuaranteeBulkAction.NAME)
 @Description("Remove contract guarantee from idetity in bulk action.")
 public class IdentityRemoveContractGuaranteeBulkAction extends AbstractContractGuaranteeBulkAction {
 
@@ -36,11 +35,10 @@ public class IdentityRemoveContractGuaranteeBulkAction extends AbstractContractG
 
 	public static final String NAME = "identity-remove-contract-guarantee-bulk-action";
 	
-
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		List<IdmFormAttributeDto> formAttributes = super.getFormAttributes();
-		formAttributes.add(getGuaranteeAttribute(OLD_GUARANTEE, true, true));
+		formAttributes.add(getGuaranteeAttribute(PROPERTY_OLD_GUARANTEE, true, true));
 		return formAttributes;
 	}
 	
@@ -63,11 +61,11 @@ public class IdentityRemoveContractGuaranteeBulkAction extends AbstractContractG
 
 	@Override
 	protected OperationResult processDto(IdmIdentityDto identity) {
-		Set<UUID> selectedGuarantees = getSelectedGuaranteeUuids(OLD_GUARANTEE);
+		Set<UUID> selectedGuarantees = getSelectedGuaranteeUuids(PROPERTY_OLD_GUARANTEE);
 		Map<UUID, List<IdmContractGuaranteeDto>> currentGuarantees = getIdentityGuaranteesOrderedByContract(identity.getId());
-		currentGuarantees.forEach((contractId,cgDtos) -> {
+		currentGuarantees.forEach((contractId, contractGuarantees) -> {
 			// create list of guarantee dtos to delete
-			List<IdmContractGuaranteeDto> toDelete = cgDtos
+			List<IdmContractGuaranteeDto> toDelete = contractGuarantees
 					.stream()
 					.filter(guarantee -> selectedGuarantees.contains(guarantee.getGuarantee()))
 					.collect(Collectors.toList());
@@ -76,9 +74,9 @@ public class IdentityRemoveContractGuaranteeBulkAction extends AbstractContractG
 				try {
 					contractGuaranteeService.delete(guarantee, IdmBasePermission.DELETE);
 					logItemProcessed(guarantee, new OperationResult.Builder(OperationState.EXECUTED).build());
-				} catch (ForbiddenEntityException e) {
-					LOG.warn("Not authorized to remove contract guarantee [{}] of contract [{}].", String.valueOf(guarantee.getGuarantee()), String.valueOf(contractId), e);
-					logContractGuaranteePermissionError(guarantee, guarantee.getGuarantee(), contractId, IdmBasePermission.DELETE, e);
+				} catch (ForbiddenEntityException ex) {
+					LOG.warn("Not authorized to remove contract guarantee [{}] of contract [{}].", guarantee.getGuarantee(), contractId, ex);
+					logContractGuaranteePermissionError(guarantee, guarantee.getGuarantee(), contractId, IdmBasePermission.DELETE, ex);
 				}
 			}
 		});

@@ -774,6 +774,19 @@ module.exports = {
       component: require('./src/components/advanced/Icon/IdentityRoleRemoveIcon')
     },
     {
+      id: 'contract-guarantee-info',
+      type: 'entity-info',
+      entityType: ['contractGuarantee', 'IdmContractGuaranteeDto', 'IdmContractGuarantee'],
+      component: require('./src/components/advanced/ContractGuaranteeInfo/ContractGuaranteeInfo').default,
+      manager: require('./src/redux').ContractGuaranteeManager
+    },
+    {
+      id: 'contract-guarantee-icon',
+      type: 'icon',
+      entityType: ['contract-guarantee', 'contract-guarantees'],
+      component: 'fa:user-tie'
+    },
+    {
       id: 'contract-guarantee-add-icon',
       type: 'icon',
       entityType: ['contract-guarantee-add'],

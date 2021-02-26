@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.bulk.action.impl;
+package eu.bcvsolutions.idm.core.bulk.action.impl.contract;
 
 
 import java.util.Arrays;
@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.bulk.action.impl.contract.IdentityAddContractGuaranteeBulkAction;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -77,7 +78,7 @@ public class IdentityAddContractGuaranteeBulkActionTest extends AbstractBulkActi
 		
 		Map<String, Object> properties = new HashMap<>();
 		List<String> uuidStrings = guarantees.stream().map(AbstractDto::getId).map(Object::toString).collect(Collectors.toList());
-		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, uuidStrings);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_NEW_GUARANTEE, uuidStrings);
 		bulkAction.setProperties(properties);
 		bulkActionManager.processAction(bulkAction);
 		//checkResultLrt(processAction, 1l, null, null);
@@ -107,7 +108,7 @@ public class IdentityAddContractGuaranteeBulkActionTest extends AbstractBulkActi
 		
 		Map<String, Object> properties = new HashMap<>();
 		List<String> uuidStrings = guarantees.stream().map(AbstractDto::getId).map(Object::toString).collect(Collectors.toList());
-		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, uuidStrings);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_NEW_GUARANTEE, uuidStrings);
 		bulkAction.setProperties(properties);
 		bulkActionManager.processAction(bulkAction);
 		//checkResultLrt(processAction, 1l, null, null);
@@ -142,7 +143,7 @@ public class IdentityAddContractGuaranteeBulkActionTest extends AbstractBulkActi
 		
 		Map<String, Object> properties = new HashMap<>();
 		List<String> uuidStrings = guarantees.stream().map(AbstractDto::getId).map(Object::toString).collect(Collectors.toList());
-		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, uuidStrings);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_NEW_GUARANTEE, uuidStrings);
 		bulkAction.setProperties(properties);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		// one log record with warning level is expected

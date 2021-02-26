@@ -5322,6 +5322,7 @@
       "modified": "Modified"
     },
     "ContractGuarantee": {
+      "_type": "Contracted positon guarantee",
       "identityContractId": "Contracted position",
       "guarantee": {
         "label": "Guarantee",

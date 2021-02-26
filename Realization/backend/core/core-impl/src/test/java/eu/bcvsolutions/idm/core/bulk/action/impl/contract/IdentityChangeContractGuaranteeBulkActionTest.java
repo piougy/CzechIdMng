@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.bulk.action.impl;
+package eu.bcvsolutions.idm.core.bulk.action.impl.contract;
 
 
 import java.util.ArrayList;
@@ -25,6 +25,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.bulk.action.impl.contract.IdentityAddContractGuaranteeBulkAction;
+import eu.bcvsolutions.idm.core.bulk.action.impl.contract.IdentityChangeContractGuaranteeBulkAction;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -49,7 +51,7 @@ public class IdentityChangeContractGuaranteeBulkActionTest extends AbstractBulkA
 		
 		IdmRoleDto createRole = getHelper().createRole();
 		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdmBasePermission.COUNT, IdmBasePermission.AUTOCOMPLETE);
-		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.CONTRACTGUARANTEE, IdmContractGuarantee.class, IdmBasePermission.DELETE, IdmBasePermission.CREATE);
+		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.CONTRACTGUARANTEE, IdmContractGuarantee.class, IdmBasePermission.READ, IdmBasePermission.DELETE, IdmBasePermission.CREATE);
 		
 		getHelper().createIdentityRole(identity, createRole);
 		loginAsNoAdmin(identity.getUsername());
@@ -80,8 +82,8 @@ public class IdentityChangeContractGuaranteeBulkActionTest extends AbstractBulkA
 		bulkAction.setIdentifiers(ids);
 		
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, oldGuarantees.get(0).getId().toString());
-		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, newGuarantees.get(0).getId().toString());
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_OLD_GUARANTEE, oldGuarantees.get(0).getId().toString());
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_NEW_GUARANTEE, newGuarantees.get(0).getId().toString());
 		bulkAction.setProperties(properties);
 		bulkActionManager.processAction(bulkAction);
 		//checkResultLrt(processAction, 1l, null, null);  // has to be commented out because 
@@ -125,8 +127,8 @@ public class IdentityChangeContractGuaranteeBulkActionTest extends AbstractBulkA
 		bulkAction.setIdentifiers(ids);
 		
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, oldGuarantees.get(0).getId().toString());
-		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, newGuarantees.get(0).getId().toString());
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_OLD_GUARANTEE, oldGuarantees.get(0).getId().toString());
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_NEW_GUARANTEE, newGuarantees.get(0).getId().toString());
 		bulkAction.setProperties(properties);
 		bulkActionManager.processAction(bulkAction);
 		//checkResultLrt(processAction, 1l, null, null);
@@ -170,8 +172,8 @@ public class IdentityChangeContractGuaranteeBulkActionTest extends AbstractBulkA
 		
 		// selected identityDtos
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, String.valueOf(oldGuarantees.get(0).getId()));
-		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, String.valueOf(newGuarantees.get(0).getId()));
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_OLD_GUARANTEE, String.valueOf(oldGuarantees.get(0).getId()));
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_NEW_GUARANTEE, String.valueOf(newGuarantees.get(0).getId()));
 		bulkAction.setProperties(properties);
 		bulkActionManager.processAction(bulkAction);
 //		checkResultLrt(processAction, 1l, null, null);
@@ -211,8 +213,8 @@ public class IdentityChangeContractGuaranteeBulkActionTest extends AbstractBulkA
 		Map<String, Object> properties = new HashMap<>();
 		String oldGuarStr = String.valueOf(guarantees.get(0).getId());
 		String newGuarStr = String.valueOf(guarantees.get(1).getId());
-		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, oldGuarStr);
-		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, newGuarStr);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_OLD_GUARANTEE, oldGuarStr);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_NEW_GUARANTEE, newGuarStr);
 		bulkAction.setProperties(properties);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		// original guarantee was not removed
@@ -252,8 +254,8 @@ public class IdentityChangeContractGuaranteeBulkActionTest extends AbstractBulkA
 		Map<String, Object> properties = new HashMap<>();
 		String oldGuarStr = String.valueOf(guarantees.get(0).getId());
 		String newGuarStr = String.valueOf(guarantees.get(1).getId());
-		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, oldGuarStr);
-		properties.put(IdentityAddContractGuaranteeBulkAction.NEW_GUARANTEE, newGuarStr);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_OLD_GUARANTEE, oldGuarStr);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_NEW_GUARANTEE, newGuarStr);
 		bulkAction.setProperties(properties);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		// original guarantee was not removed

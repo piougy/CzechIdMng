@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.bulk.action.impl;
+package eu.bcvsolutions.idm.core.bulk.action.impl.contract;
 
 import java.util.List;
 import java.util.Map;
@@ -29,9 +29,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  * @author Ondrej Husnik
  *
  */
-
 @Enabled(CoreModuleDescriptor.MODULE_ID)
-@Component("identityAddContractGuaranteeBulkAction")
+@Component(IdentityAddContractGuaranteeBulkAction.NAME)
 @Description("Add contract guarantee to idetity in bulk action.")
 public class IdentityAddContractGuaranteeBulkAction extends AbstractContractGuaranteeBulkAction {
 
@@ -39,11 +38,10 @@ public class IdentityAddContractGuaranteeBulkAction extends AbstractContractGuar
 
 	public static final String NAME = "identity-add-contract-guarantee-bulk-action";
 	
-
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		List<IdmFormAttributeDto> formAttributes = super.getFormAttributes();
-		formAttributes.add(getGuaranteeAttribute(NEW_GUARANTEE, false, true));
+		formAttributes.add(getGuaranteeAttribute(PROPERTY_NEW_GUARANTEE, false, true));
 		return formAttributes;
 	}
 	
@@ -66,26 +64,26 @@ public class IdentityAddContractGuaranteeBulkAction extends AbstractContractGuar
 
 	@Override
 	protected OperationResult processDto(IdmIdentityDto identity) {
-		Set<UUID> newGuarantees = getSelectedGuaranteeUuids(NEW_GUARANTEE);
+		Set<UUID> newGuarantees = getSelectedGuaranteeUuids(PROPERTY_NEW_GUARANTEE);
 		
-		Map<UUID,List<IdmContractGuaranteeDto>> currentGuarantees = getIdentityGuaranteesOrderedByContract(identity.getId());
+		Map<UUID, List<IdmContractGuaranteeDto>> currentGuarantees = getIdentityGuaranteesOrderedByContract(identity.getId());
 		// iterate over all contract UUIDs ~ keys and contractGuarantees in List ~ values
 		
 		for (Map.Entry<UUID, List<IdmContractGuaranteeDto>> entry : currentGuarantees.entrySet()) {
 			UUID contractId = entry.getKey();
-			List<IdmContractGuaranteeDto> cgDtos = entry.getValue();
+			List<IdmContractGuaranteeDto> contractGuarantees = entry.getValue();
 		
-			Set<UUID> currentGuaranteesUuidSet = cgDtos.stream().map(IdmContractGuaranteeDto::getGuarantee).collect(Collectors.toSet());
+			Set<UUID> currentGuaranteesUuidSet = contractGuarantees.stream().map(IdmContractGuaranteeDto::getGuarantee).collect(Collectors.toSet());
 			Set<UUID> guaranteesToAdd = Sets.difference(newGuarantees, currentGuaranteesUuidSet);
 			// add all new contract guarantees
 			for (UUID guaranteeId : guaranteesToAdd) {
 				try {
 					IdmContractGuaranteeDto guaranteeDto = createContractGuarantee(guaranteeId, contractId, IdmBasePermission.CREATE);
 					logItemProcessed(guaranteeDto, new OperationResult.Builder(OperationState.EXECUTED).build());
-				} catch (ForbiddenEntityException e) {
-					LOG.warn("Not authorized to set contract guarantee [{}] of contract [{}].", String.valueOf(guaranteeId), String.valueOf(contractId), e);
+				} catch (ForbiddenEntityException ex) {
+					LOG.warn("Not authorized to set contract guarantee [{}] of contract [{}].", guaranteeId, contractId, ex);
 					IdmIdentityContractDto dto = identityContractService.get(contractId);
-					logContractGuaranteePermissionError(dto, guaranteeId, contractId, IdmBasePermission.CREATE, e);
+					logContractGuaranteePermissionError(dto, guaranteeId, contractId, IdmBasePermission.CREATE, ex);
 				}
 			}
 		}

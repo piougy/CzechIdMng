@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.bulk.action.impl;
+package eu.bcvsolutions.idm.core.bulk.action.impl.contract;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,6 +25,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.bulk.action.impl.contract.IdentityAddContractGuaranteeBulkAction;
+import eu.bcvsolutions.idm.core.bulk.action.impl.contract.IdentityRemoveContractGuaranteeBulkAction;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractGuarantee;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -81,7 +83,7 @@ public class IdentityRemoveContractGuaranteeBulkActionTest extends AbstractBulkA
 		// selected identityDtos
 		List<String> uuidStrings = guarantees.subList(1, 3).stream().map(AbstractDto::getId).map(Object::toString).collect(Collectors.toList());
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, uuidStrings);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_OLD_GUARANTEE, uuidStrings);
 		bulkAction.setProperties(properties);
 		bulkActionManager.processAction(bulkAction);
 		//checkResultLrt(processAction, 1l, null, null);
@@ -115,7 +117,7 @@ public class IdentityRemoveContractGuaranteeBulkActionTest extends AbstractBulkA
 		// selected identityDtos
 		List<String> uuidStrings = guarantees.subList(0, guarantees.size()-1).stream().map(AbstractDto::getId).map(Object::toString).collect(Collectors.toList());
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, uuidStrings);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_OLD_GUARANTEE, uuidStrings);
 		bulkAction.setProperties(properties);
 		bulkActionManager.processAction(bulkAction);
 		//checkResultLrt(processAction, 1l, null, null);
@@ -154,7 +156,7 @@ public class IdentityRemoveContractGuaranteeBulkActionTest extends AbstractBulkA
 		
 		Map<String, Object> properties = new HashMap<>();
 		List<String> uuidStrings = guarantees.stream().map(AbstractDto::getId).map(Object::toString).collect(Collectors.toList());
-		properties.put(IdentityAddContractGuaranteeBulkAction.OLD_GUARANTEE, uuidStrings);
+		properties.put(IdentityAddContractGuaranteeBulkAction.PROPERTY_OLD_GUARANTEE, uuidStrings);
 		bulkAction.setProperties(properties);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, null, 0l, 1l);

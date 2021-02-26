@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -21,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmContractGuaranteeRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Identity's contract guarantee - manually defined  manager (if no tree structure is defined etc.)
+ * Identity's contract guarantee - manually defined  manager (if no tree structure is defined etc.).
  * 
  * @author Radek Tomiška
  *
@@ -56,11 +57,12 @@ public class DefaultIdmContractGuaranteeService
 					root.get(IdmContractGuarantee_.guarantee).get(AbstractEntity_.id), 
 					filter.getGuaranteeId()));
 		}
-		// guaranteed person
-		if (filter.getIdentityId() != null) {
+		// guaranteed identity
+		UUID identity = filter.getIdentity();
+		if (identity != null) {
 			predicates.add(builder.equal(
 					root.get(IdmContractGuarantee_.identityContract).get(IdmIdentityContract_.identity).get(AbstractEntity_.id),
-					filter.getIdentityId()));
+					identity));
 		}
 		
 		return predicates;

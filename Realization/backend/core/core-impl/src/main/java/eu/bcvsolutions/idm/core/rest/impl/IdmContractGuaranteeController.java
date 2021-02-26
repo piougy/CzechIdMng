@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -262,5 +263,14 @@ public class IdmContractGuaranteeController extends AbstractEventableDtoControll
 			@ApiParam(value = "Contract guarantee's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
+	}
+	
+	@Override
+	protected IdmContractGuaranteeFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmContractGuaranteeFilter filter =  super.toFilter(parameters);
+		// codeable decorator
+		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, IdmContractGuaranteeFilter.PARAMETER_IDENTITY, IdmIdentityDto.class));
+		//
+		return filter;
 	}
 }

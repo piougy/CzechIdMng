@@ -5381,6 +5381,7 @@
       }
     },
     "ContractGuarantee": {
+      "_type": "Garant pracovněprávního vztahu",
       "identityContractId": "Pracovněprávní vztah",
       "guarantee": {
         "label": "Garant",

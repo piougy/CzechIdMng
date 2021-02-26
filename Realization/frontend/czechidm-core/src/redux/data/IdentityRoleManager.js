@@ -48,12 +48,12 @@ export default class IdentityRoleManager extends FormableEntityManager {
     return (dispatch) => {
       dispatch(this.requestEntities(null, uiKey));
       identityService.getRoles(username)
-      .then(json => {
-        dispatch(this.receiveEntities(null, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError({}, uiKey, error, cb));
-      });
+        .then(json => {
+          dispatch(this.receiveEntities(null, json, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError({}, uiKey, error, cb));
+        });
     };
   }
 }

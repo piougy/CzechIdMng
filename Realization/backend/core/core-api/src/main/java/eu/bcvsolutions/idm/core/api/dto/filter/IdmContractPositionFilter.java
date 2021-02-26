@@ -24,7 +24,7 @@ public class IdmContractPositionFilter extends DataFilter implements ExternalIde
 	/**
 	 * Related contract - position owner.
 	 */
-	public static final String PARAMETER_IDENTITY_CONTRACT_ID = "identityContractId";
+	public static final String PARAMETER_IDENTITY_CONTRACT_ID = IdmIdentityRoleFilter.PARAMETER_IDENTITY_CONTRACT_ID;
 	/**
 	 * Position work position (tree node identifier).
 	 */

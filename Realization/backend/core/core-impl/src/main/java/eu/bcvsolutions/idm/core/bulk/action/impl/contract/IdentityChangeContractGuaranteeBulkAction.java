@@ -9,11 +9,9 @@ import org.apache.commons.lang.ObjectUtils;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -50,8 +48,7 @@ public class IdentityChangeContractGuaranteeBulkAction extends AbstractContractG
 	@Override
 	public List<String> getAuthorities() {
 		List<String> permissions = super.getAuthorities();
-		permissions.add(CoreGroupPermission.CONTRACTGUARANTEE_CREATE);
-		permissions.add(CoreGroupPermission.CONTRACTGUARANTEE_DELETE);
+		permissions.add(CoreGroupPermission.CONTRACTGUARANTEE_UPDATE);
 		return permissions;
 	}
 
@@ -77,29 +74,21 @@ public class IdentityChangeContractGuaranteeBulkAction extends AbstractContractG
 		Map<UUID, List<IdmContractGuaranteeDto>> currentGuaranteesByContract = getIdentityGuaranteesOrderedByContract(identity.getId());
 		// iterate over all contract UUIDs ~ keys and contractGuarantees in List ~ values
 		currentGuaranteesByContract.forEach((contractId, contractGuarantees) -> {
-			List<IdmContractGuaranteeDto> toDelete = contractGuarantees.stream().filter(dto -> dto.getGuarantee().equals(oldGuarantee)).collect(Collectors.toList()); 
-			if (toDelete.isEmpty()) {
+			List<IdmContractGuaranteeDto> toUpdate = contractGuarantees.stream().filter(dto -> dto.getGuarantee().equals(oldGuarantee)).collect(Collectors.toList()); 
+			if (toUpdate.isEmpty()) {
 				// there is no guarantee who to replace for this contract, start new iteration
 				return;
 			}
-			for (IdmContractGuaranteeDto guarantee : toDelete) { // if same guarantee added multiple-times delete all occurrences
+			for (IdmContractGuaranteeDto guarantee : toUpdate) { // if same guarantee added multiple-times update all occurrences
 				try {
-					contractGuaranteeService.deleteById(guarantee, IdmBasePermission.DELETE);
+					guarantee.setGuarantee(newGuarantee);
+					contractGuaranteeService.save(guarantee, IdmBasePermission.UPDATE);
 					logItemProcessed(guarantee, new OperationResult.Builder(OperationState.EXECUTED).build());
 				} catch (ForbiddenEntityException ex) {
 					LOG.warn("Not authorized to remove the contract guarantee [{}] from contract [{}]  .", guarantee, contractId, ex);
-					logContractGuaranteePermissionError(guarantee, guarantee.getGuarantee(), contractId, IdmBasePermission.DELETE, ex);
+					logContractGuaranteePermissionError(guarantee, guarantee.getGuarantee(), contractId, IdmBasePermission.UPDATE, ex);
 					return; // start the new iteration for another contract, this guarantee wasn't removed here
 				}
-			}
-			// add new guarantee
-			try {
-				IdmContractGuaranteeDto newGuaranteeDto = createContractGuarantee(newGuarantee, contractId, IdmBasePermission.CREATE);
-				logItemProcessed(newGuaranteeDto, new OperationResult.Builder(OperationState.EXECUTED).build());
-			} catch (ForbiddenEntityException e) {
-				LOG.warn("Not authorized to set identity [{}] as the Contract Guarantee of [{}] contract.", String.valueOf(newGuarantee), String.valueOf(contractId), e);
-				IdmIdentityContractDto dto = identityContractService.get(contractId);
-				logContractGuaranteePermissionError(dto, newGuarantee, contractId, IdmBasePermission.CREATE, e);
 			}
 		});
 		return new OperationResult.Builder(OperationState.EXECUTED).build();

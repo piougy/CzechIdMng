@@ -1,8 +1,8 @@
 # CzechIdM Tool
 
 ## Features
-- Release product version - release product under final version, new development version will be set, tag will be prepared.
-- Release module version - release module under final version, new development version will be set, tag will be prepared.
+- Release product version - release product under final or release candidate version, new development version will be set, tag will be prepared.
+- Release module version - release module under final or release candidate version, new development version will be set, tag will be prepared.
 - Change product version - set version for all modules.
 - Get product version - for test reasons only.
 - Build product version - for test reasons only.
@@ -236,6 +236,11 @@ Example of ``settings.xml``:
     <activeProfile>nexus-repo</activeProfile>
   </activeProfiles>
 </settings>
+```
+
+Release and publish product as release candidate:
+```bash
+java -Xmx8192m -jar idm-tool.jar --release-publish --release-version 10.8.0-RC.1 --develop-version 10.8.1-SNAPSHOT
 ```
 
 ### Get product version

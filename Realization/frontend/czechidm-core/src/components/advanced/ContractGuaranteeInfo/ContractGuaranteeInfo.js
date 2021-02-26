@@ -170,10 +170,6 @@ ContractGuaranteeInfo.propTypes = {
    * Selected entity's id - entity will be loaded automatically
    */
   entityIdentifier: PropTypes.string,
-  /**
-   * Show asigned role's identity
-   */
-  showIdentity: PropTypes.bool,
   //
   _showLoading: PropTypes.bool,
   _permissions: PropTypes.oneOfType([
@@ -185,8 +181,7 @@ ContractGuaranteeInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
   face: 'link',
-  _showLoading: true,
-  showIdentity: true
+  _showLoading: true
 };
 
 function select(state, component) {

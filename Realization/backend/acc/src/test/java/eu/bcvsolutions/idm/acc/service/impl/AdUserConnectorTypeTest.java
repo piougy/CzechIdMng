@@ -288,6 +288,33 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void testReopenSystemWithoutOptionsAttributes() {
+		ConnectorType connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);
+		ConnectorTypeDto connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
+		SysSystemDto systemDto = createSystem(this.getHelper().createName(), connectorTypeDto);
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.SYSTEM_DTO_KEY, systemDto.getId().toString());
+
+		IdmFormDefinitionDto operationOptionsConnectorFormDefinition = systemService.getOperationOptionsConnectorFormDefinition(systemDto);
+		// Try to find attribute for one of container. If exist -> change code = simulate delete.
+		IdmFormAttributeDto userSearchContainerAttribute = operationOptionsConnectorFormDefinition.getMappedAttributeByCode(MockAdUserConnectorType.USER_SEARCH_CONTAINER_KEY);
+		if (userSearchContainerAttribute != null) {
+			userSearchContainerAttribute.setCode(getHelper().createName());
+			formService.saveAttribute(userSearchContainerAttribute, null);
+		}
+
+		connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);
+		connectorTypeDto = connectorManager.convertTypeToDto(connectorType);
+		connectorTypeDto.setReopened(true);
+		connectorTypeDto.getEmbedded().put(MockAdUserConnectorType.SYSTEM_DTO_KEY, systemDto);
+		connectorTypeDto.getMetadata().put(MockAdUserConnectorType.SYSTEM_DTO_KEY, systemDto.getId().toString());
+		ConnectorTypeDto loadedConnectorTypeDto = connectorManager.load(connectorTypeDto);
+		assertNotNull(loadedConnectorTypeDto);
+		
+		// Clean
+		systemService.delete(systemDto);
+	}
+	
+	@Test
 	public void testPairingSync() {
 		ConnectorType connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);
 		ConnectorTypeDto connectorTypeDto = connectorManager.convertTypeToDto(connectorType);

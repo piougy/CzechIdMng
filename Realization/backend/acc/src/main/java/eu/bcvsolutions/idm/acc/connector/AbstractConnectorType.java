@@ -292,9 +292,11 @@ public abstract class AbstractConnectorType implements
 
 	protected String getValueFromConnectorInstance(String attributeCode, SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
 		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(attributeCode);
-		List<IdmFormValueDto> values = formService.getValues(systemDto, attribute, IdmBasePermission.READ);
-		if (values != null && values.size() == 1) {
-			return values.get(0).getValue().toString();
+		if (attribute != null) {
+			List<IdmFormValueDto> values = formService.getValues(systemDto, attribute, IdmBasePermission.READ);
+			if (values != null && values.size() == 1) {
+				return values.get(0).getValue().toString();
+			}
 		}
 		return null;
 	}

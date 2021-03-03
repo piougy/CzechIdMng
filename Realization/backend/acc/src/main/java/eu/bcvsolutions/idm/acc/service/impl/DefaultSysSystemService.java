@@ -181,8 +181,8 @@ public class DefaultSysSystemService
 	@Override
 	protected SysSystem toEntity(SysSystemDto dto, SysSystem entity) {
 		SysSystem system = super.toEntity(dto, entity);
-		if (system != null && system.getRemoteServer() != null) {
-			system.setRemote(false); // flag is deprecated @since 10.8.0
+		if (system != null) {
+			system.setRemote(system.getRemoteServer() != null); // flag is deprecated @since 10.8.0
 		}
 		return system;
 	}

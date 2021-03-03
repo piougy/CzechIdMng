@@ -11,7 +11,10 @@ import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRemoteServerFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
+import eu.bcvsolutions.idm.acc.entity.SysBlockedOperation;
+import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
@@ -31,11 +34,11 @@ public class AccInitRemoteServerProcessorIntegrationTest extends AbstractIntegra
 
 	@Autowired private AccInitRemoteServerProcessor initProcessor;
 	@Autowired private SysSystemService systemService;
+	@Autowired private SysSystemRepository systemRepository;
 	@Autowired private SysRemoteServerService remoteServerService;
 	@Autowired private ConfidentialStorage confidentialStorage;
 	
 	@Test
-	@SuppressWarnings("deprecation") // we need to init system old way
 	public void testInit() {
 		String host = getHelper().createName();
 		String password = getHelper().createName();
@@ -55,66 +58,82 @@ public class AccInitRemoteServerProcessorIntegrationTest extends AbstractIntegra
 		Assert.assertEquals(1, results.size());
 		SysConnectorServerDto existRemoteServer = results.get(0);
 		//
-		SysSystemDto system = new SysSystemDto();
+		// wee need to save system old way => repository is used
+		SysSystem system = new SysSystem();
 		system.setRemote(true);
 		system.setName(getHelper().createName());
 		system.setDescription(description);
-		system.setConnectorServer(new SysConnectorServerDto());
+		system.setConnectorServer(new SysConnectorServer());
 		system.getConnectorServer().setHost(host);
 		system.getConnectorServer().setPassword(new GuardedString(password));
 		system.getConnectorServer().setPort(1);
 		system.getConnectorServer().setTimeout(2);
 		system.getConnectorServer().setUseSsl(true);
-		SysSystemDto systemOne = systemService.save(system);
+		system.setBlockedOperation(new SysBlockedOperation());
+		SysSystemDto systemOne = systemService.get(systemRepository.save(system).getId());
+		confidentialStorage.saveGuardedString(systemOne.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD, new GuardedString(password));
 		//
-		system = new SysSystemDto();
+		system = new SysSystem();
 		system.setRemote(true);
 		system.setName(getHelper().createName());
 		system.setDescription(description);
-		system.setConnectorServer(new SysConnectorServerDto());
+		system.setConnectorServer(new SysConnectorServer());
 		system.getConnectorServer().setHost(host);
 		system.getConnectorServer().setPassword(new GuardedString(password));
 		system.getConnectorServer().setPort(1);
 		system.getConnectorServer().setTimeout(2);
 		system.getConnectorServer().setUseSsl(true);
-		SysSystemDto systemTwo = systemService.save(system);
+		system.setBlockedOperation(new SysBlockedOperation());
+		SysSystemDto systemTwo = systemService.get(systemRepository.save(system).getId());
+		confidentialStorage.saveGuardedString(systemTwo.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD, new GuardedString(password));
 		//
-		system = new SysSystemDto();
+		system = new SysSystem();
 		system.setRemote(true);
 		system.setName(getHelper().createName());
 		system.setDescription(description);
-		system.setConnectorServer(new SysConnectorServerDto());
+		system.setConnectorServer(new SysConnectorServer());
 		system.getConnectorServer().setHost(host);
 		String differentPassword = getHelper().createName();
 		system.getConnectorServer().setPassword(new GuardedString(differentPassword)); // different password
 		system.getConnectorServer().setPort(1);
 		system.getConnectorServer().setTimeout(2);
 		system.getConnectorServer().setUseSsl(true);
-		SysSystemDto systemThree = systemService.save(system);
+		system.setBlockedOperation(new SysBlockedOperation());
+		SysSystemDto systemThree = systemService.get(systemRepository.save(system).getId());
+		confidentialStorage.saveGuardedString(systemThree.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD, new GuardedString(differentPassword));
 		//
-		system = new SysSystemDto();
+		system = new SysSystem();
 		system.setRemote(true);
 		system.setName(getHelper().createName());
 		system.setDescription(description);
-		system.setConnectorServer(new SysConnectorServerDto());
+		system.setConnectorServer(new SysConnectorServer());
 		system.getConnectorServer().setHost(host);
 		system.getConnectorServer().setPassword(new GuardedString(password));
 		system.getConnectorServer().setPort(1);
 		system.getConnectorServer().setTimeout(2);
 		system.getConnectorServer().setUseSsl(false); // useSsl - different
-		SysSystemDto systemFour = systemService.save(system);
+		system.setBlockedOperation(new SysBlockedOperation());
+		SysSystemDto systemFour = systemService.get(systemRepository.save(system).getId());
+		confidentialStorage.saveGuardedString(systemFour.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD, new GuardedString(password));
 		//
-		system = new SysSystemDto();
+		system = new SysSystem();
 		system.setRemote(true);
 		system.setName(getHelper().createName());
 		system.setDescription(description);
-		system.setConnectorServer(new SysConnectorServerDto());
+		system.setConnectorServer(new SysConnectorServer());
 		system.getConnectorServer().setHost(host);
 		system.getConnectorServer().setPassword(new GuardedString(password));
 		system.getConnectorServer().setPort(2);
 		system.getConnectorServer().setTimeout(2);
 		system.getConnectorServer().setUseSsl(true); // useSsl - different
-		SysSystemDto systemFive = systemService.save(system);
+		system.setBlockedOperation(new SysBlockedOperation());
+		SysSystemDto systemFive = systemService.get(systemRepository.save(system).getId());
+		confidentialStorage.saveGuardedString(systemFive.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD, new GuardedString(password));
 		//
 		SysSystemFilter systemFilter = new SysSystemFilter();
 		systemFilter.setText(description);

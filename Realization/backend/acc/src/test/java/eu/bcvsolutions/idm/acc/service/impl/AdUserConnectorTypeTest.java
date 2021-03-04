@@ -299,7 +299,7 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 		IdmFormAttributeDto userSearchContainerAttribute = operationOptionsConnectorFormDefinition.getMappedAttributeByCode(MockAdUserConnectorType.USER_SEARCH_CONTAINER_KEY);
 		if (userSearchContainerAttribute != null) {
 			userSearchContainerAttribute.setCode(getHelper().createName());
-			formService.saveAttribute(userSearchContainerAttribute, null);
+			formService.saveAttribute(userSearchContainerAttribute);
 		}
 
 		connectorType = connectorManager.getConnectorType(MockAdUserConnectorType.NAME);

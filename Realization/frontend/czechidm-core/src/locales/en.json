@@ -1863,7 +1863,7 @@
       "types": {
         "header": "Structure types",
         "title": "Structure types",
-        "edit": "detail the type of structure",
+        "edit": "structure type detail",
         "create": "New type of tree structure",
         "save": {
           "success": "Type [{{name}}] successfully saved."
@@ -7433,6 +7433,10 @@
       "message": "Set at least one of automatic role by tree structure."
     },
     "AUTOMATIC_ROLE_SKIPPED": {
+      "title": "Recount of automatic roles was skipped",
+      "message": "Automatic roles by tree strucuture were not processed, when record was saved."
+    },
+    "AUTOMATIC_ROLE_SKIPPED_INVALID_CONTRACT": {
       "title": "Recount of automatic roles was skipped",
       "message": "Automatic roles by tree strucuture were not processed, when record was saved."
     },

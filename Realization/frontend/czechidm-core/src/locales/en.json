@@ -7434,11 +7434,11 @@
     },
     "AUTOMATIC_ROLE_SKIPPED": {
       "title": "Recount of automatic roles was skipped",
-      "message": "Automatic roles by tree strucuture were not processed, when record was saved."
+      "message": "Automatic roles by tree structure were not processed, when record was saved."
     },
     "AUTOMATIC_ROLE_SKIPPED_INVALID_CONTRACT": {
       "title": "Recount of automatic roles was skipped",
-      "message": "Automatic roles by tree strucuture were not processed, when record was saved."
+      "message": "Automatic roles were not removed, when invalid contract was saved."
     },
     "BACKUP_FAIL": {
       "title": "Backup failed",

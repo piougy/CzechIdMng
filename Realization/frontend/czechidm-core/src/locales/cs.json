@@ -7488,6 +7488,10 @@
       "title": "Přepočet automatických rolí nebyl proveden",
       "message": "Při ukládání záznamu nebyl proveden přepočet automatických rolí dle stromové struktury."
     },
+    "AUTOMATIC_ROLE_SKIPPED_INVALID_CONTRACT": {
+      "title": "Přepočet automatických rolí nebyl proveden",
+      "message": "Při ukládání neplatného kontraktu nebyly odebrány automatické role."
+    },
     "BACKUP_FAIL": {
       "title": "Záloha nebyla provedena",
       "message": "Záloha záznamu selhala."

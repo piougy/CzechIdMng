@@ -21,22 +21,34 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityState_;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.contract.ContractPositionAutomaticRoleProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractUpdateByAutomaticRoleProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -59,6 +71,9 @@ public class ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor extends Ab
 	@Autowired private EntityStateManager entityStateManager;
 	@Autowired private IdentityContractUpdateByAutomaticRoleProcessor contractProcessor;
 	@Autowired private ContractPositionAutomaticRoleProcessor positionProcessor;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	//
 	private Set<UUID> processedOwnerIds = new HashSet<>(); // distinct owners will be processed
 
@@ -102,11 +117,14 @@ public class ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor extends Ab
 		pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Direction.ASC, IdmEntityState_.created.getName()));
 		filter.setStates(Lists.newArrayList(OperationState.BLOCKED));
 		filter.setResultCode(CoreResultCode.AUTOMATIC_ROLE_SKIPPED.getCode());
+		// for position
+		filter.setOwnerType(entityStateManager.getOwnerType(IdmContractPositionDto.class));
+		states.addAll(entityStateManager.findStates(filter, pageable).getContent());
 		// for contract
 		filter.setOwnerType(entityStateManager.getOwnerType(IdmIdentityContractDto.class));
 		states.addAll(entityStateManager.findStates(filter, pageable).getContent());
-		// for position
-		filter.setOwnerType(entityStateManager.getOwnerType(IdmContractPositionDto.class));
+		// for invalid contracts - has to be last => new roles are assigned already
+		filter.setResultCode(CoreResultCode.AUTOMATIC_ROLE_SKIPPED_INVALID_CONTRACT.getCode());
 		states.addAll(entityStateManager.findStates(filter, pageable).getContent());
 		//
 		return new PageImpl<>(states);
@@ -137,6 +155,14 @@ public class ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor extends Ab
 									"ownerId", ownerId,
 									"ownerType", entityStateManager.getOwnerType(IdmIdentityContractDto.class))))
 							.build(), 
+						this.getLongRunningTaskId()
+				);
+			} else if(!contract.isValidNowOrInFuture()) {
+				removeAllAutomaticRoles(contract);
+				//
+				getItemService().createLogItem(
+						contract, 
+						new OperationResult.Builder(OperationState.EXECUTED).build(), 
 						this.getLongRunningTaskId()
 				);
 			} else {			
@@ -184,5 +210,51 @@ public class ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor extends Ab
 		return Optional.empty();
 	}
 	
-	
+	private void removeAllAutomaticRoles(IdmIdentityContractDto invalidContract) {
+		UUID contractId = invalidContract.getId();
+		UUID identityId = invalidContract.getIdentity();
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityContractId(contractId);
+		filter.setAutomaticRole(Boolean.TRUE);
+		filter.setDirectRole(Boolean.TRUE);
+		//
+		List<IdmIdentityRoleDto> contractRoles = identityRoleService.find(filter, null).getContent();
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(contractRoles.size());
+		for (IdmIdentityRoleDto identityRole : contractRoles) {
+			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setIdentityRole(identityRole.getId());
+			conceptRoleRequest.setAutomaticRole(identityRole.getAutomaticRole());
+			conceptRoleRequest.setRole(identityRole.getRole());
+			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+			conceptRoleRequest.setIdentityContract(contractId);
+			//
+			concepts.add(conceptRoleRequest);
+		}
+		if (concepts.isEmpty()) {
+			LOG.debug("invalid contract [{}] does not have assigned roles.", contractId);
+			//
+			return;
+		}
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setState(RoleRequestState.CONCEPT);
+		roleRequest.setExecuteImmediately(true); // without approval
+		roleRequest.setApplicant(identityId);
+		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
+		roleRequest = roleRequestService.save(roleRequest);
+		//
+		for (IdmConceptRoleRequestDto concept : concepts) {
+			concept.setRoleRequest(roleRequest.getId());
+			//
+			conceptRoleRequestService.save(concept);
+		}
+		//
+		// start event with skip check authorities
+		RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+		requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+		// prevent to start asynchronous event before previous update event is completed. 
+		requestEvent.setSuperOwnerId(identityId);
+		//
+		roleRequestService.startRequestInternal(requestEvent);
+	}
 }

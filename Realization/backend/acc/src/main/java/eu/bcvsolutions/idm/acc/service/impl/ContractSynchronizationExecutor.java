@@ -653,16 +653,18 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 
 		EventContext<IdmIdentityContractDto> publishContext = contractService.publish(event);
 		IdmIdentityContractDto contract = publishContext.getContent();
+		
 		// We need to flag recalculation for contract immediately to prevent synchronization ends before flag is created by NOTIFY event asynchronously.
-		if (contract.isValidNowOrInFuture()) {	
-			Map<String, Serializable> properties = new HashMap<>();
-			EventResult<IdmIdentityContractDto> lastResult = publishContext.getLastResult();
-			if (lastResult != null) {
-				// original contract as property
-				properties.put(EntityEvent.EVENT_PROPERTY_ORIGINAL_SOURCE, lastResult.getEvent().getOriginalSource());
-			}
-			
+		Map<String, Serializable> properties = new HashMap<>();
+		EventResult<IdmIdentityContractDto> lastResult = publishContext.getLastResult();
+		if (lastResult != null) {
+			// original contract as property
+			properties.put(EntityEvent.EVENT_PROPERTY_ORIGINAL_SOURCE, lastResult.getEvent().getOriginalSource());
+		}
+		if (contract.isValidNowOrInFuture()) {
 			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, properties);
+		} else {
+			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED_INVALID_CONTRACT, properties);
 		}
 		//
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.event.processor.contract;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -157,19 +158,26 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		if (!contract.isValidNowOrInFuture()) {
 			List<IdmIdentityRoleDto> contractRoles = identityRoleService.findAllByContract(contract.getId());
 			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(contractRoles.size());
-			for(IdmIdentityRoleDto identityRole : contractRoles) {
+			for (IdmIdentityRoleDto identityRole : contractRoles) {
 				if (identityRole.getDirectRole() != null) {
 					LOG.debug("Sub role will be removed by direct role removal");
 					//
 					continue;
 				}
 				if (identityRole.getAutomaticRole() != null) {
-					LOG.debug("Automatic role will be removed by role expiration task"
-							+ " - automatic roles for invalid contracts are not evaluated.");
+					if (BooleanUtils.isTrue(skipRecalculation)) {
+						LOG.debug("Automatic role will be removed by role or contract expiration task"
+								+ " or by ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor.");
+						continue;
+					} else {
+						LOG.debug("Automatic role will be removed by this task => contract is expired.");
+					}
 				}
+				//
 				IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
 				conceptRoleRequest.setIdentityRole(identityRole.getId());
 				conceptRoleRequest.setRole(identityRole.getRole());
+				conceptRoleRequest.setAutomaticRole(identityRole.getAutomaticRole());
 				conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
 				conceptRoleRequest.setIdentityContract(contract.getId());
 				//

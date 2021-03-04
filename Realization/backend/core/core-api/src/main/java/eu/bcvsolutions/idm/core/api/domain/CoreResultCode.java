@@ -221,6 +221,7 @@ public enum CoreResultCode implements ResultCode {
 	AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT(HttpStatus.BAD_REQUEST, "Persistent type TEXT isn't allowed."),
 	AUTOMATIC_ROLE_PROCESS_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Automatic role [%s] was not process correctly, failed contracts add: [%s], failed contracts remove: [%s]."),
 	AUTOMATIC_ROLE_SKIPPED(HttpStatus.ACCEPTED, "Recount of automatic roles was skipped."),
+	AUTOMATIC_ROLE_SKIPPED_INVALID_CONTRACT(HttpStatus.ACCEPTED, "Recount of automatic roles for invalid contract was skipped."),
 	//
 	// role tree node
 	ROLE_TREE_NODE_TYPE_EXISTS(HttpStatus.CONFLICT, "Role tree node for this role id: [%s], tree node id: [%s] and recursion type [%s] already exists"),

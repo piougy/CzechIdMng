@@ -1658,6 +1658,49 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
 	}
 	
+	@Test
+	public void testSkipAndRemoveAutomaticRoleOnInvalidContract() {
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto subRole = getHelper().createRole();
+		getHelper().createRoleComposition(role, subRole);
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.NO, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().createContract(identity, node);
+		// role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getDirectRole() != null));
+		//
+		contract.setValidTill(LocalDate.now().minusDays(2));
+		EntityEvent<IdmIdentityContractDto> event = new IdentityContractEvent(IdentityContractEventType.UPDATE, contract);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+		contract = service.publish(event).getContent();
+		UUID contractId = contract.getId();
+		IdmEntityStateFilter filter = new IdmEntityStateFilter();
+		filter.setStates(Lists.newArrayList(OperationState.BLOCKED));
+		filter.setResultCode(CoreResultCode.AUTOMATIC_ROLE_SKIPPED_INVALID_CONTRACT.getCode());
+		filter.setOwnerType(entityStateManager.getOwnerType(IdmIdentityContractDto.class));
+		List<IdmEntityStateDto> skippedStates = entityStateManager.findStates(filter, null).getContent();
+		Assert.assertTrue(skippedStates.stream().anyMatch(s -> s.getOwnerId().equals(contractId)));
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getDirectRole() != null));
+		//
+		// recount skipped automatic roles
+		longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor());
+		skippedStates = entityStateManager.findStates(filter, null).getContent();
+		Assert.assertFalse(skippedStates.stream().anyMatch(s -> s.getOwnerId().equals(automaticRole.getId())));
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+	}
+	
 	@Test(expected = AcceptedException.class)
 	public void testPreventToDeleteCurrentlyDeletedRole() {
 		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(getHelper().createRole(), getHelper().createTreeNode(), true);

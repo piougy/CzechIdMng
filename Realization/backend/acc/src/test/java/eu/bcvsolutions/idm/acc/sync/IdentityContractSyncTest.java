@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Page;
 import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -34,6 +36,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
@@ -42,6 +45,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
@@ -49,6 +53,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestContractResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
@@ -59,6 +64,7 @@ import eu.bcvsolutions.idm.acc.service.impl.ContractSynchronizationExecutor;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
@@ -156,6 +162,8 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	private AccAccountService accountService;
 	@Autowired 
 	private FormService formService;
+	@Autowired 
+	private SysProvisioningArchiveService provisioningArchiveService;
 
 	@Before
 	public void init() {
@@ -357,6 +365,97 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(roleContract.getId())));
 		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subRoleContract.getId())));
 		
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void testInvalidateAndCreateAnotherContractWithAutomaticRoles() {
+		SysSystemDto system = initData();
+		SysSystemDto systemProvisioning = helper.createTestResourceSystem(true);
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);		
+		contractService.delete(getHelper().getPrimeContract(identity));
+		//
+		// create first contract with validity and automatic role
+		String positionCode = getHelper().createName();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		IdmRoleDto role = getHelper().createRole();
+		helper.createRoleSystem(role, systemProvisioning);
+		getHelper().createAutomaticRole(role, node);
+		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+		contract.setIdentity(identity.getId());
+		contract.setValidFrom(LocalDate.now().minusMonths(1));
+		contract.setValidTill(LocalDate.now().plusMonths(1));
+		contract.setDescription(positionCode);
+		contract.setPosition(positionCode);
+		contract.setWorkPosition(node.getId());
+		contract = contractService.save(contract);		
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setIdentity(identity.getId());
+		Assert.assertEquals(1, contractService.find(contractFilter, null).getTotalElements());
+		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+		identityRoleFilter.setIdentityId(identity.getId());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertNotNull(assignedRoles.get(0).getValidFrom());
+		Assert.assertNotNull(assignedRoles.get(0).getValidTill());
+		Assert.assertEquals(contract.getValidFrom(), assignedRoles.get(0).getValidFrom());
+		Assert.assertEquals(contract.getValidTill(), assignedRoles.get(0).getValidTill());
+
+		// create target system entity - invalid
+		TestContractResource invalidContractResource = new TestContractResource();
+		invalidContractResource.setId(positionCode);
+		invalidContractResource.setName(positionCode);
+		invalidContractResource.setOwner(identity.getUsername());
+		invalidContractResource.setMain(Boolean.TRUE.toString());
+		invalidContractResource.setWorkposition(node.getId().toString());
+		invalidContractResource.setDescription(positionCode);
+		invalidContractResource.setValidTill(LocalDate.now().minusDays(1));
+		this.getBean().createContractData(invalidContractResource);
+		//
+		String validPositionCode = getHelper().createName();
+		TestContractResource validContractResource = new TestContractResource();
+		validContractResource.setId(validPositionCode);
+		validContractResource.setName(validPositionCode);
+		validContractResource.setOwner(identity.getUsername());
+		validContractResource.setMain(Boolean.FALSE.toString());
+		validContractResource.setWorkposition(node.getId().toString());
+		validContractResource.setDescription(validPositionCode);
+		this.getBean().createContractData(validContractResource);
+		//
+		helper.startSynchronization(config);
+	
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 1);
+		checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1);
+		UUID transactionId = log.getTransactionId();
+
+		Assert.assertFalse(log.isRunning());
+		
+		List<IdmIdentityContractDto> contracts = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(2, contracts.size());
+		Assert.assertTrue(contracts.stream().allMatch(c -> c.getTransactionId().equals(transactionId)));
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.isValid()));
+		Assert.assertTrue(contracts.stream().anyMatch(c -> !c.isValid()));
+
+		assignedRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertNull(assignedRoles.get(0).getValidFrom());
+		Assert.assertNull(assignedRoles.get(0).getValidTill());
+		Assert.assertEquals(transactionId, assignedRoles.get(0).getTransactionId());
+
+		// find provisioning archive => prevent drop and create => update only in this transaction id
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(systemProvisioning.getId());
+		filter.setTransactionId(transactionId);
+		List<SysProvisioningArchiveDto> executedOperations = provisioningArchiveService.find(filter, null).getContent();
+		Assert.assertFalse(executedOperations.isEmpty());
+		Assert.assertTrue(executedOperations.stream().allMatch(o -> o.getOperationType() != ProvisioningEventType.DELETE));
+		Assert.assertTrue(executedOperations.stream().allMatch(o -> o.getResultState() == OperationState.EXECUTED));
+
 		// Delete log
 		syncLogService.delete(log);
 	}
@@ -1333,6 +1432,11 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 			code = String.valueOf(System.currentTimeMillis());
 		}
 		entityManager.persist(this.createContract(code, owner, leader, main, workposition, state, disabled, null));
+	}
+	
+	@Transactional
+	public void createContractData(TestContractResource contract) {
+		entityManager.persist(contract);
 	}
 
 	@Transactional

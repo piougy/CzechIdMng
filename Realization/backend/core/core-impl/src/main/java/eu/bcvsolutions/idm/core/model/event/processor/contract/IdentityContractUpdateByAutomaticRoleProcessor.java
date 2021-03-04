@@ -85,9 +85,8 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
-		return super.conditional(event)
-				&& IdentityContractEventType.UPDATE.name().equals(event.getParentType())
-				&& event.getContent().isValidNowOrInFuture(); // invalid contracts cannot have roles (roles for disabled contracts are removed by different processor or LRT)
+		return super.conditional(event) 
+				&& IdentityContractEventType.UPDATE.name().equals(event.getParentType()); 
 	}
 
 	@Override
@@ -108,8 +107,22 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			Map<String, Serializable> properties = new HashMap<>();
 			// original contract as property
 			properties.put(EntityEvent.EVENT_PROPERTY_ORIGINAL_SOURCE, event.getOriginalSource());
-			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, properties);
+			entityStateManager.createState(
+					contract, 
+					OperationState.BLOCKED, 
+					contract.isValidNowOrInFuture()
+					?
+					CoreResultCode.AUTOMATIC_ROLE_SKIPPED 
+					: 
+					CoreResultCode.AUTOMATIC_ROLE_SKIPPED_INVALID_CONTRACT, 
+					properties
+			);
 			//
+			return new DefaultEventResult<>(event, this);
+		}
+		if (!contract.isValidNowOrInFuture()) {
+			// invalid contracts cannot have roles (roles for disabled contracts are removed by different processor or LRT)
+			// but we need to add skipped flag above, even when invalid contract is updated
 			return new DefaultEventResult<>(event, this);
 		}
 		//

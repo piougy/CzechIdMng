@@ -32,7 +32,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
         entity: {},
         message: null
       },
-      entityType: props._searchParameters && props._searchParameters.getFilters().has('ownerType')
+      entityType: (props._searchParameters && props._searchParameters.getFilters().has('ownerType'))
         ? props._searchParameters.getFilters().get('ownerType')
         : null
     };
@@ -64,8 +64,10 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
   }
 
   useFilterData(data = {}) {
-    this.refs.filterForm.setData(data);
-    this.refs.table.useFilterData(data);
+    const _data = { ...this.refs.filterForm.getData() || {}, ...data };
+    //
+    this.refs.filterForm.setData(_data);
+    this.refs.table.useFilterData(_data);
   }
 
   cancelFilter(event) {

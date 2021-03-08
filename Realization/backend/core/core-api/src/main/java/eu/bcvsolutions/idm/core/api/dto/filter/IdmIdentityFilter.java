@@ -123,6 +123,10 @@ public class IdmIdentityFilter
 	 * @since 10.5.0
 	 */
 	public static final String PARAMETER_WITHOUT_WORK_POSITION = "withoutWorkPosition";
+	/**
+	 * Load information about password into DTO.
+	 */
+	public static final String PARAMETER_ADD_PASSWORD_METADATA = "addPasswordMetadata";
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -410,5 +414,25 @@ public class IdmIdentityFilter
 	 */
 	public void setWithoutWorkPosition(Boolean withoutWorkPosition) {
 		set(PARAMETER_WITHOUT_WORK_POSITION, withoutWorkPosition);
+	}
+	
+	/**
+	 * Load additional information about identity password expiration into dto.
+	 * 
+	 * @return true - load
+	 * @since 11.0.0
+	 */
+	public boolean isAddPasswordMetadata() {
+		return getParameterConverter().toBoolean(getData(), PARAMETER_ADD_PASSWORD_METADATA, false);
+	}
+	
+	/**
+	 * Load additional information about identity password expiration into dto.
+	 * 
+	 * @param addPasswordMetadata true - load
+	 * @since 11.0.0
+	 */
+	public void setAddPasswordMetadata(boolean addPasswordMetadata) {
+		set(PARAMETER_ADD_PASSWORD_METADATA, addPasswordMetadata);
 	}
 }

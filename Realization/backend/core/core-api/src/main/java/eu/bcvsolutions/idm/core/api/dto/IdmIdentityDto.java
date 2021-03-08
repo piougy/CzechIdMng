@@ -81,6 +81,13 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	@ApiModelProperty(notes = "Projection - entity will be created / edited by given form.")
 	@Embedded(dtoClass = IdmFormProjectionDto.class)
 	private UUID formProjection;
+	/**
+	 * Additional information about identity password (validity etc.).
+	 * 
+	 * @since 11.0.0
+	 */
+	@JsonProperty(access = Access.READ_ONLY)
+	private transient IdmPasswordDto passwordMetadata;
 
 	public IdmIdentityDto() {
 	}
@@ -270,6 +277,26 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	 */
 	public void setFormProjection(UUID formProjection) {
 		this.formProjection = formProjection;
+	}
+	
+	/**
+	 * Additional information about identity password.
+	 * 
+	 * @return password metadata (without secrets)
+	 * @since 11.0.0
+	 */
+	public IdmPasswordDto getPasswordMetadata() {
+		return passwordMetadata;
+	}
+	
+	/**
+	 * Additional information about identity password.
+	 * 
+	 * @param passwordMetadata password metadata (without secrets)
+	 * @since 11.0.0
+	 */
+	public void setPasswordMetadata(IdmPasswordDto passwordMetadata) {
+		this.passwordMetadata = passwordMetadata;
 	}
 
 }

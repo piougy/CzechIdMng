@@ -580,23 +580,24 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Test
 	public void testAssignAutomaticRoleToExistIdentityAsync() {
+		IdmIdentityDto identityOne = getHelper().createIdentityOnly();
+		IdmIdentityDto identityTwo = getHelper().createIdentityOnly();
+		IdmIdentityDto identityThree = getHelper().createIdentityOnly();
+		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
+		IdmIdentityContractDto contractOne = getHelper().createContract(identityOne, treeNode);
+		IdmIdentityContractDto contractTwo = getHelper().createContract(identityTwo, treeNode);
+		IdmIdentityContractDto contractThree = getHelper().createContract(identityThree, treeNode);
+		IdmRoleDto role = getHelper().createRole();
+		//
+		List<IdmLongRunningTaskDto> lrts = null;
+		getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		try {
-			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
-			//
-			IdmIdentityDto identityOne = getHelper().createIdentityOnly();
-			IdmIdentityDto identityTwo = getHelper().createIdentityOnly();
-			IdmIdentityDto identityThree = getHelper().createIdentityOnly();
-			IdmTreeNodeDto treeNode = getHelper().createTreeNode();
-			IdmIdentityContractDto contractOne = getHelper().createContract(identityOne, treeNode);
-			IdmIdentityContractDto contractTwo = getHelper().createContract(identityTwo, treeNode);
-			IdmIdentityContractDto contractThree = getHelper().createContract(identityThree, treeNode);
-			IdmRoleDto role = getHelper().createRole();
 			IdmRoleTreeNodeDto automaticRole = getHelper().createAutomaticRole(role, treeNode);
 			//
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getTotalElements() != 3;
-			}, 300, 30);
+			}, 500, 30);
 			getHelper().waitForResult(res -> {
 				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 				filter.setRunning(Boolean.TRUE);
@@ -613,7 +614,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			// check asynchronous LRT
 			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 			filter.setTransactionId(assignedRoles.get(0).getTransactionId());
-			List<IdmLongRunningTaskDto> lrts = taskManager.findLongRunningTasks(filter, null).getContent();
+			lrts = taskManager.findLongRunningTasks(filter, null).getContent();
 			Assert.assertFalse(lrts.isEmpty());
 			Assert.assertTrue(lrts.stream().allMatch(lrt -> lrt.getResultState() == OperationState.EXECUTED));
 			//
@@ -630,6 +631,14 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+			//
+			if (lrts != null) {
+				lrts.forEach(lrt -> {
+					if (lrt.isRunning() || lrt.getResultState() == OperationState.RUNNING) {
+						taskManager.cancel(lrt.getId());
+					}
+				});
+			}
 		}
 	}
 	

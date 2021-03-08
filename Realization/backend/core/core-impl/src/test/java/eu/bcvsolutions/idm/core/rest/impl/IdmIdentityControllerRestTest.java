@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
@@ -49,6 +51,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDisableBulkAction;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -92,6 +95,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	@Autowired private IdmFormProjectionService formProjectionService;
 	@Autowired private IdmIdentityContractService contractService;
 	@Autowired private ConfigurationService configurationService;
+	@Autowired private IdmPasswordService passwordService;
 	
 	@Override
 	protected AbstractReadWriteDtoController<IdmIdentityDto, ?> getController() {
@@ -790,7 +794,30 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		} finally {
 			configurationService.setValue(FilterManager.PROPERTY_CHECK_FILTER_SIZE_MAXIMUM, String.valueOf(maximum));
 		}
-		
+	}
+	
+	@Test
+	public void testGetWithBlockLoginDate() {
+		IdmIdentityDto identity = createDto();
+		IdmPasswordDto password = getHelper().getPassword(identity);
+		password.setBlockLoginDate(ZonedDateTime.now().plusDays(1));
+		passwordService.save(password);
+		//
+		identity = getDto(identity.getId());
+		//
+		Assert.assertEquals(password.getBlockLoginDate(), identity.getBlockLoginDate());
+	}
+	
+	@Test
+	public void testGetWithoutBlockLoginDate() {
+		IdmIdentityDto identity = createDto();
+		IdmPasswordDto password = getHelper().getPassword(identity);
+		password.setBlockLoginDate(ZonedDateTime.now().minusDays(1));
+		passwordService.save(password);
+		//
+		identity = getDto(identity.getId());
+		//
+		Assert.assertNull(identity.getBlockLoginDate());
 	}
 	
 	@Test

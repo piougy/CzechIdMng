@@ -392,7 +392,7 @@ class Configurations extends Advanced.AbstractTableContent {
             <Advanced.Column property="name" sort width={ 250 }/>
             <Advanced.Column property="value" sort/>
             <Advanced.Column property="confidential" sort face="bool" width={ 150 }/>
-            <Advanced.Column property="public" face="bool" width={ 150 }/>
+            <Advanced.Column property="public" face="bool" width={ 100 }/>
           </Advanced.Table>
         </Basic.Panel>
 
@@ -548,7 +548,7 @@ class Configurations extends Advanced.AbstractTableContent {
               property="public"
               header={<Basic.Cell className="column-face-bool">{this.i18n('entity.Configuration.public')}</Basic.Cell>}
               cell={<Basic.BooleanCell className="column-face-bool"/>}
-              width={ 150 }/>
+              width={ 100 }/>
           </Basic.Table>
         </Basic.Panel>
 

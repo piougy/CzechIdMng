@@ -287,6 +287,16 @@ export default class AbstractTableContent extends Basic.AbstractContent {
       this.refs.filterForm.setData(filterData);
     }
   }
+
+  /**
+   * Get rendered table columns.
+   *
+   * @return {arrayOf(string)}
+   * @since 11.0.0
+   */
+  getColumns() {
+    return this.props.columns.map(column => column.trim().toLowerCase());
+  }
 }
 
 AbstractTableContent.propTypes = {

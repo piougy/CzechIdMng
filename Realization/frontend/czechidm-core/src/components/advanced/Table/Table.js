@@ -454,6 +454,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   _resolveColumns() {
+    const { columns } = this.props;
     const children = [];
     //
     React.Children.forEach(this.props.children, (child) => {
@@ -470,7 +471,21 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       );
       children.push(child);
     });
-    return children;
+    //
+    // sort columns if given
+    if (!columns) {
+      return children;
+    }
+    const renderedSortedChildren = children.filter(child => !child.props.property); // columns withou property will be at start
+    // only columns with properties will be sorted
+    columns.forEach(column => {
+      const child = children.find(c => c.props.property && c.props.property.toLowerCase() === column);
+      if (child) {
+        renderedSortedChildren.push(child);
+      }
+    });
+    //
+    return renderedSortedChildren;
   }
 
   useFilterForm(filterForm) {

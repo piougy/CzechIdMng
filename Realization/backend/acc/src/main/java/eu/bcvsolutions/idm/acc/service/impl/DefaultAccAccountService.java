@@ -263,7 +263,9 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 	@Override
 	protected AccAccountDto applyContext(AccAccountDto dto, AccAccountFilter context, BasePermission... permission) {
 		AccAccountDto accountDto = super.applyContext(dto, context, permission);
-
+		if (accountDto == null) {
+			return null;
+		}
 		if (context != null && accountDto.getEntityType() == SystemEntityType.IDENTITY && BooleanUtils.isTrue(context.getIncludeEcho())) {
 			Map<String, BaseDto> embedded = accountDto.getEmbedded();
 			embedded.put(AccAccountDto.PROPERTY_ECHO, passwordFilterManager.getEcho(accountDto.getId()));

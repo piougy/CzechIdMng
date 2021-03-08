@@ -144,8 +144,8 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		DTO dto = null;
 		// If service supports context, we need to call service.get method with context/filter.
 		if (service.supportsToDtoWithFilter()) {
-			// Create mockup context/filter. We expect the logic (setting of the context) in the method toFilter.
-			F context = toFilter(new LinkedMultiValueMap<>());
+			// Create context for get method. We expect the logic (setting of the context) in the method toFilter.
+			F context = getContext(new LinkedMultiValueMap<>());
 			if (backendId instanceof UUID) {
 				// BackendId is UUID, we try to load DTO by service.get method (with context).
 				dto = service.get((UUID) backendId, context);
@@ -384,6 +384,17 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	protected F toFilter(MultiValueMap<String, Object> parameters) {	
 		return getParameterConverter().toFilter(parameters, getService().getFilterClass());
+	}
+	
+	/**
+	 * Context for get method.
+	 * 
+	 * @param parameters additional parameters
+	 * @return context
+	 * @since 11.0.0
+	 */
+	protected F getContext(MultiValueMap<String, Object> parameters) {
+		return toFilter(parameters);
 	}
 
 	/**

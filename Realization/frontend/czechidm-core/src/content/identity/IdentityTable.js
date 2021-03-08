@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import uuid from 'uuid';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import uuid from 'uuid';
 import _ from 'lodash';
+import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -232,7 +234,6 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     const {
       uiKey,
       identityManager,
-      columns,
       forceSearchParameters,
       showAddButton,
       showDetailButton,
@@ -249,6 +250,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       skipDashboard
     } = this.props;
     const { filterOpened, showAddModal } = this.state;
+    const columns = this.getColumns();
     //
     if (!rendered) {
       return null;
@@ -259,6 +261,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     if (treeType) {
       forceTreeNodeSearchParams = forceTreeNodeSearchParams.setFilter('treeTypeId', treeType.id);
       _forceSearchParameters = _forceSearchParameters.setFilter('treeTypeId', treeType.id);
+    }
+    if (_.includes(columns, 'passwordexpiration')) {
+      _forceSearchParameters = _forceSearchParameters.setFilter('addPasswordMetadata', true);
     }
     //
     const roleDisabled = _forceSearchParameters.getFilters().has('role');
@@ -272,6 +277,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           uiKey={ uiKey }
           prohibitedActions={ prohibitedActions }
           manager={ identityManager }
+          columns={ columns }
           showRowSelection={ showRowSelection }
           filter={
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
@@ -390,7 +396,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             rendered={ showDetailButton }/>
           <Advanced.Column
             header={ this.i18n('entity.Identity._type') }
-            property="username"
+            property="entityinfo"
             sort
             cell={
               ({ rowIndex, data }) => (
@@ -400,8 +406,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                   entity={ data[rowIndex] }
                   face="popover"/>
               )
-            }
-            rendered={ _.includes(columns, 'entityInfo') }/>
+            }/>
           <Advanced.ColumnLink
             to={ ({ rowIndex, data, event }) => {
               this.showDetail(data[rowIndex], event);
@@ -412,15 +417,87 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             property="username"
             width="20%"
             sort
-            face="text"
-            rendered={ _.includes(columns, 'username') }/>
-          <Advanced.Column property="lastName" sort face="text" rendered={ _.includes(columns, 'lastName') }/>
-          <Advanced.Column property="firstName" sort width="10%" face="text" rendered={ _.includes(columns, 'firstName') }/>
-          <Advanced.Column property="externalCode" sort width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
-          <Advanced.Column property="email" width="15%" face="text" sort rendered={ _.includes(columns, 'email') }/>
-          <Advanced.Column property="disabled" face="bool" sort width={ 100 } rendered={ _.includes(columns, 'disabled') }/>
-          <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width={ 100 } rendered={ _.includes(columns, 'state') }/>
-          <Advanced.Column property="description" sort face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
+            face="text"/>
+          <Advanced.Column property="lastName" sort face="text"/>
+          <Advanced.Column property="firstName" sort width="10%" face="text"/>
+          <Advanced.Column property="externalCode" sort width="10%" face="text"/>
+          <Advanced.Column property="email" width="15%" face="text" sort/>
+          <Advanced.Column property="disabled" face="bool" sort width={ 100 }/>
+          <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width={ 100 }/>
+          <Advanced.Column
+            header={ <Basic.Icon value="component:password"/> }
+            title={ this.i18n('entity.Identity.passwordExpiration.title') }
+            property="passwordExpiration"
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                //
+                let icon = null;
+                if (!entity.passwordMetadata) {
+                  icon = (
+                    <Basic.Icon
+                      value="fa:ban"
+                      level="info"
+                      title={ this.i18n('entity.Identity.passwordExpiration.empty.title') }/>
+                  );
+                } else if (entity.passwordMetadata.blockLoginDate
+                  && moment().isBefore(moment(entity.passwordMetadata.blockLoginDate))) {
+                  icon = (
+                    <Basic.Icon
+                      value="warning-sign"
+                      level="danger"
+                      title={ this.i18n(
+                        'entity.Identity.passwordExpiration.blockLoginDate.title',
+                        { date: moment(entity.passwordMetadata.blockLoginDate).format(this.i18n('format.datetime')) }
+                      )}/>
+                  );
+                } else if (Utils.Entity.isValid(entity.passwordMetadata)) {
+                  if (entity.passwordMetadata.validTill) {
+                    icon = (
+                      <Basic.Icon
+                        value="fa:check"
+                        level="success"
+                        title={ this.i18n(
+                          'entity.Identity.passwordExpiration.validTill.title',
+                          { date: moment(entity.passwordMetadata.validTill).format(this.i18n('format.date')) }
+                        )}/>
+                    );
+                  } else {
+                    icon = (
+                      <Basic.Icon
+                        value="fa:check"
+                        level="success"
+                        title={ this.i18n(
+                          'entity.Identity.passwordExpiration.valid.title',
+                        )}/>
+                    );
+                  }
+                } else {
+                  icon = (
+                    <Basic.Icon
+                      value="warning-sign"
+                      level="warning"
+                      title={ this.i18n(
+                        'entity.Identity.passwordExpiration.expired.title',
+                        { date: moment(entity.passwordMetadata.validTill).format(this.i18n('format.date')) }
+                      )}/>
+                  );
+                }
+                if (!SecurityManager.hasAuthority('PASSWORD_READ')) {
+                  // logged user cannot read password metadata
+                  return icon;
+                }
+                // show password detail
+                // TODO: change, when no password? => permission is not loaded
+                return (
+                  <Link to={ `/identity/${ encodeURIComponent(entity.username) }/password/detail` }>
+                    { icon }
+                  </Link>
+                );
+              }
+            }
+            width={ 15 }/>
+          <Advanced.Column property="description" sort face="text" maxLength={ 30 }/>
         </Advanced.Table>
 
         <Basic.Modal
@@ -504,9 +581,7 @@ IdentityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityManager: PropTypes.object,
   /**
-   * Rendered columns - see table columns above
-   *
-   * TODO: move to advanced table and add column sorting
+   * Rendered columns - see table columns above.
    */
   columns: PropTypes.arrayOf(PropTypes.string),
   /**
@@ -554,7 +629,7 @@ IdentityTable.propTypes = {
 
 IdentityTable.defaultProps = {
   identityManager: manager,
-  columns: ['username', 'lastName', 'firstName', 'externalCode', 'email', 'state', 'description'],
+  columns: ConfigLoader.getConfig('identity.table.columns', ['username', 'lastName', 'firstName', 'externalCode', 'email', 'state', 'description']),
   filterOpened: false,
   showAddButton: true,
   showDetailButton: true,
@@ -578,7 +653,12 @@ function select(state, component) {
     ),
     isDefaultFormProjection: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.identity.formProjection.default', true),
     showAddLoading: projectionManager.isShowLoading(state),
-    projections: projectionManager.getEntities(state, 'form-projections') || []
+    projections: projectionManager.getEntities(state, 'form-projections') || [],
+    columns: component.columns || ConfigurationManager.getPublicValueAsArray(
+      state,
+      'idm.pub.app.show.identity.table.columns',
+      IdentityTable.defaultProps.columns
+    )
   };
 }
 

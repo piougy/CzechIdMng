@@ -35,7 +35,7 @@ export default class IdentitySubordinates extends Basic.AbstractContent {
       .setFilter('subordinatesFor', this.props.match.params.entityId)
       .setFilter('includeGuarantees', true);
     const columns = _.difference(IdentityTable.defaultProps.columns, ['username']);
-    columns.push('entityInfo');
+    columns.unshift('entityInfo');
     //
     return (
       <Basic.Div className="tab-pane-table-body">

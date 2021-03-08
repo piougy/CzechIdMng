@@ -74,7 +74,7 @@ public class IdmDBAppender extends DBAppender {
 				|| message.contains("\\x00")
 				|| message.length() >= maxLength)) {
 			// Workaround -> We have replace null characters by empty space, for case when exception will persisted in a Postgresql DB.
-			fixedMessage = message.replaceAll("\u0000", "").replaceAll("\\x00", "");
+			fixedMessage = message.replace("\u0000", "").replace("\\x00", "");
 			// Workaround for https://jira.qos.ch/browse/LOGBACK-493. -> DB tables has limitation for max 254 characters.
 			if (fixedMessage.length() >= maxLength) {
 				fixedMessage = fixedMessage.substring(0, maxLength - 1);

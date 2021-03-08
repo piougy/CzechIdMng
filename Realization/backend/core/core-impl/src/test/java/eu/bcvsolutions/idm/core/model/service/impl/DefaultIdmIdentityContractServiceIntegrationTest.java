@@ -597,7 +597,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			//
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getTotalElements() != 3;
-			}, 300, 30);
+			}, 500, 30);
 			getHelper().waitForResult(res -> {
 				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 				filter.setRunning(Boolean.TRUE);

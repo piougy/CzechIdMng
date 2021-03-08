@@ -241,6 +241,19 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor implements Co
 				"Send verification code for two factor authentication.", 
 				getNotificationTemplateId("twoFactorVerificationCode")));
 		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_APPROVE_ROLE_DEFINITION_CHANGE,
+				null,
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Send notification to the applicant that role definition change was approved.",
+				getNotificationTemplateId("approveRoleDefinitionChange")));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_DISAPPROVE_ROLE_DEFINITION_CHANGE,
+				null,
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Send notification to the applicant that role definition change was disapproved.",
+				getNotificationTemplateId("disapproveRoleDefinitionChange")));
 		return configs;
 	}
 	

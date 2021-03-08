@@ -1,0 +1,60 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+Notification with result WF that change identity roles
+
+parameters:
+	-	roleName
+	-	url
+	-	from
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>approveRoleDefinitionChange</code>
+	<name>Send notification of approval of the role definition change</name>
+	<subject>CzechIdM - žádost na změnu definice role schválena</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+	<body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+		
+	    Dobrý den,<br />
+		žádost ze dne $from na změnu role <b>$roleName</b> byla <b>schválena</b>.<br />
+
+        <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
+            border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+            Detail této <b>žádosti</b> najdete zde <b><a href='$url'>zde</a>.</b><br/>
+        </div>
+        <br />
+	
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2019&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+
+		<div style="display: block; margin: 30px auto; max-width: 800px; text-align: center;">
+				----------------------------------------- English version -----------------------------------------
+		</div>
+
+		Hello,<br />
+		request dated $from for changing the role <b>$roleName</b> has been <b>approved</b>.<br />
+		<br />
+
+        <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
+            border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+            Detail of this <b>request</b> can be found <b><a href='$url'>here</a>.</b><br/>
+        </div>
+        <br />
+
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2019&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+	</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>roleName, identity, from</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

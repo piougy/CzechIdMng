@@ -36,7 +36,8 @@
       "filter": {
         "disabled": "false",
         "recursively": "true"
-      }
+      },
+      "columns": ["username", "lastName", "firstName", "externalCode", "email", "state", "description"]
     },
     "dashboard": {
       "skip": false

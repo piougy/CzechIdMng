@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -45,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
@@ -91,6 +94,7 @@ public class DefaultIdmIdentityService
 	@Autowired private IdmRoleService roleService;
 	@Autowired private RoleConfiguration roleConfiguration;
 	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmPasswordService passwordService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
@@ -106,6 +110,11 @@ public class DefaultIdmIdentityService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.IDENTITY, getEntityClass());
+	}
+	
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
 	}
 	
 	@Override
@@ -143,13 +152,39 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
-	protected IdmIdentityDto toDto(IdmIdentity entity) {
-		IdmIdentityDto dto = super.toDto(entity);
+	protected IdmIdentityDto toDto(IdmIdentity entity, IdmIdentityDto dto, IdmIdentityFilter context) {
+		dto = super.toDto(entity, dto, context);
+		//
 		if (dto != null && entity != null) {
 			// set state - prevent to use disabled setter
 			dto.setState(entity.getState());
 		}
+		//
 		return dto;
+	}
+
+	@Override
+	protected IdmIdentityDto applyContext(IdmIdentityDto identity, IdmIdentityFilter context, BasePermission... permission) {
+		identity = super.applyContext(identity, context, permission);
+		// not found
+		if (identity == null || context == null) {
+			return identity;
+		}
+		// load password metadata
+		if (context.isAddPasswordMetadata()) {
+			IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+			if (password != null) {
+				password.setVerificationSecret(null);
+				password.setPassword(null);
+				//
+				identity.setPasswordMetadata(password);
+				ZonedDateTime blockLoginDate = password.getBlockLoginDate();
+				if (blockLoginDate != null && blockLoginDate.isAfter(ZonedDateTime.now())) {
+					identity.setBlockLoginDate(blockLoginDate);
+				}
+			}
+		}
+		return identity;
 	}
 	
 	@Override

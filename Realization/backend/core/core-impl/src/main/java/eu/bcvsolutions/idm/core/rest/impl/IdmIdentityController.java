@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -250,24 +249,7 @@ public class IdmIdentityController extends AbstractFormableDtoController<IdmIden
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId) {
-		IdmIdentityDto identityDto = this.getDto(backendId);
-		if (identityDto == null) {
-			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
-		}
-		//
-		// set information about password
-		// password may not exist, set block login date only if active
-		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identityDto.getId());
-		if (passwordDto != null && passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfter(ZonedDateTime.now())) {
-			identityDto.setBlockLoginDate(passwordDto.getBlockLoginDate());
-		}
-		//
-		ResourceSupport resource = toResource(identityDto);
-		if (resource == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		//
-		return new ResponseEntity<>(resource, HttpStatus.OK);
+		return super.get(backendId);
 	}
 
 	@Override
@@ -1292,7 +1274,7 @@ public class IdmIdentityController extends AbstractFormableDtoController<IdmIden
 		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentityDto.class));
 		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeTypeDto.class));
 		filter.setFormProjection(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_FORM_PROJECTION, IdmFormProjectionDto.class));
-		// OR is supported now
+		// OR is supported only
 		if (parameters.containsKey(IdmIdentityFilter.PARAMETER_ROLE)) {
 			for (Object role : parameters.get(IdmIdentityFilter.PARAMETER_ROLE)) {
 				if (role != null) {
@@ -1301,8 +1283,18 @@ public class IdmIdentityController extends AbstractFormableDtoController<IdmIden
 			}
 		}
 		// different default than in filter ... i don't know why, but change is to dangerous
-		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_INCLUDE_GUARANTEES, false)); 
+		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_INCLUDE_GUARANTEES, false));
+		//
 		return filter;
+	}
+	
+	@Override
+	protected IdmIdentityFilter getContext(MultiValueMap<String, Object> parameters) {
+		IdmIdentityFilter context = new IdmIdentityFilter(parameters, getParameterConverter());
+		// metadata about password are needed for identity detail
+		context.setAddPasswordMetadata(true);
+		//
+		return context;
 	}
 	
 }

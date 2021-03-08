@@ -33,7 +33,7 @@ export default class TreeNodeIdentities extends Basic.AbstractContent {
   render() {
     const forceSearchParameters = new SearchParameters().setFilter('treeNodeId', this.props.match.params.entityId);
     const columns = _.difference(IdentityTable.defaultProps.columns, ['username']);
-    columns.push('entityInfo');
+    columns.unshift('entityInfo');
     //
     return (
       <div>

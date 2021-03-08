@@ -461,8 +461,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * Apply context on given dto.
 	 * Lookout: {@link #supportsToDtoWithFilter()} is required to return {@code true}.
 	 * 
-	 * @param dto
-	 * @param context
+	 * @param dto nullable
+	 * @param context nullable
 	 * @param permission
 	 * @since 10.2.0
 	 */
@@ -558,10 +558,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @since 9.4.0
 	 * @param entity
 	 * @param dto
-	 * @param filter
+	 * @param context - load additional attributes, if needed
 	 * @return
 	 */
-	protected DTO toDto(E entity, DTO dto, F filter) {
+	protected DTO toDto(E entity, DTO dto, F context) {
 		if (entity == null) {
 			return null;
 		}

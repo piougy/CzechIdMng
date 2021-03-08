@@ -197,6 +197,24 @@ export default class ConfigurationManager extends EntityManager {
   }
 
   /**
+   * Returns setting value as array of strings. Comma is used as separator
+   *
+   * @param  {redux} state
+   * @param  {string} key
+   * @param  {boolean} defautl value
+   * @return {array[string]}
+   * @since 11.0.0
+   */
+  static getPublicValueAsArray(state, key, defaultValue = null) {
+    const publicStringValue = ConfigurationManager.getPublicValue(state, key);
+    if (publicStringValue === null || publicStringValue === undefined) {
+      return defaultValue;
+    }
+    //
+    return publicStringValue.split(',').map(column => column.trim());
+  }
+
+  /**
    * Returns true, when module is enabled, false when disabled, null when configuration is not found.
    */
   static isModuleEnabled(state, moduleId) {

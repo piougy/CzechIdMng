@@ -4151,6 +4151,26 @@
       "formProjection": {
         "label": "Typ uživatele",
         "help": "Typu uživatele definuje formulř, který bude použit po jeho detail a editaci."
+      },
+      "passwordExpiration": {
+        "label": "Expirace hesla",
+        "title": "Expirace hesla",
+        "help": "Expirace hesla",
+        "blockLoginDate": {
+          "title": "$t(content.identity.profile.blockLoginDate)"
+        },
+        "valid": {
+          "title": "Heslo je platné (platnost není omezena)."
+        },
+        "validTill": {
+          "title": "Heslo je platné do {{date}}."
+        },
+        "expired": {
+          "title": "Platnost hesla vypršela dne {{date}}."
+        },
+        "empty": {
+          "title": "Heslo není nastavené."
+        }
       }
     },
     "Profile": {

@@ -4098,6 +4098,26 @@
       "formProjection": {
         "label": "User type",
         "help": "User type defines, which form will be used for user detail and editation."
+      },
+      "passwordExpiration": {
+        "label": "Password expiration",
+        "title": "Password expiration",
+        "help": "Password expiration",
+        "blockLoginDate": {
+          "title": "$t(content.identity.profile.blockLoginDate)"
+        },
+        "valid": {
+          "title": "Password is valid (expiration is not set)."
+        },
+        "validTill": {
+          "title": "Password is valid till {{date}}."
+        },
+        "expired": {
+          "title": "Password expired {{date}}."
+        },
+        "empty": {
+          "title": "Password is not set."
+        }
       }
     },
     "Profile": {

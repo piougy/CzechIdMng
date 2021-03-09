@@ -1,21 +1,24 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-
-import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -32,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.api.exception.PasswordChangeException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -39,7 +43,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
+import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy_;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
@@ -126,19 +132,6 @@ public class DefaultIdmPasswordPolicyService
 		this.securityService = securityService;
 		this.passwordService = passwordService;
 		this.passwordHistoryService = passwordHistoryService;
-	}
-	
-	@Override
-	protected Page<IdmPasswordPolicy> findEntities(IdmPasswordPolicyFilter filter, Pageable pageable, BasePermission... permission) {
-		if (pageable == null) {
-			// pageable is required in spring data
-			pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		}
-		//
-		if (filter == null) {
-			return getRepository().findAll(pageable);
-		}
-		return repository.find(filter, pageable);
 	}
 	
 	@Override
@@ -309,9 +302,11 @@ public class DefaultIdmPasswordPolicyService
 		validate(passwordValidationDto, passwordPolicyList, true);
 	}
 
-	private void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList,
+	private void validate(
+			IdmPasswordValidationDto passwordValidationDto, 
+			List<IdmPasswordPolicyDto> passwordPolicies,
 			boolean prevalidation) {
-		Assert.notNull(passwordPolicyList, "Password policy list is required.");
+		Assert.notNull(passwordPolicies, "Password policies are required.");
 		Assert.notNull(passwordValidationDto, "Password validation dto is required.");
 		IdmIdentityDto identity = passwordValidationDto.getIdentity();
 		
@@ -319,15 +314,15 @@ public class DefaultIdmPasswordPolicyService
 		IdmPasswordPolicyDto defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 
 		// if list is empty, get default password policy
-		if (passwordPolicyList.isEmpty() && !prevalidation) {
+		if (passwordPolicies.isEmpty() && !prevalidation) {
 			if (defaultPolicy != null) {
-				passwordPolicyList.add(defaultPolicy);
+				passwordPolicies.add(defaultPolicy);
 			}
 		}
 
 		// if list with password policies is empty, validate is always true
-		if (passwordPolicyList.isEmpty()) {
-			// this state means that system idm hasn't default password policy
+		if (passwordPolicies.isEmpty()) {
+			// this state means that system IdM hasn't default password policy
 			return;
 		}
 
@@ -351,19 +346,26 @@ public class DefaultIdmPasswordPolicyService
 		Map<String, Object> forbiddenBeginCharBase = new HashMap<>();
 		Map<String, Object> forbiddenEndCharBase = new HashMap<>();
 
-		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicyList) {
+		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicies) {
 			if (passwordPolicy.isDisabled()) {
 				continue;
 			}
 			boolean validateNotSuccess = false;
 
 			// check if can change password for minimal age for change
-			// if loged user is admin, skip this
-			if (oldPassword != null && !securityService.isAdmin() && !prevalidation) {
-				if (passwordPolicy.getMinPasswordAge() != null && oldPassword.getValidFrom()
-						.plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) >= 1) {
-					throw new ResultCodeException(CoreResultCode.PASSWORD_CANNOT_CHANGE, ImmutableMap.of(("date"),
-							oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge())));
+			Integer minPasswordAge = passwordPolicy.getMinPasswordAge();
+			boolean enforceMinPasswordAgeValidation = passwordValidationDto.isEnforceMinPasswordAgeValidation();
+			if (minPasswordAge != null 
+					&& oldPassword != null
+					&& !oldPassword.isMustChange()
+					&& !prevalidation
+					&& !securityService.isAdmin()
+					&& (enforceMinPasswordAgeValidation // force => checked even when owner and logged user is different
+							|| Objects.equals(securityService.getCurrentId(), oldPassword.getIdentity()))) {
+				LocalDate passwordValidFrom = oldPassword.getValidFrom();
+				if (passwordValidFrom != null // check can be disabled (by previous change attempt)
+						&& passwordValidFrom.plusDays(minPasswordAge).compareTo(now.toLocalDate()) > 0) {
+					throw new PasswordChangeException(passwordValidFrom.plusDays(minPasswordAge));
 				}
 			}
 
@@ -821,5 +823,114 @@ public class DefaultIdmPasswordPolicyService
 	@Override
 	public IdmPasswordPolicyDto findOneByName(String name) {
 		return this.toDto(this.repository.findOneByName(name));
+	}
+	
+	@Override
+	protected List<Predicate> toPredicates(
+			Root<IdmPasswordPolicy> root,
+			CriteriaQuery<?> query,
+			CriteriaBuilder builder,
+			IdmPasswordPolicyFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		//
+		// quick - "fulltext"
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
+			List<Predicate> textPredicates = new ArrayList<>(4);
+			//
+			RepositoryUtils.appendUuidIdentifierPredicate(textPredicates, root, builder, text);
+			textPredicates.add(builder.like(builder.lower(root.get(IdmPasswordPolicy_.name)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmPasswordPolicy_.description)), "%" + text + "%"));
+			//
+			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
+		}
+		//
+		Boolean passwordLengthRequired = filter.getPasswordLengthRequired();
+		if (passwordLengthRequired != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.passwordLengthRequired), passwordLengthRequired));
+		}
+		//
+		Integer minPasswordLength = filter.getMinPasswordLength();
+		if (minPasswordLength != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.minPasswordLength), minPasswordLength));
+		}
+		//
+		Integer maxPasswordLength = filter.getMaxPasswordLength();
+		if (maxPasswordLength != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.maxPasswordLength), maxPasswordLength));
+		}
+		//
+		Boolean upperCharRequired = filter.getUpperCharRequired();
+		if (upperCharRequired != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.upperCharRequired), upperCharRequired));
+		}
+		//
+		Integer minUpperChar = filter.getMinUpperChar();
+		if (minUpperChar != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.minUpperChar), minUpperChar));
+		}
+		//
+		Boolean numberRequired = filter.getNumberRequired();
+		if (numberRequired != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.numberRequired), numberRequired));
+		}
+		//
+		Integer minNumber = filter.getMinNumber();
+		if (minNumber != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.minNumber), minNumber));
+		}
+		//
+		Boolean specialCharRequired = filter.getSpecialCharRequired();
+		if (specialCharRequired != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.specialCharRequired), specialCharRequired));
+		}
+		//
+		Integer minSpecialChar = filter.getMinSpecialChar();
+		if (minSpecialChar != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.minSpecialChar), minSpecialChar));
+		}
+		//
+		Boolean weakPassRequired = filter.getWeakPassRequired();
+		if (weakPassRequired != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.weakPassRequired), weakPassRequired));
+		}
+		//
+		String weakPass = filter.getWeakPass();
+		if (!StringUtils.isEmpty(weakPass)) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.weakPass), weakPass));
+		}
+		//
+		Integer maxPasswordAge = filter.getMaxPasswordAge();
+		if (maxPasswordAge != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.maxPasswordAge), maxPasswordAge));
+		}
+		//
+		Integer minPasswordAge = filter.getMinPasswordAge();
+		if (minPasswordAge != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.minPasswordAge), minPasswordAge));
+		}
+		//
+		Boolean enchancedControl = filter.getEnchancedControl();
+		if (enchancedControl != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.enchancedControl), enchancedControl));
+		}
+		//
+		Integer minRulesToFulfill = filter.getMinRulesToFulfill();
+		if (minRulesToFulfill != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.minRulesToFulfill), minRulesToFulfill));
+		}
+		//
+		IdmPasswordPolicyType type = filter.getType();
+		if (type != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.type), type));
+		}
+		//
+		Boolean defaultPolicy = filter.getDefaultPolicy();
+		if (defaultPolicy != null) {
+			predicates.add(builder.equal(root.get(IdmPasswordPolicy_.defaultPolicy), defaultPolicy));
+		}
+		//
+		return predicates;
 	}
 }

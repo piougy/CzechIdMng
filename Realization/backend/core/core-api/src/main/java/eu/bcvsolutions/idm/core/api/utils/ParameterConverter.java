@@ -181,6 +181,55 @@ public class ParameterConverter {
 	}
 	
 	/**
+	 * Converts parameter to {@code Integer} from given parameters.
+	 * 
+	 * @param parameters data
+	 * @param parameterName parameter name
+	 * @return value
+	 * @since 11.0.0
+	 */
+	public Integer toInteger(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters, "Input parameters are required.");
+		//
+		return toInteger(toSingleValueMap(parameters), parameterName);
+	}
+	
+	/**
+	 * Converts parameter to {@code Integer} from given parameters.
+	 * 
+	 * @param parameters data
+	 * @param parameterName parameter name
+	 * @return value
+	 * @since 11.0.0
+	 */
+	public Integer toInteger(Map<String, Object> parameters, String parameterName) {
+		String valueAsString = toString(parameters, parameterName);
+		if (StringUtils.isNotEmpty(valueAsString)) {
+			try {
+				return Integer.valueOf(valueAsString);
+			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
+			}		
+		}
+		return null;
+	}
+	
+	/**
+	 * Converts parameter to {@code Integer} from given parameters.
+	 * 
+	 * @param parameters data
+	 * @param parameterName parameter or property name
+	 * @param defaultValue default value
+	 * @return parameter value or default value, if parameters value is not set
+	 * @since 11.0.0
+	 */
+	public int toInteger(Map<String, Object> parameters, String parameterName, int defaultValue) {
+		Integer result = toInteger(parameters, parameterName);
+		//
+		return result == null ? defaultValue : result;
+	}
+	
+	/**
 	 * Converts parameter to {@code Long} from given parameters.
 	 * 
 	 * @param parameters

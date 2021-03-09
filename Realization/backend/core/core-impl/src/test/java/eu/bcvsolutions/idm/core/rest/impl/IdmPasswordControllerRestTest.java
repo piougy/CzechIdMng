@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
- * Rest tests for password controller {@link IdmPasswordController}
+ * Rest tests for password controller {@link IdmPasswordController}.
  *
  * @author Ondrej Kopr
  *

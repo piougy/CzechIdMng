@@ -92,12 +92,41 @@ public class ParameterConverterUnitTest extends AbstractVerifiableUnitTest {
 	}
 	
 	@Test
+	public void testIntegerParameter() {
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
+		Integer value = Integer.MAX_VALUE;
+		parameters.set(PARAMETER_NAME, value.toString());
+		//
+		Assert.assertEquals(value, parameterConverter.toInteger(parameters, PARAMETER_NAME));
+		Assert.assertEquals(value.intValue(), parameterConverter.toInteger(parameters.toSingleValueMap(), PARAMETER_NAME, 1));
+		Assert.assertEquals(1, parameterConverter.toInteger(parameters.toSingleValueMap(), "mock", 1));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testWrongIntegerParameter() {
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
+		parameters.set(PARAMETER_NAME, "mock");
+		//
+		parameterConverter.toInteger(parameters, PARAMETER_NAME);
+	}
+	
+	@Test
 	public void testLongParameter() {
-		Map<String, Object> parameters = new HashMap<>();
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
 		Long value = Long.MAX_VALUE;
-		parameters.put(PARAMETER_NAME, value.toString());
+		parameters.set(PARAMETER_NAME, value.toString());
 		//
 		assertEquals(value, parameterConverter.toLong(parameters, PARAMETER_NAME));
+		Assert.assertEquals(value.longValue(), parameterConverter.toLong(parameters.toSingleValueMap(), PARAMETER_NAME, 1));
+		Assert.assertEquals(1, parameterConverter.toLong(parameters.toSingleValueMap(), "mock", 1));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testWrongLongParameter() {
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
+		parameters.set(PARAMETER_NAME, "mock");
+		//
+		parameterConverter.toLong(parameters, PARAMETER_NAME);
 	}
 	
 	@Test

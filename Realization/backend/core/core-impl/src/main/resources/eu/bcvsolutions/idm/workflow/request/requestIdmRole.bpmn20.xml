@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL ../BPMN20.xsd" targetNamespace="eu.bcvsolutions.idm.wf.request">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.idm.wf.request" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL ../BPMN20.xsd">
   <process id="request-idm-role" name="Approving request change of idm-role" isExecutable="true">
     <documentation>Approving request change of idm-role.
 
@@ -79,7 +79,6 @@ requestService.save(requestDto);</script>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
     <endEvent id="endevent6" name="End"></endEvent>
-    <sequenceFlow id="flow50" sourceRef="scripttask13" targetRef="endevent6"></sequenceFlow>
     <scriptTask id="scripttask14" name="Set APPROVED state to request" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.api.domain.RequestState;
  
@@ -93,7 +92,6 @@ requestService.save(requestDto);</script>
     </sequenceFlow>
     <serviceTask id="servicetaskEvokeEvent" name="Realization of request (evoke event)" activiti:expression="#{entityEventManager.process(entityEvent)}"></serviceTask>
     <sequenceFlow id="flow53" sourceRef="scripttask14" targetRef="servicetaskEvokeEvent"></sequenceFlow>
-    <sequenceFlow id="flow54" sourceRef="servicetaskEvokeEvent" targetRef="endevent7"></sequenceFlow>
     <scriptTask id="load-role-name" name="Load name of role" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 
@@ -147,6 +145,72 @@ execution.setVariable("roleName", roleDto.getCode());</script>
 	execution.setVariable("businessItems", items);</script>
     </scriptTask>
     <sequenceFlow id="flow58" sourceRef="scripttask15" targetRef="business-roles-sub"></sequenceFlow>
+    <scriptTask id="scripttask16" name="Send notification with the result APPROVED" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <documentation>Notification about successful role change process completion.</documentation>
+      <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import java.time.format.DateTimeFormatter;
+
+// applicant identity
+def applicantDto = identityService.getByUsername(applicantUsername);
+// transform date
+DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
+def from = dateFormat.format(entityEvent.content.created);
+// get url
+def url = getUrl(entityEvent.content);
+
+notificationManager.send(
+     CoreModuleDescriptor.TOPIC_APPROVE_ROLE_DEFINITION_CHANGE,
+              new IdmMessageDto.Builder()
+       .setLevel(NotificationLevel.INFO)
+       .addParameter("roleName", roleName)
+       .addParameter("from", from)
+       .addParameter("url", url)
+     .build(),
+     applicantDto
+    );
+
+def getUrl(request){
+	if (request == null) {
+		return null;
+	}
+	return configurationService.getFrontendUrl("/requests/"+request.getId()+"/detail");
+}
+  </script>
+    </scriptTask>
+    <sequenceFlow id="flow59" sourceRef="servicetaskEvokeEvent" targetRef="scripttask16"></sequenceFlow>
+    <sequenceFlow id="flow60" sourceRef="scripttask16" targetRef="endevent7"></sequenceFlow>
+    <scriptTask id="scripttask17" name="Send notification with result DISAPPROVED" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import java.time.format.DateTimeFormatter;
+
+// applicant identity
+def applicantDto = identityService.getByUsername(applicantUsername);
+// transform date
+DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
+def from = dateFormat.format(entityEvent.content.created);
+// get url
+def url = getUrl(entityEvent.content);
+
+notificationManager.send(
+     CoreModuleDescriptor.TOPIC_DISAPPROVE_ROLE_DEFINITION_CHANGE,
+              new IdmMessageDto.Builder()
+       .setLevel(NotificationLevel.INFO)
+       .addParameter("roleName", roleName)
+       .addParameter("from", from)
+       .addParameter("url", url)
+     .build(),
+     applicantDto
+    );
+      </script>
+    </scriptTask>
+    <sequenceFlow id="flow61" sourceRef="scripttask13" targetRef="scripttask17"></sequenceFlow>
+    <sequenceFlow id="flow62" sourceRef="scripttask17" targetRef="endevent6"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_request-idm-role">
     <bpmndi:BPMNPlane bpmnElement="request-idm-role" id="BPMNPlane_request-idm-role">
@@ -169,7 +233,7 @@ execution.setVariable("roleName", roleDto.getCode());</script>
         <omgdc:Bounds height="67.0" width="160.0" x="813.0" y="296.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent6" id="BPMNShape_endevent6">
-        <omgdc:Bounds height="35.0" width="35.0" x="1111.0" y="312.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1210.0" y="312.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask14" id="BPMNShape_scripttask14">
         <omgdc:Bounds height="67.0" width="160.0" x="1412.0" y="104.0"></omgdc:Bounds>
@@ -184,13 +248,19 @@ execution.setVariable("roleName", roleDto.getCode());</script>
         <omgdc:Bounds height="61.0" width="146.0" x="320.0" y="73.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent7" id="BPMNShape_endevent7">
-        <omgdc:Bounds height="35.0" width="35.0" x="1722.0" y="282.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1722.0" y="312.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="business-roles-sub" id="BPMNShape_business-roles-sub">
         <omgdc:Bounds height="107.0" width="151.0" x="1200.0" y="84.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask15" id="BPMNShape_scripttask15">
         <omgdc:Bounds height="67.0" width="160.0" x="1010.0" y="102.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask16" id="BPMNShape_scripttask16">
+        <omgdc:Bounds height="80.0" width="138.0" x="1671.0" y="208.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask17" id="BPMNShape_scripttask17">
+        <omgdc:Bounds height="75.0" width="135.0" x="1010.0" y="292.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
         <omgdi:waypoint x="45.0" y="247.0"></omgdi:waypoint>
@@ -212,10 +282,6 @@ execution.setVariable("roleName", roleDto.getCode());</script>
         <omgdi:waypoint x="892.0" y="266.0"></omgdi:waypoint>
         <omgdi:waypoint x="893.0" y="296.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
-        <omgdi:waypoint x="973.0" y="329.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1111.0" y="329.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow52" id="BPMNEdge_flow52">
         <omgdi:waypoint x="892.0" y="226.0"></omgdi:waypoint>
         <omgdi:waypoint x="892.0" y="135.0"></omgdi:waypoint>
@@ -224,10 +290,6 @@ execution.setVariable("roleName", roleDto.getCode());</script>
       <bpmndi:BPMNEdge bpmnElement="flow53" id="BPMNEdge_flow53">
         <omgdi:waypoint x="1572.0" y="137.0"></omgdi:waypoint>
         <omgdi:waypoint x="1651.0" y="138.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow54" id="BPMNEdge_flow54">
-        <omgdi:waypoint x="1739.0" y="173.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1739.0" y="282.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow55" id="BPMNEdge_flow55">
         <omgdi:waypoint x="290.0" y="103.0"></omgdi:waypoint>
@@ -244,6 +306,22 @@ execution.setVariable("roleName", roleDto.getCode());</script>
       <bpmndi:BPMNEdge bpmnElement="flow58" id="BPMNEdge_flow58">
         <omgdi:waypoint x="1170.0" y="135.0"></omgdi:waypoint>
         <omgdi:waypoint x="1200.0" y="137.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow59" id="BPMNEdge_flow59">
+        <omgdi:waypoint x="1739.0" y="173.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1740.0" y="208.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow60" id="BPMNEdge_flow60">
+        <omgdi:waypoint x="1740.0" y="288.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1739.0" y="312.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow61" id="BPMNEdge_flow61">
+        <omgdi:waypoint x="973.0" y="329.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1010.0" y="329.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow62" id="BPMNEdge_flow62">
+        <omgdi:waypoint x="1145.0" y="329.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1210.0" y="329.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -15,9 +15,9 @@ public class StringToStringConverter implements Converter<String, String> {
 	@Override
 	public String convert(MappingContext<String, String> context) {
 		if (context.getSource() != null) {
-			return context.getSource().replaceAll("\u0000", "").replaceAll("\\x00", "");
+			return context.getSource().replace("\u0000", "").replace("\\x00", "");
 		}
-		return context.getSource();
+		return null;
 	}
 	
 }

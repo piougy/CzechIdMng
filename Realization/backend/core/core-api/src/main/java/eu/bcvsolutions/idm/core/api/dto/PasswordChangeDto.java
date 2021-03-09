@@ -37,6 +37,13 @@ public class PasswordChangeDto implements Serializable {
     private List<String> accounts; // selected AccAccounts uuids
     @JsonIgnore
     private ZonedDateTime maxPasswordAge = null; // max password age for new password, get by password policy
+    /**
+	 * Skip resolving valid from date on password to check minimum days, before password can be changed again.
+	 * 
+	 * @since 11.0.0
+	 */
+    @JsonIgnore
+    private boolean skipResetValidFrom = false;
 
     public GuardedString getOldPassword() {
         return oldPassword;
@@ -88,4 +95,24 @@ public class PasswordChangeDto implements Serializable {
     public void setMaxPasswordAge(ZonedDateTime maxPasswordAge) {
         this.maxPasswordAge = maxPasswordAge;
     }
+    
+    /**
+     * Skip resolving valid from date on password to check minimum days, before password can be changed again.
+     * 
+     * @return true - resolving valid from will be skipped
+     * @since 11.0.0
+     */
+    public boolean isSkipResetValidFrom() {
+		return skipResetValidFrom;
+	}
+    
+    /**
+     * Skip resolving valid from date on password to check minimum days, before password can be changed again.
+     * 
+     * @param skipResetValidFrom true - resolving valid from will be skipped
+     * @since 11.0.0
+     */
+    public void setSkipResetValidFrom(boolean skipResetValidFrom) {
+		this.skipResetValidFrom = skipResetValidFrom;
+	}
 }

@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.acc.service.api.AccUniformPasswordSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 
 /**
- * Test for {@link DefaultAccUniformPasswordService} more tests was created in {@link DefaultPasswordFilterManagerTest}
+ * Test for {@link DefaultAccUniformPasswordService} more tests was created in {@link DefaultPasswordFilterManagerIntegrationTest}
  *
  * @author Ondrej Kopr
  *

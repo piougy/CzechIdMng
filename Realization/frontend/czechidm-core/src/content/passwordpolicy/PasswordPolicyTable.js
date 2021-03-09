@@ -43,30 +43,6 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
     this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
-  onDelete(bulkActionValue, selectedRows) {
-    const { uiKey, passwordPolicyManager } = this.props;
-    const selectedEntities = passwordPolicyManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    // show confirm message for deleting entity or entities
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: passwordPolicyManager.getNiceLabel(selectedEntities[0]), records: passwordPolicyManager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: passwordPolicyManager.getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      // try delete
-      this.context.store.dispatch(passwordPolicyManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
-        if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: passwordPolicyManager.getNiceLabel(entity) }) }, error);
-        }
-        if (!error && successEntities) {
-          // refresh data in table
-          this.refs.table.reload();
-        }
-      }));
-    }, () => {
-      //
-    });
-  }
-
   /**
    * Recive new form for create new type else show detail for existing org.
    */
@@ -76,9 +52,9 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.history.push(`/password-policies/${uuidId}?new=1`);
+      this.context.history.push(`/password-policies/${ uuidId }?new=1`);
     } else {
-      this.context.history.push('/password-policies/' + entity.id);
+      this.context.history.push(`/password-policies/${ entity.id }`);
     }
   }
 
@@ -87,16 +63,16 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
     const { filterOpened } = this.state;
 
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
-          manager={passwordPolicyManager}
-          showRowSelection={SecurityManager.hasAuthority('PASSWORDPOLICY_DELETE')}
-          rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          manager={ passwordPolicyManager }
+          showRowSelection
+          rowClass={ ({ rowIndex, data }) => Utils.Ui.getRowClass(data[rowIndex]) }
           filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <Basic.Col lg={ 6 }>
@@ -105,26 +81,21 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
                       placeholder={ this.i18n('entity.PasswordPolicy.name.label') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
                   <Basic.Col lg={ 6 } className="last">
                     <Advanced.Filter.EnumSelectBox
                       ref="type"
-                      placeholder={this.i18n('entity.PasswordPolicy.type.label')}
+                      placeholder={ this.i18n('entity.PasswordPolicy.type.label') }
                       enum={ PasswordPolicyTypeEnum }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={!filterOpened}
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-            ]
-          }
+          filterOpened={ !filterOpened }
           buttons={
             [
               <Basic.Button
@@ -185,7 +156,7 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="minPasswordLength" sort />
           <Advanced.Column property="maxPasswordLength" sort />
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

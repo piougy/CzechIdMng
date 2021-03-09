@@ -73,6 +73,7 @@ public abstract class AbstractIdentityPasswordProcessor
 	 */
 	protected void savePassword(IdmIdentityDto identity, PasswordChangeDto newPassword) {
 		LOG.debug("Saving password for identity [{}].", identity.getUsername());
+		//
 		this.passwordService.save(identity, newPassword);
 	}
 

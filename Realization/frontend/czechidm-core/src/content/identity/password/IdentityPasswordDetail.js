@@ -15,6 +15,7 @@ const identityManager = new IdentityManager();
  * Identity password tab with information about password metadata.
  *
  * @author Ondrej Kopr
+ * @author Radek Tomiška
  */
 class IdentityPasswordDetail extends Basic.AbstractContent {
 
@@ -31,11 +32,15 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
     return 'content.password';
   }
 
+  getNavigationKey() {
+    return 'profile-password-metadata';
+  }
+
   componentDidMount() {
+    super.componentDidMount();
     const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(identityManager.fetchPassword(entityId, `identity-${entityId}-password`));
-    this.selectNavigationItems(['identities', 'identity-profile', 'profile-password', 'profile-password-metadata']);
   }
 
   componentDidUpdate() {
@@ -59,11 +64,11 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
 
     this.setState({
       _showLoading: true
-    }, this.refs.form.processStarted());
-
-    const entity = this.refs.form.getData();
-
-    this.context.store.dispatch(manager.patchEntity(entity, `identity-${entityId}-password`, this._afterSave.bind(this)));
+    }, () => {
+      this.refs.form.processStarted();
+      const entity = this.refs.form.getData();
+      this.context.store.dispatch(manager.patchEntity(entity, `identity-${entityId}-password`, this._afterSave.bind(this)));
+    });
   }
 
   _afterSave(entity, error) {
@@ -71,16 +76,19 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
     if (error) {
       this.setState({
         _showLoading: false
-      }, this.refs.form.processEnded());
-      this.addError(error);
+      }, () => {
+        this.refs.form.processEnded();
+        this.addError(error);
+      });
       return;
     }
     this.setState({
       _showLoading: false
-    }, this.refs.form.processEnded());
-    this.addMessage({ message: this.i18n('save.success')});
-
-    this.context.store.dispatch(identityManager.fetchPassword(entityId, `identity-${entityId}-password`));
+    }, () => {
+      this.refs.form.processEnded();
+      this.addMessage({ message: this.i18n('save.success')});
+      this.context.store.dispatch(identityManager.fetchPassword(entityId, `identity-${entityId}-password`));
+    });
   }
 
   onChangePasswordNeverExpires(event) {
@@ -161,13 +169,13 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
                   <Basic.DateTimePicker
                     ref="validTill"
                     mode="date"
-                    rendered={!isPasswordNeverExpiresFinall}
+                    rendered={ !isPasswordNeverExpiresFinall }
                     readOnly={ !canSave }
                     helpBlock={ this.i18n('validTill.help') }
                     label={ this.i18n('validTill.label') }/>
                   <Basic.Alert
                     ref="passwordNeverExpiresAndValidTillInfo"
-                    rendered={isPasswordNeverExpiresFinall}
+                    rendered={ isPasswordNeverExpiresFinall }
                     level="info"
                     text={ this.i18n('passwordNeverExpiresAndValidTillInfo', { date: blockLoginDate })}
                     style={ { margin: 0 } } />
@@ -222,8 +230,8 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
               <Basic.Button
                 type="button"
                 level="link"
-                onClick={this.context.history.goBack}
-                showLoading={showLoadingFinal}>
+                onClick={ this.context.history.goBack }
+                showLoading={ showLoadingFinal }>
                 {this.i18n('button.back')}
               </Basic.Button>
               <Basic.Button

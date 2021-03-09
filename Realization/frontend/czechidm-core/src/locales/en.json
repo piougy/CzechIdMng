@@ -1269,7 +1269,7 @@
       },
       "validFrom": {
         "label": "Valid from",
-        "help": "The valid from is changed every time the password was changed."
+        "help": "The valid from is used to check minimum days, before password can be changed again. If is empty, then check is skipped for next password change attempt."
       },
       "validTill": {
         "label": "Valid till",
@@ -5053,8 +5053,8 @@
         "help": "Maximum number of days for password validity."
       },
       "minPasswordAge": {
-        "label": "Minimum number of days for password validity",
-        "help": "Minimum number of days for password validity."
+        "label": "Minimum number of days",
+        "help": "Minimum number of days, before password can be changed again."
       },
       "enchancedControl": {
         "label": "Enhanced control",
@@ -6228,6 +6228,11 @@
       "core-authorization-policy-delete-bulk-action": {
         "label": "$t(action.delete.action) permissions",
         "help": "$t(action.delete.action) selected permissions.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-password-policy-delete-bulk-action": {
+        "label": "$t(action.delete.action) password policies",
+        "help": "$t(action.delete.action) selected password policies.",
         "icon": "$t(action.delete.icon)"
       },
       "core-form-attribute-delete-bulk-action": {

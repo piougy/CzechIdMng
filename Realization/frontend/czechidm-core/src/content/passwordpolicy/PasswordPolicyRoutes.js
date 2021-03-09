@@ -10,9 +10,11 @@ import { PasswordPolicyManager } from '../../redux';
 const passwordPolicyManager = new PasswordPolicyManager();
 
 /**
- * Default content (routes diff) for password policies
+ * Default content (routes diff) for password policies.
+ *
+ * @author Ondrej Kopr
+ * @author Radek Tomiška
  */
-
 class PasswordPolicyRoutes extends Basic.AbstractContent {
 
   getContentKey() {
@@ -39,10 +41,10 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity } = this.props;
+    const { entity, showLoading } = this.props;
 
     return (
-      <div>
+      <Basic.Div>
         {
           this._getIsNew()
           ?
@@ -52,25 +54,24 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
         }
         {
           this._getIsNew()
-          ||
-          <Basic.ContentHeader
-            showLoading={!entity}
-            text={
-              <div>
-                {passwordPolicyManager.getNiceLabel(entity)} <small> {this.i18n('edit.header')}</small>
-              </div>
-            }/>
-        }
-        {
-          this._getIsNew()
           ?
           <PasswordPolicyBasic match={ this.props.match } isNew />
           :
-          <Advanced.TabPanel position="left" parentId="password-policies" match={ this.props.match }>
-            {this.getRoutes()}
-          </Advanced.TabPanel>
+          <Basic.Div>
+            <Advanced.DetailHeader
+              icon="component:password-policy"
+              entity={ entity }
+              showLoading={ !entity && showLoading }
+              back="/password-policies">
+              { passwordPolicyManager.getNiceLabel(entity) } <small> { this.i18n('edit.header')}</small>
+            </Advanced.DetailHeader>
+
+            <Advanced.TabPanel position="left" parentId="password-policies" match={ this.props.match }>
+              {this.getRoutes()}
+            </Advanced.TabPanel>
+          </Basic.Div>
         }
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -84,7 +85,8 @@ function select(state, component) {
   const { entityId } = component.match.params;
   //
   return {
-    entity: passwordPolicyManager.getEntity(state, entityId)
+    entity: passwordPolicyManager.getEntity(state, entityId),
+    showLoading: passwordPolicyManager.isShowLoading(state, null, entityId)
   };
 }
 

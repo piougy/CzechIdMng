@@ -5,43 +5,58 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyIdentityAttributes;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
+import eu.bcvsolutions.idm.core.api.exception.PasswordChangeException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Basic test for validation and generate password by IdmPasswordPolicyService
+ * Basic test for validation and generate password by IdmPasswordPolicyService.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
 @Transactional
-public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegrationTest {
+public class DefaultIdmPasswordPolicyServiceIntegrationTest extends AbstractIntegrationTest {
 	
 	private static final int ATTEMPTS = 20;
 	
-	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmPasswordService passwordService;
+	//
+	private DefaultIdmPasswordPolicyService passwordPolicyService;
+	
+	@Before
+	public void before() {
+		passwordPolicyService = context.getAutowireCapableBeanFactory().createBean(DefaultIdmPasswordPolicyService.class);
+	}
 	
 	@Test
 	public void testGenerateRandomPasswordLength() {
@@ -1754,6 +1769,123 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 			fail("Password not pass.");
 		} catch (Exception e) {
 			fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testValidateMinPasswordAgeSuccess() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		//
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setMinPasswordAge(1);
+		//
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword(getHelper().createName());
+		//
+		try {
+			// without password - ok
+			passwordPolicyService.validate(validation, policy);
+			//
+			// create password
+			PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
+			passwordChangeDto.setIdm(true);
+			GuardedString newPassword = new GuardedString(getHelper().createName());
+			passwordChangeDto.setNewPassword(newPassword);
+			IdmPasswordDto password = passwordService.save(identity, passwordChangeDto);
+			Assert.assertNull(password.getValidFrom());
+			//
+			identity.setPassword(newPassword);
+			getHelper().login(identity);
+			// null valid from - ok
+			passwordPolicyService.validate(validation, policy);
+			//
+			// in past - ok
+			password.setValidFrom(LocalDate.now().minusDays(1));
+			password = passwordService.save(password);
+			passwordPolicyService.validate(validation, policy);
+			//
+			// must change - ok
+			password.setValidFrom(LocalDate.now());
+			password.setMustChange(true);
+			password = passwordService.save(password);
+			passwordPolicyService.validate(validation, policy);
+			//
+			//
+			// prevalidate - ok
+			password.setMustChange(false);
+			password = passwordService.save(password);
+			passwordPolicyService.preValidate(validation, Lists.newArrayList(policy));
+		} finally {
+			getHelper().logout();
+		}
+		//
+		// under admin - ok
+		try {
+			getHelper().loginAdmin();
+			passwordPolicyService.validate(validation, policy);
+		} finally {
+			getHelper().logout();
+		}
+		//
+		// under different user - ok
+		IdmIdentityDto manager = getHelper().createIdentity();
+		try {
+			getHelper().login(manager);
+			passwordPolicyService.validate(validation, policy);
+		} finally {
+			getHelper().logout();
+		}
+	}
+	
+	@Test(expected = PasswordChangeException.class)
+	public void testValidateMinPasswordAgeFailedSameUser() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmPasswordDto password = getHelper().getPassword(identity);
+		password.setValidFrom(LocalDate.now());
+		password = passwordService.save(password);
+		//
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setMinPasswordAge(1);
+		//
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword(getHelper().createName());
+		//
+		try {
+			getHelper().login(identity);
+			//
+			passwordPolicyService.validate(validation, Lists.newArrayList(policy));
+		} finally {
+			getHelper().logout();
+		}
+	}
+	
+	@Test(expected = PasswordChangeException.class)
+	public void testValidateMinPasswordAgeFailedEnforce() {
+		IdmIdentityDto manager = getHelper().createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmPasswordDto password = getHelper().getPassword(identity);
+		password.setValidFrom(LocalDate.now());
+		password = passwordService.save(password);
+		//
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setMinPasswordAge(1);
+		//
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword(getHelper().createName());
+		validation.setEnforceMinPasswordAgeValidation(true);
+		//
+		try {
+			getHelper().login(manager);
+			//
+			passwordPolicyService.validate(validation, Lists.newArrayList(policy));
+		} finally {
+			getHelper().logout();
 		}
 	}
 

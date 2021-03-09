@@ -133,9 +133,9 @@ public class IdentityPasswordValidateProcessor
 			}
 		}
 		//
-		// validate TODO: validate for admin?
+		// validate
 		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
-		// get old password for validation - til, from and password history
+		// get old password for validation - till, from and password history
 		IdmPasswordDto oldPassword = this.passwordService.findOneByIdentity(identity.getId());
 		passwordValidationDto.setOldPassword(oldPassword == null ? null : oldPassword.getId());
 		passwordValidationDto.setIdentity(identity);

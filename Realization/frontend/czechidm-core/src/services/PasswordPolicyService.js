@@ -2,6 +2,13 @@ import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
 
+
+/**
+ * Password policies.
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ */
 class PasswordPolicyService extends AbstractService {
 
   getApiPath() {
@@ -20,6 +27,10 @@ class PasswordPolicyService extends AbstractService {
     return false;
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   /**
    * Returns default searchParameters for password policy
    *
@@ -35,7 +46,7 @@ class PasswordPolicyService extends AbstractService {
    * @return {Promise}
    */
   generatePassword() {
-    return RestApiService.get(this.getApiPath() + `/generate/default`);
+    return RestApiService.get(`${ this.getApiPath() }/generate/default`);
   }
 }
 

@@ -235,7 +235,7 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 	}
 	
 	@Test
-	public void testGetRemoteServerPasswordContainsAsterisksByUUIDCode() throws Exception {
+	public void testGetRemoteServerPasswordContainsAsterisksByUuidCode() throws Exception {
 		String password = "testPassword123654";
 		SysConnectorServerDto conServer = new SysConnectorServerDto();
 		conServer.setPassword(new GuardedString(password));

@@ -15,13 +15,12 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
- * Password dto
+ * Password dto.
  * 
  * @author Ondrej Kopr
  * @author Radek Tomiška
  *
  */
-
 @Relation(collectionRelation = "passwords")
 public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
 

@@ -61,8 +61,8 @@ import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
@@ -70,6 +70,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Abstract class for integration tests that work with password filter and uniform password system.
+ * 
+ * FIXME: use @AbstractRestTest (~ Spring MockMvc), delete prepareUrl method etc.
  *
  * @author Ondrej Kopr
  *
@@ -226,6 +228,8 @@ public abstract class AbstractPasswordFilterIntegrationTest extends AbstractInte
 		return process(request, url, success);
 	}
 
+	// FIXME: use Spring MVC and remove this method at all
+	// FIXME: admin authentication is used internally => security cannot be tested
 	protected IdmResponse process(PasswordRequest request, String url, boolean success) {
 		RestTemplate template = new RestTemplate();
 		HttpEntity<PasswordRequest> requestUpdate = new HttpEntity<>(request, prepareHeaderBasicAuth());
@@ -433,6 +437,7 @@ public abstract class AbstractPasswordFilterIntegrationTest extends AbstractInte
 		assertEquals(count, histories.size());
 	}
 
+	// FIXME: logout is not called!
 	protected LoginDto loginToIdm(IdmIdentityDto identity, String password, boolean success) {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(identity.getUsername());
@@ -454,6 +459,7 @@ public abstract class AbstractPasswordFilterIntegrationTest extends AbstractInte
 		return login;
 	}
 
+	// FIXME: enum just for "switch" in test method ... remove + concrete method without mega if
 	protected enum EchoCheck {
 		DOESNT_EXIST,
 		VALIDATE,
@@ -522,11 +528,13 @@ public abstract class AbstractPasswordFilterIntegrationTest extends AbstractInte
 		return example.toString();
 	}
 
+	// FIXME: remove this - use Spring MVC
 	protected class IdmResponse {
 		public HttpStatus status;
 		public String message;
 	}
 	
+	// FIXME: remove this, use AccPasswordFilterRequestDto + standard mapper
 	protected class PasswordRequest implements Serializable {
 
 		private static final long serialVersionUID = 1L;
@@ -546,8 +554,6 @@ public abstract class AbstractPasswordFilterIntegrationTest extends AbstractInte
 			this.username = username;
 			this.resource = resource;
 		}
-
-
 
 		public String getPassword() {
 			return password;

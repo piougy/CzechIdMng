@@ -6,10 +6,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
- * Filter for profiles
+ * Filter for profiles.
  * 
  * @author Radek Tomiška
  *
@@ -30,11 +29,11 @@ public class IdmProfileFilter extends DataFilter {
 	}
 	
 	public UUID getIdentityId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_IDENTITY_ID));
+		return getParameterConverter().toUuid(getData(), PARAMETER_IDENTITY_ID);
 	}
 
 	public void setIdentityId(UUID identityId) {
-		data.set(PARAMETER_IDENTITY_ID, identityId);
+		set(PARAMETER_IDENTITY_ID, identityId);
 	}
 
 }

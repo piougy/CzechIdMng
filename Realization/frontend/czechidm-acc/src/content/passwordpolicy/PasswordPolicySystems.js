@@ -6,12 +6,14 @@ import { Basic, Domain, Enums, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 import SystemTable from '../system/SystemTable';
 
-/**
-* Table with connected systems to this password policy
-*/
-
 const passwordPolicyManager = new Managers.PasswordPolicyManager();
 
+/**
+* Table with connected systems to this password policy.
+*
+* @author Ondrej Kopr
+* @author Radek Tomiška
+*/
 class PasswordPolicySystems extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -19,8 +21,14 @@ class PasswordPolicySystems extends Basic.AbstractContent {
     this.systemManager = new SystemManager();
   }
 
+  getNavigationKey() {
+    'password-policies-systems';
+  }
+
   componentDidMount() {
+    super.componentDidMount();
     const { entityId } = this.props.match.params;
+    //
     this.selectNavigationItems(['system', 'password-policies', 'password-policies-systems']);
     this.context.store.dispatch(passwordPolicyManager.fetchEntity(entityId));
   }
@@ -41,21 +49,27 @@ class PasswordPolicySystems extends Basic.AbstractContent {
     }
 
     return (
-      <div>
-        <Basic.ContentHeader text={this.i18n('acc:content.passwordPolicy.system.title')} style={{ marginBottom: 0 }}/>
+      <Basic.Div>
+        <Basic.ContentHeader
+          text={ this.i18n('acc:content.passwordPolicy.system.title') }
+          icon="component:systems"
+          style={{ marginBottom: 0 }}/>
 
-        <Basic.Loading showLoading={showLoading} />
-
-        <Basic.Panel className="no-border last" rendered={forceSearchParameters !== null}>
-          <SystemTable uiKey="password_policy_system_table"
-            columns={['name', 'description', 'disabled', 'readonly']}
-            manager={this.systemManager}
-            forceSearchParameters={forceSearchParameters}
-            showRowSelection={false}
-            showAddButton={false}
-            filterOpened={false}/>
+        <Basic.Panel
+          className="no-border last"
+          rendered={ forceSearchParameters !== null }
+          showLoading={ showLoading }>
+          <SystemTable
+            uiKey="password_policy_system_table"
+            columns={[ 'name', 'description', 'disabled', 'readonly' ]}
+            manager={ this.systemManager }
+            forceSearchParameters={ forceSearchParameters }
+            showRowSelection={ false }
+            showAddButton={ false }
+            filterOpened={ false }
+            className="no-margin"/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

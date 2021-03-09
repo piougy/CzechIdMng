@@ -258,7 +258,7 @@ module.exports = {
         order: 100,
         priority: 0,
         path: '/password-policies/:entityId/systems',
-        icon: '',
+        icon: 'component:systems',
         access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['PASSWORDPOLICY_READ', 'SYSTEM_READ'] } ]
       },
       {

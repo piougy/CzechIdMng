@@ -49,7 +49,7 @@ public interface IdmIdentityService extends
 	String getNiceLabel(IdmIdentityDto identity);
 	
 	/**
-	 * Changes given identity's password by the event processing. New passworn property has to be set in event properties.
+	 * Changes given identity's password by the event processing. New password property has to be set in event properties.
 	 * 
 	 * @param passwordChangeEvent
 	 * @return

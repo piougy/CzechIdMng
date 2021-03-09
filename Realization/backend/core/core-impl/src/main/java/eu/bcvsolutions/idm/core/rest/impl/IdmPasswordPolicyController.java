@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +42,7 @@ import io.swagger.annotations.AuthorizationScope;
 /**
  * Default controller for password policy
  * 
- * TODO: use AbstractReadWriteDtoController - some methods are public now (find ...)
+ * FIXME: use AbstractReadWriteDtoController - some methods are available for all logged users now !!!
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -253,5 +254,10 @@ public class IdmPasswordPolicyController extends DefaultReadWriteDtoController<I
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_BAD_TYPE, ImmutableMap.of("type", entity.getType()));
 		}
 		return entity;
+	}
+	
+	@Override
+	protected IdmPasswordPolicyFilter toFilter(MultiValueMap<String, Object> parameters) {
+		return new IdmPasswordPolicyFilter(parameters, getParameterConverter());
 	}
 }

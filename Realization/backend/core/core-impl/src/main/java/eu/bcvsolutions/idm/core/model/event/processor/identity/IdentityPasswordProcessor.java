@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Component
+@Component(IdentityPasswordProcessor.PROCESSOR_NAME)
 @Description("Persist identity's password.")
 public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor {
 
@@ -50,7 +50,7 @@ public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor
 	}
 
 	/**
-	 * Saves identity's password and fill valid till from password policy
+	 * Saves identity's password and fill valid till from password policy.
 	 * 
 	 * @param identity
 	 * @param newPassword

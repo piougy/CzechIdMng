@@ -1302,7 +1302,7 @@
       },
       "validFrom": {
         "label": "Platnost od",
-        "help": "Platnost hesla od se mění při každé změně hesla."
+        "help": "Platnost hesla se používá při kontrole na minimální dobu pro změnu hesla (dle nakonfigurované politiky hesel). Pokud je nevyplněno, tak kontrola nebude při následující změně hesla provedena."
       },
       "validTill": {
         "label": "Platnost do",
@@ -6280,6 +6280,11 @@
       "core-authorization-policy-delete-bulk-action": {
         "label": "$t(action.delete.action) oprávnění",
         "help": "Smaže vybraná oprávnění.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-password-policy-delete-bulk-action": {
+        "label": "$t(action.delete.action) politiky hesel",
+        "help": "Smaže vybrané politiky hesel.",
         "icon": "$t(action.delete.icon)"
       },
       "core-form-attribute-delete-bulk-action": {

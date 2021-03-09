@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
- * Common repository for base entities
+ * Common repository for base entities.
  * 
  * @param <E> entity type
  * @param <ID> entity identifier type

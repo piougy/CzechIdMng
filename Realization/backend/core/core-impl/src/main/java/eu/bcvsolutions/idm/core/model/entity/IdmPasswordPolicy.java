@@ -28,12 +28,11 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * in idm system can be two default policies.
  * One default for validation and one for generate.
  * For generate passwords is use random generator and
- * passphrase
+ * passphrase.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Entity
 @Table(name = "idm_password_policy", indexes = {
 		@Index(name = "ux_idm_pass_policy_name", columnList = "name", unique = true)

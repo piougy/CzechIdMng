@@ -264,7 +264,8 @@ export class SystemTable extends Advanced.AbstractTableContent {
       forceSearchParameters,
       showAddButton,
       showRowSelection,
-      showFilterVirtual
+      showFilterVirtual,
+      className
     } = this.props;
     const { filterOpened, showWizard, connectorType } = this.state;
     const _showFilterVirtual = showFilterVirtual && !forceSearchParameters.filters.get('virtual');
@@ -295,6 +296,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
           defaultSearchParameters={ defaultSearchParameters }
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ showRowSelection }
+          className={ className }
           filter={
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">

@@ -1344,7 +1344,7 @@ module.exports = {
                 labelKey: 'content.passwordPolicies.basic.title',
                 order: 10,
                 path: '/password-policies/:entityId',
-                icon: '',
+                icon: 'component:basic-info',
                 type: 'TAB',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDPOLICY_READ'] } ]
               },
@@ -1353,7 +1353,6 @@ module.exports = {
                 labelKey: 'content.passwordPolicies.advanced.title',
                 order: 15,
                 path: '/password-policies/:entityId/advanced',
-                icon: '',
                 type: 'TAB',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDPOLICY_READ'] } ]
               },
@@ -1362,7 +1361,7 @@ module.exports = {
                 labelKey: 'content.passwordPolicies.characters.title',
                 order: 20,
                 path: '/password-policies/:entityId/characters',
-                icon: '',
+                icon: 'fa:language',
                 type: 'TAB',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDPOLICY_READ'] } ]
               }

@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.core.api.config.domain.AbstractConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
@@ -115,9 +116,10 @@ public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration
 	/**
 	 * Method return configuration prefix for given operation type
 	 * 
+	 * @param eventType event type
 	 * @return
 	 */
-	private String getPrefix(ProvisioningEventType eventType) {
-		return eventType.name().toLowerCase() + ConfigurationService.PROPERTY_SEPARATOR;
+	private String getPrefix(EventType eventType) {
+		return String.format("%s%s", eventType.name().toLowerCase(), ConfigurationService.PROPERTY_SEPARATOR);
 	}
 }

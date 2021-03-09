@@ -298,7 +298,7 @@ class RoleTable extends Advanced.AbstractTableContent {
             ref="table"
             uiKey={ uiKey }
             manager={ roleManager }
-            rowClass={ ({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }
+            rowClass={ ({ rowIndex, data }) => Utils.Ui.getRowClass(data[rowIndex]) }
             className={
               _showTree
               ?

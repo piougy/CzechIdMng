@@ -7,16 +7,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
-import java.time.LocalDate;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
@@ -28,50 +28,40 @@ import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Password service integration test.
  * 
  * @author Jan Helbich
  * @author Petr Hanák
+ * @author Radek Tomiška
  */
-@Transactional // we need rollback after each test
+@Transactional
 public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private IdmPasswordService passwordService;
-	@Autowired
-	private IdmPasswordPolicyService policyService;
-	@Autowired
-	private TestHelper testHelper;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private LoginController loginController;
+	@Autowired private ApplicationContext context;
+	@Autowired private IdmPasswordPolicyService policyService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private LoginController loginController;
+	//
+	private DefaultIdmPasswordService passwordService;
 
 	@Before
 	public void before() {
-		this.loginAsAdmin();
+		passwordService = context.getAutowireCapableBeanFactory().createBean(DefaultIdmPasswordService.class);
 		removeDefaultPolicy();
-	}
-
-	@After
-	public void after() {
-		this.logout();
 	}
 
 	@Test
 	public void testCreatePasswordNoPolicy() {
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-		assertEquals(LocalDate.now(), password.getValidFrom());
+		Assert.assertNull(password.getValidFrom());
 		assertEquals(identity.getId(), password.getIdentity());
 		assertNull(password.getValidTill());
 	}
@@ -80,22 +70,22 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 	public void testCreatePasswordNonDefaultPolicy() {
 		IdmPasswordPolicyDto policy = getTestPolicy(false);
 		assertNotNull(policy);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-		assertEquals(LocalDate.now(), password.getValidFrom());
-		assertEquals(identity.getId(), password.getIdentity());
+		Assert.assertNull(password.getValidFrom());
+		Assert.assertEquals(identity.getId(), password.getIdentity());
 		// when not exists default validation policy valid till be null
-		assertNull(password.getValidTill());
+		Assert.assertNull(password.getValidTill());
 	}
 
 	@Test
 	public void testCreatePasswordDefaultPolicy() {
 		IdmPasswordPolicyDto policy = getTestPolicy(true);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-		assertEquals(LocalDate.now(), password.getValidFrom());
+		Assert.assertNull(password.getValidFrom());
 		assertEquals(identity.getId(), password.getIdentity());
 		assertEquals(LocalDate.now().plusDays(policy.getMaxPasswordAge()), password.getValidTill());
 	}
@@ -105,23 +95,23 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		IdmPasswordPolicyDto policy1 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 365);
 		assertNotNull(policy1);
 		IdmPasswordPolicyDto policy2 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 5);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-		assertEquals(LocalDate.now(), password.getValidFrom());
-		assertEquals(identity.getId(), password.getIdentity());
+		Assert.assertNull(password.getValidFrom());
+		Assert.assertEquals(identity.getId(), password.getIdentity());
 		// default password policy may be only one
-		assertEquals(LocalDate.now().plusDays(policy2.getMaxPasswordAge()), password.getValidTill());
+		Assert.assertEquals(LocalDate.now().plusDays(policy2.getMaxPasswordAge()), password.getValidTill());
 	}
 	
 	@Test
 	public void testTwoPoliciesSecondValidTillNull() {
 		IdmPasswordPolicyDto policy1 = getTestPolicy(false, IdmPasswordPolicyType.VALIDATE, null);
 		IdmPasswordPolicyDto policy2 = getTestPolicy(true, IdmPasswordPolicyType.VALIDATE, 5);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-		assertEquals(LocalDate.now(), password.getValidFrom());
+		Assert.assertNull(password.getValidFrom());
 		assertEquals(identity.getId(), password.getIdentity());
 		assertEquals(LocalDate.now().plusDays(policy2.getMaxPasswordAge()), password.getValidTill());
 		//
@@ -130,27 +120,35 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 		passwordChangeDto.setAll(true);
 		passwordChangeDto.setIdm(true);
+		passwordChangeDto.setOldPassword(identity.getPassword());
 		passwordChangeDto.setNewPassword(new GuardedString("testPassword"));
-		identityService.passwordChange(identity, passwordChangeDto);
-		password = passwordService.findOneByIdentity(identity.getId());
-		assertNull(password.getValidTill());
+		//
+		try {
+			getHelper().login(identity);
+			identityService.passwordChange(identity, passwordChangeDto);
+			password = passwordService.findOneByIdentity(identity.getId());
+			Assert.assertNotNull(password.getValidFrom());
+			Assert.assertNull(password.getValidTill());
+		} finally {
+			logout();
+		}
 	}
 
 	@Test
 	public void testCreatePasswordValidationPolicy() {
 		getTestPolicy(false, IdmPasswordPolicyType.VALIDATE, 365);
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-		assertEquals(LocalDate.now(), password.getValidFrom());
-		assertEquals(identity.getId(), password.getIdentity());
-		assertNull(password.getValidTill());
+		Assert.assertNull(password.getValidFrom());
+		Assert.assertEquals(identity.getId(), password.getIdentity());
+		Assert.assertNull(password.getValidTill());
 	}
 
 	@Test
 	@Transactional
 	public void testIncreaseUnsuccessfulAttempts() {
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		passwordService.increaseUnsuccessfulAttempts(identity.getUsername());
 		passwordService.increaseUnsuccessfulAttempts(identity.getUsername());
 		//
@@ -160,7 +158,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testSetLastSuccessfulLogin() {
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		passwordService.setLastSuccessfulLogin(identity.getUsername());
 		//
 		assertNotNull(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin());
@@ -170,7 +168,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testSuccessfulLoginTimestamp() {
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		identity.setPassword(new GuardedString("SomePasswd"));
 		identity = identityService.save(identity);
 
@@ -196,7 +194,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testResetUsuccessfulAttemptsAfterPasswordChange() {
-		IdmIdentityDto identity = testHelper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 
 		// login
 		LoginDto loginDto = new LoginDto();
@@ -562,6 +560,109 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 			return pass.getIdentity().equals(identityTree.getId());
 		}).findFirst().orElse(null);
 		assertNotNull(passwordDto);
+	}
+	
+	@Test
+	public void testSetFalidFromUnderSameUser() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNull(password.getValidFrom());
+		Assert.assertEquals(identity.getId(), password.getIdentity());
+		//
+		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
+		passwordChangeDto.setAll(true);
+		passwordChangeDto.setIdm(true);
+		passwordChangeDto.setOldPassword(identity.getPassword());
+		passwordChangeDto.setNewPassword(new GuardedString("testPassword"));
+		//
+		try {
+			getHelper().login(identity);
+			identityService.passwordChange(identity, passwordChangeDto);
+			password = passwordService.findOneByIdentity(identity.getId());
+			Assert.assertNotNull(password.getValidFrom());
+			Assert.assertNull(password.getValidTill());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	public void testPreserveValidFromUnderSameIdentity() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNull(password.getValidFrom());
+		Assert.assertEquals(identity.getId(), password.getIdentity());
+		//
+		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
+		passwordChangeDto.setAll(true);
+		passwordChangeDto.setIdm(true);
+		passwordChangeDto.setOldPassword(identity.getPassword());
+		passwordChangeDto.setNewPassword(new GuardedString("testPassword"));
+		passwordChangeDto.setSkipResetValidFrom(true);
+		//
+		try {
+			getHelper().login(identity);
+			identityService.passwordChange(identity, passwordChangeDto);
+			password = passwordService.findOneByIdentity(identity.getId());
+			Assert.assertNotNull(password.getValidFrom());
+			Assert.assertNull(password.getValidTill());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	public void testPreserveValidFromUnderDifferentIdentity() {
+		IdmIdentityDto manager = getHelper().createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNull(password.getValidFrom());
+		Assert.assertEquals(identity.getId(), password.getIdentity());
+		//
+		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
+		passwordChangeDto.setAll(true);
+		passwordChangeDto.setIdm(true);
+		passwordChangeDto.setOldPassword(identity.getPassword());
+		passwordChangeDto.setNewPassword(new GuardedString("testPassword"));
+		passwordChangeDto.setSkipResetValidFrom(true);
+		//
+		try {
+			getHelper().login(manager);
+			identityService.passwordChange(identity, passwordChangeDto);
+			password = passwordService.findOneByIdentity(identity.getId());
+			Assert.assertNotNull(password.getValidFrom());
+			Assert.assertNull(password.getValidTill());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	public void testResetValidFromUnderDifferentIdentity() {
+		IdmIdentityDto manager = getHelper().createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNull(password.getValidFrom());
+		Assert.assertEquals(identity.getId(), password.getIdentity());
+		//
+		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
+		passwordChangeDto.setAll(true);
+		passwordChangeDto.setIdm(true);
+		passwordChangeDto.setNewPassword(new GuardedString("testPassword"));
+		//
+		try {
+			getHelper().login(manager);
+			identityService.passwordChange(identity, passwordChangeDto);
+			password = passwordService.findOneByIdentity(identity.getId());
+			Assert.assertNull(password.getValidFrom());
+			Assert.assertNull(password.getValidTill());
+		} finally {
+			logout();
+		}
 	}
 
 	private IdmPasswordPolicyDto getTestPolicy(boolean isDefault, IdmPasswordPolicyType type, Integer maxAge) {

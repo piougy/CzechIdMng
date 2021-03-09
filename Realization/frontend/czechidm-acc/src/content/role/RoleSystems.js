@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 //
 import { Basic, Domain } from 'czechidm-core';
-import RoleSystemTableComponent, { RoleSystemTable } from '../role/RoleSystemTable';
+import RoleSystemTableComponent, { RoleSystemTable } from './RoleSystemTable';
 
 const uiKey = 'role-systems-table';
 
@@ -13,10 +13,6 @@ const uiKey = 'role-systems-table';
  * @author Petr Hanák
  */
 export default class RoleSystems extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getUiKey() {
     return uiKey;
@@ -33,8 +29,9 @@ export default class RoleSystems extends Basic.AbstractContent {
   render() {
     const { entityId } = this.props.match.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleId', entityId);
+    //
     return (
-      <div className="tab-pane-table-body">
+      <Basic.Div className="tab-pane-table-body">
         { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <Basic.Panel className="no-border last">
@@ -46,7 +43,7 @@ export default class RoleSystems extends Basic.AbstractContent {
             match={ this.props.match }
             className="no-margin"/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

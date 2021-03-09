@@ -11,16 +11,16 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.event.PasswordEvent.PasswordEventType;
 
 /**
- * Check password never expires and remove valid till
+ * Check password never expires and remove valid till.
  *
  * @author Ondrej Kopr
  *
  */
-@Component
+@Component(PasswordNeverExpiresProcessor.PROCESSOR_NAME)
 @Description("Check password never expires.")
 public class PasswordNeverExpiresProcessor extends CoreEventProcessor<IdmPasswordDto> {
 
-	private static final String PROCESSOR_NAME = "password-never-expires-processor";
+	public static final String PROCESSOR_NAME = "password-never-expires-processor";
 
 	public PasswordNeverExpiresProcessor() {
 		super(PasswordEventType.CREATE, PasswordEventType.UPDATE);

@@ -94,10 +94,10 @@ public enum CoreResultCode implements ResultCode {
 	MUST_CHANGE_IDM_PASSWORD(HttpStatus.UNAUTHORIZED, "User [%s] has to change password"),
 	PASSWORD_DOES_NOT_MEET_POLICY(HttpStatus.BAD_REQUEST, "Password does not match password policy: %s", NotificationLevel.INFO),
 	PASSWORD_PREVALIDATION(HttpStatus.ACCEPTED, "Password does not match password policy: %s"),
-	PASSWORD_CANNOT_CHANGE(HttpStatus.BAD_REQUEST, "You cannot change your password yet. Please try it again after %s"),
+	PASSWORD_CANNOT_CHANGE(HttpStatus.BAD_REQUEST, "You cannot change your password yet. Please try it again after [%s]."),
 	// password create
 	PASSWORD_CANNOT_BE_CREATED(HttpStatus.BAD_REQUEST, "Password cannot be created"),
-	TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY(HttpStatus.BAD_REQUEST, "You cannot create self delegation (%s)"),
+	TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY(HttpStatus.BAD_REQUEST, "You cannot create self delegation [%s]"),
 	// tree
 	TREE_NODE_BAD_PARENT(HttpStatus.BAD_REQUEST, "Tree node [%s], have bad parent."),
 	TREE_NODE_EMPTY_CODE(HttpStatus.BAD_REQUEST, "Empty code for newly saved tree node."),

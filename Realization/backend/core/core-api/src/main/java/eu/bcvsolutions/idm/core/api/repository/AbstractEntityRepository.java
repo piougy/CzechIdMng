@@ -7,7 +7,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
- * Common repository for abstract entities
+ * Common repository for abstract entities.
  * 
  * TODO: QueryDslPredicateExecutor<E>
  * 

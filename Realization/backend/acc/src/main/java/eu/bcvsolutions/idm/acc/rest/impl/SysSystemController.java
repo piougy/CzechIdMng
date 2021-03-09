@@ -97,12 +97,11 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;;
 
 /**
- * Target system setting controller
+ * Target system setting controller.
  *
  * @author Radek Tomiška
  * @author Vít Švanda
  * @author Ondřej Kopr
- *
  */
 @RestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
@@ -124,20 +123,14 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	private final SysSystemService systemService;
 	private final IcConfigurationFacade icConfiguration;
 	private final ConfidentialStorage confidentialStorage;
-	//
 	private final IdmFormDefinitionController formDefinitionController;
-	@Autowired
-	private SysSyncItemLogService syncItemLogService;
-	@Autowired
-	private SysSyncLogService syncLogService;
-	@Autowired
-	private LongPollingManager longPollingManager;
-	@Autowired
-	private PasswordFilterManager passwordFilterManager;
-	@Autowired
-	private ConnectorManager connectorManager;
-	@Autowired
-	private SysRemoteServerService remoteServerService;
+	//
+	@Autowired private SysSyncItemLogService syncItemLogService;
+	@Autowired private SysSyncLogService syncLogService;
+	@Autowired private LongPollingManager longPollingManager;
+	@Autowired private PasswordFilterManager passwordFilterManager;
+	@Autowired private ConnectorManager connectorManager;
+	@Autowired private SysRemoteServerService remoteServerService;
 
 	@Autowired
 	public SysSystemController(
@@ -981,9 +974,9 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_PASSWORDFILTERCHANGE, description = "")})
 					})
-	public ResponseEntity<?> change(
-			@RequestBody @Valid AccPasswordFilterRequestDto request) {
+	public ResponseEntity<?> change(@RequestBody @Valid AccPasswordFilterRequestDto request) {
 		passwordFilterManager.change(request);
+		//
 		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
 	

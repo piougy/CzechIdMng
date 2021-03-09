@@ -217,8 +217,7 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 	private IdmIdentityDto getEmbeddedIdentity(IdmIdentityRoleDto identityRole) {
 		IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract,
 				IdmIdentityContractDto.class);
-		IdmIdentityDto identity = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity, IdmIdentityDto.class);
 		//
-		return identity;
+		return getLookupService().lookupEmbeddedDto(contract, IdmIdentityContract_.identity);
 	}
 }

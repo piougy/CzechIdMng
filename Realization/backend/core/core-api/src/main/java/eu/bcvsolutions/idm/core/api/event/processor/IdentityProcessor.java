@@ -12,7 +12,9 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 public interface IdentityProcessor extends EntityEventProcessor<IdmIdentityDto> {
 
 	/**
-	 * Skip password validation
+	 * Skip password validation.
+	 * 
+	 * @since 10.5.0
 	 */
-	static final String SKIP_PASSWORD_VALIDATION = "skipPasswordValidation";
+	String SKIP_PASSWORD_VALIDATION = "skipPasswordValidation";
 }

@@ -77,12 +77,17 @@ class DateTimePicker extends AbstractFormComponent {
     return timeFormat || this.i18n('format.time', { defaultValue: 'HH:mm' });
   }
 
-  setValue(value) {
+  setValue(value, cb = null) {
     const dateTime = this._format(value);
     if (this.refs.input && !dateTime) {
-      this.refs.input.setState({ inputValue: '' }); // we need to set empty string, null does not work
+      this.refs.input.setState({ inputValue: '', value: null }, cb); // we need to set empty string, null does not work
     }
-    this.setState({value: dateTime}, () => { this.validate(false); });
+    this.setState({ value: dateTime }, () => {
+      this.validate(false);
+      if (cb) {
+        cb();
+      }
+    });
   }
 
   validate(showValidationError) {

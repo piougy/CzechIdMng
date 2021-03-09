@@ -140,9 +140,12 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 		}
 
 		// Accounts for current system only
-		List<AccAccountDto> accounts = managedAccounts.stream().filter(account -> {
-				return account.getSystem().equals(system.getId());
-				}).collect(Collectors.toList());
+		List<AccAccountDto> accounts = managedAccounts
+				.stream()
+				.filter(account -> {
+					return account.getSystem().equals(system.getId());
+				})
+				.collect(Collectors.toList());
 
 		for (AccAccountDto account : accounts) {
 			AccPasswordFilterEchoItemDto echo = getEcho(account.getId());
@@ -197,7 +200,8 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
 			passwordValidationDto.setPassword(password);
 			passwordValidationDto.setIdentity(identity);
-
+			passwordValidationDto.setEnforceMinPasswordAgeValidation(true); // password is changed on different logged identity, but change by password filter is originally executed as target identity
+			
 			try {
 				policyService.validate(passwordValidationDto , policies);
 			} catch (Exception e) {
@@ -243,12 +247,12 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 		final long timeout = passwordFilterAttribute.getEchoTimeout();
 		final boolean changeInIdm = changeInIdm(passwordDefinitions);
 
-		// Accounts with password filter support
+		// Accounts with password filter support.
 		List<AccAccountDto> managedAccounts = null;
-		// Accounts only for password changed without echo and password filter system
+		// Accounts only for password changed without echo and password filter system.
 		List<AccAccountDto> notManagedAccounts = null;
 
-		// System doesn't exists in password uniform feature
+		// System doesn't exists in password uniform feature.
 		if (CollectionUtils.isEmpty(passwordDefinitions)) {
 			LOG.debug("System [{}] isn't exist in uniform password definition. Password will be changed only trough the given system.");
 			// Try find one account for given system with supported passwod filter
@@ -266,10 +270,13 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 			return;
 		}
 
-		// Accounts for current system only
-		List<AccAccountDto> accounts = managedAccounts.stream().filter(account -> {
-				return account.getSystem().equals(system.getId());
-				}).collect(Collectors.toList());
+		// Accounts for current system only.
+		List<AccAccountDto> accounts = managedAccounts
+				.stream()
+				.filter(account -> {
+					return account.getSystem().equals(system.getId());
+				})
+				.collect(Collectors.toList());
 
 		for (AccAccountDto account : accounts) {
 			AccPasswordFilterEchoItemDto echo = getEcho(account.getId());
@@ -284,21 +291,21 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 			boolean passwordEqual = isPasswordEqual(echo, password);
 			
 			if (!passwordEqual) {
-				// Password doesn't match with checked password - security problem
+				// Password doesn't match with checked password - security problem.
 				LOG.error("Password doesn't match with validated password! For account uid [{}] and system code [{}]. {}",
 						account.getUid(), system.getCode(), request.getLogMetadata());
 				throw new ResultCodeException(AccResultCode.PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST, ImmutableMap.of("identifier", identity.getId())); 	
 			}
 			
 			if (BooleanUtils.isFalse(echo.isValidityChecked())) {
-				// Validation wasn't successfully executed yet - validation must pass
+				// Validation wasn't successfully executed yet - validation must pass.
 				LOG.error("Password wasn't successfully validated! For account id [{}] and system id [{}]. Validation must pass! {}",
 						account.getId(), system.getId(), request.getLogMetadata());
 				throw new ResultCodeException(AccResultCode.PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST, ImmutableMap.of("identifier", identity.getId())); 			
 			}
 
 			if (echoValid && echo.isChanged()) {
-				// Classic valid echo that was already changed, for this echo will not be changed again - FOR ALL ANOTHER SYSTEMS
+				// Classic valid echo that was already changed, for this echo will not be changed again - FOR ALL ANOTHER SYSTEMS.
 				LOG.info("Echo record found! For account uid [{}] and system code [{}]. Password will not be changed. {}",
 						account.getUid(), system.getCode(), request.getLogMetadata());
 				// For one valid echo just skip password change
@@ -306,7 +313,7 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 			}
 		}
 
-		// Create final account list for password change and check duplicate
+		// Create final account list for password change and check duplicate.
 		List<AccAccountDto> finalAccounts = Lists.newArrayList(managedAccounts);
 		notManagedAccounts.forEach(account -> {
 			if (!finalAccounts.contains(account)) {
@@ -314,7 +321,7 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 			}
 		});
 
-		// Remove account for original resource - is possible that account can be empty
+		// Remove account for original resource - is possible that account can be empty.
 		List<UUID> accountsForResource = Lists.newArrayList();
 		finalAccounts.removeIf(account -> {
 			if (account.getSystem().equals(system.getId())) {
@@ -324,11 +331,11 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 			return false;
 		});
 
-		// When account is empty and uniform password doesn't required password change trough IdM skip password change process
+		// When account is empty and uniform password doesn't required password change trough IdM skip password change process.
 		if (finalAccounts.isEmpty() && changeInIdm == false) {
 			LOG.info("Request for resource indetifier [{}] (identity username [{}]) and system code [{}] will not be processed! No suitable account found (including IdM). {}",
 					request.getUsername(), identity.getUsername(), system.getCode(), request.getLogMetadata());
-			// Set echos for accounts by the given system, because there is password changed by the system
+			// Set echos for accounts by the given system, because there is password changed by the system.
 			accounts.forEach(account -> {
 				setEchoForChange(account.getId(), password);
 			});
@@ -354,18 +361,19 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 					request.getLogMetadata());
 		}
 
-		// Setup echo for resource from that was executed from event password
+		// Setup echo for resource from that was executed from event password.
 		accountsForResource.forEach(accountId -> {
 			setEchoForChange(accountId, password);
 		});
 
-		// Prepare request for password change
+		// Prepare request for password change.
 		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
 		passwordChangeDto.setAll(false); // Not for all, but only for chosen
 		passwordChangeDto.setIdm(changeInIdm);
 		passwordChangeDto.setAccounts(accountsIds);
 		passwordChangeDto.setNewPassword(password);
-
+		passwordChangeDto.setSkipResetValidFrom(true);
+		//
 		IdentityEvent identityEvent = new IdentityEvent(
 				IdentityEventType.PASSWORD,
 				identity, 
@@ -377,7 +385,7 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 						EXCLUDED_SYSTEM, system.getId(),
 						// Skip whole validation just change password - password was validate before
 						IdentityProcessor.SKIP_PASSWORD_VALIDATION, Boolean.TRUE
-						));
+				));
 
 		// Classic password change event
 		identityService.passwordChange(identityEvent);
@@ -717,7 +725,6 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 	 * @return
 	 */
 	private boolean isPasswordEqual(AccPasswordFilterEchoItemDto echo, GuardedString password) {
-		Assert.notNull(encoder, "Encoder must be given!");
 		return getPasswordEncoder().matches(password.asString(), echo.getPassword());
 	}
 }

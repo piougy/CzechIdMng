@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -10,8 +13,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang.StringUtils;
-import java.time.ZonedDateTime;
-import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Service for working with password.
@@ -47,15 +49,20 @@ public class DefaultIdmPasswordService
 		extends AbstractEventableDtoService<IdmPasswordDto, IdmPassword, IdmPasswordFilter>
 		implements IdmPasswordService {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmPasswordService.class);
+	//
 	private final IdmPasswordHistoryService passwordHistoryService;
 	private final LookupService lookupService;
+	//
+	@Autowired private SecurityService securityService;
 
 	@Autowired
-	public DefaultIdmPasswordService(IdmPasswordRepository repository,
-									 IdmPasswordPolicyRepository policyRepository,
-									 IdmPasswordHistoryService passwordHistoryService,
-									 LookupService lookupService,
-									 EntityEventManager entityEventManager) {
+	public DefaultIdmPasswordService(
+			IdmPasswordRepository repository,
+			IdmPasswordPolicyRepository policyRepository,
+			IdmPasswordHistoryService passwordHistoryService,
+			LookupService lookupService,
+			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
 		//
 		this.passwordHistoryService = passwordHistoryService;
@@ -108,39 +115,53 @@ public class DefaultIdmPasswordService
 		Assert.notNull(identity, "Identity is required.");
 		Assert.notNull(passwordChangeDto, "Password change dto is required.");
 		Assert.notNull(passwordChangeDto.getNewPassword(), "New password is required.");
-		GuardedString password = passwordChangeDto.getNewPassword();
+		GuardedString newPassword = passwordChangeDto.getNewPassword();
 		//
-		IdmPasswordDto passwordDto = getPasswordByIdentity(identity.getId());
+		IdmPasswordDto password = getPasswordByIdentity(identity.getId());
 		//
-		if (passwordDto == null) {
+		if (password == null) {
 			// identity has no password yet
-			passwordDto = new IdmPasswordDto();
-			passwordDto.setIdentity(identity.getId());
+			password = new IdmPasswordDto();
+			password.setIdentity(identity.getId());
 		}
 		//
 		if (passwordChangeDto.getMaxPasswordAge() != null) {
-			passwordDto.setValidTill(passwordChangeDto.getMaxPasswordAge().toLocalDate());
+			password.setValidTill(passwordChangeDto.getMaxPasswordAge().toLocalDate());
 		} else {
-			passwordDto.setValidTill(null);
+			password.setValidTill(null);
 		}
-		// set valid from now
-		passwordDto.setValidFrom(LocalDate.now());
 		//
-		passwordDto.setPassword(this.generateHash(password, getSalt()));
+		UUID ownerId = password.getIdentity();
+		UUID currentId = securityService.getCurrentId();
+		//
+		// resolve password valid from, if password is saved by other logged identity
+		if (!Objects.equals(currentId, password.getIdentity()) // currentId can be null => system
+				&& !passwordChangeDto.isSkipResetValidFrom()) {
+			password.setValidFrom(null);
+			LOG.debug("Password owner [{}] is different than logged identity [{}], "
+					+ "password will not be checked for minimum days, when password is changed next time by password owner",
+					ownerId, currentId);
+		} else { // set new password validity ~ creation date
+			LocalDate now = LocalDate.now();
+			password.setValidFrom(now);
+			LOG.trace("Password (for password owner [{}])  valid from [{}] set.", ownerId, now);
+		}
+		//
+		password.setPassword(this.generateHash(newPassword, getSalt()));
 		//
 		// set must change password to false
-		passwordDto.setMustChange(false);
+		password.setMustChange(false);
 		//
 		// reset unsuccessful attempts, after password is changed
-		passwordDto.resetUnsuccessfulAttempts();
+		password.resetUnsuccessfulAttempts();
 		//
 		// Clear block loging date
-		passwordDto.setBlockLoginDate(null);
+		password.setBlockLoginDate(null);
 		//
 		// create new password history with currently changed password
-		createPasswordHistory(passwordDto);
+		createPasswordHistory(password);
 		//
-		return save(passwordDto);
+		return save(password);
 	}
 
 	@Override

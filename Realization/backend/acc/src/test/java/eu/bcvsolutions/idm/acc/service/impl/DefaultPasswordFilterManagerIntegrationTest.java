@@ -10,14 +10,19 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageImpl;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.AbstractPasswordFilterIntegrationTest;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.AccPasswordFilterRequestDto;
 import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -33,16 +38,30 @@ import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.PasswordChangeException;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Test for {@link DefaultPasswordFilterManager} and combination with {@link DefaultAccUniformPasswordService}
  *
  * @author Ondrej Kopr
- *
+ * @author Radek Tomiška
  */
-public class DefaultPasswordFilterManagerTest extends AbstractPasswordFilterIntegrationTest {
+public class DefaultPasswordFilterManagerIntegrationTest extends AbstractPasswordFilterIntegrationTest {
 
+	
+	@Autowired private ApplicationContext context;
+	//
+	private DefaultPasswordFilterManager passwordFilterManager;
+	
+	@Before
+	@Override
+	public void before() {
+		super.before();
+		//
+		passwordFilterManager = context.getAutowireCapableBeanFactory().createBean(DefaultPasswordFilterManager.class);
+	}
+	
 	@Test
 	public void testGreenLine() {
 		SysSystemDto system = createSystem(false);
@@ -62,6 +81,172 @@ public class DefaultPasswordFilterManagerTest extends AbstractPasswordFilterInte
 
 		checkEcho(identity, system, EchoCheck.VALIDATE_AND_CHANGE);
 		checkPassword(prepareUid(identity, system), password, false); // Password will not be same!
+	}
+	
+	@Test
+	public void testValidateWithMinPasswordAgeGreenLine() {
+		SysSystemDto system = createSystem(false);
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName(getHelper().createName());
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setMinPasswordAge(1); 
+		policy = passwordPolicyService.save(policy);
+		system.setPasswordPolicyValidate(policy.getId());
+		system = systemService.save(system);
+		IdmIdentityDto identity = createIdentity(system);
+		setPasswordFilter(system, true);
+
+		assignSystem(createUniformDefinition(true), system);
+
+		cleanProvivisioning(identity, system);
+		checkChangeInIdm(identity, 0);
+
+		String password = getHelper().createName();
+		PasswordRequest request = prepareRequest(identity.getUsername(), system.getCode(), password);
+
+		IdmPasswordDto idmPassword = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNull(idmPassword);
+		
+		checkEmptyProvisioning(identity, system);
+		checkEcho(identity, system, EchoCheck.DOESNT_EXIST);
+		checkChangeInIdm(identity, 0);
+
+		processValidate(request, true);
+
+		checkEcho(identity, system, EchoCheck.VALIDATE);
+		checkChangeInIdm(identity, 0);
+		checkEmptyProvisioning(identity, system);
+
+		processChange(request, true);
+		
+		checkEcho(identity, system, EchoCheck.VALIDATE_AND_CHANGE);
+		checkChangeInIdm(identity, 1);
+		checkEmptyProvisioning(identity, system);
+		
+		idmPassword = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNotNull(idmPassword);
+		Assert.assertNotNull(idmPassword.getValidFrom()); // under different user, but set
+	}
+	
+	@Test(expected = PasswordChangeException.class)
+	public void testValidateWithMinPasswordAgeFailed() {
+		SysSystemDto system = createSystem(false);
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName(getHelper().createName());
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setMinPasswordAge(1); 
+		policy = passwordPolicyService.save(policy);
+		system.setPasswordPolicyValidate(policy.getId());
+		system = systemService.save(system);
+		IdmIdentityDto identity = createIdentity(system);
+		setPasswordFilter(system, true);
+
+		assignSystem(createUniformDefinition(true), system);
+
+		cleanProvivisioning(identity, system);
+		checkChangeInIdm(identity, 0);
+
+		String password = getHelper().createName();
+		PasswordRequest request = prepareRequest(identity.getUsername(), system.getCode(), password);
+
+		IdmPasswordDto idmPassword = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNull(idmPassword);
+		
+		checkEmptyProvisioning(identity, system);
+		checkEcho(identity, system, EchoCheck.DOESNT_EXIST);
+		checkChangeInIdm(identity, 0);
+
+		processValidate(request, true);
+
+		checkEcho(identity, system, EchoCheck.VALIDATE);
+		checkChangeInIdm(identity, 0);
+		checkEmptyProvisioning(identity, system);
+
+		processChange(request, true);
+		
+		checkEcho(identity, system, EchoCheck.VALIDATE_AND_CHANGE);
+		checkChangeInIdm(identity, 1);
+		checkEmptyProvisioning(identity, system);
+		
+		idmPassword = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNotNull(idmPassword);
+		Assert.assertNotNull(idmPassword.getValidFrom()); // under different user, but set
+		//
+		// fail => cannot be changed again by policy
+		try {
+			request.setPassword(getHelper().createName());
+			IdmIdentityDto manager = getHelper().createIdentity();
+			getHelper().login(manager);
+			//
+			AccPasswordFilterRequestDto passwordFilterRequest = new AccPasswordFilterRequestDto();
+			passwordFilterRequest.setUsername(identity.getUsername());
+			passwordFilterRequest.setPassword(new GuardedString(getHelper().createName())); // different password => new validate without cache
+			passwordFilterRequest.setResource(system.getCode());
+			//
+			passwordFilterManager.validate(passwordFilterRequest);
+		} finally {
+			getHelper().logout();
+		}
+	}
+	
+	@Test
+	public void testValidateWithMinPasswordAgeUnderAdmin() {
+		SysSystemDto system = createSystem(false);
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName(getHelper().createName());
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setMinPasswordAge(1); 
+		policy = passwordPolicyService.save(policy);
+		system.setPasswordPolicyValidate(policy.getId());
+		system = systemService.save(system);
+		IdmIdentityDto identity = createIdentity(system);
+		setPasswordFilter(system, true);
+
+		assignSystem(createUniformDefinition(true), system);
+
+		cleanProvivisioning(identity, system);
+		checkChangeInIdm(identity, 0);
+
+		String password = getHelper().createName();
+		PasswordRequest request = prepareRequest(identity.getUsername(), system.getCode(), password);
+
+		IdmPasswordDto idmPassword = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNull(idmPassword);
+		
+		checkEmptyProvisioning(identity, system);
+		checkEcho(identity, system, EchoCheck.DOESNT_EXIST);
+		checkChangeInIdm(identity, 0);
+
+		processValidate(request, true);
+
+		checkEcho(identity, system, EchoCheck.VALIDATE);
+		checkChangeInIdm(identity, 0);
+		checkEmptyProvisioning(identity, system);
+
+		processChange(request, true);
+		
+		checkEcho(identity, system, EchoCheck.VALIDATE_AND_CHANGE);
+		checkChangeInIdm(identity, 1);
+		checkEmptyProvisioning(identity, system);
+		
+		idmPassword = passwordService.findOneByIdentity(identity.getId());
+		Assert.assertNotNull(idmPassword);
+		Assert.assertNotNull(idmPassword.getValidFrom()); // under different user, but set
+		//
+		// success => admin can change password
+		try {
+			request.setPassword(getHelper().createName());
+			getHelper().loginAdmin();
+			//
+			AccPasswordFilterRequestDto passwordFilterRequest = new AccPasswordFilterRequestDto();
+			passwordFilterRequest.setUsername(identity.getUsername());
+			passwordFilterRequest.setPassword(new GuardedString(getHelper().createName())); // different password => new validate without cache
+			passwordFilterRequest.setResource(system.getCode());
+			//
+			passwordFilterManager.validate(passwordFilterRequest);
+		} finally {
+			getHelper().logout();
+		}
 	}
 
 	@Test
@@ -1740,7 +1925,7 @@ public class DefaultPasswordFilterManagerTest extends AbstractPasswordFilterInte
 		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identity.getId());
 		assertNotNull(passwordDto);
 		assertNull(passwordDto.getValidTill());
-		assertEquals(LocalDate.now(), passwordDto.getValidFrom());
+		Assert.assertNull(passwordDto.getValidFrom());
 	}
 
 	@Test
@@ -1751,6 +1936,7 @@ public class DefaultPasswordFilterManagerTest extends AbstractPasswordFilterInte
 		
 		SysSystemDto system = createSystem(false);
 		IdmIdentityDto identity = createIdentity(system);
+		
 		assignSystem(createUniformDefinition(true), system);
 
 		String password = getHelper().createName();
@@ -1771,7 +1957,7 @@ public class DefaultPasswordFilterManagerTest extends AbstractPasswordFilterInte
 		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identity.getId());
 		assertNotNull(passwordDto);
 		assertEquals(LocalDate.now().plusDays(10), passwordDto.getValidTill());
-		assertEquals(LocalDate.now(), passwordDto.getValidFrom());
+		Assert.assertNull(passwordDto.getValidFrom());
 	}
 
 	@Test
@@ -1804,7 +1990,7 @@ public class DefaultPasswordFilterManagerTest extends AbstractPasswordFilterInte
 		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identity.getId());
 		assertNotNull(passwordDto);
 		assertEquals(LocalDate.now().plusDays(20), passwordDto.getValidTill());
-		assertEquals(LocalDate.now(), passwordDto.getValidFrom());
+		Assert.assertNull(passwordDto.getValidFrom());
 	}
 
 	@Test

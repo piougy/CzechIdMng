@@ -56,8 +56,8 @@ public class InitPasswordPolicyProcessor extends AbstractInitApplicationProcesso
 	
 	@Override
 	public int getOrder() {
-		// before identity is created
-		return CoreEvent.DEFAULT_ORDER - 150;
+		// after initial identities are created (e.g. admin identity, demo data)
+		return CoreEvent.DEFAULT_ORDER + 5000;
 	}
 	
 	/**

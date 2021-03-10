@@ -40,12 +40,11 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Default controller for password policy
+ * Default controller for password policy.
  * 
- * FIXME: use AbstractReadWriteDtoController - some methods are available for all logged users now !!!
+ * Lookout: all logged identities can read configured password policies => DefaultReadWriteDtoController usage is ok.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/password-policies")

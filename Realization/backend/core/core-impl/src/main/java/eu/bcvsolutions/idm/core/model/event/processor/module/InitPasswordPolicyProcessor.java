@@ -23,7 +23,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 @Component(InitPasswordPolicyProcessor.PROCESSOR_NAME)
 @Description("Init base password policies for password validate and generate, when no other policy is defined. "
 		+ "Validation policy set 30s fogin blocking time with 5 "
-		+ "unsuccessful login attempts. Generate policy is configured to generate 8-12 char length passwords with "
+		+ "unsuccessful login attempts, minimum 8 char length passwords. "
+		+ "Generate policy is configured to generate 8-12 char length passwords with "
 		+ "2 lower, 2 upper, 2 number and 2 special chars.")
 public class InitPasswordPolicyProcessor extends AbstractInitApplicationProcessor {
 
@@ -52,6 +53,7 @@ public class InitPasswordPolicyProcessor extends AbstractInitApplicationProcesso
 		validatePolicy.setType(IdmPasswordPolicyType.VALIDATE);
 		validatePolicy.setBlockLoginTime(30);
 		validatePolicy.setMaxUnsuccessfulAttempts(5);
+		validatePolicy.setMinPasswordLength(8);
 		passwordPolicyService.save(validatePolicy);
 		//
 		// create default password policy for generate

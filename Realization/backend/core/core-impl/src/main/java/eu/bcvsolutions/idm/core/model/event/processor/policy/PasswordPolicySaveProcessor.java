@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy_;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
 
 /**
- * Default password policy event processor for create and update password policy
+ * Default password policy event processor for create and update password policy.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška

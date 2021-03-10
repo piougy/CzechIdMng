@@ -47,6 +47,26 @@ public class InitPasswordPolicyProcessor extends AbstractInitApplicationProcesso
 	@Override
 	public EventResult<ModuleDescriptorDto> process(EntityEvent<ModuleDescriptorDto> event) {
 		// create default password policy for validate
+		createValidatePolicy();
+		// create default password policy for generate
+		createGeneratePolicy();
+		//
+		return new DefaultEventResult<>(event, this);
+	}
+	
+	@Override
+	public int getOrder() {
+		// before identity is created
+		return CoreEvent.DEFAULT_ORDER - 150;
+	}
+	
+	/**
+	 * Create default password policy for validate.
+	 * Can be overrided on custom module.
+	 * 
+	 * @return created policy
+	 */
+	protected IdmPasswordPolicyDto createValidatePolicy() {
 		IdmPasswordPolicyDto validatePolicy = new IdmPasswordPolicyDto();
 		validatePolicy.setName("Validate password policy");
 		validatePolicy.setDefaultPolicy(true);
@@ -54,9 +74,17 @@ public class InitPasswordPolicyProcessor extends AbstractInitApplicationProcesso
 		validatePolicy.setBlockLoginTime(30);
 		validatePolicy.setMaxUnsuccessfulAttempts(5);
 		validatePolicy.setMinPasswordLength(8);
-		passwordPolicyService.save(validatePolicy);
 		//
-		// create default password policy for generate
+		return passwordPolicyService.save(validatePolicy);
+	}
+	
+	/**
+	 * Create default password policy for generate.
+	 * Can be overrided on custom module.
+	 * 
+	 * @return created policy
+	 */
+	protected IdmPasswordPolicyDto createGeneratePolicy() {
 		IdmPasswordPolicyDto passGenerate = new IdmPasswordPolicyDto();
 		passGenerate.setName("Generate password policy");
 		passGenerate.setDefaultPolicy(true);
@@ -67,14 +95,7 @@ public class InitPasswordPolicyProcessor extends AbstractInitApplicationProcesso
 		passGenerate.setMinUpperChar(2);
 		passGenerate.setMinPasswordLength(8);
 		passGenerate.setMaxPasswordLength(12);
-		passwordPolicyService.save(passGenerate);
 		//
-		return new DefaultEventResult<>(event, this);
-	}
-	
-	@Override
-	public int getOrder() {
-		// before identity is created
-		return CoreEvent.DEFAULT_ORDER - 150;
+		return passwordPolicyService.save(passGenerate);
 	}
 }

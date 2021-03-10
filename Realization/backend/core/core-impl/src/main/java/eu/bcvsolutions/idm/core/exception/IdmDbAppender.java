@@ -12,7 +12,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
  * @author Vít Švanda
  * @since 11.0.0
  */
-public class IdmDBAppender extends DBAppender {
+public class IdmDbAppender extends DBAppender {
 
 	@Override
 	public void doAppend(ILoggingEvent eventObject) {
@@ -38,7 +38,7 @@ public class IdmDBAppender extends DBAppender {
 				}
 			} catch (IllegalAccessException e) {
 				// System out is OK here.
-				System.out.println(MessageFormat.format("IdmDBAppender error during fixing message: {0}", e.getMessage()));
+				System.out.println(MessageFormat.format("IdmDbAppender error during fixing message: {0}", e.getMessage()));
 			}
 		}
 	}
@@ -61,7 +61,7 @@ public class IdmDBAppender extends DBAppender {
 				}
 			} catch (IllegalAccessException e) {
 				// System out is OK here.
-				System.out.println(MessageFormat.format("IdmDBAppender error during fixing message: {0}", e.getMessage()));
+				System.out.println(MessageFormat.format("IdmDbAppender error during fixing message: {0}", e.getMessage()));
 			}
 		}
 	}

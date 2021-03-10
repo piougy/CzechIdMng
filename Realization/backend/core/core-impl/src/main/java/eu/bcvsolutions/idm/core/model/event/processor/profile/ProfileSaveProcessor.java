@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.event.ProfileEvent.ProfileEventType;
  * @since 9.0.0
  */
 @Component
-@Description("Persists tokens.")
+@Description("Persists profiles.")
 public class ProfileSaveProcessor
 		extends CoreEventProcessor<IdmProfileDto> 
 		implements ProfileProcessor {

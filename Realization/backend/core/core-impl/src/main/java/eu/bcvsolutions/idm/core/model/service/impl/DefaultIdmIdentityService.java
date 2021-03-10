@@ -132,10 +132,6 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional
 	public IdmIdentityDto saveInternal(IdmIdentityDto identity) {
-		LOG.warn("\"Log message with forbidden (\\u0000) characters \\\\x00!verylongtext!!!!!!!!!!!!!!!verylongtext!!!!!!!!!!!!!!!verylongtext!!!!!!!!!!!!!!!\" +\r\n" + 
-				"				\"verylongtext!!!!!!!!!!!!!!!verylongtext!!!!!!!!!!!!!!!verylongtext!!!!!!!!!!!!!!!verylongtext!!\" +\r\n" + 
-				"				\"!!!!!!!!!!!!!verylongtext!!!!!!!!!!!!!!!\"");
-		//
 		Assert.notNull(identity, "Identity is required.");
 		//
 		if (identity.getState() == null) {

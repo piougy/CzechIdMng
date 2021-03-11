@@ -183,7 +183,7 @@ public abstract class AbstractContractGuaranteeBulkAction extends AbstractBulkAc
 			BasePermission permission, Exception e) {
 		logItemProcessed(dto,
 				new OperationResult.Builder(OperationState.NOT_EXECUTED)
-						.setModel(new DefaultResultModel(CoreResultCode.BULK_ACTION_NOT_ATHORIZED_CONTRACT_GUARANTEE,
+						.setModel(new DefaultResultModel(CoreResultCode.BULK_ACTION_NOT_AUTHORIZED_CONTRACT_GUARANTEE,
 								ImmutableMap.of(
 										"permission", permission.toString(), 
 										"guaranteeId", String.valueOf(guaranteeId), 

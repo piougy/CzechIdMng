@@ -6065,6 +6065,24 @@
           }
         }
       },
+      "identity-change-contract-tree-node-and-validity-bulk-action": {
+        "label": "Změna platnosti kontraktu a pracovní pozice",
+        "icon": "component:contract",
+        "attributes": {
+          "tree-node": {
+            "label": "Prvek stromu",
+            "help": "Nově nastavená pracovní pozice. <b>Pokud není vybrána, ke změně nedochází</b>."
+          },
+          "valid-from": {
+            "label": "Platnost kontraktu od",
+            "help": "Nově nastavený začátek platnosti kontraktu. <b>Pokud není vybrán, ke změně nedochází</b>."
+          },
+          "valid-till": {
+            "label": "Platnost kontraktu do",
+            "help": "Nově nastavený konec platnosti kontraktu. <b>Pokud není vybrán, ke změně nedochází</b>."
+          }
+        }
+      },
       "core-identity-change-user-type-bulk-action": {
         "label": "Změnit typ uživatele",
         "icon": "component:identity-projection",
@@ -7381,9 +7399,13 @@
       "title": "Role nebyly odebrány",
       "message": "Role pro identitu [{{identity}}] nebyly odebrány. Role nebyly nalezeny nebo nemohou býti odebrány - jednalo o roli automackou, business roli nebo na odebrání role nepostačovalo Vaše oprávnění."
     },
-    "BULK_ACTION_NOT_ATHORIZED_CONTRACT_GUARANTEE": {
+    "BULK_ACTION_NOT_AUTHORIZED_CONTRACT_GUARANTEE": {
       "title": "Nedostatečná oprávnění pro změnu garanta kontraktu",
       "message": "Uživatel nemá oprávnění k provedení operace [{{permission}}] garanta kontraktu pro kontrakt [{{contractId}}] a identity garanta [{{guaranteeId}}]."
+    },
+    "BULK_ACTION_NOT_AUTHORIZED_MODIFY_CONTRACT": {
+      "title": "Nedostatečná oprávnění pro změnu atributů kontraktu",
+      "message": "Uživatel nemá oprávnění k provedení změn kontraktu [{{contractId}}]."
     },
     "BULK_ACTION_CONTRACT_NOT_FOUND": {
       "title": "Nebyl nalezen kontrakt",

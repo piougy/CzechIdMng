@@ -6013,6 +6013,24 @@
           }
         }
       },
+      "identity-change-contract-tree-node-and-validity-bulk-action": {
+        "label": "Change contract validity and position",
+        "icon": "component:contract",
+        "attributes": {
+          "tree-node": {
+            "label": "Tree node",
+            "help": "The new set work position. <b>If not selected no change happens</b>."
+          },
+          "valid-from": {
+            "label": "Valid from",
+            "help": "The new set start of contract validity. <b>If not selected no change happens</b>."
+          },
+          "valid-till": {
+            "label": "Valid till",
+            "help": "The new set end of contract validity. <b>If not selected no change happens</b>."
+          }
+        }
+      },
       "core-identity-change-user-type-bulk-action": {
         "label": "Change user type",
         "icon": "component:identity-projection",
@@ -7329,9 +7347,13 @@
       "title": "Roles not removed",
       "message": "Roles for identity [{{identity}}] not removed. Roles not found or cannot be removed (its automatic role, business role or for insufficient permissions)."
     },
-    "BULK_ACTION_NOT_ATHORIZED_CONTRACT_GUARANTEE": {
+    "BULK_ACTION_NOT_AUTHORIZED_CONTRACT_GUARANTEE": {
       "title": "Insufficient permissions for contract guarantee change",
-      "message": "User is not autorized to perform [{{permission}}] operation with contract guarantee for contract [{{contractId}}] and identity of guarantee [{{guaranteeId}}]."
+      "message": "User is not authorized to perform [{{permission}}] operation with contract guarantee for contract [{{contractId}}] and identity of guarantee [{{guaranteeId}}]."
+    },
+    "BULK_ACTION_NOT_AUTHORIZED_MODIFY_CONTRACT": {
+      "title": "Insufficient permissions for contract change",
+      "message": "User is not authorized to perform changes of contract [{{contractId}}]."
     },
     "BULK_ACTION_CONTRACT_NOT_FOUND": {
       "title": "Contract not found",

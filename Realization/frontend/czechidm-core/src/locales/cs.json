@@ -8088,7 +8088,9 @@
       "min_5" : "Zadejte minimálně {{count}} položek!"
     },
     "date" : {
-     "unvalid" : "Datum není validní!"
+     "unvalid" : "Datum není validní!",
+     "min": "Zadané datum nesmí být menší než {{count}}!",
+     "max": "Zadané datum nesmí být větší než {{count}}!"
     },
     "passwords_not_same": "Hesla musí být shodná!",
     "configurationSecured": "Nemáte oprávnění pro editaci systémové konfigurace"

@@ -200,37 +200,9 @@ class AbstractFormComponent extends AbstractContextComponent {
       if (this.props.validate) {
         result = this.props.validate(value, result);
       }
-      if (result.error) {
-        let key;
-        const params = {};
-        if (result.error.key) {
-          key = result.error.key;
-        } else {
-          const detail = result.error.details[0];
-          key = detail.type;
-          const limit = detail.context.limit;
-          if (limit) {
-            merge(params, {count: limit});
-          }
-          const valids = detail.context.valids;
-          if (valids) {
-            merge(params, {valids});
-          }
-        }
-        const message = this._localizationValidation(key, params);
-        this.setState({
-          validationResult: {
-            status: 'error',
-            class: 'has-error has-feedback',
-            isValid: false,
-            message
-          },
-          showValidationError: showValidations
-        }, () => {
-          if (cb) {
-            cb(result);
-          }
-        }); // show validation error on UI
+      if (result && result.error) {
+        // show validation error on UI
+        this.setValidationResult(result, showValidations, cb);
         return false;
       }
     }
@@ -258,6 +230,54 @@ class AbstractFormComponent extends AbstractContextComponent {
       }
     }); // show validation error on UI
     return true;
+  }
+
+  /**
+   * Set validation result for UI
+   *
+   * @since 11.0.0
+   */
+  setValidationResult(result, showValidations, cb = null) {
+    if (!result || !result.error) {
+      return;
+    }
+    //
+    let message = null;
+    let key;
+    const params = {};
+    if (result.error.message) { // fully localized message
+      message = result.error.message;
+    } else {
+      if (result.error.key) {
+        key = result.error.key;
+      } else {
+        const detail = result.error.details[0];
+        key = detail.type;
+        const limit = detail.context.limit;
+        if (limit) {
+          merge(params, {count: limit});
+        }
+        const valids = detail.context.valids;
+        if (valids) {
+          merge(params, {valids});
+        }
+      }
+      message = this._localizationValidation(key, params);
+    }
+    //
+    this.setState({
+      validationResult: {
+        status: 'error',
+        class: 'has-error has-feedback',
+        isValid: false,
+        message
+      },
+      showValidationError: showValidations
+    }, () => {
+      if (cb) {
+        cb(result);
+      }
+    });
   }
 
   softValidationResult() {

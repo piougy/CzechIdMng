@@ -3,6 +3,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import moment from 'moment';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -13,7 +14,7 @@ import ContractStateEnum from '../../../enums/ContractStateEnum';
 const identityContractManager = new IdentityContractManager();
 
 /**
- * Identity contract form
+ * Identity contract form.
  *
  * @author Radek Tomiška
  */

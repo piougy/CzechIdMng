@@ -90,11 +90,11 @@ class DateTimePicker extends AbstractFormComponent {
     });
   }
 
-  validate(showValidationError) {
-    const { required, isValidDate } = this.props;
+  validate(showValidationError, cb = null) {
+    const { required, isValidDate, mode, validate, maxDate, minDate } = this.props;
     const { value } = this.state;
-
     const showValidations = showValidationError != null ? showValidationError : true;
+    //
     if (this.state.validation) {
       let result = true;
       let key;
@@ -111,8 +111,63 @@ class DateTimePicker extends AbstractFormComponent {
         } else if (isValidDate && !isValidDate(value)) {
           result = false;
           key = 'date.unvalid';
+        } else {
+          // additional validations
+          if (minDate) {
+            let _minDate = moment(minDate, this.getFormat(), true);
+            if (mode === 'date') {
+              _minDate = _minDate.startOf('day');
+            }
+            if (iso8601Value.isBefore(_minDate)) {
+              const validationResult = {
+                error: {
+                  details: [
+                    {
+                      type: 'date.min',
+                      context: {
+                        limit: _minDate.format(this.getFormat())
+                      }
+                    }
+                  ]
+                }
+              };
+              this.setValidationResult(validationResult, showValidations, cb);
+              return false;
+            }
+          }
+          if (maxDate) {
+            let _maxDate = moment(maxDate, this.getFormat(), true);
+            if (mode === 'date') {
+              _maxDate = _maxDate.startOf('day');
+            }
+            if (iso8601Value.isAfter(_maxDate)) {
+              const validationResult = {
+                error: {
+                  details: [
+                    {
+                      type: 'date.max',
+                      context: {
+                        limit: _maxDate.format(this.getFormat())
+                      }
+                    }
+                  ]
+                }
+              };
+              this.setValidationResult(validationResult, showValidations, cb);
+              return false;
+            }
+          }
+          if (validate) {
+            const validationResult = validate(iso8601Value, null);
+            if (validationResult && validationResult.error) {
+              // show validation error on UI
+              this.setValidationResult(validationResult, showValidations, cb);
+              return false;
+            }
+          }
         }
       }
+      //
       if (!result) {
         const message = this._localizationValidation(key, params);
         this.setState({
@@ -336,8 +391,22 @@ DateTimePicker.propTypes = {
   timeFormat: PropTypes.string,
   /**
    * Define the dates that can be selected. The function receives (currentDate, selectedDate) and shall return a true or false whether the currentDate is valid or not.
+   *
+   * @deprecated @since 11.0.0 use standard #validate method => validation message can be defined
    */
-  isValidDate: PropTypes.func
+  isValidDate: PropTypes.func,
+  /**
+   * Minimum valid date (use moment as value).
+   *
+   * @since 11.0.0
+   */
+  minDate: PropTypes.object,
+  /**
+   * Maximum valid date (use moment as value).
+   *
+   * @since 11.0.0
+   */
+  maxDate: PropTypes.object
 };
 
 const { componentSpan, ...otherDefaultProps} = AbstractFormComponent.defaultProps; // componentSpan override

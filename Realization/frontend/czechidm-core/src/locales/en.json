@@ -8033,7 +8033,9 @@
       "min_plural" : "Enter at least {{count}} items!"
     },
     "date" : {
-      "unvalid" : "Invalid date!"
+      "unvalid" : "Invalid date!",
+      "min": "Date cannot be less than {{count}}!",
+      "max": "Date cannot be greater than {{count}}!"
     },
     "passwords_not_same": "Passwords must be the same!",
     "configurationSecured": "You don't have permissions to edit system configuration"

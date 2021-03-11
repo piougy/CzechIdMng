@@ -12,7 +12,9 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | dateFormat | string   | Defined input date format (use moment.js)  | DD.MM.YYYY |
 | timeFormat | string   | Defined input time format (use moment.js)  | HH:mm |
 | componentSpan  | string | defined span for component | col-sm-5 |
-| isValidDate | func | Define the dates that can be selected. The function receives (currentDate, selectedDate) and shall return a true or false whether the currentDate is valid or not. | ||
+| validate | func | Custom validate method, see example below. Selected date (moment) value is given as parameter. Validation error message should be returned. | |
+| minDate  | moment | Minimum valid date (use moment as value) |  |
+| maxDate  | moment | Maximum valid date (use moment as value) |  ||
 
 ## Usage
 
@@ -47,19 +49,67 @@ All parameters from AbstractFormComponent are supported. Added parameters:
   timeFormat="HH:mm"
   label='Expire Date'/>
 ```
-### Pick date only in future
+
+
+### Custom validate method
+
 ```html
-isValidDate(current) {
-  if (!current) {
-    return true; // if value is not required
-  }
-  const date = new Date();
-  const yesterday = date.setDate(date.getDate() - 1);
-  return current.isAfter(yesterday);
-}
-...
-<DateTimePicker
-    ref="dateInFuture"
-    label="Pick some date in future"
-    isValidDate={ this.isValidDate.bind(this) }/>
+<Basic.DateTimePicker
+  mode="date"
+  ref="validFrom"
+  label={ this.i18n('label.validFrom') }
+  validate={
+    (value) => {
+      const maxDate = moment().add(13, 'months');
+      if (!value.isAfter(maxDate)) {
+        // ok
+        return null;
+      }
+      // validation failed
+      return {
+        error: {
+          details: [
+            {
+              type: 'date.max',
+              context: {
+                limit: maxDate.format(this.i18n('format.date'))
+              }
+            }
+          ]
+        }
+      };
+    }
+  }/>
+```
+or
+```html
+<Basic.DateTimePicker
+  mode="date"
+  ref="validFrom"
+  label={ this.i18n('label.validFrom') }
+  validate={
+    (value) => {
+      const maxDate = moment().add(13, 'months');
+      if (!value.isAfter(maxDate)) {
+        // ok
+        return null;
+      }
+      // validation failed
+      return {
+        error: {
+          message: this.i18n('label.validFrom')
+        }
+      };
+    }
+  }/>
+```
+
+### Validate maximum date
+
+```html
+<Basic.DateTimePicker
+  mode="date"
+  ref="validFrom"
+  label={ this.i18n('label.validFrom') }
+  maxDate={ moment().add(13, 'months') }/>
 ```

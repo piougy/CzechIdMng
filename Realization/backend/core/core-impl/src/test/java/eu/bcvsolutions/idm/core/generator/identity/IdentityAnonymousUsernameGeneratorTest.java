@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.generator.identity;
 
 
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -154,6 +156,97 @@ public class IdentityAnonymousUsernameGeneratorTest extends AbstractGeneratorTes
 		Assert.assertEquals(8, unavailableIndexCount);
 	} 
 
+	/*
+	 * Tests that length of numbers matter. It means 07 is not same as 7
+	 */
+	@Test
+	public void numericPartLengthMatterTest() {
+		//existing users
+		List<String> existingUsers = Arrays.asList("testUserXXX0","testUserXXX1","testUserXXX2","testUserXXX3","testUserXXX4"
+				,"testUserXXX5","testUserXXX6"/*"testUserXXX7"*/ ,"testUserXXX8","testUserXXX9", "testUserXXX07");
+		existingUsers.forEach(user -> {
+			identityService.save(new IdmIdentityDto(user));
+		});
+		
+		int genPartLen = 1;
+		String prefix = "testUserXXX";
+		
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityAnonymousUsernameGenerator.USERNAME_PREFIX, prefix,
+						IdentityAnonymousUsernameGenerator.GENERATED_NUMBER_LENGTH, String.valueOf(genPartLen))), 1, Boolean.FALSE);
+
+		IdmIdentityDto identityDto = new IdmIdentityDto();
+		try {
+			IdmIdentityDto generatedDto = valueGeneratorManager.generate(identityDto);
+			identityDto = identityService.save(generatedDto);
+		} catch (ResultCodeException ex) {
+			fail();
+		}
+		Assert.assertEquals("testUserXXX7", identityDto.getUsername());
+	}
+	
+	/**
+	 * Numerical prefix works too
+	 * 
+	 */
+	@Test
+	public void numericPrefixWorksTest() {
+		int genPartLen = 1;
+		String prefix = "999";
+		//existing users
+		for (int i=0; i<10; ++i) {
+			if (i != 7) {
+				identityService.save(new IdmIdentityDto(prefix+i));	
+			}
+		}
+		
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityAnonymousUsernameGenerator.USERNAME_PREFIX, prefix,
+						IdentityAnonymousUsernameGenerator.GENERATED_NUMBER_LENGTH, String.valueOf(genPartLen))), 1, Boolean.FALSE);
+
+		IdmIdentityDto identityDto = new IdmIdentityDto();
+		try {
+			IdmIdentityDto generatedDto = valueGeneratorManager.generate(identityDto);
+			identityDto = identityService.save(generatedDto);
+		} catch (ResultCodeException ex) {
+			fail();
+		}
+		Assert.assertEquals(prefix+"7", identityDto.getUsername());
+	}
+	
+	/**
+	 * Characters which could make troubles in used regex
+	 */
+	@Test
+	public void potentiallyProblematicPrefixCharsTest() {
+		int genPartLen = 1;
+		String prefix = "~!@#$%^&*()_+_)*&^%$#@!~";
+		//existing users
+		for (int i=0; i<10; ++i) {
+			if (i != 7) {
+				identityService.save(new IdmIdentityDto(prefix+i));	
+			}
+		}
+		
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
+				this.createConfiguration(generator.getFormDefinition(), ImmutableMap.of(
+						IdentityAnonymousUsernameGenerator.USERNAME_PREFIX, prefix,
+						IdentityAnonymousUsernameGenerator.GENERATED_NUMBER_LENGTH, String.valueOf(genPartLen))), 1, Boolean.FALSE);
+
+		IdmIdentityDto identityDto = new IdmIdentityDto();
+		try {
+			IdmIdentityDto generatedDto = valueGeneratorManager.generate(identityDto);
+			identityDto = identityService.save(generatedDto);
+		} catch (ResultCodeException ex) {
+			fail();
+		}
+		Assert.assertEquals(prefix+"7", identityDto.getUsername());
+	}
 
 
 	@Override

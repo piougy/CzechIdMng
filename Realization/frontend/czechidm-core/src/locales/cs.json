@@ -6490,6 +6490,20 @@
           }
         }
       },
+      "core-identity-anonymous-username-value-generator": {
+        "label": "Generátor anonymního uživatelského jména",
+        "help": "Generátor generuje anonymní uživatelské jméno složené ze společného prefixu a generovaného čísla o definované délce.",
+        "attributes": {
+          "usernameprefix": {
+            "label": "Společný prefix",
+            "help": "Řetězec, kterým bude vždy začínat nově vygenerované uživatelské jméno. Hodnota nemusí být vyplněna. Vygenerované uživatelské jméno se pak bude skládat pouze z generované číselné části."
+          },
+          "generatednumberlength": {
+            "label": "Počet znaků číselné části",
+            "help": "Počet číslic použitých v číselné části uživatelského jména. Hodnoty musí být z rozsashu od 1 do 9."
+          }
+        }
+      },
       "core-identity-email-value-generator": {
         "label": "Standardní generátor emailové adresy",
         "help": "Generátor generuje emailovou adresu na základě uživatelského jména. K uživatelskému jménu přidá definovaný suffix. Pozor výsledná hodnota musí splňovat správný tvar emailové adresy.",
@@ -7318,6 +7332,10 @@
     "IDENTITY_ALREADY_DISABLED_MANUALLY": {
       "title": "Uživatel je již deaktivován",
       "message": "Uživatel [{{username}}] je již manuálně deaktivován. Nelze jej deaktivovat znovu."
+    },
+    "IDENTITY_UNABLE_GENERATE_UNIQUE_USERNAME": {
+      "title": "Nebylo možné vygenerovat uživatelské jméno",
+      "message": "Generátor není schopný vygenerovat další anonymizované uživatelské jméno. Hodnoty z povoleného rozsahu jsou vyčerpány. Zvětšete rozsah povolených hodnot v nastavení generátoru."
     },
     "IDENTITY_NOT_DISABLED_MANUALLY": {
       "title": "Uživatel není deaktivován manuálně",

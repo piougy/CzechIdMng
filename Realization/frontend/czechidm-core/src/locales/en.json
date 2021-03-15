@@ -6438,6 +6438,20 @@
           }
         }
       },
+      "core-identity-anonymous-username-value-generator": {
+        "label": "Anonymous username generator",
+        "help": "Generator creates an anonymous username consisting of the prefix part which is common for all generated usernames and the random numeric part with defined length.",
+        "attributes": {
+          "usernameprefix": {
+            "label": "Common prefix",
+            "help": "All created usernames start with this common prefix. The value may be empty. If so, the created username will consist of the generated numeric part only."
+          },
+          "generatednumberlength": {
+            "label": "Number of characters of the numeric part",
+            "help": "Generated numeric part will be always of this length. Allowed values are in ranger from 1 to 9."
+          }
+        }
+      },
       "core-identity-email-value-generator": {
         "label": "Standard email generator",
         "help": "The generator generates the email adress based on the username. Adds a defined suffix to the username. Beware, the result value must match the correct email address format.",
@@ -7266,6 +7280,10 @@
     "IDENTITY_ALREADY_DISABLED_MANUALLY": {
       "title": "User is already deactivated",
       "message": "User [{{username}}] is already deactivated manually. Cannot be deactivated twice."
+    },
+    "IDENTITY_UNABLE_GENERATE_UNIQUE_USERNAME": {
+      "title": "Unable to generate username",
+      "message": "Anonymous generator is not able to generate username. All numbers from allowed range have been used. Increase the allowed number range in the generator setting."
     },
     "IDENTITY_NOT_DISABLED_MANUALLY": {
       "title": "User is not deactivated manually",

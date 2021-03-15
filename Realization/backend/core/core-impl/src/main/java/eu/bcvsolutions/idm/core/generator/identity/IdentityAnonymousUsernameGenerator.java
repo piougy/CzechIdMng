@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.generator.AbstractValueGenerator;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 
 /**
  * Implementation of the username generator created from defined prefix and random number sequence.
@@ -70,9 +71,9 @@ public class IdentityAnonymousUsernameGenerator extends AbstractValueGenerator<I
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		List<IdmFormAttributeDto> attributes = super.getFormAttributes();
 		attributes.forEach(attribute -> {
-			if (attribute.getName().equals(USERNAME_PREFIX)) {
+			if (USERNAME_PREFIX.equals(attribute.getName())) {
 				attribute.setPersistentType(PersistentType.SHORTTEXT);
-			} else if (attribute.getName().equals(GENERATED_NUMBER_LENGTH)) {
+			} else if (GENERATED_NUMBER_LENGTH.equals(attribute.getName())) {
 				attribute.setPersistentType(PersistentType.INT);
 				attribute.setDefaultValue(String.valueOf(DEFAULT_GENERATED_NUMBER_LENGTH));
 				attribute.setMin(new BigDecimal(MIN_GENERATED_NUMBER_LENGTH));
@@ -118,7 +119,7 @@ public class IdentityAnonymousUsernameGenerator extends AbstractValueGenerator<I
 		int pageNum = 0;
 		do {
 			page = identityService.find(identityFilt,
-					PageRequest.of(pageNum, pageSize, Sort.by("username").ascending()));
+					PageRequest.of(pageNum, pageSize, Sort.by(IdmIdentity_.username.getName()).ascending()));
 			List<IdmIdentityDto> dtos = page.getContent();
 			List<String> usernameNumbers = dtos.stream()
 					.map(IdmIdentityDto::getUsername)
@@ -220,7 +221,7 @@ public class IdentityAnonymousUsernameGenerator extends AbstractValueGenerator<I
 	
 	/**
 	 * Creates a stream predicate (function) for filtering irrelevant usernames
-	 * which are found by database filter citeria and should be omitted  
+	 * which are found by database filter criteria and should be omitted  
 	 * @param usernamePrefix
 	 * @param length
 	 * @return
@@ -228,7 +229,7 @@ public class IdentityAnonymousUsernameGenerator extends AbstractValueGenerator<I
 	public static Predicate<String> usernameFilterFactory(String usernamePrefix, int length) {
 		String prefix = StringUtils.trimToNull(usernamePrefix);
 		StringBuilder regExp = new StringBuilder();
-		regExp.append("^");
+		regExp.append('^');
 		if (prefix != null) {
 			regExp.append(Pattern.quote(prefix));
 		}
@@ -253,7 +254,6 @@ public class IdentityAnonymousUsernameGenerator extends AbstractValueGenerator<I
 	/**
 	 * Creates username with required format 
 	 * @param prefix
-	 * @param linker
 	 * @param generatedPartVal
 	 * @param generatedPartLen
 	 * @return

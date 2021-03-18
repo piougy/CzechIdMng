@@ -854,11 +854,15 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		if (idmAccountAttrs == null || systemAttrs == null) {
 			return null;
 		}
-		Set<String> names = idmAccountAttrs.keySet().stream().map(ProvisioningAttributeDto::getSchemaName)
+		Set<String> names = idmAccountAttrs.keySet()
+				.stream()
+				.map(ProvisioningAttributeDto::getSchemaName)
 				.collect(Collectors.toSet());
 		//
-		List<IcAttribute> attributes = systemAttrs.getAttributes().stream()
-				.filter(attr -> names.contains(attr.getName())).collect(Collectors.toList());
+		List<IcAttribute> attributes = systemAttrs.getAttributes()
+				.stream()
+				.filter(attr -> names.contains(attr.getName()))
+				.collect(Collectors.toList());
 		//
 		return new IcConnectorObjectImpl(systemAttrs.getUidValue(), systemAttrs.getObjectClass(), attributes);
 	} 

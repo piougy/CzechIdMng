@@ -83,6 +83,65 @@ class ProvisioningOperations extends Basic.AbstractContent {
   }
 
   /**
+   * Rearranges data to suitable form used in following functions.
+   * It also solves siuations when data to display is in connectorObject only
+   * and is missing in other in accountObject e.g. __PASSWORD__ provisioning.
+   *
+   * @return {object} Composition of data to display.
+   */
+  _reorganizeTableData(detail) {
+    const result = [];
+    const systemObject = detail.entity.provisioningContext.systemConnectorObject; // values on targhet system
+    const accountObject = detail.entity.provisioningContext.accountObject; // values in IdM
+    const connectorObject = detail.entity.provisioningContext.connectorObject; // changes to provision
+
+    // IdM data
+    if (accountObject) {
+      for (const schemaAttributeId in accountObject) {
+        if (!{}.hasOwnProperty.call(accountObject, schemaAttributeId)) {
+          continue;
+        }
+        const strategyStr = this._extractStrategy(schemaAttributeId);
+        const attrName = this._extractAttrName(schemaAttributeId, strategyStr);
+        result.push({
+          property: attrName,
+          strategy: strategyStr,
+          accountVal: this._toPropertyValue(accountObject[schemaAttributeId])});
+      }
+    }
+    // Changes to provision
+    if (connectorObject) {
+      for (const attr of connectorObject.attributes) {
+        const index = result.findIndex(item => { return item.property === attr.name; });
+        if (index < 0) {
+          result.push({
+            property: attr.name,
+            strategy: '',
+            accountVal: this._toPropertyValue(attr.values),
+            changedVal: this._toPropertyValue(attr.values)});
+        } else {
+          result[index].changedVal = this._toPropertyValue(attr.values);
+        }
+      }
+    }
+    // System values
+    if (systemObject) {
+      for (const attr of systemObject.attributes) {
+        const index = result.findIndex(item => { return item.property === attr.name; });
+        if (index < 0) {
+          result.push({
+            property: attr.name,
+            strategy: '',
+            systemVal: this._toPropertyValue(attr.values)});
+        } else {
+          result[index].systemVal = this._toPropertyValue(attr.values);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Aggregate and sort detail table data
    * @param {object} detail
    * @returns
@@ -91,63 +150,56 @@ class ProvisioningOperations extends Basic.AbstractContent {
     if (!detail.entity) {
       return null;
     }
-    const resultContent = [];
-    if (detail.entity.provisioningContext.accountObject) {
-      const accountObject = detail.entity.provisioningContext.accountObject;
-      for (const schemaAttributeId in accountObject) {
-        if (!{}.hasOwnProperty.call(accountObject, schemaAttributeId)) {
-          continue;
-        }
-        let accountVal = '';
-        let systemVal = '';
-        let changedVal = '';
-        if (accountObject.hasOwnProperty(schemaAttributeId)) {
-          accountVal = this._toPropertyValue(accountObject[schemaAttributeId]);
-        }
-        // separate name and strategy
-        const strategyArr = schemaAttributeId.match(/\s*\([A-Z_]{3,}\).*$/);
-        const strategyStr = strategyArr == null || strategyArr.length === 0 ? '' : strategyArr[0].trim();
-        const connectorItemName = schemaAttributeId.replace(strategyStr, '').trim();
-        // values from target system
-        const systemObject = detail.entity.provisioningContext.systemConnectorObject;
-        if (systemObject) {
-          systemObject.attributes.forEach(attribute => {
-            if (attribute.name === connectorItemName) {
-              systemVal = this._toPropertyValue(attribute.values);
-            }
-          });
-        }
-        // changed values for provisoning
-        const connectorObject = detail.entity.provisioningContext.connectorObject;
-        if (connectorObject) {
-          connectorObject.attributes.forEach(attribute => {
-            if (attribute.name === connectorItemName) {
-              changedVal = this._toPropertyValue(attribute.values);
-            }
-          });
-        }
-        resultContent.push({
-          property: connectorItemName,
-          strategy: strategyStr,
-          accountVal,
-          systemVal,
-          changedVal
-        });
-      }
-    }
+    const resultContent = this._reorganizeTableData(detail);
     // sort by name
     resultContent.sort((lItem, rItem) => {
       const l = lItem.property;
       const r = rItem.property;
-      return l < r ? -1 : (r < l ? 1 : 0);
+      if (l >= r) {
+        if (l > r) {
+          return 1;
+        }
+        return 0;
+      }
+      return -1;
     });
     // order changed attributes at the beginning
     resultContent.sort((lItem, rItem) => {
       const l = _.isEmpty(lItem.changedVal);
       const r = _.isEmpty(rItem.changedVal);
-      return !l && r ? -1 : (r && !l ? 1 : 0);
+      if (!l && r) {
+        return -1;
+      }
+      if (!r && l) {
+        return 1;
+      }
+      return 0;
     });
     return resultContent;
+  }
+
+  /**
+   * Extracts the strategy part from the composed name
+   * @returns
+   */
+  _extractStrategy(text) {
+    const strategyArr = text.match(/\s*\([A-Z_]{3,}\)[^()]*$/);
+    if (strategyArr == null || strategyArr.length === 0) {
+      return '';
+    }
+    return strategyArr[strategyArr.length - 1].trim();
+  }
+
+  /**
+   * Extracts the part with attribute name from composed name
+   * @returns
+   */
+  _extractAttrName(text, strategy) {
+    let strategyStr = strategy;
+    if (strategy == null) {
+      strategyStr = this._extractStrategy(text);
+    }
+    return text.replace(strategyStr, '').trim();
   }
 
   /**

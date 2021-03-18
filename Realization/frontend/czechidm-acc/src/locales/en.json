@@ -676,9 +676,18 @@
         "header": "Operation details",
         "result": "Result",
         "attributeNameCol": "Attribute name",
-        "accountObject": "Attributes in the IdM ready to provisioning",
-        "connectorObject": "Attribute changes for provisioning",
-        "systemObject": "Attributes on the system before provisioning",
+        "accountObject": {
+         "label": "Updated values",
+         "help": "The state of values ready to provisioning. Attributes will be in this state on the target system after performing provisioning. Highlighted lines depicts attributes to change. The new values are emphasized by bold text."
+        },
+        "connectorObject": {
+          "label": "Changed only",
+          "help": "The list of values which will be provisioned to the target system."
+        },
+        "systemObject": {
+          "label": "Original values",
+          "help": "The state of values on the target system before provisioning. Highlighted lines depicts attributes to change."
+        },
         "resultCode": "Code",
         "nextAttempt": {
           "header": "Next attempt",

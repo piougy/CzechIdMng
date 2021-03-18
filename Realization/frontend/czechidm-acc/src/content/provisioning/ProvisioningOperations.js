@@ -145,6 +145,36 @@ class ProvisioningOperations extends Basic.AbstractContent {
   }
 
   /**
+   * Generator of the column label with help
+   *
+   * @param {*} headerDesc
+   * @param {*} helpText
+   * @returns
+   */
+  _renderColumnHelp(headerDesc, helpText) {
+    return (
+      <div>
+        <span> {headerDesc} </span>
+        <Basic.Popover
+          ref="popover"
+          trigger={['click', 'hover']}
+          value={ helpText }
+          className="abstract-entity-info-popover">
+          {
+            <span>
+              <Basic.Button
+                level="link"
+                style={{ padding: 0, marginLeft: 3 }}
+                icon="fa:info-circle"/>
+            </span>
+          }
+        </Basic.Popover>
+      </div>
+    );
+
+  }
+
+  /**
    * Highlights the content of cells of attributes to change
    * @param {}
    * @returns
@@ -331,11 +361,12 @@ class ProvisioningOperations extends Basic.AbstractContent {
                       />
                       <Basic.Column
                         property="systemVal"
-                        header={ this.i18n('detail.systemObject') }
+                        header={ this._renderColumnHelp(this.i18n('detail.systemObject.label'), this.i18n('detail.systemObject.help')) }
                       />
                       <Basic.Column
                         property="accountVal"
-                        header={ this.i18n('detail.accountObject') }
+                        header={ this._renderColumnHelp(this.i18n('detail.accountObject.label'), this.i18n('detail.accountObject.help')) }
+
                         cell={this._highlightCellContent}
                       />
                     </Basic.Table>

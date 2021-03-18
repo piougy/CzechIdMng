@@ -676,9 +676,18 @@
         "header": "Detail operace",
         "result": "Výsledek",
         "attributeNameCol": "Název atributu",
-        "accountObject": "Atributy v IdM připravené k provisioningu",
-        "connectorObject": "Změny atributů k provisioningu",
-        "systemObject": "Atributy na systému před provisioningem",
+        "accountObject": {
+          "label": "Aktualizované hodnoty",
+          "help": "Stav hodnot v IdM připravených k provisioningu. Po provedení provisioningu budou atributy na koncovém systému v tomto stavu. Zvýrazněné řádky značí změněné atributy, které se budou provisionovat. Nové hodnoty jsou zvýrazněny tučně."
+         },
+        "connectorObject": {
+          "label": "Pouze změny",
+          "help": "Seznam atributů, které budou provisnovany do kocového systému."
+         },
+        "systemObject": {
+          "label": "Původní hodnoty",
+          "help": "Stav hodnot na koncovém sytému před provedením provisioningu. Zvýrazněné řádky značí změněné atributy, které se budou provisionovat."
+         },
         "resultCode": "Kód",
         "nextAttempt": {
           "header": "Další pokus",

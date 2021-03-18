@@ -118,7 +118,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstance
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
- * Default implementation of role request service
+ * Default implementation of role request service.
  *
  * @author svandav
  *
@@ -482,56 +482,49 @@ public class DefaultIdmRoleRequestService
 		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, Sets.newHashSet());
 		requestEvent.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, Sets.newHashSet());
 		
-		// Add concepts for business roles.
-		List<IdmIdentityRoleDto> allAssignedRoles = identityRoleService.findAllByIdentity(identity.getId());
-		List<IdmConceptRoleRequestDto> allConcepts = appendBusinessRoleConcepts(concepts, allAssignedRoles);
-
-		// Create new identity role.
-		allConcepts.stream()
-				.filter(concept -> ConceptRoleRequestOperation.ADD == concept.getOperation())
+		// Remove not approved concepts.
+		List<IdmConceptRoleRequestDto> approvedConcepts = concepts
+				.stream()
 				.filter(concept -> {
-					// Only approved concepts can be executed
+					// Only approved concepts can be executed.
 					// Concepts in concept state will be executed too (for situation, when will be
-					// approval event disabled)
+					// approval event disabled).
 					return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 				})
+				.collect(Collectors.toList());
+		
+		// Add concepts for business roles.
+		List<IdmIdentityRoleDto> allAssignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		List<IdmConceptRoleRequestDto> allApprovedConcepts = appendBusinessRoleConcepts(approvedConcepts, allAssignedRoles);
+
+		// Create new identity role.
+		allApprovedConcepts.stream()
+				.filter(concept -> ConceptRoleRequestOperation.ADD == concept.getOperation())
 				.forEach(concept -> {
 					if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
 						// assign new role
-						createAssignedRole(allConcepts, concept, request, requestEvent);
+						createAssignedRole(allApprovedConcepts, concept, request, requestEvent);
 					}
 
 					flushHibernateSession();
 				});
 
 		// Update identity role
-		allConcepts.stream()
+		allApprovedConcepts.stream()
 				.filter(concept -> ConceptRoleRequestOperation.UPDATE == concept.getOperation())
-				.filter(concept -> {
-					// Only approved concepts can be executed
-					// Concepts in concept state will be executed too (for situation, when will be
-					// approval event disabled)
-					return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-				})
 				.forEach(concept -> {
 					if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
-						updateAssignedRole(allConcepts, concept, request, requestEvent);
+						updateAssignedRole(allApprovedConcepts, concept, request, requestEvent);
 					}
 
 					flushHibernateSession();
 				});
 		
-		// Delete identity sub roles at first (prevent to delete sub roles by referential integrity)
-		allConcepts
+		// Delete identity sub roles at first (prevent to delete sub roles by referential integrity).
+		allApprovedConcepts
 			.stream()
 			.filter(concept -> ConceptRoleRequestOperation.REMOVE == concept.getOperation())
 			.filter(concept -> concept.getDirectConcept() != null)
-			.filter(concept -> {
-				// Only approved concepts can be executed
-				// Concepts in concept state will be executed too (for situation, when will be
-				// approval event disabled)
-				return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-			})
 			.forEach(concept -> {
 				if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
 					removeAssignedRole(concept, request, requestEvent);
@@ -541,16 +534,10 @@ public class DefaultIdmRoleRequestService
 			});
 
 		// Delete direct identity role
-		allConcepts
+		allApprovedConcepts
 			.stream()
 			.filter(concept -> ConceptRoleRequestOperation.REMOVE == concept.getOperation())
 			.filter(concept -> concept.getDirectConcept() == null)
-			.filter(concept -> {
-				// Only approved concepts can be executed
-				// Concepts in concept state will be executed too (for situation, when will be
-				// approval event disabled)
-				return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
-			})
 			.forEach(concept -> {
 				if (!cancelInvalidConcept(allAssignedRoles, concept, request)) {
 					removeAssignedRole(concept, request, requestEvent);
@@ -560,7 +547,6 @@ public class DefaultIdmRoleRequestService
 			});
 
 		return this.save(request);
-
 	}
 
 	@Override
@@ -1161,12 +1147,12 @@ public class DefaultIdmRoleRequestService
 	 * @param requestEvent
 	 */
 	private void updateAssignedRole(
-			List<IdmConceptRoleRequestDto> allConcepts,
+			List<IdmConceptRoleRequestDto> allApprovedConcepts,
 			IdmConceptRoleRequestDto concept, 
 			IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = identityRoleService.get(concept.getIdentityRole());
-		identityRole = convertConceptRoleToIdentityRole(allConcepts, concept, identityRole);
+		identityRole = convertConceptRoleToIdentityRole(allApprovedConcepts, concept, identityRole);
 		@SuppressWarnings("deprecation")
 		IdentityRoleEvent event = new IdentityRoleEvent(
 				IdentityRoleEventType.UPDATE, 
@@ -1209,12 +1195,12 @@ public class DefaultIdmRoleRequestService
 	 * @param requestEvent
 	 */
 	private void createAssignedRole(
-			List<IdmConceptRoleRequestDto> allConcepts,
+			List<IdmConceptRoleRequestDto> allApprovedConcepts,
 			IdmConceptRoleRequestDto concept,
 			IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
-		identityRole = convertConceptRoleToIdentityRole(allConcepts, concept, identityRole);
+		identityRole = convertConceptRoleToIdentityRole(allApprovedConcepts, concept, identityRole);
 		@SuppressWarnings("deprecation")
 		IdentityRoleEvent event = new IdentityRoleEvent(
 				IdentityRoleEventType.CREATE,

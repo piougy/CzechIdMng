@@ -72,7 +72,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
 /**
- * Test change permissions for identity
+ * Test change permissions for identity.
  *
  * @author svandav
  *
@@ -982,7 +982,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	public void addSuperAdminRoleWithSubprocessManagerTest() {
+	public void addRoleWithSubprocessManagerTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		getHelper().waitForResult(null, 1, 1);
 
@@ -992,10 +992,13 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 		// Guarantee
 		int priority = 500;
-		IdmRoleDto adminRole = roleConfiguration.getAdminRole();
-		adminRole.setPriority(priority);
-		getHelper().createRoleGuarantee(adminRole, test2);
-		adminRole = roleService.save(adminRole);
+		IdmRoleDto role = getHelper().createRole();
+		role.setPriority(priority);
+		IdmRoleDto directRole = roleService.save(role);
+		getHelper().createRoleGuarantee(directRole, test2);
+		IdmRoleDto subRole = getHelper().createRole();
+		getHelper().createRoleComposition(role, subRole);
+		
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_MANAGER_KEY);
 
@@ -1004,7 +1007,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
 
-		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		IdmConceptRoleRequestDto concept = createRoleConcept(directRole, contract, request);
 		concept = conceptRoleRequestService.save(concept);
 
 		roleRequestService.startRequestInternal(request.getId(), true);
@@ -1042,10 +1045,15 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertNotNull(request.getWfProcessId());
 		concept = conceptRoleRequestService.get(concept.getId());
 		assertNotNull(concept.getWfProcessId());
+
+		List<IdmIdentityRoleDto> assigedRoles = identityRoleService.findAllByContract(contract.getId());
+		Assert.assertEquals(2, assigedRoles.size());
+		Assert.assertTrue(assigedRoles.stream().anyMatch(ir -> ir.getRole().equals(directRole.getId())));
+		Assert.assertTrue(assigedRoles.stream().anyMatch(ir -> ir.getRole().equals(subRole.getId())));
 	}
 
 	@Test
-	public void addSuperAdminRoleWithSubprocessDisapproveTest() {
+	public void addRoleWithSubprocessDisapproveTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		getHelper().waitForResult(null, 1, 1);
 
@@ -1055,10 +1063,13 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 		// Guarantee
 		int priority = 500;
-		IdmRoleDto adminRole = roleConfiguration.getAdminRole();
-		adminRole.setPriority(priority);
-		getHelper().createRoleGuarantee(adminRole, test2);
-		adminRole = roleService.save(adminRole);
+		IdmRoleDto role = getHelper().createRole();
+		role.setPriority(priority);
+		getHelper().createRoleGuarantee(role, test2);
+		role = roleService.save(role);
+		IdmRoleDto subRole = getHelper().createRole();
+		getHelper().createRoleComposition(role, subRole);
+		
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_GUARANTEE_KEY);
 
@@ -1067,7 +1078,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
 
-		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		IdmConceptRoleRequestDto concept = createRoleConcept(role, contract, request);
 		concept = conceptRoleRequestService.save(concept);
 
 		roleRequestService.startRequestInternal(request.getId(), true);
@@ -1110,6 +1121,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		filter.setIdentityId(test1.getId());
 		Page<IdmIdentityRoleDto> page = identityRoleService.find(filter, null);
 		assertEquals(0, page.getTotalElements());
+		
+		Assert.assertTrue(identityRoleService.findAllByContract(contract.getId()).isEmpty());
 	}
 
 	@Test

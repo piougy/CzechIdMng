@@ -1337,10 +1337,10 @@
     "ProvisioningArchive": {
       "_type": "Provisioning - archive",
       "modified": {
-        "short": "Archived",
-        "label": "Archived",
-        "title": "Operation was archived (executed, canceled)",
-        "help": "Operation was archived (executed, canceled)."
+        "short": "Processed",
+        "label": "Processed",
+        "title": "Operation was processed (executed, canceled)",
+        "help": "Operation was processed (executed, canceled)."
       }
     },
     "ProvisioningBreakConfig": {

@@ -1338,10 +1338,10 @@
     "ProvisioningArchive": {
       "_type": "Provisioning - archív",
       "modified": {
-        "short": "Archivováno",
-        "label": "Archivováno",
-        "title": "Operace byla archivována (provedena, zrušena)",
-        "help": "Operace byla archivována (provedena, zrušena)."
+        "short": "Zpracováno",
+        "label": "Zpracováno",
+        "title": "Operace byla zpracována (provedena, zrušena)",
+        "help": "Operace byla zpracována (provedena, zrušena)."
       }
     },
     "ProvisioningBreakConfig": {

@@ -95,14 +95,19 @@ class ProvisioningOperations extends Basic.AbstractContent {
     if (detail.entity.provisioningContext.accountObject) {
       const accountObject = detail.entity.provisioningContext.accountObject;
       for (const schemaAttributeId in accountObject) {
+        if (!{}.hasOwnProperty.call(accountObject, schemaAttributeId)) {
+          continue;
+        }
         let accountVal = '';
         let systemVal = '';
         let changedVal = '';
         if (accountObject.hasOwnProperty(schemaAttributeId)) {
           accountVal = this._toPropertyValue(accountObject[schemaAttributeId]);
         }
-        // prepared name without strategy
-        const connectorItemName = schemaAttributeId.replace(/\s*\([A-Z_]{3,}\).*$/, '');
+        // separate name and strategy
+        const strategyArr = schemaAttributeId.match(/\s*\([A-Z_]{3,}\).*$/);
+        const strategyStr = strategyArr == null || strategyArr.length === 0 ? '' : strategyArr[0].trim();
+        const connectorItemName = schemaAttributeId.replace(strategyStr, '').trim();
         // values from target system
         const systemObject = detail.entity.provisioningContext.systemConnectorObject;
         if (systemObject) {
@@ -122,7 +127,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
           });
         }
         resultContent.push({
-          property: schemaAttributeId,
+          property: connectorItemName,
+          strategy: strategyStr,
           accountVal,
           systemVal,
           changedVal
@@ -165,7 +171,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
               <Basic.Button
                 level="link"
                 style={{ padding: 0, marginLeft: 3 }}
-                icon="fa:info-circle"/>
+                icon="fa:question-circle"/>
             </span>
           }
         </Basic.Popover>
@@ -184,6 +190,16 @@ class ProvisioningOperations extends Basic.AbstractContent {
       return (`${data[rowIndex][property]}`);
     }
     return (<strong>{data[rowIndex][property]}</strong>);
+  }
+
+  /**
+   * Formats attribute name and its strategy
+   *
+   * @param  {}
+   * @return {}
+   */
+  _formatAttributeName({rowIndex, data}) {
+    return (<span>{data[rowIndex].property} <small>{data[rowIndex].strategy}</small></span>);
   }
 
   render() {
@@ -358,6 +374,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                       <Basic.Column
                         property="property"
                         header={ this.i18n('detail.attributeNameCol') }
+                        cell={this._formatAttributeName}
                       />
                       <Basic.Column
                         property="systemVal"
@@ -366,7 +383,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
                       <Basic.Column
                         property="accountVal"
                         header={ this._renderColumnHelp(this.i18n('detail.accountObject.label'), this.i18n('detail.accountObject.help')) }
-
                         cell={this._highlightCellContent}
                       />
                     </Basic.Table>

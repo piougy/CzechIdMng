@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import _ from 'lodash';
 //
 import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
@@ -165,12 +164,12 @@ class ProvisioningOperations extends Basic.AbstractContent {
     });
     // order changed attributes at the beginning
     resultContent.sort((lItem, rItem) => {
-      const l = _.isEmpty(lItem.changedVal);
-      const r = _.isEmpty(rItem.changedVal);
-      if (!l && r) {
+      const l = lItem.hasOwnProperty('changedVal');
+      const r = rItem.hasOwnProperty('changedVal');
+      if (l && !r) {
         return -1;
       }
-      if (!r && l) {
+      if (r && !l) {
         return 1;
       }
       return 0;
@@ -238,7 +237,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
    * @returns
    */
   _highlightCellContent({rowIndex, data, property}) {
-    if (_.isEmpty(data[rowIndex].changedVal)) {
+    if (!data[rowIndex].hasOwnProperty('changedVal')) {
       return (`${data[rowIndex][property]}`);
     }
     return (<strong>{data[rowIndex][property]}</strong>);
@@ -421,7 +420,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                       noData={ this.i18n('component.basic.Table.noData') }
                       className="table-bordered"
                       rowClass={({rowIndex, data}) => {
-                        return _.isEmpty(data[rowIndex].changedVal) ? '' : 'warning';
+                        return data[rowIndex].hasOwnProperty('changedVal') ? 'warning' : '';
                       }}>
                       <Basic.Column
                         property="property"

@@ -87,6 +87,10 @@ public class ProvisioningAttributeDto implements Serializable {
 	public String getKey(){
 		return MessageFormat.format("{0}_{1}", schemaAttributeName, strategyType);
 	}
+	
+	public String getSchemaName() {
+		return schemaAttributeName;
+	}
 
 	public String getClassType() {
 		return classType;

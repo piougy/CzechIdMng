@@ -10,13 +10,15 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
  * Contains provisioning content
  * 
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  *
  */
 public class ProvisioningContext implements Serializable {
 
 	private static final long serialVersionUID = 778636708338293486L;
 	private Map<ProvisioningAttributeDto, Object> accountObject; // account attributes 	
-	private IcConnectorObject connectorObject; // provisioning attributes 
+	private IcConnectorObject connectorObject; // provisioning attributes
+	private IcConnectorObject systemConnectorObject; // attributes on system 
 	
 	public ProvisioningContext() {
 	}
@@ -32,6 +34,7 @@ public class ProvisioningContext implements Serializable {
 	
 	public ProvisioningContext(ProvisioningContext context) {
 		this(context.getAccountObject(), context.getConnectorObject());
+		this.systemConnectorObject = context.getSystemConnectorObject();
 	}
 	
 	public ProvisioningContext(IcConnectorObject connectorObject) {
@@ -64,4 +67,17 @@ public class ProvisioningContext implements Serializable {
 	public void setConnectorObject(IcConnectorObject connectorObject) {
 		this.connectorObject = connectorObject;
 	}
+
+	/**
+	 * Values of attributes on the system
+	 * 
+	 * @return
+	 */
+	public IcConnectorObject getSystemConnectorObject() {
+		return systemConnectorObject;
+	}
+
+	public void setSystemConnectorObject(IcConnectorObject systemConnectorObject) {
+		this.systemConnectorObject = systemConnectorObject;
+	}	
 }

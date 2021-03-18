@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  * resolve create or update operations
  * 
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  *
  */
 @Component(PrepareConnectorObjectProcessor.PROCESSOR_NAME)
@@ -189,6 +191,11 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				processCreate(provisioningOperation);
 			} else {
 				processUpdate(provisioningOperation, connectorConfig, existsConnectorObject);
+				// prepare attributes on target system for FE view
+				ProvisioningContext context = provisioningOperation.getProvisioningContext();
+				IcConnectorObject systemAttrs = intersectAccountAndSystemAttrs(context.getAccountObject(), existsConnectorObject);
+				context.setSystemConnectorObject(systemAttrs);
+				provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation);
 			}
 			//
 			LOG.debug(
@@ -831,4 +838,24 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		throw new ResultCodeException(AccResultCode.PROVISIONING_PASSWORD_TRANSFORMATION_FAILED,
 				ImmutableMap.of("uid", uid, "mappedAttribute", passwordAttribute.getName()));	
 	}
+	
+	/**
+	 * Removes attributes from systemAttrs from system which are not in idmAccountAttrs i.e. are not mapped
+	 * 
+	 * @param idmAccountAttrs
+	 * @param systemAttrs
+	 * @return
+	 */
+	IcConnectorObject intersectAccountAndSystemAttrs(Map<ProvisioningAttributeDto, Object> idmAccountAttrs, IcConnectorObject systemAttrs) {
+		if (idmAccountAttrs == null || systemAttrs == null) {
+			return null;
+		}
+		Set<String> names = idmAccountAttrs.keySet().stream().map(ProvisioningAttributeDto::getSchemaName)
+				.collect(Collectors.toSet());
+		//
+		List<IcAttribute> attributes = systemAttrs.getAttributes().stream()
+				.filter(attr -> names.contains(attr.getName())).collect(Collectors.toList());
+		//
+		return new IcConnectorObjectImpl(systemAttrs.getUidValue(), systemAttrs.getObjectClass(), attributes);
+	} 
 }

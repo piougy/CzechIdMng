@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import _ from 'lodash';
 //
 import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
@@ -17,6 +18,7 @@ const archiveManager = new ProvisioningArchiveManager();
  * Active and archived provisioning operations
  *
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  */
 class ProvisioningOperations extends Basic.AbstractContent {
 
@@ -80,34 +82,85 @@ class ProvisioningOperations extends Basic.AbstractContent {
     return Utils.Ui.toStringValue(objectValue);
   }
 
-  render() {
-    const { forceSearchParameters, columns, uiKey, showDeleteAllButton } = this.props;
-    const { detail, activeKey} = this.state;
-    // accountObject to table
-    const accountData = [];
-    if (detail.entity && detail.entity.provisioningContext.accountObject) {
+  /**
+   * Aggregate and sort detail table data
+   * @param {object} detail
+   * @returns
+   */
+  _prepareProvisioningDetail(detail) {
+    if (!detail.entity) {
+      return null;
+    }
+    const resultContent = [];
+    if (detail.entity.provisioningContext.accountObject) {
       const accountObject = detail.entity.provisioningContext.accountObject;
       for (const schemaAttributeId in accountObject) {
-        if (!accountObject.hasOwnProperty(schemaAttributeId)) {
-          continue;
+        let accountVal = '';
+        let systemVal = '';
+        let changedVal = '';
+        if (accountObject.hasOwnProperty(schemaAttributeId)) {
+          accountVal = this._toPropertyValue(accountObject[schemaAttributeId]);
         }
-        accountData.push({
+        // prepared name without strategy
+        const connectorItemName = schemaAttributeId.replace(/\s*\([A-Z_]{3,}\).*$/, '');
+        // values from target system
+        const systemObject = detail.entity.provisioningContext.systemConnectorObject;
+        if (systemObject) {
+          systemObject.attributes.forEach(attribute => {
+            if (attribute.name === connectorItemName) {
+              systemVal = this._toPropertyValue(attribute.values);
+            }
+          });
+        }
+        // changed values for provisoning
+        const connectorObject = detail.entity.provisioningContext.connectorObject;
+        if (connectorObject) {
+          connectorObject.attributes.forEach(attribute => {
+            if (attribute.name === connectorItemName) {
+              changedVal = this._toPropertyValue(attribute.values);
+            }
+          });
+        }
+        resultContent.push({
           property: schemaAttributeId,
-          value: this._toPropertyValue(accountObject[schemaAttributeId])
+          accountVal,
+          systemVal,
+          changedVal
         });
       }
     }
-    //
-    const connectorData = [];
-    if (detail.entity && detail.entity.provisioningContext.connectorObject) {
-      const connectorObject = detail.entity.provisioningContext.connectorObject;
-      connectorObject.attributes.forEach(attribute => {
-        connectorData.push({
-          property: attribute.name,
-          value: this._toPropertyValue(attribute.values)
-        });
-      });
+    // sort by name
+    resultContent.sort((lItem, rItem) => {
+      const l = lItem.property;
+      const r = rItem.property;
+      return l < r ? -1 : (r < l ? 1 : 0);
+    });
+    // order changed attributes at the beginning
+    resultContent.sort((lItem, rItem) => {
+      const l = _.isEmpty(lItem.changedVal);
+      const r = _.isEmpty(rItem.changedVal);
+      return !l && r ? -1 : (r && !l ? 1 : 0);
+    });
+    return resultContent;
+  }
+
+  /**
+   * Highlights the content of cells of attributes to change
+   * @param {}
+   * @returns
+   */
+  _highlightCellContent({rowIndex, data, property}) {
+    if (_.isEmpty(data[rowIndex].changedVal)) {
+      return (`${data[rowIndex][property]}`);
     }
+    return (<strong>{data[rowIndex][property]}</strong>);
+  }
+
+  render() {
+    const { forceSearchParameters, columns, uiKey, showDeleteAllButton } = this.props;
+    const { detail, activeKey} = this.state;
+
+    const tableContent = this._prepareProvisioningDetail(detail);
     //
     return (
       <Basic.Div>
@@ -263,26 +316,28 @@ class ProvisioningOperations extends Basic.AbstractContent {
                     }
                   </div>
                 }
-
                 <Basic.Row>
-                  <Basic.Col lg={ 6 }>
+                  <Basic.Col lg={ 12 }>
                     <Basic.Table
-                      data={ accountData }
+                      data={ tableContent }
                       noData={ this.i18n('component.basic.Table.noData') }
                       className="table-bordered"
-                      header={ this.i18n('detail.accountObject') }>
-                      <Basic.Column property="property" header={ this.i18n('label.property') }/>
-                      <Basic.Column property="value" header={ this.i18n('label.value') }/>
-                    </Basic.Table>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.Table
-                      data={ connectorData }
-                      noData={ this.i18n('component.basic.Table.noData') }
-                      className="table-bordered"
-                      header={ this.i18n('detail.connectorObject') }>
-                      <Basic.Column property="property" header={ this.i18n('label.property') }/>
-                      <Basic.Column property="value" header={ this.i18n('label.value') }/>
+                      rowClass={({rowIndex, data}) => {
+                        return _.isEmpty(data[rowIndex].changedVal) ? '' : 'warning';
+                      }}>
+                      <Basic.Column
+                        property="property"
+                        header={ this.i18n('detail.attributeNameCol') }
+                      />
+                      <Basic.Column
+                        property="systemVal"
+                        header={ this.i18n('detail.systemObject') }
+                      />
+                      <Basic.Column
+                        property="accountVal"
+                        header={ this.i18n('detail.accountObject') }
+                        cell={this._highlightCellContent}
+                      />
                     </Basic.Table>
                   </Basic.Col>
                 </Basic.Row>

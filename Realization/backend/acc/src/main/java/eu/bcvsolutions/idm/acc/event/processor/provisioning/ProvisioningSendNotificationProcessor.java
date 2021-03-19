@@ -1,10 +1,5 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -14,6 +9,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -24,8 +20,13 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
  * Processor sends notification after success provisioning create event.
@@ -44,6 +45,8 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final IdmIdentityService identityService;
 	private final SysSystemService systemService;
+	@Autowired
+	private CommonPasswordManager commonPasswordManager;
 	
 	@Autowired
 	public ProvisioningSendNotificationProcessor(NotificationManager notificationManager,
@@ -90,6 +93,15 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 			return false;
 		}
 
+		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
+			// Common password notification will be send after end of sync.
+			IdmEntityStateDto commonPasswordState = commonPasswordManager
+					.getEntityState(provisioningOperation.getEntityIdentifier(), IdmIdentityDto.class, provisioningOperation.getTransactionId());
+			if (commonPasswordState != null) {
+				return false;
+			}
+		}
+		
 		return true;
 	}
 	

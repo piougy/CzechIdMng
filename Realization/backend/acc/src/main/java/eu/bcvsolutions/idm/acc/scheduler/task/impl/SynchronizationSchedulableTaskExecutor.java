@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
+import org.springframework.util.Assert;
 
 /**
  * Synchronization schedule task
@@ -35,6 +39,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	//
 	@Autowired private SynchronizationService synchronizationService;
 	@Autowired private SysSyncConfigService service;
+	@Autowired private CommonPasswordManager commonPasswordManager;
 	//
 	private UUID synchronizationId;
 
@@ -71,6 +76,18 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 		synchronizationService.startSynchronization(config, this);
 		//
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public void notifyEnd() {
+		Assert.notNull(this.getLongRunningTaskId(), "LRT has to be persisted before task ends.");
+		IdmLongRunningTaskDto task = longRunningTaskService.get(this.getLongRunningTaskId());
+		// Send notification with password to identities where was common password used.
+		// Remove all common password entity states for this transaction.
+		// TODO: Check only for contract sync?
+		commonPasswordManager.endCommonPasswordProcess(task.getTransactionId());
+		
+		super.notifyEnd();
 	}
 
 	private AbstractSysSyncConfigDto getConfig() {

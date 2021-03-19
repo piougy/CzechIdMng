@@ -293,6 +293,38 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	}
 	
 	@Override
+	@Transactional
+	public IdmEntityEventDto createManualEvent(IdmEntityEventDto entityEvent) {
+		lock.lock();
+		Assert.notNull(entityEvent, "Event cannot be null!");
+		try {
+			entityEvent.setResult(new OperationResultDto.Builder(OperationState.RUNNING).build());
+
+			entityEvent = this.saveEvent(entityEvent);
+			this.addEventCache(entityEvent.getId(), entityEvent.getTransactionId());
+			
+			return entityEvent;
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	@Override
+	@Transactional
+	public IdmEntityEventDto completeManualEvent(IdmEntityEventDto entityEvent) {
+		lock.lock();
+		Assert.notNull(entityEvent, "Event cannot be null!");
+		try {
+			this.completeEvent(entityEvent);
+			entityEvent.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
+			
+			return this.saveEvent(entityEvent);
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	@Override
 	public boolean deregisterAsynchronousTask(LongRunningTaskExecutor<?> executor) {
 		if (!isAsynchronous()) {
 			return true;

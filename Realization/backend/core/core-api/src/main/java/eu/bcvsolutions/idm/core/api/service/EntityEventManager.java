@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Entity processing based on synchronous {@link ApplicationEvent} publishing.
@@ -417,7 +418,23 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * @since 10.6.0
 	 */
 	IdmEntityEventDto registerAsynchronousTask(LongRunningTaskExecutor<?> executor);
-	
+
+	/**
+	 * Creates a manual event (without execute). Manual means we will controlled creation and completion this event manually.
+	 * The point for this is control end of main LRT. For example we need to ensure that a sync will be ends after
+	 * all provisioning operations will be executed. For that we will create manual event for provisioning operation
+	 * and by it we are able manually completed it (-> sync will be ended after complete all manual events).
+	 */
+	IdmEntityEventDto createManualEvent(IdmEntityEventDto entityEvent);
+
+	/**
+	 * Complete a manual event. Manual means we will controlled creation and completion this event manually.
+	 * The point for this is control end of main LRT. For example we need to ensure that a sync will be ends after
+	 * all provisioning operations will be executed. For that we will create manual event for provisioning operation
+	 * and by it we are able manually completed it (-> sync will be ended after complete all manual events).
+	 */
+	IdmEntityEventDto completeManualEvent(IdmEntityEventDto entityEvent);
+
 	/**
 	 * Register long running task executor for nofity on end, when all events created from this executor are completed.
 	 * 

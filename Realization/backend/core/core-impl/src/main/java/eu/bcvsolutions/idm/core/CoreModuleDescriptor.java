@@ -177,6 +177,12 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor implements Co
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"Password has been set.", 
 				getNotificationTemplateId("passwordChanged")));
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_COMMON_PASSWORD_SET, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Common password has been set.", 
+				getNotificationTemplateId("commonPasswordSet")));
 		//
 		configs.add(new NotificationConfigurationDto(
 				TOPIC_EVENT, 

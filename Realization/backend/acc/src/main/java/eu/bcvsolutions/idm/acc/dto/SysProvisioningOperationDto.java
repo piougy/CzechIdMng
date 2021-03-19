@@ -55,6 +55,9 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	@JsonIgnore
 	// Internal attribute, not persisted - for mark if is operation original provisioning or retry attempt.
 	private boolean synchronousProvisioning = false;
+	@JsonIgnore
+	// Internal attribute, not persisted - for set manual event. A manual event prevents end sync to soon.
+	private UUID manualEventId;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -179,10 +182,13 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 		this.synchronousProvisioning = synchronousProvisioning;
 	}
 
+	public UUID getManualEventId() {
+		return manualEventId;
+	}
 
-
-
-
+	public void setManualEventId(UUID manualEventId) {
+		this.manualEventId = manualEventId;
+	}
 
 	/**
 	 * New {@link SysProvisioningOperationDto} builder.

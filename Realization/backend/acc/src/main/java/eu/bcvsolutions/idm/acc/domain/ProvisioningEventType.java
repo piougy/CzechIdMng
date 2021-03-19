@@ -13,5 +13,7 @@ public enum ProvisioningEventType implements EventType {
 	CREATE,
 	UPDATE,
 	DELETE,
-	CANCEL;
+	CANCEL,
+	START, // Used in a common password to prevent end of sync too soon.
+	END;
 }

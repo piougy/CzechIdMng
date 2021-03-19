@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
+import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +49,7 @@ public class IdentitySetPasswordProcessor
 	@Autowired private AccAccountService accountService; 
 	@Autowired private IdentityPasswordChangeNotificationProcessor passwordChangeProcessor;
 	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private CommonPasswordManager commonPasswordManager;
 	
 	public IdentitySetPasswordProcessor() {
 		super(IdentityEventType.UPDATE);
@@ -85,7 +89,27 @@ public class IdentitySetPasswordProcessor
 		}
 		return new DefaultEventResult<>(event, this);
 	}
-	
+
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
+		if (!super.conditional(event)) {
+			return false;
+		}
+
+		// Processor will be skipped, if common password exists for this identity!
+		// Notification will be send after end of sync.
+		IdmIdentityDto identityDto = event.getContent();
+		if (identityDto.getId() != null) {
+			IdmEntityStateDto commonPasswordManagerEntityState = commonPasswordManager
+					.getEntityState(identityDto.getId(), identityDto.getClass(), TransactionContextHolder.getContext().getTransactionId());
+			if (commonPasswordManagerEntityState != null) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	/**
 	 * Returns true, if identity has at least one account on target system, 
 	 * which supports password change

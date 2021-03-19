@@ -28,6 +28,7 @@ public interface CoreModule extends ModuleDescriptor {
 	String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:identityMonitoredFieldsChanged", MODULE_ID);
 	String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
 	String TOPIC_PASSWORD_SET = String.format("%s:passwordSet", MODULE_ID);
+	String TOPIC_COMMON_PASSWORD_SET = String.format("%s:commonPasswordSet", MODULE_ID);
 	String TOPIC_EVENT = String.format("%s:event", MODULE_ID);
 	String TOPIC_LOGIN_BLOCKED = String.format("%s:loginBlocked", MODULE_ID);
 	String TOPIC_BULK_ACTION_END = String.format("%s:bulkActionEnd", MODULE_ID);

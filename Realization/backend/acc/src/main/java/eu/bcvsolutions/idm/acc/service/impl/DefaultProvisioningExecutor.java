@@ -1,27 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import eu.bcvsolutions.idm.core.config.DelegatingTransactionContextRunnable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.util.Assert;
-
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
@@ -40,6 +19,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -49,17 +29,35 @@ import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.config.DelegatingTransactionContextRunnable;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.util.Assert;
 
 /**
  * Entry point to all provisioning operations.
- * 
- * @author Radek Tomiška
  *
+ * @author Radek Tomiška
  */
 @Service("provisioningExecutor")
 public class DefaultProvisioningExecutor implements ProvisioningExecutor {
@@ -74,7 +72,10 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final ProvisioningConfiguration provisioningConfiguration;
 	private final SysSystemEntityService systemEntityService;
 	//
-	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired
+	private IdmRoleRequestService roleRequestService;
+	@Autowired
+	private LookupService lookupService;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
@@ -109,12 +110,12 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Override
 	@Transactional
 	public synchronized void execute(SysProvisioningOperationDto provisioningOperation) {
-		//
 		// execute - after original transaction is commited
 		// only if system supports synchronous processing
 		SysSystemDto system = DtoUtils.getEmbedded(provisioningOperation, SysProvisioningOperation_.system.getName(), SysSystemDto.class, null);
-		if(system == null) {
-			system = systemService.get(provisioningOperation.getSystem());;
+		if (system == null) {
+			system = systemService.get(provisioningOperation.getSystem());
+			;
 		}
 		Assert.notNull(system, "System is required.");
 		if (!system.isQueue()) {
@@ -125,31 +126,38 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 				provisioningOperation.setSynchronousProvisioning(true);
 			}
 			entityEventManager.publishEvent(provisioningOperation);
+			
+			IdmEntityEventDto entityEvent = new IdmEntityEventDto();
+			entityEvent.setEventType(ProvisioningEventType.START.name());
+			entityEvent.setOwnerId(provisioningOperation.getId());
+			entityEvent.setOwnerType(lookupService.getOwnerType(provisioningOperation));
+			// Create manual event. We need to ensure that a sync will be ends after
+			// all provisioning operations will be executed.
+			entityEvent = entityEventManager.createManualEvent(entityEvent);
+			
+			provisioningOperation.setManualEventId(entityEvent.getId());
 			return;
 		}
 		// put to queue
 		if (provisioningOperationService.isNew(provisioningOperation)) {
 			provisioningOperation = persistOperation(provisioningOperation);
 		}
+
 	}
-	
+
 	/**
-	 * Next processing is executed outside a transaction 
-	 * => operation states has to be saved in new transactions 
-	 * => rollback on the target system is not possible anyway
+	 * Next processing is executed outside a transaction => operation states has to be saved in new transactions => rollback on the target system is not possible anyway
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public SysProvisioningOperationDto executeSync(SysProvisioningOperationDto provisioningOperation) {
 		return executeInternal(provisioningOperation);
 	}
-	
+
 	/**
-	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared.
-	 * Next processing is executed outside a transaction 
-	 * => operation states has to be saved in new transactions 
-	 * => rollback on the target system is not possible anyway
-	 * 
+	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared. Next processing is executed outside a transaction => operation
+	 * states has to be saved in new transactions => rollback on the target system is not possible anyway
+	 *
 	 * @param provisioningOperation
 	 * @return
 	 */
@@ -159,98 +167,110 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(provisioningOperation, "Provisioning operation is required.");
 		Assert.notNull(provisioningOperation.getSystemEntity(), "System entity is required.");
 		Assert.notNull(provisioningOperation.getProvisioningContext(), "Provisioning context is required.");
-		//
-		boolean checkNotExecuted = provisioningOperation.isSynchronousProvisioning();
-		if (provisioningOperationService.isNew(provisioningOperation)) {
-			provisioningOperation = persistOperation(provisioningOperation);
-			checkNotExecuted = true;
-		}
-		if (checkNotExecuted
-				&& provisioningOperation.getResult() != null
-				&& OperationState.NOT_EXECUTED == provisioningOperation.getResult().getState()) {
-			return provisioningOperation;
-		}
-		//
-		CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(provisioningOperation.getOperationType(), provisioningOperation);
-		try {
-			// set a global provisioning timeout even for synchronous call
-			FutureTask<EventContext<SysProvisioningOperationDto>> futureTask = new FutureTask<EventContext<SysProvisioningOperationDto>>(new Callable<EventContext<SysProvisioningOperationDto>>() {
-
-				@Override
-				public EventContext<SysProvisioningOperationDto> call() {
-					return entityEventManager.process(event);
-				}
-				
-			});
-			// thread pool is not used here
-			Thread thread = new Thread(new DelegatingSecurityContextRunnable(new DelegatingTransactionContextRunnable(futureTask)));
-	        thread.start();
-	        //
-			// global timeout by configuration
-			long timeout = provisioningConfiguration.getTimeout();
-			try {
-				// TODO: non blocking wait if possible (refactoring is needed + java 9 helps)
-				EventContext<SysProvisioningOperationDto> context = futureTask.get(
-						timeout, 
-						TimeUnit.MILLISECONDS
-				);
-				//
-				return context.getContent();
-			} catch (InterruptedException ex) {
-				futureTask.cancel(true);
-				// propagate exception to upper catch
-				throw ex;
-			} catch (TimeoutException ex) {
-				futureTask.cancel(true);
-				// put thread into queue and wait => timeout too => retry mecchanism will work
-				throw new ResultCodeException(
-						AccResultCode.PROVISIONING_TIMEOUT,
-						ImmutableMap.of(
-							"name", provisioningOperation.getSystemEntityUid(), 
-							"system", provisioningOperation.getSystem(),
-							"operationType", provisioningOperation.getOperationType(),
-							"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass(),
-							"timeout", String.valueOf(timeout)
-						),
-						ex
-				);
+		
+		try{
+			boolean checkNotExecuted = provisioningOperation.isSynchronousProvisioning();
+			if (provisioningOperationService.isNew(provisioningOperation)) {
+				provisioningOperation = persistOperation(provisioningOperation);
+				checkNotExecuted = true;
 			}
-		} catch (Exception ex) {
-			return provisioningOperationService.handleFailed(provisioningOperation, ex);
-		} finally {
+			if (checkNotExecuted
+					&& provisioningOperation.getResult() != null
+					&& OperationState.NOT_EXECUTED == provisioningOperation.getResult().getState()) {
+				return provisioningOperation;
+			}
+			//
+			CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(provisioningOperation.getOperationType(), provisioningOperation);
 			try {
-				UUID roleRequestId = provisioningOperation.getRoleRequestId();
-				if (roleRequestId != null) {
-					// Check of the state for whole request
-					// Create mock request -> we don't wont load request from DB -> optimization
-					IdmRoleRequestDto mockRequest = new IdmRoleRequestDto();
-					mockRequest.setId(roleRequestId);
-					mockRequest.setState(RoleRequestState.EXECUTED);
+				// set a global provisioning timeout even for synchronous call
+				FutureTask<EventContext<SysProvisioningOperationDto>> futureTask = new FutureTask<EventContext<SysProvisioningOperationDto>>(new Callable<EventContext<SysProvisioningOperationDto>>() {
 
-					IdmRoleRequestDto returnedReqeust = roleRequestService.refreshSystemState(mockRequest);
-					OperationResultDto systemState = returnedReqeust.getSystemState(); 
-					if (systemState == null) {
-						// State on system of request was not changed (may be not all provisioning operations are
-						// resolved)
-					} else {
-						// We have final state on systems
-						IdmRoleRequestDto requestDto = roleRequestService.get(roleRequestId);
-						if (requestDto != null) {
-							requestDto.setSystemState(systemState);
-							roleRequestService.save(requestDto);
-						} else {
-							LOG.info(MessageFormat.format(
-									"Refresh role-request system state: Role-request with ID [{0}] was not found (maybe was deleted).",
-									roleRequestId));
-						}
+					@Override
+					public EventContext<SysProvisioningOperationDto> call() {
+						return entityEventManager.process(event);
 					}
+
+				});
+				// thread pool is not used here
+				Thread thread = new Thread(new DelegatingSecurityContextRunnable(new DelegatingTransactionContextRunnable(futureTask)));
+				thread.start();
+				//
+				// global timeout by configuration
+				long timeout = provisioningConfiguration.getTimeout();
+				try {
+					// TODO: non blocking wait if possible (refactoring is needed + java 9 helps)
+					EventContext<SysProvisioningOperationDto> context = futureTask.get(
+							timeout,
+							TimeUnit.MILLISECONDS
+					);
+					//
+					return context.getContent();
+				} catch (InterruptedException ex) {
+					futureTask.cancel(true);
+					// propagate exception to upper catch
+					throw ex;
+				} catch (TimeoutException ex) {
+					futureTask.cancel(true);
+					// put thread into queue and wait => timeout too => retry mecchanism will work
+					throw new ResultCodeException(
+							AccResultCode.PROVISIONING_TIMEOUT,
+							ImmutableMap.of(
+									"name", provisioningOperation.getSystemEntityUid(),
+									"system", provisioningOperation.getSystem(),
+									"operationType", provisioningOperation.getOperationType(),
+									"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass(),
+									"timeout", String.valueOf(timeout)
+							),
+							ex
+					);
 				}
 			} catch (Exception ex) {
 				return provisioningOperationService.handleFailed(provisioningOperation, ex);
+			} finally {
+				try {
+					UUID roleRequestId = provisioningOperation.getRoleRequestId();
+					if (roleRequestId != null) {
+						// Check of the state for whole request
+						// Create mock request -> we don't wont load request from DB -> optimization
+						IdmRoleRequestDto mockRequest = new IdmRoleRequestDto();
+						mockRequest.setId(roleRequestId);
+						mockRequest.setState(RoleRequestState.EXECUTED);
+
+						IdmRoleRequestDto returnedReqeust = roleRequestService.refreshSystemState(mockRequest);
+						OperationResultDto systemState = returnedReqeust.getSystemState();
+						if (systemState == null) {
+							// State on system of request was not changed (may be not all provisioning operations are
+							// resolved)
+						} else {
+							// We have final state on systems
+							IdmRoleRequestDto requestDto = roleRequestService.get(roleRequestId);
+							if (requestDto != null) {
+								requestDto.setSystemState(systemState);
+								roleRequestService.save(requestDto);
+							} else {
+								LOG.info(MessageFormat.format(
+										"Refresh role-request system state: Role-request with ID [{0}] was not found (maybe was deleted).",
+										roleRequestId));
+							}
+						}
+					}
+
+				} catch (Exception ex) {
+					return provisioningOperationService.handleFailed(provisioningOperation, ex);
+				}
+			}
+		} finally {
+			UUID eventId = provisioningOperation.getManualEventId();
+			if (eventId != null) {
+				IdmEntityEventDto startEvent = entityEventManager.getEvent(eventId);
+				if (startEvent != null) {
+					// Complete a manual event (for ensure end of the sync).
+					entityEventManager.completeManualEvent(startEvent);
+				}
 			}
 		}
 	}
-	
+
 	@Override
 	@Transactional
 	public SysProvisioningOperationDto cancel(SysProvisioningOperationDto provisioningOperation) {
@@ -261,9 +281,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	/**
-	 * Next processing is executed outside a transaction 
-	 * => operation states has to be saved in new transactions 
-	 * => rollback on the target system is not possible anyway
+	 * Next processing is executed outside a transaction => operation states has to be saved
+	 * in new transactions => rollback on the target system is not possible anyway.
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -287,9 +306,9 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 				LOG.debug("Previous operation [{}] still running, next operations will be executed after previous operation ends (with next retry run)",
 						provisioningOperation.getId());
 				//
-				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
+				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE,
 						ImmutableMap.of(
-								"name", provisioningOperation.getSystemEntityUid(), 
+								"name", provisioningOperation.getSystemEntityUid(),
 								"system", provisioningOperation.getSystem(),
 								"operationType", provisioningOperation.getOperationType(),
 								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
@@ -318,17 +337,14 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			cancel(operation);
 		}
 	}
-	
+
 	@Override
 	public ProvisioningConfiguration getConfiguration() {
 		return provisioningConfiguration;
 	}
-	
+
 	/**
-	 * Persist new operation - assign appropriate batch. Operation is put into queue, if it's already in the queue
-	 * 
-	 * @param provisioningOperation
-	 * @return
+	 * Persist new operation - assign appropriate batch. Operation is put into queue, if it's already in the queue.
 	 */
 	private SysProvisioningOperationDto persistOperation(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation, "Provisioning operation is required.");
@@ -336,7 +352,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(provisioningOperation.getProvisioningContext(), "Provisioning context is required.");
 		// get system from service, in provisioning operation may not exist
 		SysSystemDto system = DtoUtils.getEmbedded(provisioningOperation, SysProvisioningOperation_.system, (SysSystemDto) null);
-		if (system == null) { 
+		if (system == null) {
 			system = systemService.get(provisioningOperation.getSystem());
 		}
 		Assert.notNull(system, "System is required.");
@@ -359,16 +375,16 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 					.getContent();
 			if (activeOperations.isEmpty()) {
 				// batch is completed (no operations in queue)
-				provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());			
+				provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 			} else {
 				// put to queue, if previous
-				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
+				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE,
 						ImmutableMap.of(
-								"name", uid, 
+								"name", uid,
 								"system", system.getName(),
 								"operationType", provisioningOperation.getOperationType(),
 								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
-				LOG.debug(resultModel.toString());				
+				LOG.debug(resultModel.toString());
 				provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 				if (activeOperations.get(0).getResultState() == OperationState.RUNNING) { // the last operation = the first operation and it's running
 					// Retry date will be set for the second operation in the queue (the first is running). 
@@ -381,8 +397,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 					notificationManager.send(
 							AccModuleDescriptor.TOPIC_PROVISIONING,
 							new IdmMessageDto.Builder(NotificationLevel.WARNING)
-								.setModel(provisioningOperation.getResult().getModel())
-								.build());
+									.setModel(provisioningOperation.getResult().getModel())
+									.build());
 				}
 			}
 		}

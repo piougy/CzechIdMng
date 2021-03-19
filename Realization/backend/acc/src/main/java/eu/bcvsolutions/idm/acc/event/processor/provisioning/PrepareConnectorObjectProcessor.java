@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
+import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -104,6 +105,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	@Autowired private IdmPasswordPolicyService passwordPolicyService;
 	@Autowired private ConfidentialStorage confidentialStorage;
 	@Autowired private SysProvisioningAttributeService provisioningAttributeService;
+	@Autowired private CommonPasswordManager commonPasswordManager;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -230,10 +232,17 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 			List<SysSystemAttributeMappingDto> passwordAttributes = attributeMappingService
 					.getAllPasswordAttributes(system.getId(), mapping.getId());
-			final GuardedString generatedPassword;
+			GuardedString generatedPassword;
 			// If exists at least one password attribute generate password and try set echos for current system
 			if (!passwordAttributes.isEmpty()) {
-				generatedPassword = generatePassword(system);
+				// Check if exists a common password for this entity. If yes, then use it.
+				generatedPassword = commonPasswordManager.generateCommonPassword(
+						provisioningOperation.getEntityIdentifier(),
+						provisioningOperation.getEntityType().getEntityType(),
+						provisioningOperation.getTransactionId());
+				if (generatedPassword == null) {
+					generatedPassword = generatePassword(system);
+				}
 			} else {
 				generatedPassword = null;
 			}

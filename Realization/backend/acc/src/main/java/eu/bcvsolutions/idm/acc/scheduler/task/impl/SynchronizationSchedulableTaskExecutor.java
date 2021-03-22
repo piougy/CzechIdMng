@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
-import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
+import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
 
 /**
  * Synchronization schedule task
@@ -38,7 +38,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	//
 	@Autowired private SynchronizationService synchronizationService;
 	@Autowired private SysSyncConfigService service;
-	@Autowired private CommonPasswordManager commonPasswordManager;
+	@Autowired private UniformPasswordManager uniformPasswordManager;
 	//
 	private UUID synchronizationId;
 
@@ -81,10 +81,10 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	public void notifyEnd() {
 		Assert.notNull(this.getLongRunningTaskId(), "LRT has to be persisted before task ends.");
 		IdmLongRunningTaskDto task = longRunningTaskService.get(this.getLongRunningTaskId());
-		// Send notification with password to identities where was common password used.
-		// Remove all common password entity states for this transaction.
+		// Send notification with password to identities where was uniform password used.
+		// Remove all uniform password entity states for this transaction.
 		// TODO: Check only for contract sync?
-		commonPasswordManager.endCommonPasswordProcess(task.getTransactionId());
+		uniformPasswordManager.endUniformPasswordProcess(task.getTransactionId());
 		
 		super.notifyEnd();
 	}

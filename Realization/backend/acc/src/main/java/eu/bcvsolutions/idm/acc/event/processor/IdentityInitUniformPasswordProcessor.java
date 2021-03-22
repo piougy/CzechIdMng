@@ -16,28 +16,28 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
+import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
 
 /**
- * Init common password for identity.
+ * Init uniform password for identity.
  *
  * @author Vít Švanda
  * @since 11.0.0
  */
-@Component(IdentityInitCommonPasswordProcessor.PROCESSOR_NAME)
-@Description("Init common password for identity.")
-public class IdentityInitCommonPasswordProcessor
+@Component(IdentityInitUniformPasswordProcessor.PROCESSOR_NAME)
+@Description("Init uniform password for identity.")
+public class IdentityInitUniformPasswordProcessor
 		extends CoreEventProcessor<IdmIdentityDto>
 		implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "acc-identity-init-common-password-processor";
 
 	@Autowired
-	private CommonPasswordManager commonPasswordManager;
+	private UniformPasswordManager uniformPasswordManager;
 	@Autowired
 	private IdmLongRunningTaskService longRunningTaskService;
 
-	public IdentityInitCommonPasswordProcessor() {
+	public IdentityInitUniformPasswordProcessor() {
 		super(IdentityEventType.UPDATE);
 	}
 
@@ -51,7 +51,7 @@ public class IdentityInitCommonPasswordProcessor
 		IdmIdentityDto previousIdentity = event.getOriginalSource();
 		IdmIdentityDto newIdentity = event.getContent();
 		if (stateStarting(previousIdentity, newIdentity)) {
-			commonPasswordManager.createEntityState(newIdentity);
+			uniformPasswordManager.createEntityState(newIdentity);
 
 			return new DefaultEventResult<>(event, this);
 		}

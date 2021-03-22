@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -22,8 +20,9 @@ import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
-import org.springframework.util.Assert;
+import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
 
 /**
  * Synchronization schedule task

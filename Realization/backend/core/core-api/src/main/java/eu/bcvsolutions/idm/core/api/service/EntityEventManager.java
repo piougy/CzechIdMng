@@ -29,7 +29,6 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Entity processing based on synchronous {@link ApplicationEvent} publishing.

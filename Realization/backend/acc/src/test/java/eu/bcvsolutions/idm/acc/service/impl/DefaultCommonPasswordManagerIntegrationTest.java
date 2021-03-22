@@ -33,21 +33,24 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.acc.service.impl.mock.MockIdentityInitCommonPasswordProcessor;
 import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
@@ -86,7 +89,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 11.0.0
  */
 public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegrationTest {
-	
+
 	@Autowired
 	private TestHelper helper;
 	@Autowired
@@ -124,9 +127,9 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 	@Autowired
 	private ConfigurationService configurationService;
 	@Autowired
-	private MockIdentityInitCommonPasswordProcessor mockIdentityInitCommonPasswordProcessor;
-	@Autowired
 	private IdmNotificationLogService notificationLogService;
+	@Autowired
+	private IdmPasswordPolicyService passwordPolicyService;
 
 	@Before
 	public void init() {
@@ -208,9 +211,6 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			LongRunningFutureTask<Boolean> longRunningFutureTask = longRunningTaskManager.execute(lrt);
 			UUID transactionIdLrt = longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getTransactionId();
 
-			// Enable test processor only for this transaction.
-			mockIdentityInitCommonPasswordProcessor.setEnableTestForTransaction(transactionIdLrt);
-
 			// Waiting for the LRT will be running.
 			getHelper().waitForResult(res -> {
 				return !longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
@@ -221,7 +221,7 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 				return longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState() != OperationState.EXECUTED;
 			}, 250, 100);
 
-			Assert.assertEquals(longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState(), OperationState.EXECUTED);
+			Assert.assertEquals(OperationState.EXECUTED, longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState());
 			SysSyncLogDto log = helper.checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2, OperationResultType.SUCCESS);
 
 			Assert.assertFalse(log.isRunning());
@@ -263,8 +263,6 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			// Turn off an async execution.
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-			// Disable test processor.
-			mockIdentityInitCommonPasswordProcessor.setEnableTestForTransaction(null);
 		}
 	}
 
@@ -324,9 +322,6 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			SynchronizationSchedulableTaskExecutor lrt = new SynchronizationSchedulableTaskExecutor(config.getId());
 			LongRunningFutureTask<Boolean> longRunningFutureTask = longRunningTaskManager.execute(lrt);
 			UUID transactionIdLrt = longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getTransactionId();
-
-			// Enable test processor only for this transaction.
-			mockIdentityInitCommonPasswordProcessor.setEnableTestForTransaction(transactionIdLrt);
 
 			// Waiting for the LRT will be running.
 			getHelper().waitForResult(res -> {
@@ -405,11 +400,9 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			// Turn off an async execution.
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-			// Disable test processor.
-			mockIdentityInitCommonPasswordProcessor.setEnableTestForTransaction(null);
 		}
 	}
-	
+
 	@Test
 	public void testDisableCommonPassword() {
 		try {
@@ -418,6 +411,8 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			// Turn on an async execution.
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+			// Create password generate policy if missing.
+			createGeneratePolicy();
 
 			SysSystemDto contractSystem = initData();
 			Assert.assertNotNull(contractSystem);
@@ -538,6 +533,28 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 			// Enable processor.
 			getHelper().enableProcessor(IdentityInitCommonPasswordProcessor.PROCESSOR_NAME);
+		}
+	}
+
+	protected void createGeneratePolicy() {
+		IdmPasswordPolicyFilter filter = new IdmPasswordPolicyFilter();
+		filter.setDefaultPolicy(Boolean.TRUE);
+		filter.setType(IdmPasswordPolicyType.GENERATE);
+		long count = passwordPolicyService.count(filter);
+		
+		if (count == 0) {
+			IdmPasswordPolicyDto passGenerate = new IdmPasswordPolicyDto();
+			passGenerate.setName("Generate password policy");
+			passGenerate.setDefaultPolicy(true);
+			passGenerate.setType(IdmPasswordPolicyType.GENERATE);
+			passGenerate.setMinLowerChar(2);
+			passGenerate.setMinNumber(2);
+			passGenerate.setMinSpecialChar(2);
+			passGenerate.setMinUpperChar(2);
+			passGenerate.setMinPasswordLength(8);
+			passGenerate.setMaxPasswordLength(12);
+			
+			passwordPolicyService.save(passGenerate);
 		}
 	}
 

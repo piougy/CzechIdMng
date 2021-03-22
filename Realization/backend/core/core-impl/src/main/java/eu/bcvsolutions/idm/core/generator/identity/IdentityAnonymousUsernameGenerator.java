@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.lang.Math;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -225,15 +226,16 @@ public class IdentityAnonymousUsernameGenerator extends AbstractValueGenerator<I
 	 * @return
 	 */
 	public static Predicate<String> usernameFilterFactory(String usernamePrefix, int length) {
-		if (StringUtils.trimToNull(usernamePrefix) == null) {
-			StringBuilder regExp = new StringBuilder();
-			regExp.append("^[0-9]{");
-			regExp.append(length);
-			regExp.append("}$");
-			return username -> username.matches(regExp.toString());
-		} else {
-			return username -> username.startsWith(usernamePrefix);
+		String prefix = StringUtils.trimToNull(usernamePrefix);
+		StringBuilder regExp = new StringBuilder();
+		regExp.append("^");
+		if (prefix != null) {
+			regExp.append(Pattern.quote(prefix));
 		}
+		regExp.append("[0-9]{");
+		regExp.append(length);
+		regExp.append("}$");
+		return username -> username.matches(regExp.toString());
 	}
 	
 	/**

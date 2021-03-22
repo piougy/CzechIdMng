@@ -1,9 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmConfidentialStorageValueFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmDelegationFilter;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -16,12 +12,14 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.internal.util.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
@@ -29,7 +27,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityState;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityState_;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * CRUD for entity states

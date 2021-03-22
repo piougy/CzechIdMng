@@ -471,7 +471,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(2, accountService.find(accountFilter, null).getContent().size());
 		
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
-		passwordChange.setNewPassword(new GuardedString("newPWD"));
+		passwordChange.setNewPassword(new GuardedString("newPWD12"));
 		passwordChange.getAccounts().add(account.getId().toString());
 		
 		idmIdentityService.passwordChange(identity, passwordChange);

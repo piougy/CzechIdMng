@@ -232,14 +232,18 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 			List<SysSystemAttributeMappingDto> passwordAttributes = attributeMappingService
 					.getAllPasswordAttributes(system.getId(), mapping.getId());
-			GuardedString generatedPassword;
+			GuardedString generatedPassword = null;
 			// If exists at least one password attribute generate password and try set echos for current system
 			if (!passwordAttributes.isEmpty()) {
 				// Check if exists a common password for this entity. If yes, then use it.
-				generatedPassword = commonPasswordManager.generateCommonPassword(
-						provisioningOperation.getEntityIdentifier(),
-						provisioningOperation.getEntityType().getEntityType(),
-						provisioningOperation.getTransactionId());
+				if (provisioningOperation.getEntityIdentifier() != null
+						&& provisioningOperation.getEntityType() != null
+						&& provisioningOperation.getTransactionId() != null) {
+					generatedPassword = commonPasswordManager.generateCommonPassword(
+							provisioningOperation.getEntityIdentifier(),
+							provisioningOperation.getEntityType().getEntityType(),
+							provisioningOperation.getTransactionId());
+				}
 				if (generatedPassword == null) {
 					generatedPassword = generatePassword(system);
 				}

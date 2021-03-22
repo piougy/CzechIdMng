@@ -6500,7 +6500,7 @@
           },
           "generatednumberlength": {
             "label": "Počet znaků číselné části",
-            "help": "Počet číslic použitých v číselné části uživatelského jména. Hodnoty musí být z rozsashu od 1 do 9."
+            "help": "Počet číslic použitých v číselné části uživatelského jména. Hodnoty musí být z rozsahu od 1 do 9."
           }
         }
       },

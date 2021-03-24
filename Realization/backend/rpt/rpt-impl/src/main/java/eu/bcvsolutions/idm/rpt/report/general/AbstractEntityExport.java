@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,10 +31,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
-import java.text.MessageFormat;
 
 /**
  * Base implementation for reporting dto attributes to json. It uses standard bulk action interface to provide this functionality
@@ -138,15 +137,10 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 		this.relatedReport = reportService.save(report).getId();
 	}
 
-	private boolean close() {
-		try {
-			if (this.jsonGenerator != null && !jsonGenerator.isClosed()) {
-				getJsonGenerator().writeEndArray();
-				this.jsonGenerator.close();
-			}
-			return true;
-		} catch (IOException e) {
-			return false;
+	private void close() throws IOException {
+		if (this.jsonGenerator != null && !jsonGenerator.isClosed()) {
+			getJsonGenerator().writeEndArray();
+			this.jsonGenerator.close();
 		}
 	}
 
@@ -171,49 +165,38 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 	}
 
 	@Override
-	protected OperationResult end(OperationResult result, Exception ex) {
-		final OperationResult superResult = super.end(result, ex);
-		if (!close()) {
-			superResult.setState(OperationState.EXCEPTION);
-			superResult.setCause("Cannot close temp file");
+	protected OperationResult end(OperationResult result, Exception exception) {
+		if (exception != null 
+				|| (result != null && OperationState.EXECUTED != result.getState())) {
+			return super.end(result, exception);
 		}
 		//
 		try {
-			RptReportDto report = finishReport(superResult);
+			close();
+			RptReportDto report = finishReport(result);
+			//
 			// Adds attachment metadata to the operation result (for download attachment
 			// directly from bulk action modal dialog).
-			addAttachmentMetadata(result, report);
-		} catch (FileNotFoundException e) {
-			superResult.setState(OperationState.EXCEPTION);
-			superResult.setCause(e.getMessage());
+			return super.end(addAttachmentMetadata(report), null);
+		} catch (Exception ex) {
+			return super.end(result, ex);
 		}
-		//
-		return superResult;
 	}
 	
 	/**
 	 * Adds attachment metadata to the operation result (for download attachment
 	 * directly from bulk action modal dialog).
-	 * 
-	 * @param result
 	 */
-	private void addAttachmentMetadata(OperationResult result, RptReportDto report) {
-
-		IdmLongRunningTaskDto task = getLongRunningTaskService().get(getLongRunningTaskId());
-		OperationResult taskResult = task.getResult();
-
-		if (OperationState.EXECUTED == taskResult.getState()) {
-			ResultModel model = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD,
-					ImmutableMap.of(//
-							AttachableEntity.PARAMETER_DOWNLOAD_URL,
-							MessageFormat.format("rpt/reports/{0}/render?renderer=formable-entity-xlsx-renderer", report.getId()),
-							AttachableEntity.PARAMETER_OWNER_ID, report.getId(), //
-							AttachableEntity.PARAMETER_OWNER_TYPE, report.getClass().getName()//
-					));//
-
-			taskResult.setModel(model);
-			getLongRunningTaskService().save(task);
-		}
+	private OperationResult addAttachmentMetadata(RptReportDto report) {
+		ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD,
+				ImmutableMap.of(
+						AttachableEntity.PARAMETER_DOWNLOAD_URL,
+						MessageFormat.format("rpt/reports/{0}/render?renderer=formable-entity-xlsx-renderer", report.getId()),
+						AttachableEntity.PARAMETER_OWNER_ID, report.getId(), //
+						AttachableEntity.PARAMETER_OWNER_TYPE, report.getClass().getName()//
+				));
+		//
+		return new OperationResult.Builder(OperationState.EXECUTED).setModel(resultModel).build();
 	}
 	
 	@Override

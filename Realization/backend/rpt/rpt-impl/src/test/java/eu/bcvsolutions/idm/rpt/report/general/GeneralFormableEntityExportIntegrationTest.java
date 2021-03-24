@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -30,6 +31,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.rpt.RptModuleDescriptor;
 import eu.bcvsolutions.idm.rpt.api.dto.RptRenderedReportDto;
@@ -53,6 +55,7 @@ public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrat
 	@Autowired private FormService formService;
 	@Autowired private ReportManager reportManager;
 	@Autowired private IdmFormAttributeService formAttributeService;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
 
 	@Before
 	public void before() {
@@ -100,6 +103,11 @@ public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrat
 		Assert.assertEquals(1, content.size());
 
 		RptReportDto reportDto = content.get(0);
+		
+		Assert.assertEquals(
+				CoreResultCode.LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD.getCode(), 
+				longRunningTaskManager.getLongRunningTask(reportDto.getLongRunningTask()).getResult().getCode()
+		);
 
 		RptRenderedReportDto render = reportManager.render(reportDto, FormableEntityXlsxRenderer.NAME);
 

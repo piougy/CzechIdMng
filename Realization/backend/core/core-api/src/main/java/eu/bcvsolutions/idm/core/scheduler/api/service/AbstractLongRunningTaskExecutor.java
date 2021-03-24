@@ -269,6 +269,9 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 				this.result = Optional.ofNullable(result);
 				// end long running task => waiting only if needed
 				if (this.startTaskEvent != null) {
+					LOG.trace("Long running tast [{}] start event [{}] completed.",
+							longRunningTaskId, this.startTaskEvent.getId());
+					//
 					entityEventManager.completeEvent(this.startTaskEvent);
 				}
 				// notify end will or was called instead already

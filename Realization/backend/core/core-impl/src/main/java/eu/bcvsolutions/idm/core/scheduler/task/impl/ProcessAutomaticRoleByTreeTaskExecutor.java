@@ -269,7 +269,8 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 								UUID identityRole = concept.getIdentityRole();
 								Assert.notNull(identityRole, 
 										String.format(
-												"Concept is not executed [%s], identity role identifier is empty.", 
+												"Concept [%s] is not executed [%s], identity role identifier is empty.", 
+												concept.getId(),
 												concept.getState()
 										)
 								);

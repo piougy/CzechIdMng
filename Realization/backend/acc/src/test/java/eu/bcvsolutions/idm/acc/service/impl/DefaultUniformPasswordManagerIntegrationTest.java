@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestContractResource;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.event.processor.IdentityInitCommonPasswordProcessor;
+import eu.bcvsolutions.idm.acc.event.processor.IdentityInitUniformPasswordProcessor;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.SynchronizationSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -33,22 +33,29 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.acc.service.impl.mock.MockIdentityInitCommonPasswordProcessor;
 import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
@@ -65,7 +72,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
-import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
+import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import java.util.List;
 import java.util.UUID;
@@ -80,13 +87,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Tests for manager for a common password of identity.
+ * Tests for manager for a uniform password of identity.
  *
  * @author Vít Švanda
  * @since 11.0.0
  */
-public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegrationTest {
-	
+public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegrationTest {
+
 	@Autowired
 	private TestHelper helper;
 	@Autowired
@@ -118,15 +125,19 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 	@Autowired
 	private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired
-	private CommonPasswordManager commonPasswordManager;
+	private UniformPasswordManager uniformPasswordManager;
 	@Autowired
 	private SchedulerManager schedulerManager;
 	@Autowired
 	private ConfigurationService configurationService;
 	@Autowired
-	private MockIdentityInitCommonPasswordProcessor mockIdentityInitCommonPasswordProcessor;
-	@Autowired
 	private IdmNotificationLogService notificationLogService;
+	@Autowired
+	private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired
+	private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired
+	private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 
 	@Before
 	public void init() {
@@ -162,6 +173,18 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			scheduledTask.setQuartzTaskName(task.getId());
 			scheduledService.save(scheduledTask);
 		}
+
+		// Workaround ... manual delete of all automatic roles, sync, mappings ... because previous test did not make a delete.
+		// Delete all business roles.
+		roleTreeNodeService.deleteAll(roleTreeNodeService.find(new IdmRoleTreeNodeFilter(), null).getContent());
+		automaticRoleAttributeService.deleteAll(automaticRoleAttributeService.find(new IdmRoleTreeNodeFilter(), null).getContent());
+		// Delete all syncs.
+		syncConfigService.deleteAll(syncConfigService.find(new SysSyncConfigFilter(), null).getContent());
+		// Delete all mappings.
+		systemMappingService.deleteAll(systemMappingService.find(new SysSystemMappingFilter(), null).getContent());
+		// Delete data in target table.
+		helper.deleteAllResourceData();
+
 	}
 
 	@Test
@@ -208,9 +231,6 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			LongRunningFutureTask<Boolean> longRunningFutureTask = longRunningTaskManager.execute(lrt);
 			UUID transactionIdLrt = longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getTransactionId();
 
-			// Enable test processor only for this transaction.
-			mockIdentityInitCommonPasswordProcessor.setEnableTestForTransaction(transactionIdLrt);
-
 			// Waiting for the LRT will be running.
 			getHelper().waitForResult(res -> {
 				return !longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
@@ -221,7 +241,7 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 				return longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState() != OperationState.EXECUTED;
 			}, 250, 100);
 
-			Assert.assertEquals(longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState(), OperationState.EXECUTED);
+			Assert.assertEquals(OperationState.EXECUTED, longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState());
 			SysSyncLogDto log = helper.checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2, OperationResultType.SUCCESS);
 
 			Assert.assertFalse(log.isRunning());
@@ -243,9 +263,9 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			Assert.assertEquals(IdentityState.VALID, ownerTwo.getState());
 
 			// LRT ended, entityStates must be removed.
-			IdmEntityStateDto entityStateDtoOwnerOne = commonPasswordManager.getEntityState(ownerOne.getId(), IdmIdentityDto.class, transactionId);
+			IdmEntityStateDto entityStateDtoOwnerOne = uniformPasswordManager.getEntityState(ownerOne.getId(), IdmIdentityDto.class, transactionId);
 			Assert.assertNull(entityStateDtoOwnerOne);
-			IdmEntityStateDto entityStateDtoOwnerTwo = commonPasswordManager.getEntityState(ownerTwo.getId(), IdmIdentityDto.class, transactionId);
+			IdmEntityStateDto entityStateDtoOwnerTwo = uniformPasswordManager.getEntityState(ownerTwo.getId(), IdmIdentityDto.class, transactionId);
 			Assert.assertNull(entityStateDtoOwnerTwo);
 
 			contractFilter.setValue("1");
@@ -263,14 +283,12 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			// Turn off an async execution.
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-			// Disable test processor.
-			mockIdentityInitCommonPasswordProcessor.setEnableTestForTransaction(null);
 		}
 	}
 
 
 	@Test
-	public void testCommonPassword() {
+	public void testUniformPassword() {
 		try {
 			// Turn on an async execution.
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
@@ -324,9 +342,6 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			SynchronizationSchedulableTaskExecutor lrt = new SynchronizationSchedulableTaskExecutor(config.getId());
 			LongRunningFutureTask<Boolean> longRunningFutureTask = longRunningTaskManager.execute(lrt);
 			UUID transactionIdLrt = longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getTransactionId();
-
-			// Enable test processor only for this transaction.
-			mockIdentityInitCommonPasswordProcessor.setEnableTestForTransaction(transactionIdLrt);
 
 			// Waiting for the LRT will be running.
 			getHelper().waitForResult(res -> {
@@ -357,10 +372,10 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			// Waiting for removing entity state.
 			IdmIdentityDto finalOwnerOne = ownerOne;
 			getHelper().waitForResult(res -> {
-				return commonPasswordManager.getEntityState(finalOwnerOne.getId(), IdmIdentityDto.class, transactionId) != null;
+				return uniformPasswordManager.getEntityState(finalOwnerOne.getId(), IdmIdentityDto.class, transactionId) != null;
 			}, 50, 100);
 			// LRT ended, entityStates must be removed.
-			IdmEntityStateDto entityStateDtoOwnerOne = commonPasswordManager.getEntityState(ownerOne.getId(), IdmIdentityDto.class, transactionId);
+			IdmEntityStateDto entityStateDtoOwnerOne = uniformPasswordManager.getEntityState(ownerOne.getId(), IdmIdentityDto.class, transactionId);
 			Assert.assertNull(entityStateDtoOwnerOne);
 
 			TestResource resourceOwnerOne = helper.findResource(ownerOne.getUsername());
@@ -374,11 +389,11 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			Assert.assertNotNull(passwordOwnerTwo);
 			Assert.assertEquals(passwordOwnerOne, passwordOwnerTwo);
 
-			// One common password notification was send.
+			// One uniform password notification was send.
 			IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
 			notificationFilter.setRecipient(ownerOne.getUsername());
 			notificationFilter.setNotificationType(IdmEmailLog.class);
-			notificationFilter.setTopic(CoreModule.TOPIC_COMMON_PASSWORD_SET);
+			notificationFilter.setTopic(CoreModule.TOPIC_UNIFORM_PASSWORD_SET);
 			List<IdmNotificationLogDto> notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
 			Assert.assertEquals(1, notificationLogDtos.size());
 
@@ -405,19 +420,19 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			// Turn off an async execution.
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-			// Disable test processor.
-			mockIdentityInitCommonPasswordProcessor.setEnableTestForTransaction(null);
 		}
 	}
-	
+
 	@Test
-	public void testDisableCommonPassword() {
+	public void testDisableUniformPassword() {
 		try {
-			// Disable the IdentityInitCommonPasswordProcessor processor -> state will be not created -> feature common password have to be disabled.
-			getHelper().disableProcessor(IdentityInitCommonPasswordProcessor.PROCESSOR_NAME);
+			// Disable the IdentityInitUniformPasswordProcessor processor -> state will be not created -> feature uniform password have to be disabled.
+			getHelper().disableProcessor(IdentityInitUniformPasswordProcessor.PROCESSOR_NAME);
 			// Turn on an async execution.
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+			// Create password generate policy if missing.
+			createGeneratePolicy();
 
 			SysSystemDto contractSystem = initData();
 			Assert.assertNotNull(contractSystem);
@@ -426,9 +441,14 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			Assert.assertTrue(config instanceof SysSyncContractConfigDto);
 
 			SysSystemDto targetSystemOne = helper.createTestResourceSystem(true);
+			System.out.println("SystemOne!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + targetSystemOne.getCode());
 			// Create system two with account suffix "_targetSystemTwo".
 			String targetSystemTwoSuffix = "_targetSystemTwo";
 			SysSystemDto targetSystemTwo = helper.createTestResourceSystem(true);
+
+			System.out.println("SystemTwoo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + targetSystemTwo.getCode());
+
+			System.out.println("Systemcon!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + contractSystem.getCode());
 			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(targetSystemTwo.getId(), SystemEntityType.IDENTITY);
 			List<SysSystemAttributeMappingDto> attributeMappingDtos = schemaAttributeMappingService.findBySystemMapping(provisioningMapping);
 			SysSystemAttributeMappingDto uidAttribute = schemaAttributeMappingService.getUidAttribute(attributeMappingDtos, targetSystemTwo);
@@ -478,7 +498,7 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 				return longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState() != OperationState.EXECUTED;
 			}, 250, 100);
 
-			Assert.assertEquals(longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState(), OperationState.EXECUTED);
+			Assert.assertEquals(OperationState.EXECUTED, longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState());
 			SysSyncLogDto log = helper.checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2, OperationResultType.SUCCESS);
 
 			Assert.assertFalse(log.isRunning());
@@ -494,8 +514,8 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			// Identities should have a valid state.
 			Assert.assertEquals(IdentityState.VALID, ownerOne.getState());
 
-			// Common password feature is disabled -> password could be not same.
-			IdmEntityStateDto entityStateDtoOwnerOne = commonPasswordManager.getEntityState(ownerOne.getId(), IdmIdentityDto.class, transactionId);
+			// Uniform password feature is disabled -> password could be not same.
+			IdmEntityStateDto entityStateDtoOwnerOne = uniformPasswordManager.getEntityState(ownerOne.getId(), IdmIdentityDto.class, transactionId);
 			Assert.assertNull(entityStateDtoOwnerOne);
 
 			TestResource resourceOwnerOne = helper.findResource(ownerOne.getUsername());
@@ -507,14 +527,14 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			String passwordOwnerTwo = resourceOwnerTwo.getPassword();
 			Assert.assertNotNull(passwordOwnerOne);
 			Assert.assertNotNull(passwordOwnerTwo);
-			// Common password feature is disabled -> password cannot be not same.
+			// Uniform password feature is disabled -> password cannot be not same.
 			Assert.assertNotEquals(passwordOwnerOne, passwordOwnerTwo);
 
-			// None a common password notification was send.
+			// None a uniform password notification was send.
 			IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
 			notificationFilter.setRecipient(ownerOne.getUsername());
 			notificationFilter.setNotificationType(IdmEmailLog.class);
-			notificationFilter.setTopic(CoreModule.TOPIC_COMMON_PASSWORD_SET);
+			notificationFilter.setTopic(CoreModule.TOPIC_UNIFORM_PASSWORD_SET);
 			List<IdmNotificationLogDto> notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
 			Assert.assertEquals(0, notificationLogDtos.size());
 
@@ -537,7 +557,29 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 			// Enable processor.
-			getHelper().enableProcessor(IdentityInitCommonPasswordProcessor.PROCESSOR_NAME);
+			getHelper().enableProcessor(IdentityInitUniformPasswordProcessor.PROCESSOR_NAME);
+		}
+	}
+
+	protected void createGeneratePolicy() {
+		IdmPasswordPolicyFilter filter = new IdmPasswordPolicyFilter();
+		filter.setDefaultPolicy(Boolean.TRUE);
+		filter.setType(IdmPasswordPolicyType.GENERATE);
+		long count = passwordPolicyService.count(filter);
+
+		if (count == 0) {
+			IdmPasswordPolicyDto passGenerate = new IdmPasswordPolicyDto();
+			passGenerate.setName("Generate password policy");
+			passGenerate.setDefaultPolicy(true);
+			passGenerate.setType(IdmPasswordPolicyType.GENERATE);
+			passGenerate.setMinLowerChar(2);
+			passGenerate.setMinNumber(2);
+			passGenerate.setMinSpecialChar(2);
+			passGenerate.setMinUpperChar(2);
+			passGenerate.setMinPasswordLength(8);
+			passGenerate.setMaxPasswordLength(12);
+
+			passwordPolicyService.save(passGenerate);
 		}
 	}
 
@@ -754,11 +796,15 @@ public class DefaultCommonPasswordManagerIntegrationTest extends AbstractIntegra
 	@Transactional
 	public void deleteAllResourceData() {
 		// Delete all
-		Query q = entityManager.createNativeQuery("DELETE FROM " + TestContractResource.TABLE_NAME);
+		Query contract = entityManager.createNativeQuery("DELETE FROM " + TestContractResource.TABLE_NAME);
+		contract.executeUpdate();
+
+		// Delete all
+		Query q = entityManager.createNativeQuery("DELETE FROM " + TestResource.TABLE_NAME);
 		q.executeUpdate();
 	}
 
-	private DefaultCommonPasswordManagerIntegrationTest getBean() {
+	private DefaultUniformPasswordManagerIntegrationTest getBean() {
 		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 

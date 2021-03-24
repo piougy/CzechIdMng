@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
+import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -36,15 +36,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 /**
- * Manager for a common password of identity.
+ * Manager for a uniform password of identity.
  *
  * @author Vít Švanda
  * @since 11.0.0
  */
 @Service
-public class DefaultCommonPasswordManager implements CommonPasswordManager {
+public class DefaultUniformPasswordManager implements UniformPasswordManager {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultCommonPasswordManager.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultUniformPasswordManager.class);
 
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
@@ -71,48 +71,48 @@ public class DefaultCommonPasswordManager implements CommonPasswordManager {
 			entityState = entityStateManager.createState(
 					entityDto,
 					OperationState.BLOCKED,
-					CoreResultCode.IDENTITY_COMMON_PASSWORD,
+					CoreResultCode.IDENTITY_UNIFORM_PASSWORD,
 					properties
 			);
-			LOG.debug("Common password entity state for entity [{}] and transaction [{}] created.", entityDto.toString(), transactionId);
+			LOG.debug("Uniform password entity state for entity [{}] and transaction [{}] created.", entityDto.toString(), transactionId);
 		}
 		return entityState;
 	}
 
 	@Override
-	public void endCommonPasswordProcess(UUID transactionId) {
+	public void endUniformPasswordProcess(UUID transactionId) {
 		Assert.notNull(transactionId, "Transaction cannot be null!");
 
 		IdmEntityStateFilter entityStateFilter = new IdmEntityStateFilter();
 		entityStateFilter.setTransactionId(transactionId);
-		entityStateFilter.setResultCode(CoreResultCode.IDENTITY_COMMON_PASSWORD.getCode());
+		entityStateFilter.setResultCode(CoreResultCode.IDENTITY_UNIFORM_PASSWORD.getCode());
 		entityStateFilter.setStates(Lists.newArrayList(OperationState.BLOCKED));
 
 		List<IdmEntityStateDto> entityStateDtos = entityStateManager.findStates(entityStateFilter, null).getContent();
 
-		// Send notification with password to identities where was common password used.
+		// Send notification with password to identities where was uniform password used.
 		entityStateDtos.stream()
 				.filter(entityState -> IdmIdentity.class.getCanonicalName().equals(entityState.getOwnerType()))
-				.filter(this::commonPasswordUsed)
+				.filter(this::uniformPasswordUsed)
 				.forEach(entityState -> {
 					UUID identityId = entityState.getOwnerId();
 					if (identityId != null) {
 						IdmIdentityDto identityDto = identityService.get(identityId);
 						if (identityDto != null) {
-							// Send notification with common password.
-							this.sendCommonPasswordNotification(identityDto, entityState);
+							// Send notification with uniform password.
+							this.sendUniformPasswordNotification(identityDto, entityState);
 						}
 					}
 				});
 
-		// Remove all common password entity states for this transaction.
+		// Remove all uniform password entity states for this transaction.
 		entityStateDtos
 				.forEach(entityState -> entityStateManager.deleteState(entityState));
 	}
 
 	@Override
 	@Transactional
-	public GuardedString generateCommonPassword(UUID entityIdentifier, Class<? extends AbstractDto> entityType, UUID transactionId) {
+	public GuardedString generateUniformPassword(UUID entityIdentifier, Class<? extends AbstractDto> entityType, UUID transactionId) {
 		Assert.notNull(transactionId, "Transaction cannot be null!");
 		Assert.notNull(entityIdentifier, "Entity identifier cannot be null!");
 		Assert.notNull(entityType, "Entity type cannot be null!");
@@ -123,13 +123,13 @@ public class DefaultCommonPasswordManager implements CommonPasswordManager {
 			GuardedString password = getPassword(entityStateDto);
 			if (password == null || password.getValue().length == 0) {
 				password = new GuardedString(passwordPolicyService.generatePasswordByDefault());
-				confidentialStorage.saveGuardedString(entityStateDto, COMMON_PASSWORD_KEY, password);
+				confidentialStorage.saveGuardedString(entityStateDto, UNIFORM_PASSWORD_KEY, password);
 			}
-			// The common password was used, we need to mark it. 
+			// The uniform password was used, we need to mark it. 
 			Map<String, Object> parameters = entityStateDto.getResult().getModel().getParameters();
 			HashMap<String, Object> newParameters = Maps.newHashMap(parameters);
 			newParameters.put(PASSWORD_USED, true);
-			entityStateDto.getResult().setModel(new DefaultResultModel(CoreResultCode.IDENTITY_COMMON_PASSWORD, newParameters));
+			entityStateDto.getResult().setModel(new DefaultResultModel(CoreResultCode.IDENTITY_UNIFORM_PASSWORD, newParameters));
 			entityStateManager.saveState(null, entityStateDto);
 			
 			return password;
@@ -146,7 +146,7 @@ public class DefaultCommonPasswordManager implements CommonPasswordManager {
 
 		IdmEntityStateFilter entityStateFilter = new IdmEntityStateFilter();
 		entityStateFilter.setTransactionId(transactionId);
-		entityStateFilter.setResultCode(CoreResultCode.IDENTITY_COMMON_PASSWORD.getCode());
+		entityStateFilter.setResultCode(CoreResultCode.IDENTITY_UNIFORM_PASSWORD.getCode());
 		entityStateFilter.setOwnerType(entityStateManager.getOwnerType(entityType));
 		entityStateFilter.setOwnerId(entityIdentifier);
 		entityStateFilter.setStates(Lists.newArrayList(OperationState.BLOCKED));
@@ -158,7 +158,7 @@ public class DefaultCommonPasswordManager implements CommonPasswordManager {
 				.orElse(null);
 	}
 
-	private boolean commonPasswordUsed(IdmEntityStateDto entityState) {
+	private boolean uniformPasswordUsed(IdmEntityStateDto entityState) {
 		ResultModel model = entityState.getResult().getModel();
 		if (model != null) {
 			Object passwordUsed = model.getParameters().get(PASSWORD_USED);
@@ -168,24 +168,24 @@ public class DefaultCommonPasswordManager implements CommonPasswordManager {
 	}
 
 	/**
-	 * Get common password from the confidential storage.
+	 * Get uniform password from the confidential storage.
 	 * 
 	 * A potentially good place to override for use a static password.
 	 */
 	protected GuardedString getPassword(IdmEntityStateDto entityStateDto) {
-		return confidentialStorage.getGuardedString(entityStateDto, COMMON_PASSWORD_KEY);
+		return confidentialStorage.getGuardedString(entityStateDto, UNIFORM_PASSWORD_KEY);
 	}
 
 	/**
-	 * Send notification with common password.
+	 * Send notification with uniform password.
 	 */
-	protected void sendCommonPasswordNotification(IdmIdentityDto identityDto, IdmEntityStateDto commonPasswordState) {
+	protected void sendUniformPasswordNotification(IdmIdentityDto identityDto, IdmEntityStateDto uniformPasswordState) {
 		Assert.notNull(identityDto, "Identity cannot be null!");
-		Assert.notNull(commonPasswordState, "Entity state cannot be null!");
+		Assert.notNull(uniformPasswordState, "Entity state cannot be null!");
 
-		GuardedString password = this.getPassword(commonPasswordState);
-		ResultModel model = commonPasswordState.getResult().getModel();
-		Object successSystemsObj = model.getParameters().get(CommonPasswordManager.SUCCESS_SYSTEM_NAMES);
+		GuardedString password = this.getPassword(uniformPasswordState);
+		ResultModel model = uniformPasswordState.getResult().getModel();
+		Object successSystemsObj = model.getParameters().get(UniformPasswordManager.SUCCESS_SYSTEM_NAMES);
 		Set<UUID> successSystems = null;
 		if (successSystemsObj instanceof Set) {
 			successSystems = (Set<UUID>) successSystemsObj;
@@ -196,7 +196,7 @@ public class DefaultCommonPasswordManager implements CommonPasswordManager {
 		// Send notification if at least one system success.
 		if (!successSystems.isEmpty()) {
 			notificationManager.send(
-					CoreModuleDescriptor.TOPIC_COMMON_PASSWORD_SET,
+					CoreModuleDescriptor.TOPIC_UNIFORM_PASSWORD_SET,
 					new IdmMessageDto.Builder()
 							.setLevel(NotificationLevel.SUCCESS)
 							.addParameter("successSystemNames", StringUtils.join(successSystems, ", "))

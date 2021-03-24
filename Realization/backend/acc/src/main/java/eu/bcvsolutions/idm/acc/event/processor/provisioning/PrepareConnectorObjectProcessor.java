@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
-import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
+import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -105,7 +105,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	@Autowired private IdmPasswordPolicyService passwordPolicyService;
 	@Autowired private ConfidentialStorage confidentialStorage;
 	@Autowired private SysProvisioningAttributeService provisioningAttributeService;
-	@Autowired private CommonPasswordManager commonPasswordManager;
+	@Autowired private UniformPasswordManager uniformPasswordManager;
 	
 	@Autowired
 	public PrepareConnectorObjectProcessor(
@@ -232,14 +232,18 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 			List<SysSystemAttributeMappingDto> passwordAttributes = attributeMappingService
 					.getAllPasswordAttributes(system.getId(), mapping.getId());
-			GuardedString generatedPassword;
+			GuardedString generatedPassword = null;
 			// If exists at least one password attribute generate password and try set echos for current system
 			if (!passwordAttributes.isEmpty()) {
-				// Check if exists a common password for this entity. If yes, then use it.
-				generatedPassword = commonPasswordManager.generateCommonPassword(
-						provisioningOperation.getEntityIdentifier(),
-						provisioningOperation.getEntityType().getEntityType(),
-						provisioningOperation.getTransactionId());
+				// Check if exists a uniform password for this entity. If yes, then use it.
+				if (provisioningOperation.getEntityIdentifier() != null
+						&& provisioningOperation.getEntityType() != null
+						&& provisioningOperation.getTransactionId() != null) {
+					generatedPassword = uniformPasswordManager.generateUniformPassword(
+							provisioningOperation.getEntityIdentifier(),
+							provisioningOperation.getEntityType().getEntityType(),
+							provisioningOperation.getTransactionId());
+				}
 				if (generatedPassword == null) {
 					generatedPassword = generatePassword(system);
 				}

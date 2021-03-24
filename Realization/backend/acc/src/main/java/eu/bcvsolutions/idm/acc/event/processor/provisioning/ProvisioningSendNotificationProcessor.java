@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
+import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	private final IdmIdentityService identityService;
 	private final SysSystemService systemService;
 	@Autowired
-	private CommonPasswordManager commonPasswordManager;
+	private UniformPasswordManager uniformPasswordManager;
 	
 	@Autowired
 	public ProvisioningSendNotificationProcessor(NotificationManager notificationManager,
@@ -94,10 +94,10 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 		}
 
 		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
-			// Common password notification will be send after end of sync.
-			IdmEntityStateDto commonPasswordState = commonPasswordManager
+			// Uniform password notification will be send after end of sync.
+			IdmEntityStateDto uniformPasswordState = uniformPasswordManager
 					.getEntityState(provisioningOperation.getEntityIdentifier(), IdmIdentityDto.class, provisioningOperation.getTransactionId());
-			if (commonPasswordState != null) {
+			if (uniformPasswordState != null) {
 				return false;
 			}
 		}

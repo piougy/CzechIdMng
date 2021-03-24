@@ -8032,6 +8032,10 @@
     "WF_TASK_FILTER_INVOLVED_ONLY": {
       "title": "Tasks use the wrong filter!",
       "message": "It is not allowed to set the task filter 'onlyInvolved' to a value other than TRUE!"
+    },
+    "IDENTITY_UNIFORM_PASSWORD": {
+      "title": "Uniform password.",
+      "message": "Uniform password for [{{entity}}]."
     }
   },
   "validationError": {

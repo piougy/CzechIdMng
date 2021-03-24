@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.model.event.processor.module;
 
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.context.annotation.Profile;
@@ -63,6 +66,7 @@ public class InitTestDataProcessor extends AbstractInitApplicationProcessor {
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired private ConfigurationService configurationService;
+	@Autowired private IdmPasswordPolicyService passwordPolicyService;
 	
 	@Override
 	public String getName() {
@@ -129,9 +133,52 @@ public class InitTestDataProcessor extends AbstractInitApplicationProcessor {
 			//
 			configurationService.setBooleanValue(PARAMETER_TEST_DATA_CREATED, true);
 		}
+		// create default password policy for validate (We need to set min length of password ot 0 in tests.)
+		createValidatePolicy();
+		// create default password policy for generate (Must be here, because default init password processor is skipped for test profile.)
+		createGeneratePolicy();
 		//
 		return new DefaultEventResult<>(event, this);
 	}
+
+	/**
+	 * Create default password policy for validate.
+	 * Can be overrided on custom module.
+	 *
+	 */
+	protected void createValidatePolicy() {
+		IdmPasswordPolicyDto validatePolicy = new IdmPasswordPolicyDto();
+		validatePolicy.setName("Validate password policy");
+		validatePolicy.setDefaultPolicy(true);
+		validatePolicy.setType(IdmPasswordPolicyType.VALIDATE);
+		validatePolicy.setBlockLoginTime(30);
+		validatePolicy.setMaxUnsuccessfulAttempts(5);
+		validatePolicy.setMinPasswordLength(0);
+		//
+		passwordPolicyService.save(validatePolicy);
+	}
+
+	/**
+	 * Create default password policy for generate.
+	 * Can be overrided on custom module.
+	 *
+	 * @return created policy
+	 */
+	protected IdmPasswordPolicyDto createGeneratePolicy() {
+		IdmPasswordPolicyDto passGenerate = new IdmPasswordPolicyDto();
+		passGenerate.setName("Generate password policy");
+		passGenerate.setDefaultPolicy(true);
+		passGenerate.setType(IdmPasswordPolicyType.GENERATE);
+		passGenerate.setMinLowerChar(2);
+		passGenerate.setMinNumber(2);
+		passGenerate.setMinSpecialChar(2);
+		passGenerate.setMinUpperChar(2);
+		passGenerate.setMinPasswordLength(8);
+		passGenerate.setMaxPasswordLength(12);
+		//
+		return passwordPolicyService.save(passGenerate);
+	}
+
 
 	@Override
 	public int getOrder() {

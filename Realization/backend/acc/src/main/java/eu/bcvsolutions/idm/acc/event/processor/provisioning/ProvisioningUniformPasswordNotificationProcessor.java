@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.security.api.service.CommonPasswordManager;
+import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -29,20 +29,20 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 /**
- * Processor adds system entity ID to system entity for commons password.
+ * Processor adds system entity ID to system entity for uniform password.
  * This processor doesn't send notification. Notification will be send after sync ends.
  *
  * @author Vít Švanda
  * @since 11.0.0
  */
-@Component(ProvisioningCommonPasswordNotificationProcessor.PROCESSOR_NAME)
-@Description("Processor adds system entity ID to system entity for commons password. This processor doesn't send notification. Notification will be send after sync ends.")
-public class ProvisioningCommonPasswordNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
+@Component(ProvisioningUniformPasswordNotificationProcessor.PROCESSOR_NAME)
+@Description("Processor adds system entity ID to system entity for uniform password. This processor doesn't send notification. Notification will be send after sync ends.")
+public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 
 	public static final String PROCESSOR_NAME = "provisioning-common-password-notification-processor";
 
 	@Autowired
-	private CommonPasswordManager commonPasswordManager;
+	private UniformPasswordManager uniformPasswordManager;
 	@Autowired
 	private EntityStateManager entityStateManager;
 	@Autowired
@@ -63,13 +63,13 @@ public class ProvisioningCommonPasswordNotificationProcessor extends AbstractEnt
 		}
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
 
-		// Common password notification can be send, only when account is created => update can be switched to create, if target account does not exist.
+		// Uniform password notification can be send, only when account is created => update can be switched to create, if target account does not exist.
 		// @see PrepareConnectorObjectProcessor
 		if (provisioningOperation.getOperationType() != ProvisioningEventType.CREATE) {
 			return false;
 		}
 
-		// Common password notification can be send only if provisioning operation ended successfully!
+		// Uniform password notification can be send only if provisioning operation ended successfully!
 		return OperationState.EXECUTED == provisioningOperation.getResultState();
 	}
 
@@ -84,16 +84,16 @@ public class ProvisioningCommonPasswordNotificationProcessor extends AbstractEnt
 		if (identityDto != null && identityDto.getState() != IdentityState.CREATED) {
 			// Notification will be send after end of sync.
 			if (identityDto.getId() != null) {
-				IdmEntityStateDto commonPasswordState = commonPasswordManager
+				IdmEntityStateDto uniformPasswordState = uniformPasswordManager
 						.getEntityState(identityDto.getId(), identityDto.getClass(), provisioningOperation.getTransactionId());
-				if (commonPasswordState != null) {
+				if (uniformPasswordState != null) {
 					UUID systemId = provisioningOperation.getSystem();
 					if (systemId != null) {
 						SysSystemDto systemDto = systemService.get(systemId);
 						if (systemDto != null) {
-							ResultModel model = commonPasswordState.getResult().getModel();
-							// Add system name to entity state for common password (will be used in bulk notification).
-							Object successSystemNamesObj = model.getParameters().get(CommonPasswordManager.SUCCESS_SYSTEM_NAMES);
+							ResultModel model = uniformPasswordState.getResult().getModel();
+							// Add system name to entity state for uniform password (will be used in bulk notification).
+							Object successSystemNamesObj = model.getParameters().get(UniformPasswordManager.SUCCESS_SYSTEM_NAMES);
 							Set<String> successSystems = null;
 							if (successSystemNamesObj instanceof Set) {
 								successSystems = (Set<String>) successSystemNamesObj;
@@ -104,12 +104,12 @@ public class ProvisioningCommonPasswordNotificationProcessor extends AbstractEnt
 							
 							// Create new parameters for entity state.
 							HashMap<String, Object> newParameters = Maps.newHashMap(model.getParameters());
-							newParameters.put(CommonPasswordManager.SUCCESS_SYSTEM_NAMES, successSystems);
+							newParameters.put(UniformPasswordManager.SUCCESS_SYSTEM_NAMES, successSystems);
 							
-							// Add system entity ID to entity state for common password (will be used in bulk notification).
+							// Add system entity ID to entity state for uniform password (will be used in bulk notification).
 							UUID systemEntityId = provisioningOperation.getSystemEntity();
 							if (systemEntityId != null) {
-								Object successSystemEntitiesObj = model.getParameters().get(CommonPasswordManager.SUCCESS_SYSTEM_ENTITIES);
+								Object successSystemEntitiesObj = model.getParameters().get(UniformPasswordManager.SUCCESS_SYSTEM_ENTITIES);
 								Set<UUID> successSystemEntities = null;
 								if (successSystemEntitiesObj instanceof Set) {
 									successSystemEntities = (Set<UUID>) successSystemEntitiesObj;
@@ -117,12 +117,12 @@ public class ProvisioningCommonPasswordNotificationProcessor extends AbstractEnt
 									successSystemEntities = Sets.newHashSet();
 								}
 								successSystemEntities.add(systemEntityId);
-								newParameters.put(CommonPasswordManager.SUCCESS_SYSTEM_ENTITIES, successSystemEntities);
+								newParameters.put(UniformPasswordManager.SUCCESS_SYSTEM_ENTITIES, successSystemEntities);
 							}
 
 							// Save entity state with new parameters.
-							commonPasswordState.getResult().setModel(new DefaultResultModel(CoreResultCode.IDENTITY_COMMON_PASSWORD, newParameters));
-							entityStateManager.saveState(null, commonPasswordState);
+							uniformPasswordState.getResult().setModel(new DefaultResultModel(CoreResultCode.IDENTITY_UNIFORM_PASSWORD, newParameters));
+							entityStateManager.saveState(null, uniformPasswordState);
 						}
 					}
 				}

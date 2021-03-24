@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -225,6 +226,9 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 		assertTrue(attributeMappingDtos.stream().anyMatch(attribute -> IcAttributeInfo.PASSWORD.equals(attribute.getName())));
 		assertTrue(attributeMappingDtos.stream().anyMatch(attribute -> IcAttributeInfo.ENABLE.equals(attribute.getName())));
 		assertTrue(attributeMappingDtos.stream().anyMatch(attribute -> MockAdUserConnectorType.LDAP_GROUPS_ATTRIBUTE.equals(attribute.getName())));
+		assertTrue(attributeMappingDtos.stream().anyMatch(attribute -> 
+				MockAdUserConnectorType.LDAP_GROUPS_ATTRIBUTE.equals(attribute.getName())
+				&& AttributeMappingStrategyType.MERGE == attribute.getStrategyType()));
 		assertTrue(attributeMappingDtos.stream().anyMatch(attribute -> MockAdUserConnectorType.SAM_ACCOUNT_NAME_ATTRIBUTE.equals(attribute.getName())));
 
 		// Pairing sync wasn't created.

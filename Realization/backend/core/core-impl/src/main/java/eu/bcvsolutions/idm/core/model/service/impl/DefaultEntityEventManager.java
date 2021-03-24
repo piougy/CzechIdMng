@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import eu.bcvsolutions.idm.core.api.event.EntityEventLock;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -73,6 +73,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EmptyEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventEvent.EntityEventType;
+import eu.bcvsolutions.idm.core.api.event.EntityEventLock;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -1418,23 +1419,39 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * @return
 	 */
 	private void completeEvent(UUID eventId, UUID transactionId) {
+		LOG.trace("Event [{}] with transaction id [{}] completed.", eventId, transactionId);
+		//
 		lock.lock();
 		try {
-			if (removeEventCache(eventId, transactionId)) {				
-				LOG.info("Event [{}] with transaction id [{}] is processed completely", eventId, transactionId);
+			if (removeEventCache(eventId, transactionId)) {	
+				LOG.info("Event [{}] with transaction id [{}] is processed completely.", eventId, transactionId);
 				if (lrts.containsKey(transactionId) 
 						&& lrts.get(transactionId).stream().allMatch(lrt -> lrt.getResult() != null)) {
 					List<LongRunningTaskExecutor<?>> longRunningTaskExecutors = lrts.remove(transactionId);
 					//
 					longRunningTaskExecutors.forEach(lrt -> {
 						notifiedLrts.put(lrt.getLongRunningTaskId(), Boolean.TRUE);
-						lrt.notifyEnd();
+						//
+						publishEvent(new NotifyLongRunningTaskEvent(lrt));
 					});
 				}
 			}
 		} finally {
 			lock.unlock();
 		}
+	}
+	
+	/**
+	 * Registered tasks have to be notified after all other events are commited.
+	 * 
+	 * @param event
+	 * @since 10.8.2
+	 * @since 11.0.0
+	 */
+	@TransactionalEventListener(fallbackExecution = true)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void notifyLongRunningTask(NotifyLongRunningTaskEvent event) {
+		event.getLrt().notifyEnd();
 	}
 	
 	/**
@@ -1446,6 +1463,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@SuppressWarnings("unchecked")
 	private void addEventCache(UUID eventId, UUID transactionId) {
 		Assert.notNull(eventId, "Event has to be asynchronous (~persisted).");
+		LOG.trace("Add event [{}] into cache under transaction [{}].", eventId, transactionId);
 		//
 		lock.lock();
 		try {			
@@ -1477,6 +1495,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 */
 	@SuppressWarnings("unchecked")
 	private boolean removeEventCache(UUID eventId, UUID transactionId) {
+		LOG.trace("Remove event [{}] from cache under transaction [{}].", eventId, transactionId);
 		if (transactionId == null) {
 			return false;
 		}
@@ -1495,5 +1514,27 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		//
 		cacheManager.evictValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
 		return true; // => asynchronous transaction is processed completely
+	}
+	
+	/**
+	 * Internal dto - notify LRT about user transaction is completed.
+	 * 
+	 * @author Radek Tomiška
+	 * @since 10.8.2 
+	 * @since 11.0.0
+	 */
+	private class NotifyLongRunningTaskEvent {
+		
+		private final LongRunningTaskExecutor<?> lrt;
+		
+		public NotifyLongRunningTaskEvent(LongRunningTaskExecutor<?> lrt) {
+			Assert.notNull(lrt, "Executor is required.");
+			//
+			this.lrt = lrt;
+		}
+		
+		public LongRunningTaskExecutor<?> getLrt() {
+			return lrt;
+		}
 	}
 }

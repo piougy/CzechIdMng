@@ -296,6 +296,7 @@ public class DefaultIdmConceptRoleRequestService extends
 	}
 
 	@Override
+	@Transactional
 	public void deleteInternal(IdmConceptRoleRequestDto dto) {
 		formService.deleteValues(dto);
 		this.cancelWF(dto);

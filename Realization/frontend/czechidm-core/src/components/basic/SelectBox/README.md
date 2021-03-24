@@ -39,7 +39,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 
 ### Select
 ```html
-<Advanced.SelectBox ref="selectComponent"
+<Basic.SelectBox ref="selectComponent"
      label="Select box test"
      manager={identityManager}
      placeholder="Select user ..."
@@ -50,7 +50,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 ### Multi select
 
 ```html
-<Advanced.SelectBox
+<Basic.SelectBox
   ref="selectBoxMulti"
   label="Select box multi"
   service={identityService}
@@ -64,7 +64,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 ### Custom page size
 
 ```html
-<Advanced.SelectBox
+<Basic.SelectBox
   ref="role"
   placeholder="Select role or type for search ..."
   manager={ roleManager }

@@ -181,10 +181,18 @@ public class MsAdMappingIdentityAutoAttributesProcessor extends AbstractSystemMa
 
 		// Ldap groups (Merge)
 		schemaAttributeFilter.setName(AdUserConnectorType.LDAP_GROUPS_ATTRIBUTE);
-		schemaAttributeService.find(schemaAttributeFilter, null)
+		SysSchemaAttributeDto ldapGroupsSchemaAttribute = schemaAttributeService.find(schemaAttributeFilter, null)
 				.stream()
 				.findFirst()
-				.ifPresent(ldapGroupsAttribute -> createAttributeMappingBySchemaAttribute(dto, ldapGroupsAttribute, null, false));
+				.orElse(null);
+
+		if (ldapGroupsSchemaAttribute != null) {
+			SysSystemAttributeMappingDto ldapGroupsAttribute = createAttributeMappingBySchemaAttribute(dto, ldapGroupsSchemaAttribute, null, false);
+			if (ldapGroupsAttribute != null) {
+				ldapGroupsAttribute.setStrategyType(AttributeMappingStrategyType.MERGE);
+				systemAttributeMappingService.save(ldapGroupsAttribute);
+			}
+		}
 
 		// DN attribute ("__NAME__"). Use the getDefaultDN script.
 		SysSchemaAttributeDto dnAttribute = getSchemaAttributeByCatalogue(schemaAttributes, this.getDNCode());

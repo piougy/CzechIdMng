@@ -1555,7 +1555,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * @since 10.8.2 
 	 * @since 11.0.0
 	 */
-	private class NotifyLongRunningTaskEvent {
+	private static class NotifyLongRunningTaskEvent {
 		
 		private final LongRunningTaskExecutor<?> lrt;
 		

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security.api.service;
+package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;

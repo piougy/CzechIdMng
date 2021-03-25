@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
@@ -47,15 +48,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
@@ -72,7 +69,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
-import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import java.util.List;
 import java.util.UUID;
@@ -134,10 +130,6 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 	private IdmNotificationLogService notificationLogService;
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
-	@Autowired
-	private IdmRoleTreeNodeService roleTreeNodeService;
-	@Autowired
-	private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 
 	@Before
 	public void init() {
@@ -175,13 +167,7 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 		}
 
 		// Workaround ... manual delete of all automatic roles, sync, mappings ... because previous test did not make a delete.
-		// Delete all business roles.
-		roleTreeNodeService.deleteAll(roleTreeNodeService.find(new IdmRoleTreeNodeFilter(), null).getContent());
-		automaticRoleAttributeService.deleteAll(automaticRoleAttributeService.find(new IdmRoleTreeNodeFilter(), null).getContent());
-		// Delete all syncs.
-		syncConfigService.deleteAll(syncConfigService.find(new SysSyncConfigFilter(), null).getContent());
-		// Delete all mappings.
-		systemMappingService.deleteAll(systemMappingService.find(new SysSystemMappingFilter(), null).getContent());
+		helper.cleaner();
 		// Delete data in target table.
 		helper.deleteAllResourceData();
 
@@ -441,14 +427,9 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 			Assert.assertTrue(config instanceof SysSyncContractConfigDto);
 
 			SysSystemDto targetSystemOne = helper.createTestResourceSystem(true);
-			System.out.println("SystemOne!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + targetSystemOne.getCode());
 			// Create system two with account suffix "_targetSystemTwo".
 			String targetSystemTwoSuffix = "_targetSystemTwo";
 			SysSystemDto targetSystemTwo = helper.createTestResourceSystem(true);
-
-			System.out.println("SystemTwoo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + targetSystemTwo.getCode());
-
-			System.out.println("Systemcon!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + contractSystem.getCode());
 			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(targetSystemTwo.getId(), SystemEntityType.IDENTITY);
 			List<SysSystemAttributeMappingDto> attributeMappingDtos = schemaAttributeMappingService.findBySystemMapping(provisioningMapping);
 			SysSystemAttributeMappingDto uidAttribute = schemaAttributeMappingService.getUidAttribute(attributeMappingDtos, targetSystemTwo);

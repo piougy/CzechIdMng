@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
-import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
+import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 
 /**
  * Synchronization schedule task

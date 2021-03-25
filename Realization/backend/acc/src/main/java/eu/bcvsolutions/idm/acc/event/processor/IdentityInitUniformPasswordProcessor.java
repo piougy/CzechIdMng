@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
+import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 
 /**
  * Init uniform password for identity.
@@ -68,7 +68,7 @@ public class IdentityInitUniformPasswordProcessor
 
 		IdmLongRunningTaskFilter longRunningTaskFilter = new IdmLongRunningTaskFilter();
 		longRunningTaskFilter.setTransactionId(transactionId);
-		longRunningTaskFilter.setRunning(true);
+		longRunningTaskFilter.setRunning(Boolean.TRUE);
 		// TODO: Check only for contract sync?
 		longRunningTaskFilter.setTaskType(SynchronizationSchedulableTaskExecutor.class.getCanonicalName());
 		long count = longRunningTaskService.count(longRunningTaskFilter);

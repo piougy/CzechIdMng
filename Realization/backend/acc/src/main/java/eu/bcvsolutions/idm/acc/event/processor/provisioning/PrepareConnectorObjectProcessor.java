@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
-import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
+import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Collection;

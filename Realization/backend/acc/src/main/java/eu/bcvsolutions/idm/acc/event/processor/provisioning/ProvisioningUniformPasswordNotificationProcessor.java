@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
+import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;

@@ -206,4 +206,8 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType, int count,
 			OperationResultType resultType);
 
+	/**
+	 * Manual delete. Because previous tests didn't make a delete well.
+	 */
+	void cleaner();
 }

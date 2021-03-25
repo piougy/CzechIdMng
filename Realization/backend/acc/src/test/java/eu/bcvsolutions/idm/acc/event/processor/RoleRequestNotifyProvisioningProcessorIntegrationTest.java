@@ -1,8 +1,14 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +64,13 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
+	@Autowired private TestHelper helper;
+
+	@Before
+	public void init() {
+		// Workaround ... manual delete of all automatic roles, sync, mappings ... Because previous tests didn't make a delete well.
+		helper.cleaner();
+	}
 	
 	@Test
 	public void testAssignSubRolesByRequestAsync() {

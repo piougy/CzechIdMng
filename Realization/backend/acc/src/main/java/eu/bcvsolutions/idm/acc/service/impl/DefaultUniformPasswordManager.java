@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security.service.impl;
+package eu.bcvsolutions.idm.acc.service.impl;
 
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Lists;
@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.service.UniformPasswordManager;
+import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -66,15 +66,16 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 		
 		IdmEntityStateDto entityState = this.getEntityState(entityDto.getId(), entityDto.getClass(), transactionId);
 		if (entityState == null) {
+			String entityString = entityDto.toString();
 			Map<String, Serializable> properties = new HashMap<>();
-			properties.put("entity", entityDto.toString());
+			properties.put("entity", entityString);
 			entityState = entityStateManager.createState(
 					entityDto,
 					OperationState.BLOCKED,
 					CoreResultCode.IDENTITY_UNIFORM_PASSWORD,
 					properties
 			);
-			LOG.debug("Uniform password entity state for entity [{}] and transaction [{}] created.", entityDto.toString(), transactionId);
+			LOG.debug("Uniform password entity state for entity [{}] and transaction [{}] created.", entityString, transactionId);
 		}
 		return entityState;
 	}
@@ -128,7 +129,7 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 			// The uniform password was used, we need to mark it. 
 			Map<String, Object> parameters = entityStateDto.getResult().getModel().getParameters();
 			HashMap<String, Object> newParameters = Maps.newHashMap(parameters);
-			newParameters.put(PASSWORD_USED, true);
+			newParameters.put(PASSWORD_USED, Boolean.TRUE);
 			entityStateDto.getResult().setModel(new DefaultResultModel(CoreResultCode.IDENTITY_UNIFORM_PASSWORD, newParameters));
 			entityStateManager.saveState(null, entityStateDto);
 			

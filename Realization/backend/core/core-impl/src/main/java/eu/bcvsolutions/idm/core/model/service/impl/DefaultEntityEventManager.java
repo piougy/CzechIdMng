@@ -1474,7 +1474,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	}
 	
 	/**
-	 * Registered tasks have to be notified after all other events are commited.
+	 * Registered tasks have to be notified after all other events are committed.
 	 * 
 	 * @param event
 	 * @since 10.8.2

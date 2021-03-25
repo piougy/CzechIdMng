@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.acc;
 
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -96,6 +100,8 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@Autowired private SysSyncConfigService syncConfigService;
 	@Autowired private SysSyncItemLogService syncItemLogService;
 	@Autowired private SysSyncActionLogService syncActionLogService;
+	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
+	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -446,5 +452,20 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		}
 		//
 		return columnName;
+	}
+
+
+	/**
+	 * Manual delete of all automatic roles, sync, mappings. Because previous tests didn't make a delete well.
+	 */
+	@Override
+	public void cleaner() {
+		// Delete all automatic roles.
+		roleTreeNodeService.deleteAll(roleTreeNodeService.find(new IdmRoleTreeNodeFilter(), null).getContent());
+		automaticRoleAttributeService.deleteAll(automaticRoleAttributeService.find(new IdmRoleTreeNodeFilter(), null).getContent());
+		// Delete all syncs.
+		syncConfigService.deleteAll(syncConfigService.find(new SysSyncConfigFilter(), null).getContent());
+		// Delete all mappings.
+		systemMappingService.deleteAll(systemMappingService.find(new SysSystemMappingFilter(), null).getContent());
 	}
 }

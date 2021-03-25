@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.service.CodeableService;
  * @param <DTO> {@link BaseDto} type
  * @author Radek Tomiška
  */
-public class CodeableDtoLookup<DTO extends BaseDto> extends AbstractDtoLookup<DTO>{
+public class CodeableDtoLookup<DTO extends BaseDto> extends AbstractDtoLookup<DTO> {
 	
 	private CodeableService<DTO> service;
 	

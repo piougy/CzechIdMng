@@ -23,6 +23,12 @@ public interface FormableFilter extends BaseDataFilter {
 	 * @since 10.3.0
 	 */
 	String PARAMETER_FORM_DEFINITON_ATTRIBUTES = "formDefinitionAttributes";
+	/**
+	 * Load system (internal) form definition for owner type basic fields for validations and additional configurations.
+	 * 
+	 * @since 11.0.0
+	 */
+	String PARAMETER_ADD_BASIC_FIELDS = "addBasicFields";
 	
 	/**
 	 * Load extended attributes after filter is applied. 
@@ -62,4 +68,24 @@ public interface FormableFilter extends BaseDataFilter {
 	default void setFormDefinitionAttributes(List<FormDefinitionAttributes> attributes) {
     	put(PARAMETER_FORM_DEFINITON_ATTRIBUTES, attributes);
     }
+	
+	/**
+	 * Load system (internal) form definition for owner type basic fields for validations and additional configurations.
+	 * 
+	 * @return true - append basic fields form definition
+	 * @since 11.0.0
+	 */
+	default boolean isAddBasicFields() {
+		return getParameterConverter().toBoolean(getData(), PARAMETER_ADD_BASIC_FIELDS, false);
+	}
+	
+	/**
+	 * Load system (internal) form definition for owner type basic fields for validations and additional configurations.
+	 * 
+	 * @param addBasicFields true - append basic fields form definition
+	 * @since 11.0.0
+	 */
+	default void setAddBasicFields(boolean addBasicFields) {
+		set(PARAMETER_ADD_BASIC_FIELDS, addBasicFields);
+	}
 }

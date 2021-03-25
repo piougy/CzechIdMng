@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.projection.IdmIdentityProjectionDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.exception.InvalidFormException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -58,6 +60,9 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -1354,5 +1359,173 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 			getHelper().deleteIdentity(identityId);
 		}
+	}
+	
+	@Test
+	@Transactional
+	public void testValidateBasicFields() throws Exception {
+		// prepare projection
+		IdmFormProjectionDto formProjection = new IdmFormProjectionDto();
+		formProjection.setCode(getHelper().createName());
+		formProjection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		formProjection.getProperties().put(IdentityFormProjectionRoute.PARAMETER_ALL_CONTRACTS, true);
+		IdmFormAttributeDto attributeExternalCode = new IdmFormAttributeDto();
+		attributeExternalCode.setId(UUID.randomUUID());
+		attributeExternalCode.setCode(IdmIdentity_.externalCode.getName());
+		attributeExternalCode.setName(String.format("%s.%s", IdmIdentity.class.getSimpleName(), IdmIdentity_.externalCode.getName()));
+		attributeExternalCode.setRequired(true);
+		IdmFormAttributeDto attributeLastName = new IdmFormAttributeDto();
+		attributeLastName.setId(UUID.randomUUID());
+		attributeLastName.setCode(IdmIdentity_.lastName.getName());
+		attributeLastName.setMax(BigDecimal.valueOf(3));
+		IdmFormAttributeDto attributeValidTill = new IdmFormAttributeDto();
+		attributeValidTill.setId(UUID.randomUUID());
+		attributeValidTill.setCode(IdmIdentityContract_.validTill.getName());
+		attributeValidTill.setName(String.format("%s.%s", 
+				IdmIdentityContract.class.getSimpleName(), IdmIdentityContract_.validTill.getName()));
+		attributeValidTill.setRequired(true);
+		attributeValidTill.setMax(BigDecimal.valueOf(3));
+		IdmFormAttributeDto attributeWorkPosition = new IdmFormAttributeDto();
+		attributeWorkPosition.setId(UUID.randomUUID());
+		attributeWorkPosition.setCode(IdmIdentityContract_.workPosition.getName());
+		attributeWorkPosition.setName(String.format("%s.%s", 
+				IdmIdentityContract.class.getSimpleName(), IdmIdentityContract_.workPosition.getName()));
+		attributeWorkPosition.setRequired(true);
+		
+		formProjection.setFormValidations(mapper.writeValueAsString(Lists.newArrayList(
+				attributeExternalCode, attributeLastName, attributeValidTill, attributeWorkPosition)));
+		formProjection = projectionService.save(formProjection);
+		//
+		// create identity with projection is defined
+		IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
+		identity.setExternalCode(getHelper().createName());
+		identity.setLastName("xxx");
+		identity.setFormProjection(formProjection.getId());
+		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
+		//
+		// set contract
+		IdmIdentityContractDto primeContract = new IdmIdentityContractDto();
+		primeContract.setMain(true);
+		primeContract.setWorkPosition(getHelper().createTreeNode().getId());
+		primeContract.setPosition(getHelper().createName());
+		primeContract.setValidFrom(LocalDate.now().minus(1l, ChronoUnit.DAYS));
+		primeContract.setValidTill(LocalDate.now().plus(3l, ChronoUnit.DAYS));
+		projection.setContract(primeContract);
+		//
+		IdentityProjectionEvent identityProjectionEvent = new IdentityProjectionEvent(IdentityProjectionEventType.CREATE, projection);
+		identityProjectionEvent.setPriority(PriorityType.IMMEDIATE);
+		projection = manager
+				.publish(identityProjectionEvent)
+				.getContent();
+		IdmIdentityProjectionDto createdProjection = manager.get(projection);
+		//
+		Assert.assertNotNull(createdProjection);
+		Assert.assertNotNull(createdProjection.getId());
+		Assert.assertEquals(createdProjection.getId(), createdProjection.getIdentity().getId());
+		//
+		// prime contract
+		IdmIdentityContractDto createdPrimeContract = createdProjection.getContract();
+		Assert.assertEquals(primeContract.getWorkPosition(), createdPrimeContract.getWorkPosition());
+		Assert.assertEquals(primeContract.getPosition(), createdPrimeContract.getPosition());
+		Assert.assertEquals(primeContract.getValidFrom(), createdPrimeContract.getValidFrom());
+		Assert.assertEquals(primeContract.getValidTill(), createdPrimeContract.getValidTill());
+		Assert.assertEquals(createdProjection.getIdentity().getId(), createdPrimeContract.getIdentity());
+	}
+	
+	@Transactional
+	@Test(expected = InvalidFormException.class)
+	public void testValidateBasicFieldsIdentityFailed() throws Exception {
+		// prepare projection
+		IdmFormProjectionDto formProjection = new IdmFormProjectionDto();
+		formProjection.setCode(getHelper().createName());
+		formProjection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		formProjection.getProperties().put(IdentityFormProjectionRoute.PARAMETER_ALL_CONTRACTS, true);
+		IdmFormAttributeDto attributeExternalCode = new IdmFormAttributeDto();
+		attributeExternalCode.setId(UUID.randomUUID());
+		attributeExternalCode.setCode(IdmIdentity_.externalCode.getName());
+		attributeExternalCode.setName(String.format("%s.%s", IdmIdentity.class.getSimpleName(), IdmIdentity_.externalCode.getName()));
+		attributeExternalCode.setRequired(true);
+		IdmFormAttributeDto attributeLastName = new IdmFormAttributeDto();
+		attributeLastName.setId(UUID.randomUUID());
+		attributeLastName.setCode(IdmIdentity_.lastName.getName());
+		attributeLastName.setMax(BigDecimal.valueOf(3));
+		IdmFormAttributeDto attributeValidTill = new IdmFormAttributeDto();
+		attributeValidTill.setId(UUID.randomUUID());
+		attributeValidTill.setCode(IdmIdentityContract_.validTill.getName());
+		attributeValidTill.setName(String.format("%s.%s", 
+				IdmIdentityContract.class.getSimpleName(), IdmIdentityContract_.validTill.getName()));
+		attributeValidTill.setRequired(true);
+		attributeValidTill.setMax(BigDecimal.valueOf(3));
+		
+		formProjection.setFormValidations(mapper.writeValueAsString(Lists.newArrayList(
+				attributeExternalCode, attributeLastName, attributeValidTill)));
+		formProjection = projectionService.save(formProjection);
+		//
+		// create identity with projection is defined
+		IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
+		identity.setExternalCode(getHelper().createName());
+		identity.setLastName("xxxx");
+		identity.setFormProjection(formProjection.getId());
+		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
+		//
+		// set contract
+		IdmIdentityContractDto primeContract = new IdmIdentityContractDto();
+		primeContract.setMain(true);
+		primeContract.setWorkPosition(getHelper().createTreeNode().getId());
+		primeContract.setPosition(getHelper().createName());
+		primeContract.setValidFrom(LocalDate.now().minus(1l, ChronoUnit.DAYS));
+		primeContract.setValidTill(LocalDate.now().plus(3l, ChronoUnit.DAYS));
+		projection.setContract(primeContract);
+		//
+		IdentityProjectionEvent identityProjectionEvent = new IdentityProjectionEvent(IdentityProjectionEventType.CREATE, projection);
+		identityProjectionEvent.setPriority(PriorityType.IMMEDIATE);
+		manager.publish(identityProjectionEvent);
+	}
+	
+	@Transactional
+	@Test(expected = InvalidFormException.class)
+	public void testValidateBasicFieldsContractFailed() throws Exception {
+		// prepare projection
+		IdmFormProjectionDto formProjection = new IdmFormProjectionDto();
+		formProjection.setCode(getHelper().createName());
+		formProjection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		formProjection.getProperties().put(IdentityFormProjectionRoute.PARAMETER_ALL_CONTRACTS, true);
+		IdmFormAttributeDto attributeExternalCode = new IdmFormAttributeDto();
+		attributeExternalCode.setCode(IdmIdentity_.externalCode.getName());
+		attributeExternalCode.setName(String.format("%s.%s", IdmIdentity.class.getSimpleName(), IdmIdentity_.externalCode.getName()));
+		attributeExternalCode.setRequired(true);
+		IdmFormAttributeDto attributeLastName = new IdmFormAttributeDto();
+		attributeLastName.setCode(IdmIdentity_.lastName.getName());
+		attributeLastName.setMax(BigDecimal.valueOf(3));
+		IdmFormAttributeDto attributeValidTill = new IdmFormAttributeDto();
+		attributeValidTill.setCode(IdmIdentityContract_.validTill.getName());
+		attributeValidTill.setName(String.format("%s.%s", 
+				IdmIdentityContract.class.getSimpleName(), IdmIdentityContract_.validTill.getName()));
+		attributeValidTill.setRequired(true);
+		attributeValidTill.setMax(BigDecimal.valueOf(3));
+		
+		formProjection.setFormValidations(mapper.writeValueAsString(Lists.newArrayList(
+				attributeExternalCode, attributeLastName, attributeValidTill)));
+		formProjection = projectionService.save(formProjection);
+		//
+		// create identity with projection is defined
+		IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
+		identity.setExternalCode(getHelper().createName());
+		identity.setLastName("xxx");
+		identity.setFormProjection(formProjection.getId());
+		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
+		//
+		// set contract
+		IdmIdentityContractDto primeContract = new IdmIdentityContractDto();
+		primeContract.setMain(true);
+		primeContract.setWorkPosition(getHelper().createTreeNode().getId());
+		primeContract.setPosition(getHelper().createName());
+		primeContract.setValidFrom(LocalDate.now().minus(1l, ChronoUnit.DAYS));
+		primeContract.setValidTill(LocalDate.now().plus(4l, ChronoUnit.DAYS));
+		projection.setContract(primeContract);
+		//
+		IdentityProjectionEvent identityProjectionEvent = new IdentityProjectionEvent(IdentityProjectionEventType.CREATE, projection);
+		identityProjectionEvent.setPriority(PriorityType.IMMEDIATE);
+		manager.publish(identityProjectionEvent);
 	}
 }

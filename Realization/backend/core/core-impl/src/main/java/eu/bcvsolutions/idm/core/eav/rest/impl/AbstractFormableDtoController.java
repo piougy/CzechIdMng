@@ -58,7 +58,8 @@ public abstract class AbstractFormableDtoController<DTO extends FormableDto, F e
 			@PathVariable @NotNull String backendId) {
 		return formDefinitionController.getDefinitions(
 				getService().getDtoClass(), 
-				IdmBasePermission.AUTOCOMPLETE);
+				IdmBasePermission.AUTOCOMPLETE
+		);
 	}
 	
 	@Override

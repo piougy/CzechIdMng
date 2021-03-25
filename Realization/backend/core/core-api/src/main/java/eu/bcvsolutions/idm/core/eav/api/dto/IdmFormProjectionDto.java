@@ -35,6 +35,7 @@ public class IdmFormProjectionDto
 	private boolean disabled;
 	private String basicFields;
 	private String formDefinitions;
+	private String formValidations; // @since 11.0.0
 	private ConfigurationMap properties;
 	
 	@Override
@@ -148,5 +149,27 @@ public class IdmFormProjectionDto
 	 */
 	public void setProperties(ConfigurationMap properties) {
 		this.properties = properties;
+	}
+	
+	/**
+	 * Overriden form attribute validations.
+	 * Json representation - [ { id, basicField, code, formDefinition, required, min, max, regex, readOnly } ].
+	 * 
+	 * @return configured validations
+	 * @since 11.0.0
+	 */
+	public String getFormValidations() {
+		return formValidations;
+	}
+	
+	/**
+	 * Overriden form attribute validations.
+	 * Json representation - [ { id, basicField, code, formDefinition, required, min, max, regex, readOnly } ].
+	 * 
+	 * @param formValidations configured validations
+	 * @since 11.0.0
+	 */
+	public void setFormValidations(String formValidations) {
+		this.formValidations = formValidations;
 	}
 }

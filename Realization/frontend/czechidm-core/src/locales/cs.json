@@ -4379,9 +4379,41 @@
         }
       },
       "basicFields": {
-        "label": "Základní atributy",
+        "label": "Základní atributy uživatele",
         "help": "Základní atributy uživatele, které budou zobrazeny. Všechny atributy budou zobrazeny, pokud není zadáno.",
         "placeholder": "Všechny základní atributy nebo vyberte ..."
+      },
+      "basicContractFields": {
+        "label": "Základní atributy kontraktu",
+        "help": "Základní atributy kontraktu, které budou zobrazeny. Všechny podporované atributy budou zobrazeny, pokud není zadáno.",
+        "placeholder": "Všechny podporované základní atributy nebo vyberte ..."
+      },
+      "formValidations": {
+        "label": "Validace základních atributů formuláře",
+        "help": "Validace základních atributů nejsou pro projekci definovány.",
+        "placeholder": "Vyberte základní atribut formuláře ...",
+        "attribute": {
+          "label": "Atribut",
+          "help": "Definovat validaci pro podporované základní atributy uživatele a kontraktu."
+        },
+        "button": {
+          "add": {
+            "label": "Přidat validaci",
+            "title": "Přidat validaci základního atributu formuláře pro projekci formuláře"
+          },
+          "remove": {
+            "title": "Odebrat validaci"
+          }
+        },
+        "create": {
+          "header": "Přidat validaci",
+          "message": {
+            "contains": "Validace pro zadaný atribut je již nastavena."
+          }
+        },
+        "edit": {
+          "header": "Upravit validaci"
+        }
       },
       "properties": {
         "label": "Nastavení",
@@ -4429,6 +4461,7 @@
       }
     },
     "FormAttribute" : {
+      "_type": "Atribut formuláře",
       "code": {
         "label": "Kód",
         "help": "Klíč atributu."
@@ -4489,6 +4522,30 @@
         "short": "Max",
         "label": "Maximální hodnota",
         "title": "Maximální hodnota"
+      },
+      "minDate": {
+        "short": "Min",
+        "label": "Minimální datum ve dnech",
+        "title": "Počet dní vztažený od aktuálního data.",
+        "help": "Počet dní vztažený od aktuálního data."
+      },
+      "maxDate": {
+        "short": "Max",
+        "label": "Maximální datum ve dnech",
+        "title": "Počet dní vztažený od aktuálního data.",
+        "help": "Počet dní vztažený od aktuálního data."
+      },
+      "minLength": {
+        "short": "Min",
+        "label": "Minimální počet znaků",
+        "title": "Minimální počet znaků.",
+        "help": ""
+      },
+      "maxLength": {
+        "short": "Max",
+        "label": "Maximální počet znaků",
+        "title": "Maximální počet znaků.",
+        "help": ""
       },
       "validationMessage": {
         "label": "Validační zpráva",
@@ -7252,6 +7309,10 @@
     "FORM_VALUE_DELETE_FAILED_IS_REQUIRED": {
       "title": "Hodnoty nelze smazat",
       "message": "Hodnoty [počet: <strong class=\"highlight\">{{count}}</strong>] atributu [<strong class=\"highlight\">{{attribute}}</strong>] nelze smazat, atribut formuláře je definován jako povinný. Upravte definici atributu, pokud je třeba hodnoty smazat."
+    },
+    "FORM_PROJECTION_WRONG_VALIDATION_CONFIGURATION": {
+      "title": "Chybná konfigurace projekce",
+      "message": "V projekci formuláře [{{formProjection}}] jsou chybně nakonfiguravané validace. Opravte konfiguraci validací v projekci."
     },
     "ACCEPTED": {
       "title": "Požadavek přijat",

@@ -4326,9 +4326,41 @@
         }
       },
       "basicFields": {
-        "label": "Basic attributes",
-        "help": "Basic user attributes to show. All basic user attributes.",
+        "label": "Basic attributes for user",
+        "help": "Basic user attributes to show. All basic user attributes will be shown by default.",
         "placeholder": "All basic attributes or select ..."
+      },
+      "basicContractFields": {
+        "label": "Basic attributes for contract",
+        "help": "Basic contract attributes to show. All supported basic contract attributes will be shown by default.",
+        "placeholder": "All supported basic attributes or select ..."
+      },
+      "formValidations": {
+        "label": "Basic attributes validation",
+        "help": "Validations for shown basic attributes.",
+        "placeholder": "Select basic attribute ...",
+        "attribute": {
+          "label": "Attribute",
+          "help": "Definovat validaci pro podporované základní atributy uživatele a kontraktu."
+        },
+        "button": {
+          "add": {
+            "label": "Přidat validaci",
+            "title": "Přidat validaci základního atributu formuláře pro projekci formuláře"
+          },
+          "remove": {
+            "title": "Odebrat validaci"
+          }
+        },
+        "create": {
+          "header": "Přidat validaci",
+          "message": {
+            "contains": "Validace pro zadaný atribut je již nastavena."
+          }
+        },
+        "edit": {
+          "header": "Upravit validaci"
+        }
       },
       "properties": {
         "label": "Properties",
@@ -4376,6 +4408,7 @@
       }
     },
     "FormAttribute" : {
+      "_type": "Form attribute",
       "code": {
         "label": "Code",
         "help": "Attribute key."
@@ -4436,6 +4469,30 @@
         "short": "Max",
         "label": "Maximum value",
         "title": "Maximum value"
+      },
+      "minDate": {
+        "short": "Min",
+        "label": "Minimum date in days",
+        "title": "Number of days related to current date.",
+        "help": "Number of days related to current date."
+      },
+      "maxDate": {
+        "short": "Max",
+        "label": "Maximum date in days",
+        "title": "Number of days related to current date.",
+        "help": "Number of days related to current date."
+      },
+      "minLength": {
+        "short": "Min",
+        "label": "Minimum character length",
+        "title": "Minimum character length.",
+        "help": ""
+      },
+      "maxLength": {
+        "short": "Max",
+        "label": "Maximum character length",
+        "title": "Maximum character length.",
+        "help": ""
       },
       "validationMessage": {
         "label": "Validation message",
@@ -7200,6 +7257,10 @@
     "FORM_VALUE_DELETE_FAILED_IS_REQUIRED": {
       "title": "Values cannot be deleted",
       "message": "Values [count: <strong class=\"highlight\">{{count}}</strong>] of attribute [<strong class=\"highlight\">{{attribute}}</strong>] cannot be deleted, attribute is defined as required. Change form attribute definition if values are needed to be removed."
+    },
+    "FORM_PROJECTION_WRONG_VALIDATION_CONFIGURATION": {
+      "title": "Projection has wrong configuration",
+      "message": "Form projection [{{formProjection}}] is wrongly configured. Fix configured form validations."
     },
     "ACCEPTED": {
       "title": "Request added",

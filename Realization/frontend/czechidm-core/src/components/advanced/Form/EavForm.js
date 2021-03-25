@@ -81,7 +81,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
     //
     if (formComponent) {
       formComponent.focus();
+      return true;
     }
+    // component not found
+    return false;
   }
 
   /**

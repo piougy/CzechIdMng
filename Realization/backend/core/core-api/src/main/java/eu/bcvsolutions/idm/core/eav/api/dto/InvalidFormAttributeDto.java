@@ -21,7 +21,8 @@ public class InvalidFormAttributeDto extends AbstractDto {
 
 	private Serializable ownerId; // UUID in most cases, but Identifiable is supported.
 	private String ownerType;
-	private String attributeCode;
+	private String attributeCode; // form attribute code
+	private String definitionCode; // form definiton code
 	//
 	// error states - filled, when validation not pass
 	private boolean missingValue = false;
@@ -178,5 +179,25 @@ public class InvalidFormAttributeDto extends AbstractDto {
 		}
 		//
 		return result.toString();
+	}
+	
+	/**
+	 * Related form definition code - more definitions can be validated.
+	 * 
+	 * @return form definition code
+	 * @since 11.0.0
+	 */
+	public String getDefinitionCode() {
+		return definitionCode;
+	}
+	
+	/**
+	 * Related form definition code - more definitions can be validated.
+	 * 
+	 * @param definitionCode form definition code
+	 * @since 11.0.0
+	 */
+	public void setDefinitionCode(String definitionCode) {
+		this.definitionCode = definitionCode;
 	}
 }

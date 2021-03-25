@@ -21,6 +21,7 @@ import PasswordField from './PasswordField/PasswordField';
 import ProgressBar from './ProgressBar/ProgressBar';
 import RichTextArea from './RichTextArea/RichTextArea';
 import AbstractTableContent from './Content/AbstractTableContent';
+import AbstractFormableContent from './Content/AbstractFormableContent';
 import EntityInfo from './EntityInfo/EntityInfo';
 import AbstractEntityInfo from './EntityInfo/AbstractEntityInfo';
 import UuidInfo from './UuidInfo/UuidInfo';
@@ -96,6 +97,7 @@ const Components = {
   PasswordField,
   RichTextArea,
   AbstractTableContent,
+  AbstractFormableContent,
   EntityInfo,
   AbstractEntityInfo,
   UuidInfo,
@@ -146,5 +148,5 @@ const Components = {
   CodeableField
 };
 
-Components.version = '10.8.0';
+Components.version = '11.0.0';
 module.exports = Components;

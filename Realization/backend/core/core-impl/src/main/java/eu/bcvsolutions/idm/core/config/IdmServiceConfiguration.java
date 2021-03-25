@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookupByExample;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
+import eu.bcvsolutions.idm.core.api.rest.lookup.FormProjectionLookup;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
@@ -242,6 +243,7 @@ public class IdmServiceConfiguration {
 	@Autowired private List<? extends EntityLookup<?>> entityLookups;
 	@Autowired private List<? extends DtoLookup<?>> dtoLookups;
 	@Autowired private List<? extends DtoLookupByExample<?>> dtoLookupByExamples;
+	@Autowired private List<? extends FormProjectionLookup<?>> formProjectionLookups;
 
 	/**
 	 * Crypt service for confidential storage
@@ -585,7 +587,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(FormProjectionManager.class)
 	public FormProjectionManager formProjectionManager() {
-		return new DefaultFormProjectionManager();
+		return new DefaultFormProjectionManager(formProjectionLookups);
 	}
 	
 	/**

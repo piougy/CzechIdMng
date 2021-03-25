@@ -1546,6 +1546,148 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		validationErrors = formService.validate(formInstance);
 		Assert.assertTrue(validationErrors.isEmpty());
 	}
+	
+	@Test
+	public void testMinMaxStringValidation() {
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attributeShortText = new IdmFormAttributeDto();
+		String attributeShortTextCode = getHelper().createName();
+		attributeShortText.setCode(attributeShortTextCode);
+		attributeShortText.setName(attributeShortTextCode);
+		attributeShortText.setPersistentType(PersistentType.SHORTTEXT);
+		attributeShortText.setMin(new BigDecimal("3"));
+		attributeShortText.setMax(new BigDecimal("5"));
+		IdmFormAttributeDto attributeText = new IdmFormAttributeDto();
+		String attributeTextCode = getHelper().createName();
+		attributeText.setCode(attributeTextCode);
+		attributeText.setName(attributeTextCode);
+		attributeText.setPersistentType(PersistentType.TEXT);
+		attributeText.setMin(new BigDecimal("6"));
+		attributeText.setMax(new BigDecimal("8"));
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attributeShortText, attributeText));
+		attributeShortText = formDefinitionOne.getMappedAttributeByCode(attributeShortText.getCode());
+		attributeText = formDefinitionOne.getMappedAttributeByCode(attributeText.getCode());
+		//
+		IdmFormValueDto valueShortText = new IdmFormValueDto(attributeShortText);
+		IdmFormValueDto valueText = new IdmFormValueDto(attributeText);
+		//
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+		formInstance.setFormDefinition(formDefinitionOne);
+		formInstance.setValues(Lists.newArrayList(valueShortText, valueText));
+		//
+		List<InvalidFormAttributeDto> validationErrors = formService.validate(formInstance);
+		//
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		valueShortText.setShortTextValue("xx");
+		valueText.setStringValue("xxxxx");
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(2, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getMinValue() != null));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMinValue().equals(new BigDecimal("3"))
+				&& e.getAttributeCode().equals(attributeShortTextCode)));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMinValue().equals(new BigDecimal("6"))
+				&& e.getAttributeCode().equals(attributeTextCode)));
+		//
+		valueShortText.setShortTextValue("xxxxxx");
+		valueText.setStringValue("xxxxxxxxx");
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(2, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getMaxValue() != null));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMaxValue().equals(new BigDecimal("5"))
+				&& e.getAttributeCode().equals(attributeShortTextCode)));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMaxValue().equals(new BigDecimal("8"))
+				&& e.getAttributeCode().equals(attributeTextCode)));
+		//
+		valueShortText.setShortTextValue("xxxxx");
+		valueText.setStringValue("xxxxxxxx");
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		valueShortText.setShortTextValue("xxx");
+		valueText.setStringValue("xxxxxx");
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+	}
+	
+	@Test
+	public void testMinMaxDateValidation() {
+		ZonedDateTime now = ZonedDateTime.now();
+		
+		// prepare form definition a test saving form values
+		IdmFormAttributeDto attributeDate = new IdmFormAttributeDto();
+		String attributeDateCode = getHelper().createName();
+		attributeDate.setCode(attributeDateCode);
+		attributeDate.setName(attributeDateCode);
+		attributeDate.setPersistentType(PersistentType.DATE);
+		attributeDate.setMin(new BigDecimal("3"));
+		attributeDate.setMax(new BigDecimal("5"));
+		IdmFormAttributeDto attributeDateTime = new IdmFormAttributeDto();
+		String attributeDateTimeCode = getHelper().createName();
+		attributeDateTime.setCode(attributeDateTimeCode);
+		attributeDateTime.setName(attributeDateTimeCode);
+		attributeDateTime.setPersistentType(PersistentType.DATETIME);
+		attributeDateTime.setMin(new BigDecimal("6"));
+		attributeDateTime.setMax(new BigDecimal("8"));
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
+				IdmIdentity.class.getCanonicalName(),
+				getHelper().createName(),
+				Lists.newArrayList(attributeDate, attributeDateTime));
+		attributeDate = formDefinitionOne.getMappedAttributeByCode(attributeDate.getCode());
+		attributeDateTime = formDefinitionOne.getMappedAttributeByCode(attributeDateTime.getCode());
+		//
+		IdmFormValueDto valueDate = new IdmFormValueDto(attributeDate);
+		IdmFormValueDto valueDateTime = new IdmFormValueDto(attributeDateTime);
+		//
+		IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+		formInstance.setFormDefinition(formDefinitionOne);
+		formInstance.setValues(Lists.newArrayList(valueDate, valueDateTime));
+		//
+		List<InvalidFormAttributeDto> validationErrors = formService.validate(formInstance);
+		//
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		valueDate.setDateValue(now.plusDays(2));
+		valueDateTime.setDateValue(now.plusDays(5));
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(2, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getMinValue() != null));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMinValue().equals(new BigDecimal("3"))
+				&& e.getAttributeCode().equals(attributeDateCode)));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMinValue().equals(new BigDecimal("6"))
+				&& e.getAttributeCode().equals(attributeDateTimeCode)));
+		//
+		valueDate.setDateValue(now.plusDays(6));
+		valueDateTime.setDateValue(now.plusDays(9));
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertEquals(2, validationErrors.size());
+		Assert.assertTrue(validationErrors.stream().allMatch(e -> e.getMaxValue() != null));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMaxValue().equals(new BigDecimal("5"))
+				&& e.getAttributeCode().equals(attributeDateCode)));
+		Assert.assertTrue(validationErrors.stream().anyMatch(e -> e.getMaxValue().equals(new BigDecimal("8"))
+				&& e.getAttributeCode().equals(attributeDateTimeCode)));
+		//
+		valueDate.setDateValue(now.plusDays(5));
+		valueDateTime.setDateValue(now.plusDays(8));
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+		//
+		valueDate.setDateValue(now.plusDays(3));
+		valueDateTime.setDateValue(now.plusDays(6).plusMinutes(2));
+		//
+		validationErrors = formService.validate(formInstance);
+		Assert.assertTrue(validationErrors.isEmpty());
+	}
 
 	@Test(expected = ResultCodeException.class)
 	public void testMinValidationWrongPersistentType() {
@@ -1554,7 +1696,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		String attributeName = getHelper().createName();
 		attribute.setCode(attributeName);
 		attribute.setName(attributeName);
-		attribute.setPersistentType(PersistentType.TEXT);
+		attribute.setPersistentType(PersistentType.ATTACHMENT);
 		attribute.setMin(new BigDecimal("0.5"));
 		formService.createDefinition(
 				IdmIdentity.class.getCanonicalName(),

@@ -45,7 +45,7 @@ class IdentityContract extends Basic.AbstractContent {
     const {params} = match;
     const paramsResult = _.merge(params, { controlledBySlices: !!(entity && entity.controlledBySlices)});
     match.params = paramsResult;
-
+    //
     return (
       <Basic.Div>
         <Advanced.DetailHeader

@@ -1,9 +1,10 @@
 package eu.bcvsolutions.idm.core.eav.api.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,20 +12,22 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.FormableFilter;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -48,6 +51,7 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 
 	private final FormService formService;
 	//
+	@Autowired private FormProjectionManager formProjectionManager;
 	@Autowired private LookupService lookupService;
 	
 	@Autowired
@@ -113,7 +117,7 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	@Override
 	@Transactional
 	public void deleteInternal(DTO dto) {
-		formService.deleteValues(dto);
+		getFormService().deleteValues(dto);
 		//
 		super.deleteInternal(dto);
 	}
@@ -134,21 +138,40 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	@Override
 	protected DTO applyContext(DTO dto, F context, BasePermission... permission) {
 		dto = super.applyContext(dto, context, permission);
+		if (dto == null) {
+			return null;
+		}
 		//
 		if (!(context instanceof FormableFilter)) {
 			return dto;
 		}
 		FormableFilter formableContext = (FormableFilter) context;
+		if (formableContext.isAddBasicFields()) {
+			IdmFormDefinitionDto basicFields = formProjectionManager.getBasicFieldsDefinition(dto);
+			if (basicFields != null) {
+				dto.setEavs(Lists.newArrayList(new IdmFormInstanceDto(dto, basicFields, new ArrayList<>())));
+			} else {
+				dto.setEavs(Lists.newArrayList());
+			}
+		} else {
+			dto.setEavs(Lists.newArrayList());
+		}
+		//
+		// load other for definitions and values
 		if (BooleanUtils.isNotTrue(formableContext.getAddEavMetadata())
 				&& CollectionUtils.isEmpty(formableContext.getFormDefinitionAttributes())) {
 			return dto;
 		}
-		// load or find form instances
+		// load or find other form instances
+		List<IdmFormInstanceDto> formInstances;
 		if (CollectionUtils.isEmpty(formableContext.getFormDefinitionAttributes())) {
 			// backward compatible -> method is overriden e.g. for role attributes
-			dto.setEavs(this.getFormInstances(dto, permission));
+			formInstances = this.getFormInstances(dto, permission);
 		} else {
-			dto.setEavs(this.findFormInstances(dto, formableContext, permission));
+			formInstances = this.findFormInstances(dto, formableContext, permission);
+		}
+		if (CollectionUtils.isNotEmpty(formInstances)) {
+			dto.getEavs().addAll(formInstances);
 		}
 		//
 		return dto;
@@ -162,6 +185,7 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	 * @return
 	 * @deprecated @since 10.3.0 => override {@link #findFormInstances(FormableDto, FormableFilter, BasePermission...)} instead.
 	 */
+	@Deprecated
 	protected List<IdmFormInstanceDto> getFormInstances(DTO dto, BasePermission... permission) {
 		return this.findFormInstances(dto, null, permission);
 	}
@@ -176,7 +200,7 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	 * @since 10.3.0
 	 */
 	protected List<IdmFormInstanceDto> findFormInstances(DTO dto, FormableFilter formableContext, BasePermission... permission) {
-		return formService.findFormInstances(dto, formableContext, permission);
+		return getFormService().findFormInstances(dto, formableContext, permission);
 	}
 	
 	/**

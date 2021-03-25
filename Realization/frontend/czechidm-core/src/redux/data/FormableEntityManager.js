@@ -55,10 +55,12 @@ export default class FormableEntityManager extends EntityManager {
           // get trimmed definitions
           const formValuesPromises = [];
           json._embedded.formDefinitions.forEach(formDefinition => {
-            if (!id) {
-              formValuesPromises.push(this.getService().prepareFormValues(formDefinition.code));
-            } else {
-              formValuesPromises.push(this.getService().getFormValues(id, formDefinition.code));
+            if (formDefinition.code !== 'idm:basic-fields') { // internal form definition is not needed on FE
+              if (!id) {
+                formValuesPromises.push(this.getService().prepareFormValues(formDefinition.code));
+              } else {
+                formValuesPromises.push(this.getService().getFormValues(id, formDefinition.code));
+              }
             }
           });
           // load form instances
@@ -152,7 +154,8 @@ export default class FormableEntityManager extends EntityManager {
         .then(response => {
           if (response.status === 404 || response.status === 204) {
             return null;
-          } else if (response.status === 200) {
+          }
+          if (response.status === 200) {
             return response.blob();
           }
           const json = response.json();
@@ -162,6 +165,7 @@ export default class FormableEntityManager extends EntityManager {
           if (Utils.Response.hasInfo(json)) {
             throw Utils.Response.getFirstInfo(json);
           }
+          return null;
         })
         .then(blob => {
           let imageUrl = false;

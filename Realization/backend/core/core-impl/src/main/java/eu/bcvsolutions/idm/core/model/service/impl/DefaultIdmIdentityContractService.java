@@ -14,7 +14,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -54,14 +54,13 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Identity contract administration
- * - supports {@link IdentityContractEvent}.
- * - identity contract is required for role assign
+ * Identity contract administration:
+ * - Supports {@link IdentityContractEvent},
+ * - identity contract is required for role assign.
  * 
  * @author Radek Tomiška
  * @see IdentityContractEvent
  * @see IdentityContractProcessor
- *
  */
 public class DefaultIdmIdentityContractService 
 		extends AbstractFormableService<IdmIdentityContractDto, IdmIdentityContract, IdmIdentityContractFilter>
@@ -87,6 +86,16 @@ public class DefaultIdmIdentityContractService
 		return new AuthorizableType(CoreGroupPermission.IDENTITYCONTRACT, getEntityClass());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @since 11.0.0
+	 */
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
+	}
+	
 	@Override
 	protected IdmIdentityContract toEntity(IdmIdentityContractDto dto, IdmIdentityContract entity) {
 		IdmIdentityContract contract = super.toEntity(dto, entity);
@@ -97,15 +106,15 @@ public class DefaultIdmIdentityContractService
 	}
 	
 	@Override
-	protected IdmIdentityContractDto toDto(IdmIdentityContract entity, IdmIdentityContractDto dto) {
-		IdmIdentityContractDto resultDto = super.toDto(entity, dto);
+	protected IdmIdentityContractDto toDto(IdmIdentityContract entity, IdmIdentityContractDto dto, IdmIdentityContractFilter context) {
+		IdmIdentityContractDto resultDto = super.toDto(entity, dto, context);
 		// Set attribute if that contract was created by slices
-		if(resultDto != null && resultDto.getId() != null && !resultDto.isTrimmed()) {
+		if (resultDto != null && resultDto.getId() != null && !resultDto.isTrimmed()) {
 			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 			sliceFilter.setParentContract(resultDto.getId());
-			if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0) {
+			if (contractSliceService.find(sliceFilter, null).getTotalElements() > 0) {
 				resultDto.setControlledBySlices(Boolean.TRUE);
-			}else {
+			} else {
 				resultDto.setControlledBySlices(Boolean.FALSE);
 			}
 		}

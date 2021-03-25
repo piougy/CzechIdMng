@@ -128,7 +128,11 @@ public class DefaultIdmFormAttributeService
 		if (dto.getMin() != null
 				&& dto.getPersistentType() != PersistentType.DOUBLE
 				&& dto.getPersistentType() != PersistentType.LONG
-				&& dto.getPersistentType() != PersistentType.INT) {
+				&& dto.getPersistentType() != PersistentType.INT
+				&& dto.getPersistentType() != PersistentType.SHORTTEXT
+				&& dto.getPersistentType() != PersistentType.TEXT
+				&& dto.getPersistentType() != PersistentType.DATE
+				&& dto.getPersistentType() != PersistentType.DATETIME) {
 			throw new ResultCodeException(CoreResultCode.FORM_VALIDATION_NOT_SUPPORTED, ImmutableMap.of(
 					"validationType", "min",
 					"persistentType", dto.getPersistentType().toString(),
@@ -137,7 +141,11 @@ public class DefaultIdmFormAttributeService
 		if (dto.getMax() != null
 				&& dto.getPersistentType() != PersistentType.DOUBLE
 				&& dto.getPersistentType() != PersistentType.LONG
-				&& dto.getPersistentType() != PersistentType.INT) {
+				&& dto.getPersistentType() != PersistentType.INT
+				&& dto.getPersistentType() != PersistentType.SHORTTEXT
+				&& dto.getPersistentType() != PersistentType.TEXT
+				&& dto.getPersistentType() != PersistentType.DATE
+				&& dto.getPersistentType() != PersistentType.DATETIME) {
 			throw new ResultCodeException(CoreResultCode.FORM_VALIDATION_NOT_SUPPORTED, ImmutableMap.of(
 					"validationType", "max",
 					"persistentType", dto.getPersistentType().toString(),

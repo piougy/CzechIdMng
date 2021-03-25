@@ -4,13 +4,15 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 //
 import * as Basic from '../../basic';
-import { IdentityManager, DataManager, ConfigurationManager, FormProjectionManager } from '../../../redux';
+import * as Utils from '../../../utils';
+import { IdentityManager, DataManager, ConfigurationManager, FormProjectionManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import AuditableInfo from '../EntityInfo/AuditableInfo';
 import ConfigLoader from '../../../utils/ConfigLoader';
 
 const manager = new IdentityManager();
 const projectionManager = new FormProjectionManager();
+const securityManager = new SecurityManager();
 
 /**
  * Identity basic information (info card)
@@ -100,6 +102,24 @@ export class IdentityInfo extends AbstractEntityInfo {
     this.context.history.push(this.getLink(entity, skipDashboard || ctrlKey));
   }
 
+  switchUser(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const username = entity.username;
+    //
+    this.context.store.dispatch(securityManager.switchUser(username, (result) => {
+      if (result) {
+        this.addMessage({
+          level: 'success',
+          key: 'core-switch-user-success',
+          message: this.i18n('content.identity.switch-user.message.success', { username })
+        });
+        this.context.history.replace(`/`);
+      }
+    }));
+  }
+
   /**
    * Returns entity icon (null by default - icon will not be rendered)
    *
@@ -180,7 +200,7 @@ export class IdentityInfo extends AbstractEntityInfo {
   }
 
   _renderFull() {
-    const { className, style } = this.props;
+    const { className, style, _permissions } = this.props;
     const { showAuditableInfo, expandInfo } = this.state;
     const _entity = this.getEntity();
     //
@@ -244,6 +264,17 @@ export class IdentityInfo extends AbstractEntityInfo {
                       { this.i18n('link.profile.label') }
                     </a>
                   )) }
+                  {
+                    !this.isDevelopment() || this.isDisabled(_entity) || !_permissions || !Utils.Permission.hasPermission(_permissions, 'SWITCHUSER')
+                    ||
+                    this.renderRow(null, (
+                      <a href="#" onClick={ this.switchUser.bind(this, _entity) }>
+                        <Basic.Icon value="component:switch-user"/>
+                        {' '}
+                        Přihlásit se jako uživatel
+                      </a>
+                    ))
+                  }
                 </tbody>
               </table>
             </Basic.Div>

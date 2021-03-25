@@ -134,6 +134,35 @@ export default class AbstractService {
       });
   }
 
+  /**
+   * Generate new record.
+   *
+   * @param  {entity} json prepared entity
+   * @return {promise}
+   * @since 11.0.0
+   */
+  generateNew(json) {
+    return RestApiService
+      .post(`${ this.getApiPath() }/generate-new`, json)
+      .then(response => {
+        if (response.status === 204) { // no content - ok
+          return null;
+        }
+        return response.json();
+      })
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
+        }
+        if (Utils.Response.hasInfo(jsonResponse)) {
+          throw Utils.Response.getFirstInfo(jsonResponse);
+        }
+        return jsonResponse;
+      }).catch(ex => {
+        throw this._resolveException(ex);
+      });
+  }
+
   upload(formData) {
     return RestApiService
       .upload(this.getApiPath(), formData)

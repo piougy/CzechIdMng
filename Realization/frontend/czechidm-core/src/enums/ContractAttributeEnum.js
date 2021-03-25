@@ -1,7 +1,7 @@
 import AbstractEnum from './AbstractEnum';
 
 /**
- * Keys of contract fields
+ * Keys of contract fields.
  */
 export default class ContractAttributeEnum extends AbstractEnum {
 

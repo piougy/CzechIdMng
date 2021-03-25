@@ -5415,7 +5415,7 @@ Type]]></x0:EntityRelationshipModel.title>
 		<node id="n123">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-672.6321759531403" Y="-1866.5825099032395" Width="114.27664827140921" Height="181.875"/>
+				<y:RectD X="-672.6321759531403" Y="-1866.5825099032395" Width="114.27664827140921" Height="205.125"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle fill="{y:GraphMLReference 6}" insetFill="{y:GraphMLReference 5}" stroke="{y:GraphMLReference 7}">
@@ -5433,6 +5433,7 @@ Type]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[+ formDefinitions]]></sys:String>
 									<sys:String><![CDATA[+ basicFields]]></sys:String>
 									<sys:String><![CDATA[+ properties]]></sys:String>
+									<sys:String><![CDATA[+ formValidations]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>

@@ -567,6 +567,35 @@ export default class EntityManager {
   }
 
   /**
+   * Generate new entity - prepare new entity by registered generators.
+   *
+   * @param  {object} entity - Entity input
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @param  {func} cb - function will be called after entity is patched or error occured
+   * @return {object} - action
+   * @since 11.0.0
+   */
+  generateNewEntity(entity, uiKey = null, cb = null) {
+    if (!entity) {
+      return {
+        type: EMPTY
+      };
+    }
+    uiKey = this.resolveUiKey(uiKey, entity.id || '[new]');
+    return (dispatch) => {
+      dispatch(this.requestEntity(uiKey, uiKey));
+      this.getService()
+        .generateNew(entity)
+        .then(json => {
+          dispatch(this.receiveEntity(json.id, json, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(entity, uiKey, error, cb));
+        });
+    };
+  }
+
+  /**
    * Delete entity
    *
    * @param  {object} entity - Entity to delete

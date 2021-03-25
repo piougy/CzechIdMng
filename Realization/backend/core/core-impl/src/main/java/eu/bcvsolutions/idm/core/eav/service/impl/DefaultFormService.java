@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1467,6 +1469,8 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(formAttribute, "Form attribute is required.");
 		//
 		InvalidFormAttributeDto result = new InvalidFormAttributeDto(formAttribute);
+		result.setDefinitionCode(formDefinition.getCode());
+		//
 		if (formAttribute.isRequired()) {
 			if (CollectionUtils.isEmpty(formValues) || !formValues
 						.stream()
@@ -1482,6 +1486,7 @@ public class DefaultFormService implements FormService {
 			// values are not filled => other validations is not needed.
 			return result;
 		}
+		// TODO: redesign to registrable validators
 		// TODO: multiple values -> the last validation error is returned. Return invalid attribute for the all values ...
 		formValues
 			.stream()
@@ -1489,36 +1494,104 @@ public class DefaultFormService implements FormService {
 			.forEach(formValue -> {
 				// minimum value validation
 				if (formAttribute.getMin() != null) {
-					if (formValue.getLongValue() != null
-							&& formAttribute.getMin().compareTo(BigDecimal.valueOf(formValue.getLongValue())) > 0) {
-						LOG.debug("Form attribute [{}] validation failed - given value [{}] is lesser than min [{}].",
-								formAttribute.getCode(), formValue.getLongValue(), formAttribute.getMin());
-						//
-						result.setMinValue(formAttribute.getMin());
-					}
-					if (formValue.getDoubleValue() != null
-							&& formAttribute.getMin().compareTo(formValue.getDoubleValue()) > 0) {
-						LOG.debug("Form attribute [{}] validation failed - given value [{}] is lesser than min [{}].",
-								formAttribute.getCode(), formValue.getDoubleValue(), formAttribute.getMin());
-						//
-						result.setMinValue(formAttribute.getMin());
+					if (formAttribute.getPersistentType() == PersistentType.SHORTTEXT) {
+						String value = formValue.getShortTextValue();
+						if (value.length() < formAttribute.getMin().intValue()) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is shorter than min [{}].",
+									formAttribute.getCode(), value.length(), formAttribute.getMin());
+							//
+							result.setMinValue(formAttribute.getMin());
+						}
+					} else if (formAttribute.getPersistentType() == PersistentType.TEXT) {
+						String value = formValue.getStringValue();
+						if (value.length() < formAttribute.getMin().intValue()) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is shorter than min [{}].",
+									formAttribute.getCode(), value.length(), formAttribute.getMin());
+							//
+							result.setMinValue(formAttribute.getMin());
+						}
+					} else if (formAttribute.getPersistentType() == PersistentType.DATE) {
+						LocalDate value = formValue.getDateValue().toLocalDate();
+						if (value.isBefore(LocalDate.now().plusDays(formAttribute.getMin().longValue()))) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is before than [{}] days.",
+									formAttribute.getCode(), value, formAttribute.getMin());
+							//
+							result.setMinValue(formAttribute.getMin());
+						}
+					} else if (formAttribute.getPersistentType() == PersistentType.DATETIME) {
+						ZonedDateTime value = formValue.getDateValue();
+						if (value.isBefore(ZonedDateTime.now().plusDays(formAttribute.getMin().longValue()))) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is before than [{}] days.",
+									formAttribute.getCode(), value, formAttribute.getMin());
+							//
+							result.setMinValue(formAttribute.getMin());
+						}
+					} else {
+						if (formValue.getLongValue() != null
+								&& formAttribute.getMin().compareTo(BigDecimal.valueOf(formValue.getLongValue())) > 0) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is lesser than min [{}].",
+									formAttribute.getCode(), formValue.getLongValue(), formAttribute.getMin());
+							//
+							result.setMinValue(formAttribute.getMin());
+						}
+						if (formValue.getDoubleValue() != null
+								&& formAttribute.getMin().compareTo(formValue.getDoubleValue()) > 0) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is lesser than min [{}].",
+									formAttribute.getCode(), formValue.getDoubleValue(), formAttribute.getMin());
+							//
+							result.setMinValue(formAttribute.getMin());
+						}
 					}
 				}
 				// maximum value validation
 				if (formAttribute.getMax() != null) {
-					if (formValue.getLongValue() != null
-							&& formAttribute.getMax().compareTo(BigDecimal.valueOf(formValue.getLongValue())) < 0) {
-						LOG.debug("Form attribute [{}] validation failed - given value [{}] is greater than max [{}].",
-								formAttribute.getCode(), formValue.getLongValue(), formAttribute.getMax());
-						//
-						result.setMaxValue(formAttribute.getMax());
-					}
-					if (formValue.getDoubleValue() != null
-							&& formAttribute.getMax().compareTo(formValue.getDoubleValue()) < 0) {
-						LOG.debug("Form attribute [{}] validation failed - given value [{}] is greater than max [{}].",
-								formAttribute.getCode(), formValue.getDoubleValue(), formAttribute.getMax());
-						//
-						result.setMaxValue(formAttribute.getMax());
+					if (formAttribute.getPersistentType() == PersistentType.SHORTTEXT) {
+						String value = formValue.getShortTextValue();
+						if (value.length() > formAttribute.getMax().intValue()) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is shorter than min [{}].",
+									formAttribute.getCode(), value.length(), formAttribute.getMax());
+							//
+							result.setMaxValue(formAttribute.getMax());
+						}
+					} else if (formAttribute.getPersistentType() == PersistentType.TEXT) {
+						String value = formValue.getStringValue();
+						if (value.length() > formAttribute.getMax().intValue()) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is greater than min [{}].",
+									formAttribute.getCode(), value.length(), formAttribute.getMax());
+							//
+							result.setMaxValue(formAttribute.getMax());
+						}
+					} else if (formAttribute.getPersistentType() == PersistentType.DATE) {
+						LocalDate value = formValue.getDateValue().toLocalDate();
+						if (value.isAfter(LocalDate.now().plusDays(formAttribute.getMax().longValue()))) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is after than [{}] days.",
+									formAttribute.getCode(), value, formAttribute.getMax());
+							//
+							result.setMaxValue(formAttribute.getMax());
+						}
+					} else if (formAttribute.getPersistentType() == PersistentType.DATETIME) {
+						ZonedDateTime value = formValue.getDateValue();
+						if (value.isAfter(ZonedDateTime.now().plusDays(formAttribute.getMax().longValue()))) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is after than [{}] days.",
+									formAttribute.getCode(), value, formAttribute.getMax());
+							//
+							result.setMaxValue(formAttribute.getMax());
+						}
+					} else {
+						if (formValue.getLongValue() != null
+								&& formAttribute.getMax().compareTo(BigDecimal.valueOf(formValue.getLongValue())) < 0) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is greater than max [{}].",
+									formAttribute.getCode(), formValue.getLongValue(), formAttribute.getMax());
+							//
+							result.setMaxValue(formAttribute.getMax());
+						}
+						if (formValue.getDoubleValue() != null
+								&& formAttribute.getMax().compareTo(formValue.getDoubleValue()) < 0) {
+							LOG.debug("Form attribute [{}] validation failed - given value [{}] is greater than max [{}].",
+									formAttribute.getCode(), formValue.getDoubleValue(), formAttribute.getMax());
+							//
+							result.setMaxValue(formAttribute.getMax());
+						}
 					}
 				}
 				String regex = formAttribute.getRegex();

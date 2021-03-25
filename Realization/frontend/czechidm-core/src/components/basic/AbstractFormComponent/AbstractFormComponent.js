@@ -387,7 +387,7 @@ class AbstractFormComponent extends AbstractContextComponent {
         title += `${ this._toValidationType(validationError) }`;
       });
     } else if (validationResult && validationResult.message) {
-      title = validationMessage ? this.i18n(validationMessage) : `${ validationResult.message }`;
+      title = validationMessage ? this.i18n(validationMessage, { default: validationMessage }) : `${ validationResult.message }`;
     } else if (!label) {
       title = propertyName;
     }

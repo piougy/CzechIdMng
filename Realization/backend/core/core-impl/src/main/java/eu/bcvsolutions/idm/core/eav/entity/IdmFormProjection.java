@@ -71,6 +71,10 @@ public class IdmFormProjection
 	@Column(name = "basic_fields", nullable = true)
 	private String basicFields;
 	
+	@Type(type = "org.hibernate.type.TextType")
+	@Column(name = "form_validations", nullable = true)
+	private String formValidations; // @since 11.0.0
+	
 	@Column(name = "projection_properties", length = Integer.MAX_VALUE)
 	private ConfigurationMap properties; // cannot be string (~json) => needed on backend too.
 
@@ -188,5 +192,27 @@ public class IdmFormProjection
 	 */
 	public void setProperties(ConfigurationMap properties) {
 		this.properties = properties;
+	}
+	
+	/**
+	 * Overriden form attribute validations.
+	 * Json representation - [ { id, basicField, code, formDefinition, required, min, max, regex, readOnly } ].
+	 * 
+	 * @return configured validations
+	 * @since 11.0.0
+	 */
+	public String getFormValidations() {
+		return formValidations;
+	}
+	
+	/**
+	 * Overriden form attribute validations.
+	 * Json representation - [ { id, basicField, code, formDefinition, required, min, max, regex, readOnly } ].
+	 * 
+	 * @param formValidations configured validations
+	 * @since 11.0.0
+	 */
+	public void setFormValidations(String formValidations) {
+		this.formValidations = formValidations;
 	}
 }

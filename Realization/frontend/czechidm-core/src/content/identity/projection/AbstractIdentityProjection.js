@@ -366,7 +366,29 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
   }
 
   /**
-   * Basic identity field is rendered.
+   * Configured Basic field form vaidation validation.
+   *
+   * @since 11.0.0
+   */
+  getBasicFieldValidation(formProjection, basicField) {
+    if (!formProjection || !formProjection.formValidations) {
+      return true;
+    }
+    //
+    try {
+      return JSON
+        .parse(formProjection.formValidations)
+        .find(formValidation => {
+          return formValidation.basicField === basicField;
+        });
+    } catch (syntaxError) {
+      return null;
+    }
+  }
+
+  /**
+   * Basic field is rendered.
+   * Render identity or contract basic attributes.
    *
    * @since 10.3.0
    */
@@ -378,12 +400,21 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     try {
       const basicFields = JSON
         .parse(formProjection.basicFields)
+        .filter(f => {
+          if (basicField.indexOf('IdmIdentityContract.') > -1) {
+            return f.indexOf('IdmIdentityContract.') > -1;
+          }
+          return f.indexOf('IdmIdentityContract.') < 0;
+        })
         .map(f => {
           if (_.isObject(f)) {
             return !f.code || f.code.toLowerCase();
           }
           return !f || f.toLowerCase();
         });
+      if (!basicFields || basicFields.length === 0) {
+        return true;
+      }
       return _.includes(basicFields, basicField.toLowerCase());
     } catch (syntaxError) {
       // nothing
@@ -393,21 +424,55 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
   }
 
   /**
-   * Basic identity field is required.
+   * Basic field is readOnly.
+   *
+   * @since 11.0.0
+   */
+  isReadOnly(formProjection, basicField, readOnly = false) {
+    const formValidation = this.getBasicFieldValidation(formProjection, basicField);
+    if (!formValidation) {
+      return readOnly;
+    }
+    return readOnly || formValidation.readonly;
+  }
+
+  /**
+   * Basic field is required.
    *
    * @since 10.3.0
    */
-  isRequired(formProjection, basicField) {
+  isRequired(formProjection, basicField, readOnly = false) {
     if (!this.isRendered(formProjection, basicField)) {
+      return false;
+    }
+    if (this.isReadOnly(formProjection, basicField, readOnly)) {
       return false;
     }
     //
     const { isNew } = this.state;
+    const formValidation = this.getBasicFieldValidation(formProjection, basicField);
+    //
     if (basicField === 'username') {
-      return !isNew;
+      return !isNew || (formValidation && formValidation.required);
     }
-    // not required by default
-    return false;
+    if (!formValidation) { // not required by default
+      return false;
+    }
+    //
+    return formValidation.required;
+  }
+
+  /**
+   * Basic field validation message.
+   *
+   * @since 11.0.0
+   */
+  getValidationMessage(formProjection, basicField) {
+    const formValidation = this.getBasicFieldValidation(formProjection, basicField);
+    if (!formValidation) {
+      return null;
+    }
+    return formValidation.validationMessage;
   }
 
   hasPermission(identityProjection, permission) {
@@ -417,14 +482,150 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     return Utils.Permission.hasPermission(identityProjection._permissions, permission);
   }
 
+  /**
+   * Get configured form projection boolean property value.
+   *
+   * @param  {IdmFormProjection} formProjection
+   * @param  {string} propertyName
+   * @return {bool}
+   */
   isTrue(formProjection, propertyName) {
+    const value = this.getPropertyValue(formProjection, propertyName);
+    //
+    return value ? !!value : false;
+  }
+
+  /**
+   * Get configured form projection property value.
+   *
+   * @param  {IdmFormProjection} formProjection
+   * @param  {string} propertyName
+   * @return {string}
+   * @since 11.0.0
+   */
+  getPropertyValue(formProjection, propertyName) {
     if (!formProjection) {
       return null;
     }
     const formInstance = new Domain.FormInstance({}).setProperties(formProjection.properties);
     const formValue = formInstance.getSingleValue(propertyName);
     //
-    return formValue ? !!formValue.value : false;
+    return formValue ? formValue.value : null;
+  }
+
+  /**
+   * Get min validation.
+   *
+   * @param  {IdmFormProjection} formProjection
+   * @param {string} basicField
+   * @param {int} min value (range)
+   * @return {int} or null if not configured
+   * @since 11.0.0
+   */
+  getMin(formProjection, basicField, readOnly = false, minValueRange = null) {
+    const formValidation = this.getBasicFieldValidation(formProjection, basicField);
+    if (!formValidation) {
+      return minValueRange;
+    }
+    if (this.isReadOnly(formProjection, basicField, readOnly)) {
+      return minValueRange;
+    }
+    //
+    let min = formValidation.min;
+    // not configured
+    if (Utils.Ui.isEmpty(min)) {
+      return minValueRange;
+    }
+    min = parseInt(min, 10);
+    if (Utils.Ui.isEmpty(min)) {
+      return minValueRange;
+    }
+    if (Utils.Ui.isEmpty(minValueRange)) {
+      return min;
+    }
+    //
+    return min < minValueRange ? minValueRange : min;
+  }
+
+  /**
+   * Get max validation.
+   *
+   * @param  {IdmFormProjection} formProjection
+   * @param {string} basicField
+   * @param {int} max value (range)
+   * @return {int} or null if not configured
+   * @since 11.0.0
+   */
+  getMax(formProjection, basicField, readOnly = false, maxValueRange = null) {
+    const formValidation = this.getBasicFieldValidation(formProjection, basicField);
+    if (!formValidation) {
+      return maxValueRange;
+    }
+    if (this.isReadOnly(formProjection, basicField, readOnly)) {
+      return maxValueRange;
+    }
+    //
+    let max = formValidation.max;
+    // not configured
+    if (Utils.Ui.isEmpty(max)) {
+      return maxValueRange;
+    }
+    max = parseInt(max, 10);
+    if (Utils.Ui.isEmpty(max)) {
+      return maxValueRange;
+    }
+    if (Utils.Ui.isEmpty(maxValueRange)) {
+      return max;
+    }
+    //
+    return max > maxValueRange ? maxValueRange : max;
+  }
+
+  /**
+   * Get min date validation.
+   *
+   * @param  {IdmFormProjection} formProjection
+   * @param {string} basicField
+   * @return {moment} or null if not configured
+   * @since 11.0.0
+   */
+  getMinDate(formProjection, basicField, readOnly = false) {
+    const minDays = this.getMin(formProjection, basicField, readOnly);
+    // not configured
+    if (Utils.Ui.isEmpty(minDays) || readOnly) {
+      return null;
+    }
+    //
+    return moment().add(minDays, 'days');
+  }
+
+  /**
+   * Get max date validation.
+   *
+   * @param  {IdmFormProjection} formProjection
+   * @param {string} basicField
+   * @return {moment} or null if not configured
+   * @since 11.0.0
+   */
+  getMaxDate(formProjection, basicField, readOnly = false) {
+    const maxDays = this.getMax(formProjection, basicField, readOnly);
+    // not configured
+    if (Utils.Ui.isEmpty(maxDays) || readOnly) {
+      return null;
+    }
+    //
+    return moment().add(maxDays, 'days');
+  }
+
+  getInvalidBasicField(validationErrors, attributeCode) {
+    if (!validationErrors) {
+      return [];
+    }
+    //
+    return validationErrors
+      .filter(attribute => { // by attribute code
+        return attribute.attributeCode === attributeCode && attribute.definitionCode === 'idm:basic-fields';
+      });
   }
 
   /**
@@ -594,8 +795,9 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           // identity owner
           const firstValidationError = validationErrors[0];
           if (firstValidationError.ownerType === 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity') {
-            if (this.refs.eav) {
-              this.refs.eav.focus(firstValidationError.attributeCode);
+            const found = this.refs.eav && this.refs.eav.focus(firstValidationError.attributeCode);
+            if (!found && this.refs[firstValidationError.attributeCode] && firstValidationError.definitionCode === 'idm:basic-fields') {
+              this.refs[firstValidationError.attributeCode].focus();
             }
           } else {
             // get contract index by uuid
@@ -740,18 +942,29 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
    * Render identity basic and eav attributes.
    */
   renderIdentity() {
-    const { formProjection, identityProjection, isNew } = this.state;
+    const { formProjection, identityProjection, isNew, validationErrors } = this.state;
     const readOnly = !identityProjectionManager.canSave(isNew ? null : identityProjection);
+    const _readOnlyUsername = readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEUSERNAME'));
+    const _readOnlyName = readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME'));
+    const _readOnlyExternalCode = readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEEXTERNALCODE'));
+    const _readOnlyEmail = readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEEMAIL'));
+    const _readOnlyPhone = readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEPHONE'));
+    const _readOnlyDescription = readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEDESCRIPTION'));
     //
     return (
       <Basic.Div>
         <Basic.TextField
           ref="username"
           label={ this.i18n('identity.username.label') }
-          max={ 255 }
           rendered={ this.isRendered(formProjection, 'username') }
-          readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEUSERNAME')) }
-          required={ this.isRequired(formProjection, 'username') }/>
+          readOnly={ this.isReadOnly(formProjection, 'username', _readOnlyUsername) }
+          required={ this.isRequired(formProjection, 'username', _readOnlyUsername) }
+          min={ this.getMin(formProjection, 'username', _readOnlyUsername) }
+          max={ this.getMax(formProjection, 'username', _readOnlyUsername, 255) }
+          validationMessage={ this.getValidationMessage(formProjection, 'username') }
+          validationErrors={
+            this.getInvalidBasicField(validationErrors, 'username')
+          }/>
 
         <Basic.Row>
           <Basic.Col
@@ -760,9 +973,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             <Basic.TextField
               ref="firstName"
               label={ this.i18n('content.identity.profile.firstName') }
-              max={ 255 }
-              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME')) }
-              required={ this.isRequired(formProjection, 'firstName') }/>
+              readOnly={ this.isReadOnly(formProjection, 'firstName', _readOnlyName) }
+              required={ this.isRequired(formProjection, 'firstName', _readOnlyName) }
+              min={ this.getMin(formProjection, 'firstName', _readOnlyName) }
+              max={ this.getMax(formProjection, 'firstName', _readOnlyName, 255) }
+              validationMessage={ this.getValidationMessage(formProjection, 'firstName') }
+              validationErrors={
+                this.getInvalidBasicField(validationErrors, 'firstName')
+              }/>
           </Basic.Col>
           <Basic.Col
             lg={ this.isRendered(formProjection, 'firstName') ? 6 : 12 }
@@ -770,9 +988,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             <Basic.TextField
               ref="lastName"
               label={ this.i18n('content.identity.profile.lastName') }
-              max={ 255 }
-              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME')) }
-              required={ this.isRequired(formProjection, 'lastName') }/>
+              readOnly={ this.isReadOnly(formProjection, 'lastName', _readOnlyName) }
+              required={ this.isRequired(formProjection, 'lastName', _readOnlyName) }
+              min={ this.getMin(formProjection, 'lastName', _readOnlyName) }
+              max={ this.getMax(formProjection, 'lastName', _readOnlyName, 255) }
+              validationMessage={ this.getValidationMessage(formProjection, 'lastName') }
+              validationErrors={
+                this.getInvalidBasicField(validationErrors, 'lastName')
+              }/>
           </Basic.Col>
         </Basic.Row>
 
@@ -780,9 +1003,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           ref="externalCode"
           label={ this.i18n('content.identity.profile.externalCode') }
           rendered={ this.isRendered(formProjection, 'externalCode') }
-          max={ 255 }
-          readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEEXTERNALCODE')) }
-          required={ this.isRequired(formProjection, 'externalCode') }/>
+          readOnly={ this.isReadOnly(formProjection, 'externalCode', _readOnlyExternalCode) }
+          required={ this.isRequired(formProjection, 'externalCode', _readOnlyExternalCode) }
+          min={ this.getMin(formProjection, 'externalCode', _readOnlyExternalCode) }
+          max={ this.getMax(formProjection, 'externalCode', _readOnlyExternalCode, 255) }
+          validationMessage={ this.getValidationMessage(formProjection, 'externalCode') }
+          validationErrors={
+            this.getInvalidBasicField(validationErrors, 'externalCode')
+          }/>
 
         <Basic.Row>
           <Basic.Col
@@ -791,9 +1019,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             <Basic.TextField
               ref="titleBefore"
               label={ this.i18n('entity.Identity.titleBefore') }
-              max={ 100 }
-              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME')) }
-              required={ this.isRequired(formProjection, 'titleBefore') }/>
+              readOnly={ this.isReadOnly(formProjection, 'titleBefore', _readOnlyName) }
+              required={ this.isRequired(formProjection, 'titleBefore', _readOnlyName) }
+              min={ this.getMin(formProjection, 'titleBefore', _readOnlyName) }
+              max={ this.getMax(formProjection, 'titleBefore', _readOnlyName, 100) }
+              validationMessage={ this.getValidationMessage(formProjection, 'titleBefore') }
+              validationErrors={
+                this.getInvalidBasicField(validationErrors, 'titleBefore')
+              }/>
           </Basic.Col>
           <Basic.Col
             lg={ this.isRendered(formProjection, 'titleBefore') ? 6 : 12 }
@@ -801,9 +1034,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             <Basic.TextField
               ref="titleAfter"
               label={ this.i18n('entity.Identity.titleAfter') }
-              max={ 100 }
-              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME')) }
-              required={ this.isRequired(formProjection, 'titleAfter') }/>
+              readOnly={ this.isReadOnly(formProjection, 'titleAfter', _readOnlyName) }
+              required={ this.isRequired(formProjection, 'titleAfter', _readOnlyName) }
+              min={ this.getMin(formProjection, 'titleAfter', _readOnlyName) }
+              max={ this.getMax(formProjection, 'titleAfter', _readOnlyName, 100) }
+              validationMessage={ this.getValidationMessage(formProjection, 'titleAfter') }
+              validationErrors={
+                this.getInvalidBasicField(validationErrors, 'titleAfter')
+              }/>
           </Basic.Col>
         </Basic.Row>
 
@@ -816,8 +1054,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
               label={ this.i18n('content.identity.profile.email.label') }
               placeholder={ this.i18n('content.identity.profile.email.placeholder') }
               validation={ Joi.string().email() }
-              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEEMAIL')) }
-              required={ this.isRequired(formProjection, 'email') }/>
+              readOnly={ this.isReadOnly(formProjection, 'email', _readOnlyEmail) }
+              required={ this.isRequired(formProjection, 'email', _readOnlyEmail) }
+              min={ this.getMin(formProjection, 'email', _readOnlyEmail) }
+              max={ this.getMax(formProjection, 'email', _readOnlyEmail, 255) }
+              validationMessage={ this.getValidationMessage(formProjection, 'email') }
+              validationErrors={
+                this.getInvalidBasicField(validationErrors, 'email')
+              }/>
           </Basic.Col>
           <Basic.Col
             lg={ this.isRendered(formProjection, 'email') ? 6 : 12 }
@@ -826,9 +1070,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
               ref="phone"
               label={ this.i18n('content.identity.profile.phone.label') }
               placeholder={ this.i18n('content.identity.profile.phone.placeholder') }
-              max={ 30 }
-              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEPHONE')) }
-              required={ this.isRequired(formProjection, 'phone') }/>
+              readOnly={ this.isReadOnly(formProjection, 'phone', _readOnlyPhone) }
+              required={ this.isRequired(formProjection, 'phone', _readOnlyPhone) }
+              min={ this.getMin(formProjection, 'phone', _readOnlyPhone) }
+              max={ this.getMax(formProjection, 'phone', _readOnlyPhone, 30) }
+              validationMessage={ this.getValidationMessage(formProjection, 'phone') }
+              validationErrors={
+                this.getInvalidBasicField(validationErrors, 'phone')
+              }/>
           </Basic.Col>
         </Basic.Row>
 
@@ -837,10 +1086,15 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           label={ this.i18n('content.identity.profile.description.label') }
           placeholder={ this.i18n('content.identity.profile.description.placeholder') }
           rows={ 4 }
-          max={ 1000 }
           rendered={ this.isRendered(formProjection, 'description') }
-          readOnly={ readOnly }
-          required={ this.isRequired(formProjection, 'description') }/>
+          readOnly={ this.isReadOnly(formProjection, 'description', _readOnlyDescription) }
+          required={ this.isRequired(formProjection, 'description', _readOnlyDescription) }
+          min={ this.getMin(formProjection, 'description', _readOnlyDescription) }
+          max={ this.getMax(formProjection, 'description', _readOnlyDescription, 1000) }
+          validationMessage={ this.getValidationMessage(formProjection, 'description') }
+          validationErrors={
+            this.getInvalidBasicField(validationErrors, 'description')
+          }/>
 
         <Basic.EnumSelectBox
           ref="state"
@@ -921,27 +1175,48 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
    */
   renderContract(index, readOnly = false) {
     const { location } = this.props;
-    const { identityProjection } = this.state;
+    const { formProjection, identityProjection, validationErrors } = this.state;
     const contract = identityProjection.allContracts.length > index ? identityProjection.allContracts[index] : {};
     const isNew = !!Utils.Ui.getUrlParameter(location, 'new');
     const _readOnly = readOnly || !identityContractManager.canSave(contract);
     //
     return (
       <Basic.Div>
-        <Basic.Row>
-          <Basic.Col lg={ 6 }>
+        <Basic.Row
+          rendered={
+            this.isRendered(formProjection, 'IdmIdentityContract.validFrom')
+            ||
+            this.isRendered(formProjection, 'IdmIdentityContract.validTill')
+          }>
+          <Basic.Col lg={ this.isRendered(formProjection, 'IdmIdentityContract.validTill') ? 6 : 12 }>
             <Basic.DateTimePicker
               mode="date"
               ref={ `validFrom-${ index }` }
               label={ this.i18n('contract.validFrom.label') }
-              readOnly={ _readOnly }/>
+              rendered={ this.isRendered(formProjection, 'IdmIdentityContract.validFrom') }
+              readOnly={ this.isReadOnly(formProjection, 'IdmIdentityContract.validFrom', _readOnly) }
+              required={ this.isRequired(formProjection, 'IdmIdentityContract.validFrom', _readOnly) }
+              minDate={ this.getMinDate(formProjection, 'IdmIdentityContract.validFrom', _readOnly) }
+              maxDate={ this.getMaxDate(formProjection, 'IdmIdentityContract.validFrom', _readOnly) }
+              validationMessage={ this.getValidationMessage(formProjection, 'IdmIdentityContract.validFrom') }
+              validationErrors={
+                this.getInvalidBasicField(validationErrors, 'IdmIdentityContract.validFrom')
+              }/>
           </Basic.Col>
-          <Basic.Col lg={ 6 }>
+          <Basic.Col lg={ this.isRendered(formProjection, 'IdmIdentityContract.validFrom') ? 6 : 12 }>
             <Basic.DateTimePicker
               mode="date"
               ref={ `validTill-${ index }` }
               label={ this.i18n('contract.validTill.label') }
-              readOnly={ _readOnly }/>
+              rendered={ this.isRendered(formProjection, 'IdmIdentityContract.validTill') }
+              readOnly={ this.isReadOnly(formProjection, 'IdmIdentityContract.validTill', _readOnly) }
+              required={ this.isRequired(formProjection, 'IdmIdentityContract.validTill', _readOnly) }
+              minDate={ this.getMinDate(formProjection, 'IdmIdentityContract.validTill', _readOnly) }
+              maxDate={ this.getMaxDate(formProjection, 'IdmIdentityContract.validTill', _readOnly) }
+              validationMessage={ this.getValidationMessage(formProjection, 'IdmIdentityContract.validTill') }
+              validationErrors={
+                this.getInvalidBasicField(validationErrors, 'IdmIdentityContract.validTill')
+              }/>
           </Basic.Col>
         </Basic.Row>
 
@@ -951,7 +1226,13 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           header={ this.i18n('contract.workPosition.label') }
           treeNodeLabel={ this.i18n('contract.workPosition.label') }
           useFirstType
-          readOnly={ _readOnly }/>
+          rendered={ this.isRendered(formProjection, 'IdmIdentityContract.workPosition') }
+          readOnly={ this.isReadOnly(formProjection, 'IdmIdentityContract.workPosition', _readOnly) }
+          required={ this.isRequired(formProjection, 'IdmIdentityContract.workPosition', _readOnly) }
+          validationMessage={ this.getValidationMessage(formProjection, 'IdmIdentityContract.workPosition') }
+          validationErrors={
+            this.getInvalidBasicField(validationErrors, 'IdmIdentityContract.workPosition')
+          }/>
 
         { this.renderOtherPosition(index, readOnly) }
 

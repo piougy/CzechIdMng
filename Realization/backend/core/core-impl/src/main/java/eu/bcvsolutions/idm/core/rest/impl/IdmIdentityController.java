@@ -135,7 +135,6 @@ public class IdmIdentityController extends AbstractFormableDtoController<IdmIden
 	@Autowired private IdmProfileService profileService;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
-	//
 	@Autowired private IdmFormDefinitionController formDefinitionController;
 	@Autowired private IdmProfileController profileController;
 	@Autowired private FormService formService;
@@ -1288,11 +1287,17 @@ public class IdmIdentityController extends AbstractFormableDtoController<IdmIden
 		return filter;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @since 11.0.0
+	 */
 	@Override
 	protected IdmIdentityFilter getContext(MultiValueMap<String, Object> parameters) {
 		IdmIdentityFilter context = new IdmIdentityFilter(parameters, getParameterConverter());
 		// metadata about password are needed for identity detail
 		context.setAddPasswordMetadata(true);
+		context.setAddBasicFields(true);
 		//
 		return context;
 	}

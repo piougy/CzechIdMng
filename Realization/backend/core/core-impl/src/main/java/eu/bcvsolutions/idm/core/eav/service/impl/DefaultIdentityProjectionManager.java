@@ -418,6 +418,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		//
 		IdmIdentityFilter context = new IdmIdentityFilter();
 		context.setAddPermissions(true);
+		context.setAddBasicFields(true);
 		// load (~filter) specified form definitions and attributes only
 		setAddEavMetadata(context, identity);
 		// evaluate access / load eavs
@@ -437,6 +438,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		IdmIdentityDto identity = dto.getIdentity();
 		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
 		contractFilter.setAddPermissions(true);
+		contractFilter.setAddBasicFields(true);
 		contractFilter.setIdentity(identity.getId());
 		setAddEavMetadata(contractFilter, identity);
 		// eav attributes are secured automatically on this form (without configuration is needed)

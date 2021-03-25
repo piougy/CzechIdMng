@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 public class FormableSaveProcessor extends CoreEventProcessor<FormableDto> {
 	
 	public static final String PROCESSOR_NAME = "core-formable-save-processor";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(FormableSaveProcessor.class);
 	//
 	@Autowired private FormService formService;
 	@Autowired private EntityEventManager entityEventManager;
@@ -60,15 +61,22 @@ public class FormableSaveProcessor extends CoreEventProcessor<FormableDto> {
 			} else {
 				formDefinition = formInstance.getFormDefinition();
 			}
-			formInstance.setOwnerId(savedDto.getId());
-			formInstance.setOwnerType(lookupService.getEntityClass(savedDto.getClass())); // entity owner type is used
-			formInstance.setFormDefinition(formDefinition);
 			//
-			CoreEvent<IdmFormInstanceDto> formInstanceEvent = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
-			// We don't need to propagate other "NOTIFY" event on all form instances (duplicate to owner event)
-			formInstanceEvent.getProperties().put(EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFY, Boolean.TRUE);
-			// we don't need to evaluate access on values again - see above publish method
-			processedInstances.add(entityEventManager.process(formInstanceEvent, event).getContent());
+			if (formDefinition == null) {
+				LOG.debug("Internal form definition [{}] cannot be saved", formInstance.getFormDefinition().getCode());
+				// Prevent to loose internal form instance => just flow through without change.
+				processedInstances.add(formInstance);
+			} else {
+				formInstance.setOwnerId(savedDto.getId());
+				formInstance.setOwnerType(lookupService.getEntityClass(savedDto.getClass())); // entity owner type is used
+				formInstance.setFormDefinition(formDefinition);
+				//
+				CoreEvent<IdmFormInstanceDto> formInstanceEvent = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
+				// We don't need to propagate other "NOTIFY" event on all form instances (duplicate to owner event)
+				formInstanceEvent.getProperties().put(EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFY, Boolean.TRUE);
+				// we don't need to evaluate access on values again - see above publish method
+				processedInstances.add(entityEventManager.process(formInstanceEvent, event).getContent());
+			}
 		});
 		// set processed instances and content into event => can be used for another processing
 		savedDto.setEavs(processedInstances);

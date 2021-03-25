@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import moment from 'moment';
 //
+import * as Domain from '../../domain';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
@@ -26,7 +27,7 @@ const profileManager = new ProfileManager();
  *
  * @author Radek Tomiška
  */
-class IdentityDetail extends Basic.AbstractContent {
+class IdentityDetail extends Advanced.AbstractFormableContent {
 
   constructor(props) {
     super(props);
@@ -34,7 +35,8 @@ class IdentityDetail extends Basic.AbstractContent {
       showLoading: false,
       showLoadingIdentityTrimmed: false,
       deleteButton: false,
-      showCropper: false
+      showCropper: false,
+      validationErrors: null
     };
   }
 
@@ -92,13 +94,34 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   _afterSave(entity, error) {
-    this.setState({
-      showLoading: false
-    }, () => {
-      if (error) {
-        this.addError(error);
-        return;
+    if (error) {
+      let validationErrors = null;
+      if (error.statusEnum === 'FORM_INVALID' && error.parameters) {
+        validationErrors = error.parameters.attributes;
+        // focus the first invalid component
+        if (validationErrors && validationErrors.length > 0) {
+          // identity owner
+          const firstValidationError = validationErrors[0];
+          if (this.refs[firstValidationError.attributeCode] && firstValidationError.definitionCode === 'idm:basic-fields') {
+            this.refs[firstValidationError.attributeCode].focus();
+          }
+        }
       }
+      this.setState({
+        showLoading: false,
+        validationErrors
+      }, () => {
+        this.addError(error);
+      });
+      //
+      return;
+    }
+    //
+    // ok
+    this.setState({
+      showLoading: false,
+      validationErrors: null
+    }, () => {
       this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: entity.username }) });
       //
       // when username was changed, then new url is replaced
@@ -174,12 +197,39 @@ class IdentityDetail extends Basic.AbstractContent {
     this._closeCropper();
   }
 
+  // FIXME: unused, form update not work after changing validations
+  onChangeFormProjection(formProjection) {
+    let formInstance = null;
+    if (formProjection) {
+      try {
+        const formValidations = JSON.parse(formProjection.formValidations);
+        if (formValidations && formValidations.length > 0) {
+          formInstance = new Domain.FormInstance({ definition: { formAttributes: formValidations }});
+        }
+      } catch (syntaxError) {
+        formInstance = null; // not valid => will be checked on BE => preserve original validations
+      }
+    } else {
+      formInstance = new Domain.FormInstance({});
+    }
+    //
+    this.setState({
+      formInstance
+    });
+  }
+
   render() {
     const { identity, readOnly, _permissions, _profilePermissions, _imageUrl, _imageLoading, userContext } = this.props;
-    const { showLoading, showLoadingIdentityTrimmed, showCropper, cropperSrc } = this.state;
-    //
+    const { showLoading, showLoadingIdentityTrimmed, showCropper, cropperSrc, validationErrors } = this.state;
+    const formInstance = this.getBasicAttributesFormInstance(identity);
     const blockLoginDate = identity && identity.blockLoginDate ? moment(identity.blockLoginDate).format(this.i18n('format.datetime')) : null;
     const _readOnly = !identityManager.canSave(identity, _permissions) || readOnly;
+    const _readOnlyUsername = _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEUSERNAME');
+    const _readOnlyName = _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME');
+    const _readOnlyExternalCode = _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEEXTERNALCODE');
+    const _readOnlyEmail = _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEEMAIL');
+    const _readOnlyPhone = _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEPHONE');
+    const _readOnlyDescription = _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEDESCRIPTION');
     //
     return (
       <Basic.Div className="identity-detail">
@@ -233,41 +283,75 @@ class IdentityDetail extends Basic.AbstractContent {
                   <Basic.TextField
                     ref="username"
                     label={ this.i18n('username') }
+                    readOnly={ this.isReadOnly(formInstance, 'username', _readOnlyUsername) }
                     required
-                    min={ 3 }
-                    max={ 255 }
-                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEUSERNAME') }/>
+                    min={ this.getMin(formInstance, 'username', _readOnlyUsername, 3) }
+                    max={ this.getMax(formInstance, 'username', _readOnlyUsername, 255) }
+                    validationMessage={ this.getValidationMessage(formInstance, 'username') }
+                    validationErrors={
+                      this.getInvalidBasicField(validationErrors, 'username')
+                    }/>
                   <Basic.TextField
                     ref="firstName"
                     label={ this.i18n('firstName') }
-                    max={255}
-                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME') }/>
+                    readOnly={ this.isReadOnly(formInstance, 'firstName', _readOnlyName) }
+                    required={ this.isRequired(formInstance, 'firstName', _readOnlyName) }
+                    min={ this.getMin(formInstance, 'firstName', _readOnlyName) }
+                    max={ this.getMax(formInstance, 'firstName', _readOnlyName, 255) }
+                    validationMessage={ this.getValidationMessage(formInstance, 'firstName') }
+                    validationErrors={
+                      this.getInvalidBasicField(validationErrors, 'firstName')
+                    }/>
                   <Basic.TextField
                     ref="lastName"
                     label={ this.i18n('lastName') }
-                    max={ 255 }
-                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME') }/>
+                    readOnly={ this.isReadOnly(formInstance, 'lastName', _readOnlyName) }
+                    required={ this.isRequired(formInstance, 'lastName', _readOnlyName) }
+                    min={ this.getMin(formInstance, 'lastName', _readOnlyName) }
+                    max={ this.getMax(formInstance, 'lastName', _readOnlyName, 255) }
+                    validationMessage={ this.getValidationMessage(formInstance, 'lastName') }
+                    validationErrors={
+                      this.getInvalidBasicField(validationErrors, 'lastName')
+                    }/>
                 </Basic.Div>
               </Basic.Div>
               <Basic.TextField
                 ref="externalCode"
                 label={ this.i18n('content.identity.profile.externalCode') }
-                max={ 255 }
-                readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEEXTERNALCODE') }/>
+                readOnly={ this.isReadOnly(formInstance, 'externalCode', _readOnlyExternalCode) }
+                required={ this.isRequired(formInstance, 'externalCode', _readOnlyExternalCode) }
+                min={ this.getMin(formInstance, 'externalCode', _readOnlyExternalCode) }
+                max={ this.getMax(formInstance, 'externalCode', _readOnlyExternalCode, 255) }
+                validationMessage={ this.getValidationMessage(formInstance, 'externalCode') }
+                validationErrors={
+                  this.getInvalidBasicField(validationErrors, 'externalCode')
+                }/>
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="titleBefore"
                     label={ this.i18n('entity.Identity.titleBefore') }
-                    max={ 100 }
-                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME') }/>
+                    readOnly={ this.isReadOnly(formInstance, 'titleBefore', _readOnlyName) }
+                    required={ this.isRequired(formInstance, 'titleBefore', _readOnlyName) }
+                    min={ this.getMin(formInstance, 'titleBefore', _readOnlyName) }
+                    max={ this.getMax(formInstance, 'titleBefore', _readOnlyName, 100) }
+                    validationMessage={ this.getValidationMessage(formInstance, 'titleBefore') }
+                    validationErrors={
+                      this.getInvalidBasicField(validationErrors, 'titleBefore')
+                    }/>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="titleAfter"
                     label={ this.i18n('entity.Identity.titleAfter') }
-                    max={ 100 }
-                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME') }/>
+                    readOnly={ this.isReadOnly(formInstance, 'titleAfter', _readOnlyName) }
+                    required={ this.isRequired(formInstance, 'titleAfter', _readOnlyName) }
+                    min={ this.getMin(formInstance, 'titleAfter', _readOnlyName) }
+                    max={ this.getMax(formInstance, 'titleAfter', _readOnlyName, 100) }
+                    validationMessage={ this.getValidationMessage(formInstance, 'titleAfter') }
+                    validationErrors={
+                      this.getInvalidBasicField(validationErrors, 'titleAfter')
+                    }/>
                 </Basic.Col>
               </Basic.Row>
               <Basic.Row>
@@ -276,16 +360,29 @@ class IdentityDetail extends Basic.AbstractContent {
                     ref="email"
                     label={ this.i18n('email.label') }
                     placeholder={ this.i18n('email.placeholder') }
+                    readOnly={ this.isReadOnly(formInstance, 'email', _readOnlyEmail) }
                     validation={ Joi.string().allow(null).email() }
-                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEEMAIL') }/>
+                    required={ this.isRequired(formInstance, 'email', _readOnlyEmail) }
+                    min={ this.getMin(formInstance, 'email', _readOnlyEmail) }
+                    max={ this.getMax(formInstance, 'email', _readOnlyEmail, 255) }
+                    validationMessage={ this.getValidationMessage(formInstance, 'email') }
+                    validationErrors={
+                      this.getInvalidBasicField(validationErrors, 'email')
+                    }/>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="phone"
                     label={ this.i18n('phone.label') }
                     placeholder={ this.i18n('phone.placeholder') }
-                    max={ 30 }
-                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEPHONE') }/>
+                    readOnly={ this.isReadOnly(formInstance, 'phone', _readOnlyPhone) }
+                    required={ this.isRequired(formInstance, 'phone', _readOnlyPhone) }
+                    min={ this.getMin(formInstance, 'phone', _readOnlyPhone) }
+                    max={ this.getMax(formInstance, 'phone', _readOnlyPhone, 30) }
+                    validationMessage={ this.getValidationMessage(formInstance, 'phone') }
+                    validationErrors={
+                      this.getInvalidBasicField(validationErrors, 'phone')
+                    }/>
                 </Basic.Col>
               </Basic.Row>
               <Basic.TextArea
@@ -293,8 +390,14 @@ class IdentityDetail extends Basic.AbstractContent {
                 label={ this.i18n('description.label') }
                 placeholder={ this.i18n('description.placeholder') }
                 rows={ 4 }
-                max={ 1000 }
-                readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEDESCRIPTION') }/>
+                readOnly={ this.isReadOnly(formInstance, 'description', _readOnlyDescription) }
+                required={ this.isRequired(formInstance, 'description', _readOnlyDescription) }
+                min={ this.getMin(formInstance, 'description', _readOnlyDescription) }
+                max={ this.getMax(formInstance, 'description', _readOnlyDescription, 1000) }
+                validationMessage={ this.getValidationMessage(formInstance, 'description') }
+                validationErrors={
+                  this.getInvalidBasicField(validationErrors, 'description')
+                }/>
               <Basic.EnumSelectBox
                 ref="state"
                 enum={ IdentityStateEnum }
@@ -302,17 +405,20 @@ class IdentityDetail extends Basic.AbstractContent {
                 label={ this.i18n('entity.Identity.state.label') }
                 helpBlock={ <span>{ this.i18n('entity.Identity.state.help') }</span> }
                 readOnly/>
-              <Advanced.FormProjectionSelect
-                ref="formProjection"
-                label={ this.i18n('entity.Identity.formProjection.label') }
-                helpBlock={ this.i18n('entity.Identity.formProjection.help') }
-                readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEPROJECTION') }
-                hidden={ !SecurityManager.hasAllAuthorities(['FORMPROJECTION_AUTOCOMPLETE'], userContext) }
-                showIcon/>
+              {
+                !SecurityManager.hasAllAuthorities(['FORMPROJECTION_AUTOCOMPLETE'], userContext)
+                ||
+                <Advanced.FormProjectionSelect
+                  ref="formProjection"
+                  label={ this.i18n('entity.Identity.formProjection.label') }
+                  helpBlock={ this.i18n('entity.Identity.formProjection.help') }
+                  readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEPROJECTION') }
+                  showIcon/>
+              }
               <Basic.Checkbox
                 ref="disabled"
-                label={this.i18n('entity.Identity.disabledReadonly.label')}
-                helpBlock={this.i18n('entity.Identity.disabledReadonly.help')}
+                label={ this.i18n('entity.Identity.disabledReadonly.label') }
+                helpBlock={ this.i18n('entity.Identity.disabledReadonly.help') }
                 readOnly />
             </Basic.AbstractForm>
             <Basic.PanelFooter>
@@ -323,6 +429,17 @@ class IdentityDetail extends Basic.AbstractContent {
                 showLoading={ showLoading }>
                 { this.i18n('button.back') }
               </Basic.Button>
+              {
+                !identity || !identity.formProjection
+                ||
+                <Basic.Button
+                  type="button"
+                  level="link"
+                  rendered={ SecurityManager.hasAllAuthorities(['FORMPROJECTION_UPDATE'], userContext) && this.isDevelopment() }
+                  onClick={ () => this.context.history.push(`/form-projections/${ identity.formProjection }/detail`) }>
+                  { this.i18n('content.identity.projection.button.formProjection.label') }
+                </Basic.Button>
+              }
               {
                 !identity
                 ||

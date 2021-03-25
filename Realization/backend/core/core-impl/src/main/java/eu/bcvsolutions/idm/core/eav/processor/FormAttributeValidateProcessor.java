@@ -85,4 +85,9 @@ public class FormAttributeValidateProcessor
 			throw new ChangeConfidentialException(attributeCode, ex);
 		}
 	}
+	
+	@Override
+	public int getOrder() {
+		return -50; // before save
+	}
 }

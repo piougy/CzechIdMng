@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmTreeNodeFormValue;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Configuration for eav
+ * Configuration for eav.
  * 
  * @author Radek Tomiška
  *
@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 public class FormableConfiguration {
 
 	/**
-	 * Eav attributes for identity
+	 * Eav attributes for identity.
 	 * 
 	 * @param repository
 	 * @param confidentialStorage
@@ -49,7 +49,7 @@ public class FormableConfiguration {
 		return new AbstractFormValueService<IdmIdentity, IdmIdentityFormValue>(repository) {
 			
 			/**
-			 * Identity form values supports authorization policies
+			 * Identity form values supports authorization policies.
 			 */
 			@Override
 			public AuthorizableType getAuthorizableType() {
@@ -60,7 +60,7 @@ public class FormableConfiguration {
 	
 	
 	/**
-	 * Eav attributes for role
+	 * Eav attributes for role.
 	 * 
 	 * @param repository
 	 * @param confidentialStorage
@@ -73,7 +73,7 @@ public class FormableConfiguration {
 	}
 	
 	/**
-	 * Eav attributes for tree node
+	 * Eav attributes for tree node.
 	 * 
 	 * @param repository
 	 * @param confidentialStorage
@@ -86,7 +86,7 @@ public class FormableConfiguration {
 	}
 	
 	/**
-	 * Eav attributes for identity contracts
+	 * Eav attributes for identity contracts.
 	 * 
 	 * @param repository
 	 * @param confidentialStorage
@@ -98,7 +98,7 @@ public class FormableConfiguration {
 		return new AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue>(repository) {
 			
 			/**
-			 * Contract form values supports authorization policies
+			 * Contract form values supports authorization policies.
 			 */
 			@Override
 			public AuthorizableType getAuthorizableType() {
@@ -108,7 +108,7 @@ public class FormableConfiguration {
 	}
 	
 	/**
-	 * Eav attributes for contract time slices
+	 * Eav attributes for contract time slices.
 	 * 
 	 * @param repository
 	 * @param confidentialStorage
@@ -121,7 +121,7 @@ public class FormableConfiguration {
 	}
 	
 	/**
-	 * Eav attributes for common eav form
+	 * Eav attributes for common eav form:
 	 * - persists filters, configurable properties, etc.
 	 * 
 	 * @param repository
@@ -135,7 +135,7 @@ public class FormableConfiguration {
 	}
 	
 	/**
-	 * Eav attributes for codelists
+	 * Eav attributes for codelists.
 	 * 
 	 * @param repository
 	 * @param confidentialStorage
@@ -148,7 +148,7 @@ public class FormableConfiguration {
 	}
 	
 	/**
-	 * Eav attributes for identity role
+	 * Eav attributes for identity role.
 	 * 
 	 * @param repository
 	 * @param confidentialStorage
@@ -162,7 +162,7 @@ public class FormableConfiguration {
 	}
 	
 	/**
-	 * Eav attributes for concept role request
+	 * Eav attributes for concept role request.
 	 * 
 	 * @param repository
 	 * @param confidentialStorage

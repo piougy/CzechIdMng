@@ -151,16 +151,19 @@ class FormAttributeDetail extends Basic.AbstractContent {
     if (error) {
       this.setState({
         _showLoading: false
-      }, this.refs.form.processEnded());
-      this.addError(error);
+      }, () => {
+        this.refs.form.processEnded();
+        this.addError(error);
+      });
       return;
     }
     this.setState({
       _showLoading: false
+    }, () => {
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+      // FIXME: go back can be undefined
+      this.context.history.goBack();
     });
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    // FIXME: go back can be undefined
-    this.context.history.goBack();
   }
 
   /**

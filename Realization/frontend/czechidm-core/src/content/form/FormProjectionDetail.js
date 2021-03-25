@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
 import _ from 'lodash';
+import Joi from 'joi';
 //
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
@@ -25,11 +26,11 @@ const formAttributeManager = new FormAttributeManager();
 class IdentityAttributeEnum extends AbstractEnum {
 
   static getNiceLabel(key) {
-    return super.getNiceLabel(`core:enums.IdentityAttributeEnum.${key}`);
+    return super.getNiceLabel(`core:enums.IdentityAttributeEnum.${ key }`);
   }
 
   static getHelpBlockLabel(key) {
-    return super.getNiceLabel(`core:enums.IdentityAttributeEnum.helpBlock.${key}`);
+    return super.getNiceLabel(`core:enums.IdentityAttributeEnum.helpBlock.${ key }`);
   }
 
   static findKeyBySymbol(sym) {
@@ -167,6 +168,136 @@ IdentityAttributeEnum.STATE = Symbol('STATE');
 IdentityAttributeEnum.PASSWORD = Symbol('PASSWORD');
 
 /**
+ * Modified ContractAttributeEnum - singular properties
+ *
+ * TODO: DRY, but how to generalize enum + static methods ...
+ *
+ * @author Radek Tomiška
+ * @since 11.0.0
+ */
+class ContractAttributeEnum extends AbstractEnum {
+
+  static getNiceLabel(key) {
+    return super.getNiceLabel(`core:enums.ContractAttributeEnum.${ key }`);
+  }
+
+  static getHelpBlockLabel(key) {
+    return super.getNiceLabel(`core:enums.ContractAttributeEnum.helpBlock.${ key }`);
+  }
+
+  static findKeyBySymbol(sym) {
+    return super.findKeyBySymbol(this, sym);
+  }
+
+  static findSymbolByKey(key) {
+    return super.findSymbolByKey(this, key);
+  }
+
+  static getField(key) {
+    if (!key) {
+      return null;
+    }
+
+    const sym = super.findSymbolByKey(this, key);
+
+    switch (sym) {
+      case this.VALID_FROM: {
+        return 'validFrom';
+      }
+      case this.VALID_TILL: {
+        return 'validTill';
+      }
+      case this.WORK_POSITION: {
+        return 'workPosition';
+      }
+      /* TODO: change script cannot be created (java init is needed to maintain backward compatibility)
+      case this.POSITION: {
+        return 'position';
+      }
+      case this.EXTERNE: {
+        return 'externe';
+      }
+      case this.MAIN: {
+        return 'main';
+      }
+      case this.DESCRIPTION: {
+        return 'description';
+      }
+      case this.STATE: {
+        return 'state';
+      } */
+      default: {
+        return null;
+      }
+    }
+  }
+
+  static getEnum(field) {
+    if (!field) {
+      return null;
+    }
+
+    switch (field) {
+      case 'validFrom': {
+        return this.VALID_FROM;
+      }
+      case 'validTill': {
+        return this.VALID_TILL;
+      }
+      case 'workPosition': {
+        return this.WORK_POSITION;
+      }
+      /* TODO: change script cannot be created (java init is needed to maintain backward compatibility)
+      case 'position': {
+        return this.POSITION;
+      }
+      case 'externe': {
+        return this.EXTERNE;
+      }
+      case 'main': {
+        return this.MAIN;
+      }
+      case 'description': {
+        return this.DESCRIPTION;
+      }
+      case 'disabled': {
+        return this.DISABLED;
+      }
+      case 'state': {
+        return this.STATE;
+      }*/
+      default: {
+        return null;
+      }
+    }
+  }
+
+  static getLevel(key) {
+    if (!key) {
+      return null;
+    }
+
+    const sym = super.findSymbolByKey(this, key);
+
+    switch (sym) {
+      default: {
+        return 'default';
+      }
+    }
+  }
+}
+
+// TODO: change script cannot be created (java init is needed to maintain backward compatibility)
+// ContractAttributeEnum.MAIN = Symbol('MAIN');
+// ContractAttributeEnum.STATE = Symbol('STATE');
+// ContractAttributeEnum.POSITION = Symbol('POSITION');
+ContractAttributeEnum.WORK_POSITION = Symbol('WORK_POSITION');
+ContractAttributeEnum.VALID_FROM = Symbol('VALID_FROM');
+ContractAttributeEnum.VALID_TILL = Symbol('VALID_TILL');
+// ContractAttributeEnum.EXTERNE = Symbol('EXTERNE');
+// ContractAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
+
+/**
 * Form projection detail.
 *
 * @author Radek Tomiška
@@ -177,6 +308,15 @@ class FormProjectionDetail extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
+      detail: {
+        show: false,
+        isNew: true,
+        entity: {}
+      },
+      formValidations: new Immutable.OrderedMap(),
+      basicFields: [],
+      basicContractFields: [],
+      validateFormAttribute: null
     };
   }
 
@@ -207,14 +347,21 @@ class FormProjectionDetail extends Basic.AbstractContent {
   _initProjection(projection) {
     const { supportedRoutes } = this.props;
     let _formDefinitions = new Immutable.OrderedMap();
+    let _formValidations = new Immutable.OrderedMap();
     //
     if (projection) {
       // basic fields
       try {
-        projection.basicFields =
-          !projection.basicFields
-          ||
-          JSON.parse(projection.basicFields).map(f => IdentityAttributeEnum.findKeyBySymbol(IdentityAttributeEnum.getEnum(f)));
+        if (projection.basicFields) {
+          const allFields = JSON.parse(projection.basicFields);
+          projection.basicFields = allFields
+            .filter(f => f.indexOf('.') < 0 || f.indexOf('IdmIdentity.') > -1)
+            .map(f => IdentityAttributeEnum.findKeyBySymbol(IdentityAttributeEnum.getEnum(f)));
+          projection.basicContractFields = allFields
+            .filter(f => f.indexOf('IdmIdentityContract.') > -1)
+            .map(f => f.replace('IdmIdentityContract.', ''))
+            .map(f => ContractAttributeEnum.findKeyBySymbol(ContractAttributeEnum.getEnum(f)));
+        }
       } catch (syntaxError) {
         // nothing
       }
@@ -237,11 +384,31 @@ class FormProjectionDetail extends Basic.AbstractContent {
       } catch (syntaxError) {
         // nothing
       }
+      //
+      // form validations
+      try {
+        // immutable map
+        const formValidations = JSON.parse(projection.formValidations);
+        if (formValidations && formValidations.length > 0) {
+          formValidations.forEach(formValidation => {
+            // id is mixed => code + uuid for attributes from form definition
+            if (!formValidation.id) {
+              formValidation.id = formValidation.basicField;
+            }
+            _formValidations = _formValidations.set(formValidation.id, formValidation);
+          });
+        }
+      } catch (syntaxError) {
+        // nothing
+      }
     }
     //
     this.setState({
       projection,
+      basicFields: projection.basicFields,
+      basicContractFields: projection.basicContractFields,
       formDefinitions: _formDefinitions,
+      formValidations: _formValidations,
       formProjectionRoute: !supportedRoutes || !supportedRoutes.has(projection.route) ? null : supportedRoutes.get(projection.route)
     }, () => {
       this.refs.code.focus();
@@ -254,7 +421,7 @@ class FormProjectionDetail extends Basic.AbstractContent {
 
   save(event) {
     const { uiKey } = this.props;
-    const { formDefinitions } = this.state;
+    const { formDefinitions, formValidations } = this.state;
     //
     if (event) {
       event.preventDefault();
@@ -270,13 +437,20 @@ class FormProjectionDetail extends Basic.AbstractContent {
     //
     this.refs.form.processStarted();
     const entity = this.refs.form.getData();
-    // basic fields
+    // basic fields => identity + contract
+    const allBasicFields = [];
     if (entity.basicFields) {
-      if (entity.basicFields.length === 0) {
-        entity.basicFields = null;
-      } else {
-        entity.basicFields = JSON.stringify(entity.basicFields.map(f => IdentityAttributeEnum.getField(IdentityAttributeEnum.findSymbolByKey(f))));
-      }
+      entity.basicFields.forEach(f => allBasicFields.push(IdentityAttributeEnum.getField(IdentityAttributeEnum.findSymbolByKey(f))));
+    }
+    if (entity.basicContractFields) {
+      entity.basicContractFields.forEach(f => {
+        allBasicFields.push(`IdmIdentityContract.${ ContractAttributeEnum.getField(ContractAttributeEnum.findSymbolByKey(f)) }`);
+      });
+    }
+    if (allBasicFields.length === 0) {
+      entity.basicFields = null;
+    } else {
+      entity.basicFields = JSON.stringify(allBasicFields);
     }
     // form definitions and attributes
     const _formDefinitions = [];
@@ -289,6 +463,13 @@ class FormProjectionDetail extends Basic.AbstractContent {
       }
     });
     entity.formDefinitions = JSON.stringify(_formDefinitions);
+    entity.formValidations = JSON.stringify(formValidations.toArray().map(formValidation => {
+      const _formValidation = _.merge({}, formValidation); // copy => id cannot be cleared in original instance
+      if (_formValidation.basicField) {
+        _formValidation.id = null;
+      }
+      return _formValidation;
+    }));
     //
     // transform properties
     if (this.refs.formInstance) {
@@ -323,6 +504,41 @@ class FormProjectionDetail extends Basic.AbstractContent {
     }
   }
 
+  showDetail(entity) {
+    this.setState({
+      detail: {
+        show: true,
+        isNew: Utils.Entity.isNew(entity),
+        entity
+      },
+      validateFormAttribute: entity.basicField
+    }, () => {
+      // TODO: focus - selectbox s atributem dle definice
+    });
+  }
+
+  closeDetail() {
+    this.setState({
+      detail: {
+        show: false,
+        isNew: true,
+        entity: {}
+      }
+    });
+  }
+
+  onChangeBasicFields(basicFields) {
+    this.setState({
+      basicFields: basicFields.map(field => field.value)
+    });
+  }
+
+  onChangeBasicContractFields(basicContractFields) {
+    this.setState({
+      basicContractFields: basicContractFields.map(field => field.value)
+    });
+  }
+
   onChangeFormDefinition(id, formDefinition) {
     const { formDefinitions } = this.state;
     //
@@ -339,6 +555,12 @@ class FormProjectionDetail extends Basic.AbstractContent {
     });
   }
 
+  onChangeValidateFormAttribute(attribute) {
+    this.setState({
+      validateFormAttribute: attribute.value
+    });
+  }
+
   addFormDefinition() {
     const { formDefinitions } = this.state;
     //
@@ -352,6 +574,42 @@ class FormProjectionDetail extends Basic.AbstractContent {
     //
     this.setState({
       formDefinitions: formDefinitions.remove(id)
+    });
+  }
+
+  addFormValidation(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.refs.formValidation.isFormValid()) {
+      return;
+    }
+    const { formValidations, detail } = this.state;
+    const entity = this.refs.formValidation.getData();
+    const attribute = entity.id;
+    entity.id = attribute.value; // attribute id or filed for basic fields
+    entity.basicField = attribute.basicField; // only for FE
+    entity.code = attribute.code;
+    entity.name = attribute.name;
+    entity.formDefinition = attribute.formDefinition;
+    //
+    if (detail.isNew && formValidations.has(entity.id)) {
+      this.addMessage({ level: 'warning', message: this.i18n('entity.FormProjection.formValidations.create.message.contains') });
+      return;
+    }
+    //
+    this.setState({
+      formValidations: formValidations.set(entity.id, entity)
+    }, () => {
+      this.closeDetail();
+    });
+  }
+
+  removeFormValidation(id) {
+    const { formValidations } = this.state;
+    //
+    this.setState({
+      formValidations: formValidations.remove(id)
     });
   }
 
@@ -387,171 +645,462 @@ class FormProjectionDetail extends Basic.AbstractContent {
 
   render() {
     const { uiKey, showLoading, _permissions } = this.props;
-    const { projection, formDefinitions, formProjectionRoute } = this.state;
+    const { projection, formDefinitions, formValidations, formProjectionRoute, detail, validateFormAttribute } = this.state;
     //
     const _supportedRoutes = this._getSupportedRoutes();
     let formInstance = new Domain.FormInstance({});
     if (formProjectionRoute && formProjectionRoute.formDefinition && projection) {
       formInstance = new Domain.FormInstance(formProjectionRoute.formDefinition).setProperties(projection.properties);
     }
+    //
     const showProperties = formInstance
       && formProjectionRoute
       && formProjectionRoute.formDefinition
       && formProjectionRoute.formDefinition.formAttributes.length > 0;
     //
+    const _availableAttributes = [];
+    for (const enumItem in IdentityAttributeEnum) {
+      if (_.isSymbol(IdentityAttributeEnum[enumItem])) {
+        if (enumItem === 'PASSWORD' || enumItem === 'STATE' || enumItem === 'DISABLED') {
+          // this fields are not supported
+          continue;
+        }
+        const field = IdentityAttributeEnum.getField(enumItem);
+        _availableAttributes.push({
+          value: field,
+          code: field,
+          name: `IdmIdentity.${ field }`,
+          basicField: field,
+          niceLabel: enumItem.niceLabel || IdentityAttributeEnum.getNiceLabel(enumItem)
+        });
+      }
+    }
+    for (const enumItem in ContractAttributeEnum) {
+      if (_.isSymbol(ContractAttributeEnum[enumItem])) {
+        const field = ContractAttributeEnum.getField(enumItem);
+        _availableAttributes.push({
+          value: `IdmIdentityContract.${ field }`,
+          code: field,
+          name: `IdmIdentityContract.${ field }`,
+          basicField: `IdmIdentityContract.${ field }`,
+          niceLabel: enumItem.niceLabel || ContractAttributeEnum.getNiceLabel(enumItem)
+        });
+      }
+    }
+    //
     return (
-      <form onSubmit={ this.save.bind(this) }>
-        <Basic.Panel className={ Utils.Entity.isNew(projection) ? '' : 'no-border last' }>
-          <Basic.PanelHeader text={
+      <Basic.Div>
+        <form onSubmit={ this.save.bind(this) }>
+          <Basic.Panel className={ Utils.Entity.isNew(projection) ? '' : 'no-border last' }>
+            <Basic.PanelHeader text={
               Utils.Entity.isNew(projection)
               ?
               this.i18n('create.header')
               :
               this.i18n('content.form-projections.detail.title')
-          }/>
-          <Basic.PanelBody style={ Utils.Entity.isNew(projection) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
-            <Basic.AbstractForm
-              ref="form"
-              uiKey={ uiKey }
-              data={ projection }
-              readOnly={ !manager.canSave(projection, _permissions) }>
-              <Basic.TextField
-                ref="ownerType"
-                label={ this.i18n('entity.FormProjection.ownerType.label') }
-                max={ 255 }
-                required
-                hidden/>
-              <Basic.TextField
-                ref="code"
-                label={ this.i18n('entity.FormProjection.code.label') }
-                helpBlock={ this.i18n('entity.FormProjection.code.help') }
-                max={ 255 }
-                required/>
-              <Basic.TextField
-                ref="module"
-                label={ this.i18n('entity.FormProjection.module.label') }
-                max={ 255 }
-                helpBlock={ this.i18n('entity.FormProjection.module.help') }/>
-              <Basic.EnumSelectBox
-                enum={ IdentityAttributeEnum }
-                ref="basicFields"
-                label={ this.i18n('entity.FormProjection.basicFields.label') }
-                helpBlock={ this.i18n('entity.FormProjection.basicFields.help') }
-                placeholder={ this.i18n('entity.FormProjection.basicFields.placeholder') }
-                multiSelect/>
-              <Basic.LabelWrapper
-                label={ this.i18n('entity.FormProjection.formDefinitions.label') }
-                helpBlock={ this.i18n('entity.FormProjection.formDefinitions.help') }>
-                {
-                  !formDefinitions
-                  ||
-                  [
-                    ...formDefinitions.map((attributes, definitionId) => (
-                      <Basic.Div style={{ display: 'flex' }}>
-                        <Basic.Div style={{ flex: 2, paddingRight: 5 }}>
-                          <Basic.SelectBox
-                            label={ null }
-                            manager={ formDefinitionManager }
-                            forceSearchParameters={
-                              new Domain.SearchParameters()
-                                .setFilter('type', [
-                                  'eu.bcvsolutions.idm.core.model.entity.IdmIdentity',
-                                  'eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract'
-                                ])
-                                .setSort('code')
-                            }
-                            value={ definitionId }
-                            placeholder={ this.i18n('entity.FormProjection.formDefinitions.placeholder') }
-                            style={{ marginBottom: 5 }}
-                            onChange={ (f) => this.onChangeFormDefinition(definitionId, f) }
-                            readOnly={ definitionId !== null }
-                            clearable={ false }/>
-                        </Basic.Div>
-                        <Basic.Div style={{ flex: 3, paddingRight: 5 }}>
-                          <Basic.SelectBox
-                            label={ null }
-                            manager={ formAttributeManager }
-                            value={ attributes.toArray() }
-                            forceSearchParameters={ new Domain.SearchParameters().setFilter('definitionId', definitionId) }
-                            placeholder={ this.i18n('entity.FormProjection.formDefinitions.attributes.placeholder') }
-                            multiSelect
-                            style={{ marginBottom: 5 }}
-                            onChange={ (attrs) => this.onChangeFormAttributes(definitionId, attrs) }
-                            readOnly={ definitionId === null || !manager.canSave(projection, _permissions) }/>
-                        </Basic.Div>
+            }/>
+            <Basic.PanelBody style={ Utils.Entity.isNew(projection) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }>
+              <Basic.AbstractForm
+                ref="form"
+                uiKey={ uiKey }
+                data={ projection }
+                readOnly={ !manager.canSave(projection, _permissions) }>
+                <Basic.TextField
+                  ref="ownerType"
+                  label={ this.i18n('entity.FormProjection.ownerType.label') }
+                  max={ 255 }
+                  required
+                  hidden/>
+                <Basic.TextField
+                  ref="code"
+                  label={ this.i18n('entity.FormProjection.code.label') }
+                  helpBlock={ this.i18n('entity.FormProjection.code.help') }
+                  max={ 255 }
+                  required/>
+                <Basic.TextField
+                  ref="module"
+                  label={ this.i18n('entity.FormProjection.module.label') }
+                  max={ 255 }
+                  helpBlock={ this.i18n('entity.FormProjection.module.help') }/>
+                <Basic.Row>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.EnumSelectBox
+                      enum={ IdentityAttributeEnum }
+                      ref="basicFields"
+                      label={ this.i18n('entity.FormProjection.basicFields.label') }
+                      helpBlock={ this.i18n('entity.FormProjection.basicFields.help') }
+                      placeholder={ this.i18n('entity.FormProjection.basicFields.placeholder') }
+                      onChange={ this.onChangeBasicFields.bind(this) }
+                      multiSelect/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 6 }>
+                    <Basic.EnumSelectBox
+                      enum={ ContractAttributeEnum }
+                      ref="basicContractFields"
+                      label={ this.i18n('entity.FormProjection.basicContractFields.label') }
+                      helpBlock={ this.i18n('entity.FormProjection.basicContractFields.help') }
+                      placeholder={ this.i18n('entity.FormProjection.basicContractFields.placeholder') }
+                      onChange={ this.onChangeBasicContractFields.bind(this) }
+                      multiSelect/>
+                  </Basic.Col>
+                </Basic.Row>
+
+                <Basic.LabelWrapper
+                  label={ this.i18n('entity.FormProjection.formValidations.label') }
+                  rendered={ _availableAttributes.length > 0 }>
+                  {
+                    formValidations.size === 0
+                    ?
+                    <Basic.Alert
+                      text={ this.i18n('entity.FormProjection.formValidations.help') }
+                      className="no-margin"
+                      buttons={[
                         <Basic.Button
-                          level="danger"
-                          icon="fa:trash"
-                          title={ this.i18n('entity.FormProjection.formDefinitions.button.remove.title') }
-                          titlePlacement="left"
-                          onClick={ () => this.removeFormDefinition(definitionId) }
-                          disabled={ !manager.canSave(projection, _permissions) }/>
-                      </Basic.Div>
-                    )).values()
-                  ]
-                }
+                          level="info"
+                          className="btn-xs"
+                          icon="fa:plus"
+                          title={ this.i18n('entity.FormProjection.formValidations.button.add.title') }
+                          onClick={ this.showDetail.bind(this, {}) }
+                          disabled={
+                            !manager.canSave(projection, _permissions)
+                          }>
+                          { this.i18n('entity.FormProjection.formValidations.button.add.label') }
+                        </Basic.Button>
+                      ]}/>
+                    :
+                    <Basic.Div>
+                      <Basic.Table
+                        className="table-bordered"
+                        data={ formValidations.toArray() }>
+                        <Basic.Column
+                          property=""
+                          header=""
+                          className="edit-button"
+                          width={ 20 }
+                          cell={
+                            ({ rowIndex, data }) => (
+                              <Basic.Button
+                                title={ this.i18n('button.edit') }
+                                buttonSize="xs"
+                                icon="fa:pencil"
+                                onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
+                            )
+                          }/>
+                        <Basic.Column
+                          property="id"
+                          header={ this.i18n('entity.FormAttribute._type') }
+                          cell={
+                            ({ rowIndex, data }) => {
+                              const entity = data[rowIndex];
+                              if (!entity.basicField) {
+                                const attribute = formAttributeManager.getEntity(this.context.store.getState(), entity.id);
+                                if (!attribute) {
+                                  return entity.code;
+                                }
+                                return formAttributeManager.getNiceLabel(attribute, true);
+                              }
+                              if (!entity.basicField) {
+                                return entity.code;
+                              }
+                              if (entity.basicField.indexOf('IdmIdentityContract.') > -1) {
+                                return ContractAttributeEnum.getNiceLabel(
+                                  ContractAttributeEnum.findKeyBySymbol(
+                                    ContractAttributeEnum.getEnum(entity.basicField.replace('IdmIdentityContract.', ''))
+                                  )
+                                );
+                              }
+                              //
+                              return IdentityAttributeEnum.getNiceLabel(
+                                IdentityAttributeEnum.findKeyBySymbol(
+                                  IdentityAttributeEnum.getEnum(entity.basicField.replace('IdmIdentity.', ''))
+                                )
+                              );
+                            }
+                          }/>
+                        <Basic.Column
+                          property="readonly"
+                          header={<Basic.Cell className="column-face-bool">{this.i18n('entity.FormAttribute.readonly')}</Basic.Cell>}
+                          cell={<Basic.BooleanCell className="column-face-bool"/>}
+                          width={ 150 }/>
+                        <Basic.Column
+                          property="required"
+                          header={<Basic.Cell className="column-face-bool">{this.i18n('entity.FormAttribute.required')}</Basic.Cell>}
+                          cell={<Basic.BooleanCell className="column-face-bool"/>}
+                          width={ 150 }/>
+                        <Basic.Column
+                          property="min"
+                          header={ this.i18n('entity.FormAttribute.min.label') }/>
+                        <Basic.Column
+                          property="max"
+                          header={ this.i18n('entity.FormAttribute.max.label') }/>
+                        <Basic.Column
+                          property="regex"
+                          header={ this.i18n('entity.FormAttribute.regex.label') }/>
+                        <Basic.Column
+                          property=""
+                          header=""
+                          width={ 20 }
+                          cell={
+                            ({ rowIndex, data }) => (
+                              <Basic.Button
+                                level="danger"
+                                buttonSize="xs"
+                                icon="fa:trash"
+                                title={ this.i18n('entity.FormProjection.formValidations.button.remove.title') }
+                                titlePlacement="left"
+                                onClick={ () => this.removeFormValidation(data[rowIndex].id) }
+                                disabled={ !manager.canSave(projection, _permissions) }/>
+                            )
+                          }/>
+                      </Basic.Table>
 
-                <Basic.Button
-                  level="success"
-                  className="btn-xs"
-                  icon="fa:plus"
-                  title={ this.i18n('entity.FormProjection.formDefinitions.button.add.title') }
-                  style={{ marginBottom: 5 }}
-                  onClick={ () => this.addFormDefinition() }
-                  disabled={
-                    !manager.canSave(projection, _permissions)
+                      <Basic.Button
+                        level="success"
+                        className="btn-xs"
+                        icon="fa:plus"
+                        title={ this.i18n('entity.FormProjection.formValidations.button.add.title') }
+                        style={{ marginBottom: 5, marginTop: 5 }}
+                        onClick={ this.showDetail.bind(this, {}) }
+                        disabled={
+                          !manager.canSave(projection, _permissions)
+                        }>
+                        { this.i18n('entity.FormProjection.formValidations.button.add.label') }
+                      </Basic.Button>
+                    </Basic.Div>
+                  }
+                </Basic.LabelWrapper>
+
+                <Basic.LabelWrapper
+                  label={ this.i18n('entity.FormProjection.formDefinitions.label') }
+                  helpBlock={ this.i18n('entity.FormProjection.formDefinitions.help') }>
+                  {
+                    !formDefinitions
                     ||
-                    (formDefinitions && _.includes(formDefinitions.keySeq().toArray(), null))
-                  }>
-                  { this.i18n('entity.FormProjection.formDefinitions.button.add.label') }
-                </Basic.Button>
-              </Basic.LabelWrapper>
+                    [
+                      ...formDefinitions.map((attributes, definitionId) => (
+                        <Basic.Div style={{ display: 'flex' }}>
+                          <Basic.Div style={{ flex: 2, paddingRight: 5 }}>
+                            <Basic.SelectBox
+                              label={ null }
+                              manager={ formDefinitionManager }
+                              forceSearchParameters={
+                                new Domain.SearchParameters()
+                                  .setFilter('type', [
+                                    'eu.bcvsolutions.idm.core.model.entity.IdmIdentity',
+                                    'eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract'
+                                  ])
+                                  .setSort('code')
+                              }
+                              value={ definitionId }
+                              placeholder={ this.i18n('entity.FormProjection.formDefinitions.placeholder') }
+                              style={{ marginBottom: 5 }}
+                              onChange={ (f) => this.onChangeFormDefinition(definitionId, f) }
+                              readOnly={ definitionId !== null }
+                              clearable={ false }/>
+                          </Basic.Div>
+                          <Basic.Div style={{ flex: 3, paddingRight: 5 }}>
+                            <Basic.SelectBox
+                              label={ null }
+                              manager={ formAttributeManager }
+                              value={ attributes.toArray() }
+                              forceSearchParameters={ new Domain.SearchParameters().setFilter('definitionId', definitionId) }
+                              placeholder={ this.i18n('entity.FormProjection.formDefinitions.attributes.placeholder') }
+                              multiSelect
+                              style={{ marginBottom: 5 }}
+                              onChange={ (attrs) => this.onChangeFormAttributes(definitionId, attrs) }
+                              readOnly={ definitionId === null || !manager.canSave(projection, _permissions) }/>
+                          </Basic.Div>
+                          <Basic.Button
+                            level="danger"
+                            icon="fa:trash"
+                            title={ this.i18n('entity.FormProjection.formDefinitions.button.remove.title') }
+                            titlePlacement="left"
+                            onClick={ () => this.removeFormDefinition(definitionId) }
+                            disabled={ !manager.canSave(projection, _permissions) }/>
+                        </Basic.Div>
+                      )).values()
+                    ]
+                  }
 
-              <Basic.EnumSelectBox
-                ref="route"
-                options={ _supportedRoutes }
-                onChange={ this.onChangeRoute.bind(this) }
-                label={ this.i18n('entity.FormProjection.route.label') }
-                helpBlock={ formProjectionRoute ? formProjectionRoute.description : this.i18n('entity.FormProjection.route.help') }
-                clearable={ false }
-                required/>
+                  <Basic.Button
+                    level="success"
+                    className="btn-xs"
+                    icon="fa:plus"
+                    title={ this.i18n('entity.FormProjection.formDefinitions.button.add.title') }
+                    style={{ marginBottom: 5 }}
+                    onClick={ () => this.addFormDefinition() }
+                    disabled={
+                      !manager.canSave(projection, _permissions)
+                      ||
+                      (formDefinitions && _.includes(formDefinitions.keySeq().toArray(), null))
+                    }>
+                    { this.i18n('entity.FormProjection.formDefinitions.button.add.label') }
+                  </Basic.Button>
+                </Basic.LabelWrapper>
 
-              <Basic.Div style={ showProperties ? {} : { display: 'none' }}>
-                <Advanced.EavForm
-                  ref="formInstance"
-                  formInstance={ formInstance }
-                  useDefaultValue={ Utils.Entity.isNew(projection) }
-                  readOnly={ !manager.canSave(projection, _permissions) }
-                  showAttributes/>
-              </Basic.Div>
+                <Basic.EnumSelectBox
+                  ref="route"
+                  options={ _supportedRoutes }
+                  onChange={ this.onChangeRoute.bind(this) }
+                  label={ this.i18n('entity.FormProjection.route.label') }
+                  helpBlock={ formProjectionRoute ? formProjectionRoute.description : this.i18n('entity.FormProjection.route.help') }
+                  clearable={ false }
+                  required/>
 
-              <Basic.TextArea
-                ref="description"
-                label={ this.i18n('entity.FormProjection.description.label') }
-                rows={ 4 }
-                max={ 1000 }/>
-              <Basic.Checkbox
-                ref="disabled"
-                label={ this.i18n('entity.FormProjection.disabled.label') }
-                helpBlock={ this.i18n('entity.FormProjection.disabled.help') }/>
-            </Basic.AbstractForm>
-          </Basic.PanelBody>
-          <Basic.PanelFooter showLoading={ showLoading } >
-            <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
-              { this.i18n('button.back') }
-            </Basic.Button>
-            <Basic.Button
-              type="submit"
-              level="success"
-              showLoading={ showLoading }
-              showLoadingIcon
-              showLoadingText={ this.i18n('button.saving') }
-              rendered={ manager.canSave(projection, _permissions) }>
-              { this.i18n('button.save') }
-            </Basic.Button>
-          </Basic.PanelFooter>
-        </Basic.Panel>
-      </form>
+                <Basic.Div style={ showProperties ? {} : { display: 'none' }}>
+                  <Advanced.EavForm
+                    ref="formInstance"
+                    formInstance={ formInstance }
+                    useDefaultValue={ Utils.Entity.isNew(projection) }
+                    readOnly={ !manager.canSave(projection, _permissions) }
+                    showAttributes/>
+                </Basic.Div>
+
+                <Basic.TextArea
+                  ref="description"
+                  label={ this.i18n('entity.FormProjection.description.label') }
+                  rows={ 4 }
+                  max={ 1000 }/>
+                <Basic.Checkbox
+                  ref="disabled"
+                  label={ this.i18n('entity.FormProjection.disabled.label') }
+                  helpBlock={ this.i18n('entity.FormProjection.disabled.help') }/>
+              </Basic.AbstractForm>
+            </Basic.PanelBody>
+            <Basic.PanelFooter showLoading={ showLoading } >
+              <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
+                { this.i18n('button.back') }
+              </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoading={ showLoading }
+                showLoadingIcon
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={ manager.canSave(projection, _permissions) }>
+                { this.i18n('button.save') }
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </form>
+
+        <Basic.Modal
+          bsSize="large"
+          show={ detail.show }
+          onHide={ this.closeDetail.bind(this) }
+          backdrop="static"
+          keyboard>
+
+          <form onSubmit={ this.addFormValidation.bind(this) }>
+            <Basic.Modal.Header
+              closeButton
+              text={ this.i18n('entity.FormProjection.formValidations.create.header') }
+              rendered={ detail.entity.id === undefined }/>
+            <Basic.Modal.Header
+              closeButton
+              text={ this.i18n('entity.FormProjection.formValidations.edit.header', { name: detail.entity.name }) }
+              rendered={ detail.entity.id !== undefined }/>
+            <Basic.Modal.Body>
+              <Basic.AbstractForm
+                ref="formValidation"
+                data={ detail.entity }
+                readOnly={ !manager.canSave(projection, _permissions) }>
+                <Basic.EnumSelectBox
+                  ref="id"
+                  label={ this.i18n('entity.FormProjection.formValidations.attribute.label') }
+                  helpBlock={ this.i18n('entity.FormProjection.formValidations.attribute.help') }
+                  options={ _availableAttributes }
+                  required
+                  useObject
+                  readOnly={ !detail.isNew }
+                  onChange={ this.onChangeValidateFormAttribute.bind(this) }
+                />
+                <Basic.Checkbox
+                  ref="readonly"
+                  label={ this.i18n('entity.FormAttribute.readonly') }/>
+                <Basic.Checkbox
+                  ref="required"
+                  label={ this.i18n('entity.FormAttribute.required') }/>
+                <Basic.TextField
+                  ref="min"
+                  label={
+                    validateFormAttribute === 'IdmIdentityContract.validFrom' || validateFormAttribute === 'IdmIdentityContract.validTill'
+                    ?
+                    this.i18n('entity.FormAttribute.minDate.label')
+                    :
+                    this.i18n('entity.FormAttribute.minLength.label')
+                  }
+                  helpBlock={
+                    validateFormAttribute === 'IdmIdentityContract.validFrom' || validateFormAttribute === 'IdmIdentityContract.validTill'
+                    ?
+                    this.i18n('entity.FormAttribute.minDate.help')
+                    :
+                    this.i18n('entity.FormAttribute.minLength.help')
+                  }
+                  validation={
+                    Joi
+                      .number()
+                      .precision(4)
+                      .min(-(10 ** 33))
+                      .max(10 ** 33)
+                      .allow(null)
+                  }
+                  readOnly={ !validateFormAttribute || validateFormAttribute === 'IdmIdentityContract.workPosition' }/>
+                <Basic.TextField
+                  ref="max"
+                  label={
+                    validateFormAttribute === 'IdmIdentityContract.validFrom' || validateFormAttribute === 'IdmIdentityContract.validTill'
+                    ?
+                    this.i18n('entity.FormAttribute.maxDate.label')
+                    :
+                    this.i18n('entity.FormAttribute.maxLength.label')
+                  }
+                  helpBlock={
+                    validateFormAttribute === 'IdmIdentityContract.validFrom' || validateFormAttribute === 'IdmIdentityContract.validTill'
+                    ?
+                    this.i18n('entity.FormAttribute.maxDate.help')
+                    :
+                    this.i18n('entity.FormAttribute.maxLength.help')
+                  }
+                  validation={
+                    Joi
+                      .number()
+                      .precision(4)
+                      .min(-(10 ** 33))
+                      .max(10 ** 33)
+                      .allow(null)
+                  }
+                  readOnly={ !validateFormAttribute || validateFormAttribute === 'IdmIdentityContract.workPosition' }/>
+                <Basic.TextField
+                  ref="regex"
+                  label={ this.i18n('entity.FormAttribute.regex.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.regex.help') }
+                  max={ 2000 }
+                  readOnly={ !validateFormAttribute || validateFormAttribute.indexOf('IdmIdentityContract.') > -1 }/>
+                <Basic.TextField
+                  ref="validationMessage"
+                  label={ this.i18n('entity.FormAttribute.validationMessage.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.validationMessage.help') }
+                  max={ 2000 } />
+              </Basic.AbstractForm>
+            </Basic.Modal.Body>
+
+            <Basic.Modal.Footer>
+              <Basic.Button
+                level="link"
+                onClick={ this.closeDetail.bind(this) }>
+                { this.i18n('button.close') }
+              </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                rendered={ manager.canSave(projection, _permissions) }>
+                { this.i18n('button.set') }
+              </Basic.Button>
+            </Basic.Modal.Footer>
+          </form>
+        </Basic.Modal>
+      </Basic.Div>
     );
   }
 }

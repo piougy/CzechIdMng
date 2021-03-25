@@ -51,7 +51,7 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	private ConfigurationMap properties;
 	private boolean multiple;
 	private boolean required;
-	private boolean readonly;
+	private boolean readonly; // lookout: lower case! Different than on FE, but is too late :(
 	private boolean confidential;
 	@Min(Short.MIN_VALUE)
 	@Max(Short.MAX_VALUE)

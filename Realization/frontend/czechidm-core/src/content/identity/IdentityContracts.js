@@ -8,7 +8,7 @@ import ContractTable from './contract/ContractTable';
 import ContractSlices from './ContractSlices';
 
 /**
- * Identity's work positions - reference to tree structures and garants
+ * Identity's work positions - reference to tree structures and garants.
  *
  * @author Radek Tomiška
  */
@@ -38,11 +38,12 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={ `identity-contracts-${ entityId }` }
           forceSearchParameters={ forceSearchParameters }
-          className="no-margin"/>
+          className="no-margin"
+          match={ this.props.match }/>
 
         <ContractSlices
-          rendered={SecurityManager.hasAuthority('CONTRACTSLICE_READ')}
-          match={this.props.match}
+          rendered={ SecurityManager.hasAuthority('CONTRACTSLICE_READ') }
+          match={ this.props.match }
           reloadExternal={ this.reload.bind(this) }/>
       </Basic.Div>
     );

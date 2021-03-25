@@ -71,6 +71,13 @@ public interface FormService extends ScriptEnabled {
 	String FORM_DEFINITION_CACHE_NAME = String.format("%s:form-definition-cache", CoreModule.MODULE_ID);
 	
 	/**
+	 * System (internal) form definition for owner type basic field validations and additional configurations.
+	 * 
+	 * @since 11.0.0
+	 */
+	String FORM_DEFINITION_CODE_BASIC_FIELDS = "idm:basic-fields";
+	
+	/**
 	 * Returns true, when given owner type support eav forms. If {@link AbstractDto} owner type is given, 
 	 * then underlying {@link AbstractEntity} is resolved automatically => {@link AbstractEntity} has 
 	 * to implement  {@link FormableEntity}.

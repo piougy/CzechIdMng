@@ -150,7 +150,8 @@ public enum CoreResultCode implements ResultCode {
 	FORM_INVALID(HttpStatus.BAD_REQUEST, "Form is not valid. Attributes: [%s]."),
 	FORM_VALIDATION_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "Form validation type [%s] is not supported for persistent type [%s] for attribute [%s]."),
 	FORM_ATTRIBUTE_INVALID_REGEX(HttpStatus.BAD_REQUEST, "Regular expression [%s] for the form attribute [%s] is not valid."),
-	FORM_VALUE_DELETE_FAILED_IS_REQUIRED(HttpStatus.CONFLICT, "Form values [%] cannot be deleted. Form attribute [%s] is defined as required. Change form attribute definition if values are needed to be removed."),
+	FORM_VALUE_DELETE_FAILED_IS_REQUIRED(HttpStatus.CONFLICT, "Form values [%s] cannot be deleted. Form attribute [%s] is defined as required. Change form attribute definition if values are needed to be removed."),
+	FORM_PROJECTION_WRONG_VALIDATION_CONFIGURATION(HttpStatus.CONFLICT, "Form projection [%s] is wrongly configured. Fix configured form validations."),
 	// audit
 	AUDIT_REVISION_NOT_SAME(HttpStatus.BAD_REQUEST, "Audit revision are not same."),
 	AUDIT_ENTITY_CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity class [%s] not found."),

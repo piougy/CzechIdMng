@@ -14,7 +14,7 @@ const formDefinitionManager = new FormDefinitionManager();
 const dataManager = new DataManager();
 
 /**
- * Content with eav form
+ * Content with eav form.
  *
  * @author Radek Tomiška
  */
@@ -75,7 +75,7 @@ class EavContent extends Basic.AbstractContent {
   focus(attributeCode = null, ownerId = null) {
     const { _formInstances } = this.props;
     if (!_formInstances || _formInstances.length === 0) {
-      return;
+      return false;
     }
     //
     let focusFormInstance = null;
@@ -91,10 +91,15 @@ class EavContent extends Basic.AbstractContent {
     //
     if (focusFormInstance) {
       const eavFormRef = this._createFormRef(focusFormInstance.getDefinition().code);
-      if (eavFormRef) {
-        this.refs[eavFormRef].focus(attributeCode);
+      if (!eavFormRef) {
+        return false;
       }
+      if (!this.refs[eavFormRef]) {
+        return false;
+      }
+      return this.refs[eavFormRef].focus(attributeCode);
     }
+    return false;
   }
 
   _createFormRef(definitionCode) {

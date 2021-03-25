@@ -39,10 +39,7 @@ import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
  * Provide entity services through whole application. 
  * Support for loading {@link BaseDto} and {@link BaseEntity} by identifier.
  * 
- * TODO: lookup by example
- * 
  * @author Radek Tomiška
- *
  */
 public class DefaultLookupService implements LookupService {
 

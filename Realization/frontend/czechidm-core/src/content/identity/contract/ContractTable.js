@@ -7,11 +7,12 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { IdentityContractManager, TreeTypeManager, TreeNodeManager, SecurityManager } from '../../../redux';
+import { IdentityContractManager, IdentityManager, TreeTypeManager, TreeNodeManager, SecurityManager } from '../../../redux';
 import ManagersInfo from '../ManagersInfo';
 import ContractStateEnum from '../../../enums/ContractStateEnum';
 
 const manager = new IdentityContractManager(); // default manager
+const identityManager = new IdentityManager();
 
 /**
  * Identity contracts
@@ -44,12 +45,12 @@ export class ContractTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     //
-    const identityIdentifier = this._getIdentityIdentifier();
-    if (entity.id === undefined) {
+    if (Utils.Entity.isNew(entity)) {
       const uuidId = uuid.v1();
-      this.context.history.push(`/identity/${encodeURIComponent(identityIdentifier)}/identity-contract/${uuidId}/new?new=1`);
+      const { identity } = this.props;
+      this.context.history.push(`/identity/${ encodeURIComponent(identity.id) }/identity-contract/${ uuidId }/new?new=1`);
     } else {
-      this.context.history.push(`/identity/${encodeURIComponent(identityIdentifier)}/identity-contract/${entity.id}/detail`);
+      this.context.history.push(`/identity/${encodeURIComponent(this._getIdentityIdentifier()) }/identity-contract/${ entity.id }/detail`);
     }
   }
 
@@ -78,7 +79,8 @@ export class ContractTable extends Advanced.AbstractTableContent {
       forceSearchParameters,
       className,
       showAddButton,
-      showDetailButton
+      showDetailButton,
+      identity
     } = this.props;
     //
     return (
@@ -110,6 +112,8 @@ export class ContractTable extends Advanced.AbstractTableContent {
                   this._getIdentityIdentifier()
                   &&
                   SecurityManager.hasAuthority('IDENTITYCONTRACT_CREATE')
+                  &&
+                  identity
                 } />
             ]
           }
@@ -240,9 +244,12 @@ ContractTable.defaultProps = {
 };
 
 function select(state, component) {
+  const { entityId } = component.match ? component.match.params : {}; // ~username
+  //
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    i18nReady: state.config.get('i18nReady')
+    i18nReady: state.config.get('i18nReady'),
+    identity: entityId ? identityManager.getEntity(state, entityId) : null
   };
 }
 

@@ -576,4 +576,18 @@ public class IdmIdentityContractController extends AbstractFormableDtoController
 		//
 		return filter;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @since 11.0.0
+	 */
+	@Override
+	protected IdmIdentityContractFilter getContext(MultiValueMap<String, Object> parameters) {
+		IdmIdentityContractFilter context = new IdmIdentityContractFilter(parameters, getParameterConverter());
+		// load basic fields form definition
+		context.setAddBasicFields(true);
+		//
+		return context;
+	}
 }

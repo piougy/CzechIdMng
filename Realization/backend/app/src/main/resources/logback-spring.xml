@@ -66,7 +66,7 @@
 		<springProperty name="spring.datasource.username" source="spring.datasource.username"/>
 		<springProperty name="spring.datasource.password" source="spring.datasource.password"/>
 	  
-    	<appender name="DB" class="eu.bcvsolutions.idm.core.exception.IdmDBAppender">
+    	<appender name="DB" class="eu.bcvsolutions.idm.core.exception.IdmDbAppender">
 		    <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">
 		        <driverClass>${spring.datasource.driver-class-name}</driverClass>
 		        <url>${spring.datasource.url}</url>

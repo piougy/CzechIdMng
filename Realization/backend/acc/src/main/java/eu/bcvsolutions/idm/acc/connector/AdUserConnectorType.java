@@ -659,7 +659,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			);
 		}
 
-		if (Strings.isNotBlank(deleteUserContainer)) {
+		if (Strings.isNotBlank(deleteUserContainer) && protectedModeSwitch) {
 			String deleteUserContainerAD = this.findDn(
 					MessageFormat.format("(&(distinguishedName={0})(|(objectClass=container)(objectClass=organizationalUnit)))", deleteUserContainer)
 					, port, host, user, password, ssl);

@@ -254,13 +254,20 @@ export default class AbstractContent extends AbstractContextComponent {
    */
   renderContentHeader(props = {}) {
     const navigationItem = this.getNavigationItem() || {};
+    const { renderTitle, ...others } = props;
     //
     return (
-      <ContentHeader {...props}>
-        <Helmet title={ props.title || this.i18n('title') } />
-        <Icon value={navigationItem.icon}/>
+      <ContentHeader { ...others }>
+        {
+          renderTitle === null || renderTitle === undefined || renderTitle === true
+          ?
+          <Helmet title={ props.title || this.i18n('title') } />
+          :
+          null
+        }
+        <Icon value={ navigationItem.icon }/>
         {' '}
-        <span dangerouslySetInnerHTML={{__html: props.header || this.i18n('header')}}/>
+        <span dangerouslySetInnerHTML={{ __html: props.header || this.i18n('header') }}/>
       </ContentHeader>
     );
   }

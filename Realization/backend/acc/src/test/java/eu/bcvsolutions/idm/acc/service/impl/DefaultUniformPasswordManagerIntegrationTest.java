@@ -789,7 +789,7 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 
-	private void createTask(Class hrClass) {
+	private void createTask(Class<? extends SchedulableTaskExecutor<?>> hrClass) {
 		Task task = new Task();
 		task.setInstanceId(configurationService.getInstanceId());
 		task.setTaskType(hrClass);

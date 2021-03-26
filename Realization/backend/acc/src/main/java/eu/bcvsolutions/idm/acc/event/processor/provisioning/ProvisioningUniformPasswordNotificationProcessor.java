@@ -74,6 +74,7 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		IdmIdentityDto identityDto = null;

@@ -180,6 +180,7 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 	/**
 	 * Send notification with uniform password.
 	 */
+	@SuppressWarnings("unchecked")
 	protected void sendUniformPasswordNotification(IdmIdentityDto identityDto, IdmEntityStateDto uniformPasswordState) {
 		Assert.notNull(identityDto, "Identity cannot be null!");
 		Assert.notNull(uniformPasswordState, "Entity state cannot be null!");

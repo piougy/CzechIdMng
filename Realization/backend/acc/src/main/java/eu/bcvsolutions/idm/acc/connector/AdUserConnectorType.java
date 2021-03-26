@@ -634,7 +634,11 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		Assert.notNull(newUserContainer, "Container for new users cannot be null!");
 		String searchUserContainer = connectorType.getMetadata().get(USER_SEARCH_CONTAINER_KEY);
 		Assert.notNull(searchUserContainer, "Container for search users cannot be null!");
-		String deleteUserContainer = connectorType.getMetadata().get(DELETE_USER_CONTAINER_KEY);
+		String deleteUserContainer = null;
+		// Delete user container should be used only if protected mode is active.
+		if (protectedModeSwitch) {
+			deleteUserContainer = connectorType.getMetadata().get(DELETE_USER_CONTAINER_KEY);
+		}
 
 		String newUserContainerAD = this.findDn(
 				MessageFormat.format("(&(distinguishedName={0})(|(objectClass=container)(objectClass=organizationalUnit)))", newUserContainer)

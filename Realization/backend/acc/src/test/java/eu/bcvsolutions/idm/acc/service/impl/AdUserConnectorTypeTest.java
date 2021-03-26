@@ -202,7 +202,8 @@ public class AdUserConnectorTypeTest extends AbstractIntegrationTest {
 		String newUserContainer = getValueFromConnectorInstance(MockAdUserConnectorType.NEW_USER_CONTAINER_KEY, systemDto, operationOptionsFormDefinition);
 		assertEquals(newUserContainerMock, newUserContainer);
 		String deletedUserContainer = getValueFromConnectorInstance(MockAdUserConnectorType.DELETE_USER_CONTAINER_KEY, systemDto, operationOptionsFormDefinition);
-		assertEquals(deletedUserContainerMock, deletedUserContainer);
+		// Protected mode is not active -> delete user container should be null.
+		assertNull(deletedUserContainer);
 		String searchUserContainer = getValueFromConnectorInstance(MockAdUserConnectorType.USER_SEARCH_CONTAINER_KEY, systemDto, operationOptionsFormDefinition);
 		assertEquals(userContainerMock, searchUserContainer);
 		String domain = getValueFromConnectorInstance(MockAdUserConnectorType.DOMAIN_KEY, systemDto, operationOptionsFormDefinition);

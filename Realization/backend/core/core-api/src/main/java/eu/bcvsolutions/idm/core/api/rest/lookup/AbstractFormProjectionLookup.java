@@ -51,7 +51,7 @@ public abstract class AbstractFormProjectionLookup<DTO extends BaseDto> implemen
 	 */
 	@Override
 	public boolean supports(Class<?> delimiter) {
-		return domainType.isAssignableFrom(delimiter);
+		return domainType.equals(delimiter);
 	}
 	
 	@Override

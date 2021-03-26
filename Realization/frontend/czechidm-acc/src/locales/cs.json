@@ -675,8 +675,10 @@
       "detail": {
         "header": "Detail operace",
         "result": "Výsledek",
-        "accountObject": "IdM atributy",
-        "connectorObject": "Atributy pro provisioning",
+        "attributeNameCol": "Název atributu",
+        "accountObject": "Atributy v IdM připravené k provisioningu",
+        "connectorObject": "Změny atributů k provisioningu",
+        "systemObject": "Atributy na systému před provisioningem",
         "resultCode": "Kód",
         "nextAttempt": {
           "header": "Další pokus",

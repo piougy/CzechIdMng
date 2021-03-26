@@ -11,7 +11,7 @@ import ContractStateEnum from '../../enums/ContractStateEnum';
 const uiKey = 'contract-slices';
 
 /**
- * Contract slice
+ * Contract slices table.
  *
  * @author Vít Švanda
  */
@@ -38,15 +38,6 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
     return 'content.identity.contractSlices';
   }
 
-  getNavigationKey() {
-    return 'identity-contract-slices';
-  }
-
-  componentDidMount() {
-    super.componentDidMount();
-    this.selectSidebarItem('identity-contract-slices');
-  }
-
   showDetail(entity, event) {
     if (event) {
       event.preventDefault();
@@ -67,7 +58,9 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
       if (isOnContractDetail) {
-        this.context.history.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1&contractId=${contractLocalId}`);
+        this.context.history.push(
+          `/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1&contractId=${contractLocalId}`
+        );
       } else {
         this.context.history.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1`);
       }
@@ -105,10 +98,10 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
 
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        { this.renderContentHeader({ style: { marginBottom: 0 } }) }
+        { this.renderContentHeader({ renderTitle: false, style: { marginBottom: 0 } }) }
 
         <Advanced.Table
           ref="table"
@@ -212,7 +205,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
             enumClass={ ContractStateEnum }
             sort/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

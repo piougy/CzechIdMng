@@ -42,11 +42,12 @@ export default class StepFour extends AbstractWizardStep {
       return;
     }
     const metadata = _connectorType.metadata;
+    const protectedMode = this.state.protectedModeSwitch;
     metadata.system = system ? system.id : null;
     metadata.newUserContainer = formData.newUserContainer;
     metadata.searchUserContainer = formData.searchUserContainer;
-    metadata.deleteUserContainer = formData.deleteUserContainer;
-    metadata.protectedModeSwitch = this.state.protectedModeSwitch;
+    metadata.deleteUserContainer = protectedMode ? formData.deleteUserContainer : null;
+    metadata.protectedModeSwitch = protectedMode;
     metadata.domainContainer = formData.domainContainer;
     // formPairingSync
     metadata.pairingSyncSwitch = formPairingSync.pairingSyncSwitch;
@@ -61,8 +62,16 @@ export default class StepFour extends AbstractWizardStep {
   }
 
   _toggleProtectedModeSwitch(event, value) {
-    this.setState({
-      protectedModeSwitch: value
+    this.setState(prev => {
+      const connType = prev.connectorType;
+      if (!value && connType) {
+        connType.metadata.deleteUserContainer = null;
+        this.refs.deleteUserContainer.setValue(null);
+      }
+      return {
+        protectedModeSwitch: value,
+        connectorType: connType
+      };
     });
   }
 
@@ -95,7 +104,7 @@ export default class StepFour extends AbstractWizardStep {
       const metadata = _connectorType.metadata;
       formData.newUserContainer = metadata.newUserContainer ? metadata.newUserContainer : metadata.userContainer;
       formData.searchUserContainer = metadata.searchUserContainer ? metadata.searchUserContainer : metadata.userContainer;
-      formData.deleteUserContainer = metadata.deleteUserContainer ? metadata.deleteUserContainer : metadata.userContainer;
+      formData.deleteUserContainer = metadata.deleteUserContainer && protectedModeSwitch ? metadata.deleteUserContainer : null;
       formData.domainContainer = metadata.domainContainer;
     }
     const formDataPairingSync = {};
@@ -138,7 +147,7 @@ export default class StepFour extends AbstractWizardStep {
                 label={this.i18n(`${locKey}.deleteUserContainer.label`)}
                 helpBlock={this.i18n(`${locKey}.deleteUserContainer.help`)}
                 readOnly={!protectedModeSwitch}
-                required
+                required={protectedModeSwitch}
                 max={255}/>
             </Basic.Div>
           </Basic.Div>

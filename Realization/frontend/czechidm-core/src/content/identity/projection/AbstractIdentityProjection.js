@@ -200,18 +200,31 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       if (!_identityProjection['validFrom-0']) {
         _identityProjection['validFrom-0'] = moment();
       }
+      //
+      let validTill = null;
+      if (this.isRequired(formProjection, 'IdmIdentityContract.validTill')) {
+        const maxDate = this.getMaxDate(formProjection, 'IdmIdentityContract.validTill');
+        if (maxDate) {
+          validTill = maxDate;
+        }
+      }
+      if (!_identityProjection['validTill-0']) {
+        _identityProjection['validTill-0'] = validTill;
+      }
       // prepare contracts
       if (this.isTrue(formProjection, 'all-contracts')) {
         for (let i = 0; i < _contractPositions.length; i++) {
           _identityProjection.allContracts[i] = {
             position: _contractPositions[i].code,
-            validFrom: moment()
+            validFrom: moment(),
+            validTill
           };
         }
       } else {
         _identityProjection.allContracts[0] = {
           position: 'Default',
-          validFrom: moment()
+          validFrom: moment(),
+          validTill
         };
       }
     }

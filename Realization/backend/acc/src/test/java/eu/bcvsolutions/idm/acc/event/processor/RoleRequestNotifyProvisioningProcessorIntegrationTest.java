@@ -1,10 +1,5 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
-import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
 import java.util.List;
 
 import org.junit.Assert;

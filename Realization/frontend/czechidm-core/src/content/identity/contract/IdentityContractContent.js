@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import { IdentityContractManager, IdentityManager } from '../../../redux';
 import IdentityContractDetail from './IdentityContractDetail';
 
@@ -13,7 +14,7 @@ const identityManager = new IdentityManager();
  *
  * @author Radek Tomiška
  */
-class IdentityContractContent extends Basic.AbstractContent {
+class IdentityContractContent extends Advanced.AbstractFormableContent {
 
   getContentKey() {
     return 'content.identity-contract.detail';
@@ -25,14 +26,20 @@ class IdentityContractContent extends Basic.AbstractContent {
     //
     if (this._isNew()) {
       // load form projection from identity
-      this.context.store.dispatch(identityManager.fetchEntity(identityId, null, (entity, error) => {
+      this.context.store.dispatch(identityManager.fetchEntity(identityId, null, (identity, error) => {
         if (error) {
           this.addError(error);
         } else {
           // TODO: filter basic fields form definitions only
-          this.context.store.dispatch(manager.receiveEntity(entityId, {
-            _eav: entity._eav
-          }));
+          const entity = {
+            _eav: identity._eav
+          };
+          const formInstance = this.getBasicAttributesFormInstance(entity);
+          if (this.isRequired(formInstance, 'validTill')) {
+            entity.validTill = this.getMaxDate(formInstance, 'validTill');
+          }
+          //
+          this.context.store.dispatch(manager.receiveEntity(entityId, entity));
         }
       }));
     } else {

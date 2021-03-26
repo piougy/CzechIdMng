@@ -1067,6 +1067,10 @@
         "label": "Zahrnout při změně hesla",
         "help": "Odesílat attribut při změně hesla do provisioningu."
       },
+      "sendOnlyOnPasswordChange": {
+        "label": "Zahrnout pouze při změně hesla",
+        "help": "Hodnota atributu bude na koncový systém poslána pouze při změně hesla. Při standardním provisioningu nebude použita."
+      },
       "passwordAttribute": {
         "label": "Atribut s heslem",
         "help": "Atribut bude obsahovat hodnotu hesla. Tento atribut není možné přetížit v mapování u rolí. Do transformace bude poslána hodnota hesla v objektu GuardedString. Skript musí vracet null, nebo tento objekt."

@@ -124,7 +124,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	@Autowired private TestHelper helper;
 	@Autowired private SysSystemService systemService;
 	@Autowired private FormService formService;
-	@Autowired private IdmIdentityService idmIdentityService;
+	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private AccIdentityAccountService identityAccountService;
 	@Autowired private AccAccountService accountService;
@@ -163,7 +163,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	public void doIdentityProvisioningAddAccount() {
 		initData();
 
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
@@ -177,7 +177,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningChangeAccount() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 
@@ -185,7 +185,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		TestResource createdAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 
 		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME);
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
 
 		provisioningService.doProvisioning(identity);
@@ -197,9 +197,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void doIdentityProvisioningChangeIdentityContract() {
 		// change identity internally
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		identity.setFirstName("first-name-change");
-		identity = idmIdentityService.saveInternal(identity);
+		identity = identityService.saveInternal(identity);
 		
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -214,7 +214,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
 		
 		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME);
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 
 		changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(changedAccount);
@@ -243,13 +243,13 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		//
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setSubordinatesFor(managerOne.getId());
-		List<IdmIdentityDto> subordinates = idmIdentityService.find(filter, null).getContent();
+		List<IdmIdentityDto> subordinates = identityService.find(filter, null).getContent();
 		Assert.assertEquals(1, subordinates.size());
 		Assert.assertEquals(subordinateOne.getId(), subordinates.get(0).getId());
 		//
 		// change subordinate
 		subordinateOne.setFirstName("first-name-change-one");
-		subordinateOne = idmIdentityService.saveInternal(subordinateOne);
+		subordinateOne = identityService.saveInternal(subordinateOne);
 		//
 		// change managers contract
 		managersContract.setWorkPosition(null);
@@ -258,12 +258,12 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		account = entityManager.find(TestResource.class, accountService.get(subordinateAccount.getAccount()).getUid());
 		Assert.assertNotNull(account);
 		Assert.assertEquals(subordinateOne.getFirstName(), account.getFirstname());
-		subordinates = idmIdentityService.find(filter, null).getContent();
+		subordinates = identityService.find(filter, null).getContent();
 		Assert.assertEquals(0, subordinates.size());
 		//
 		// change subordinate again
 		subordinateOne.setFirstName("first-name-change-two");
-		subordinateOne = idmIdentityService.saveInternal(subordinateOne);
+		subordinateOne = identityService.saveInternal(subordinateOne);
 		//
 		managersContract.setWorkPosition(managerOnePosition.getId());
 		managersContract = identityContractService.save(managersContract);
@@ -271,7 +271,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		account = entityManager.find(TestResource.class, accountService.get(subordinateAccount.getAccount()).getUid());
 		Assert.assertNotNull(account);
 		Assert.assertEquals(subordinateOne.getFirstName(), account.getFirstname());
-		subordinates = idmIdentityService.find(filter, null).getContent();
+		subordinates = identityService.find(filter, null).getContent();
 		Assert.assertEquals(1, subordinates.size());
 		Assert.assertEquals(subordinateOne.getId(), subordinates.get(0).getId());
 	}
@@ -281,7 +281,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	 */
 	@Test
 	public void doIdentityProvisioningChangeAccountIdentifier() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME_TWO);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME_TWO);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 
@@ -289,7 +289,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
 
 		identity.setUsername(IDENTITY_USERNAME_CHANGED);
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getUid());
 
 		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
@@ -303,7 +303,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		
 		// Change username back
 		identity.setUsername(IDENTITY_USERNAME_TWO);
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 		account = accountService.get(account.getId());
 		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getUid());
 		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getRealUid());
@@ -311,7 +311,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningChangeAccountTransformFromResource() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 
@@ -319,7 +319,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		TestResource createdAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 
 		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME.substring(1));
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
 
 		provisioningService.doProvisioning(identity);
@@ -332,9 +332,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningChangeSingleAttribute() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME);
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 		Assert.assertEquals("Identity must have this first name!", IDENTITY_CHANGED_FIRST_NAME,
 				identity.getFirstName());
 
@@ -370,7 +370,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningChangePassword() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
@@ -382,7 +382,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_ONE));
 		passwordChange.setIdm(true);
 		// Do change of password for selected accounts
-		idmIdentityService.passwordChange(identity, passwordChange);
+		identityService.passwordChange(identity, passwordChange);
 		accountIdentityOne = identityAccountService.get(accountIdentityOne.getId());
 
 		// Check correct password One
@@ -399,7 +399,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		}
 		// Do change of password for selected accounts
 		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_TWO));
-		idmIdentityService.passwordChange(idmIdentityService.get(accountIdentityOne.getIdentity()), passwordChange);
+		identityService.passwordChange(identityService.get(accountIdentityOne.getIdentity()), passwordChange);
 
 		// Check correct password Two
 		accountIdentityOne = identityAccountService.get(accountIdentityOne.getId());
@@ -409,7 +409,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void doIdentityProvisioningChangePasswordUnsupportSystem() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
@@ -474,7 +474,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		passwordChange.setNewPassword(new GuardedString("newPWD12"));
 		passwordChange.getAccounts().add(account.getId().toString());
 		
-		idmIdentityService.passwordChange(identity, passwordChange);
+		identityService.passwordChange(identity, passwordChange);
 		
 		createdAccount = entityManager.find(TestResource.class, accountService.get(accountIdentity.getAccount()).getUid());
 		Assert.assertNotEquals(password, createdAccount.getPassword());
@@ -489,7 +489,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		passwordChange = new PasswordChangeDto();
 		passwordChange.setNewPassword(new GuardedString("newPWDUnsupported"));
 		passwordChange.getAccounts().add(account.getId().toString());
-		List<OperationResult> results = idmIdentityService.passwordChange(identity, passwordChange);
+		List<OperationResult> results = identityService.passwordChange(identity, passwordChange);
 
 		// check results
 		// for idm will be password changed executed with success state for system doesn't
@@ -515,7 +515,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningZRemoveAccount() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
@@ -527,7 +527,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningExtendedAttribute() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -569,7 +569,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void doIdentityProvisioningStrategyCreate() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -599,7 +599,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void doIdentityProvisioningStrategyCreateNotReturnByDefault() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -640,7 +640,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void doIdentityProvisioningStrategyIfNull() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -682,7 +682,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void doIdentityProvisioningStrategySendOnlyIfNotNull() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -734,7 +734,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test()
 	public void doIdentityProvisioningStrategyMerge() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -760,7 +760,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	// Expected PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE
 	@Test(expected = ProvisioningException.class)
 	public void doIdentityProvisioningStrategyMergeException() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -786,7 +786,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void doIdentityProvisioningAndPasswordCheck() {
-		IdmIdentityDto existIdentity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto existIdentity = identityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(existIdentity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
@@ -1314,13 +1314,75 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		String previousFirtsName = identity.getFirstName();
 		String firstNameChange = "firstname-change";
 		identity.setFirstName(firstNameChange);
-		idmIdentityService.passwordChange(identity, passwordChange);
+		identityService.passwordChange(identity, passwordChange);
 		//
 		// Check correct password One
 		TestResource resource = helper.findResource(account.getRealUid());
 		Assert.assertNotNull(resource);
 		Assert.assertEquals(IDENTITY_PASSWORD_ONE, resource.getPassword());
 		Assert.assertEquals(previousFirtsName, resource.getFirstname());
+	}
+	
+	@Test
+	public void testSendAttributeOnlyOnPasswordChange() {
+		Assert.assertTrue(provisioningConfiguration.isSendPasswordAttributesTogether());
+		
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
+		SysSystemAttributeMappingDto firstNameAttribute = systemAttributeMappingService.findBySystemMappingAndName(systemMapping.getId(), 
+				helper.getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME)); 
+		firstNameAttribute.setSendOnPasswordChange(Boolean.TRUE);
+		systemAttributeMappingService.save(firstNameAttribute);
+		
+		IdmRoleDto role = helper.createRole();
+		helper.createRoleSystem(role, system);
+		IdmIdentityDto identity = helper.createIdentity();
+		helper.createIdentityRole(identity, role);
+		
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
+		AccAccountDto account = accountService.get(accountIdentityOne.getAccount());
+
+		// First name attribute is not set as "send only with password change" -> first name should be changed.
+		String firstNameOne = getHelper().createName();
+		identity.setFirstName(firstNameOne);
+		identity = identityService.save(identity);
+		TestResource resource = helper.findResource(account.getRealUid());
+		Assert.assertNotNull(resource);
+		Assert.assertEquals(firstNameOne, resource.getFirstname());
+
+		// Set first name attribute as "send only with password change".
+		firstNameAttribute.setSendOnlyOnPasswordChange(Boolean.TRUE);
+		systemAttributeMappingService.save(firstNameAttribute);
+
+		// First name attribute is set as "send only with password change" -> first name should be not changed.
+		String firstNameTwo = getHelper().createName();
+		identity.setFirstName(firstNameTwo);
+		identity = identityService.save(identity);
+		resource = helper.findResource(account.getRealUid());
+		Assert.assertNotNull(resource);
+		Assert.assertNotEquals(identity.getFirstName(), resource.getFirstname());
+		Assert.assertEquals(firstNameOne, resource.getFirstname());
+
+		// First name attribute should be send on password change.
+		String newPassword = getHelper().createName();
+		// Create new password one
+		PasswordChangeDto passwordChange = new PasswordChangeDto();
+		passwordChange.setAccounts(ImmutableList.of(account.getId().toString()));
+		passwordChange.setNewPassword(new GuardedString(newPassword));
+		passwordChange.setIdm(true);
+		
+		// Do change of password for selected accounts
+		String firstNameChange =  getHelper().createName();
+		identity.setFirstName(firstNameChange);
+		identityService.passwordChange(identity, passwordChange);
+		
+		// Check correct password One
+		resource = helper.findResource(account.getRealUid());
+		Assert.assertNotNull(resource);
+		Assert.assertEquals(newPassword, resource.getPassword());
+		Assert.assertEquals(firstNameChange, resource.getFirstname());
 	}
 	
 	@Test
@@ -1353,7 +1415,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// Do change of password for selected accounts
 		String firstNameChange = "firstname-change";
 		identity.setFirstName(firstNameChange);
-		idmIdentityService.passwordChange(identity, passwordChange);
+		identityService.passwordChange(identity, passwordChange);
 		//
 		// Check correct password One
 		TestResource resource = helper.findResource(account.getRealUid());
@@ -1393,7 +1455,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 			// Do change of password for selected accounts
 			String firstNameChange = "firstname-change";
 			identity.setFirstName(firstNameChange);
-			idmIdentityService.passwordChange(identity, passwordChange);
+			identityService.passwordChange(identity, passwordChange);
 			//
 			// Check correct password One
 			TestResource resource = helper.findResource(account.getRealUid());
@@ -1566,7 +1628,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identity.setUsername(IDENTITY_USERNAME);
 		identity.setFirstName(IDENTITY_USERNAME);
 		identity.setLastName(IDENTITY_USERNAME);
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 
 		accountOne = new AccAccountDto();
 		accountOne.setSystem(system.getId());
@@ -1586,7 +1648,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identityTwo.setUsername(IDENTITY_USERNAME_TWO);
 		identityTwo.setFirstName(IDENTITY_USERNAME_TWO);
 		identityTwo.setLastName(IDENTITY_USERNAME_TWO);
-		identityTwo = idmIdentityService.save(identityTwo);
+		identityTwo = identityService.save(identityTwo);
 
 		AccAccountDto accountTwo = new AccAccountDto();
 		accountTwo.setSystem(system.getId());
@@ -1683,7 +1745,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 	
 	private SysSystemDto getSystem() {
-		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+		IdmIdentityDto identity = identityService.getByUsername(IDENTITY_USERNAME);
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
@@ -1702,7 +1764,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity.setPassword(new GuardedString("password"));
-		return idmIdentityService.save(identity);
+		return identityService.save(identity);
 	}
 	
 	/**

@@ -39,6 +39,7 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	private boolean sendOnlyIfNotNull = false;
 	private boolean authenticationAttribute = false;
 	private boolean sendOnPasswordChange = false;
+	private boolean sendOnlyOnPasswordChange = false;
 	private boolean cached = true;
 	private boolean evictControlledValuesCache = true;
 	private boolean passwordFilter = false;
@@ -203,6 +204,14 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 
 	public boolean isSendOnPasswordChange() {
 		return sendOnPasswordChange;
+	}
+
+	public boolean isSendOnlyOnPasswordChange() {
+		return sendOnlyOnPasswordChange;
+	}
+
+	public void setSendOnlyOnPasswordChange(boolean sendOnlyOnPasswordChange) {
+		this.sendOnlyOnPasswordChange = sendOnlyOnPasswordChange;
 	}
 
 	public void setSendOnPasswordChange(boolean sendOnPasswordChange) {

@@ -1168,7 +1168,12 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		if (mapping == null) {
 			return null;
 		}
-		return attributeMappingService.findBySystemMapping(mapping);
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setSystemMappingId(mapping.getId());
+		// We don't want attributes for password change only.
+		filter.setSendOnlyOnPasswordChange(Boolean.FALSE);
+		
+		return attributeMappingService.find(filter, null).getContent();
 	}
 
 	protected List<SysSystemMappingDto> findSystemMappingsForEntityType(DTO dto, SystemEntityType entityType) {

@@ -1066,6 +1066,10 @@
         "label": "Include on password change",
         "help": "Send this attribute into provisioning, when password is changed."
       },
+      "sendOnlyOnPasswordChange": {
+        "label": "Include only when password is changed",
+        "help": "The value of the attribute will only be sent to the target system when the password is changed. It will not be used in standard provisioning."
+      },
       "passwordAttribute": {
         "label": "Attribute with password",
         "help": "Attribute will contain value of password. The attribute can't be override by role mapping. Into transformation will be add password in object GuardedString. Script must return null, or GuardedString."

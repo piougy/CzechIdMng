@@ -1224,7 +1224,7 @@ RoleType]]></x0:EntityRelationshipModel.title>
 		<node id="n22">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="1899.0339791901065" Y="-1155.925304443533" Width="236.86549014612433" Height="220.94436464346802"/>
+				<y:RectD X="1899.0339791901065" Y="-1155.925304443533" Width="236.86549014612433" Height="218.19436464346802"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FF3399FF">
@@ -1253,6 +1253,7 @@ RoleType]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[+ transformToSystem]]></sys:String>
 									<sys:String><![CDATA[- isUid(boolean)]]></sys:String>
 									<sys:String><![CDATA[- sendOnPasswordChange (boolean)]]></sys:String>
+									<sys:String><![CDATA[- sendOnlyOnPasswordChange (boolean)]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>

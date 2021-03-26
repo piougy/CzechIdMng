@@ -264,6 +264,14 @@ public class DefaultSysSystemAttributeMappingService
 				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.sendOnPasswordChange)));
 			}
 		}
+		
+		if (filter.getSendOnlyOnPasswordChange() != null) {
+			if (BooleanUtils.isFalse(filter.getSendOnlyOnPasswordChange())) {
+				predicates.add(builder.isFalse(root.get(SysSystemAttributeMapping_.sendOnlyOnPasswordChange)));
+			} else {
+				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.sendOnlyOnPasswordChange)));
+			}
+		}
 
 		if (filter.getPasswordAttribute() != null) {
 			if (BooleanUtils.isFalse(filter.getPasswordAttribute())) {
@@ -495,6 +503,13 @@ public class DefaultSysSystemAttributeMappingService
 		if (entityType != null && dto.isExtendedAttribute() && formService.isFormable(entityType)) {
 			createExtendedAttributeDefinition(dto, entityType);
 		}
+
+		if (dto.isSendOnlyOnPasswordChange() && !dto.isSendOnPasswordChange()) {
+			// This is invalid state. Check box "send only on password changed" can be checked
+			// only if "send on password change" is checked too. 
+			dto.setSendOnlyOnPasswordChange(Boolean.FALSE);
+		}
+		
 		return super.saveInternal(dto);
 	}
 

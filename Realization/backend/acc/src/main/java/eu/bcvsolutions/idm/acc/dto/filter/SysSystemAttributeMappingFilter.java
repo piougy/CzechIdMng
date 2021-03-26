@@ -21,6 +21,7 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	private String schemaAttributeName;
 	private Boolean isUid;
 	private Boolean sendOnPasswordChange;
+	private Boolean sendOnlyOnPasswordChange;
 	private Boolean passwordAttribute;
 	private Boolean disabledAttribute;
 	private SystemOperationType operationType;
@@ -75,6 +76,14 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	
 	public Boolean getSendOnPasswordChange() {
 		return sendOnPasswordChange;
+	}
+
+	public Boolean getSendOnlyOnPasswordChange() {
+		return sendOnlyOnPasswordChange;
+	}
+
+	public void setSendOnlyOnPasswordChange(Boolean sendOnlyOnPasswordChange) {
+		this.sendOnlyOnPasswordChange = sendOnlyOnPasswordChange;
 	}
 
 	public String getSchemaAttributeName() {

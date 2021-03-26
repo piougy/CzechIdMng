@@ -55,7 +55,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
           disabledAttribute: _attribute.disabledAttribute,
           entityAttribute: _attribute.entityAttribute,
           extendedAttribute: _attribute.extendedAttribute,
-          passwordAttribute: _attribute.passwordAttribute
+          passwordAttribute: _attribute.passwordAttribute,
+          sendOnPasswordChange: _attribute.sendOnPasswordChange
         }, () => {
           if (this.refs.form) {
             // Workaround - We need set value after enumeration type was changed
@@ -292,7 +293,15 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _attribute, _systemMapping } = this.props;
-    const { disabledAttribute, entityAttribute, extendedAttribute, activeKey, strategyType, passwordAttribute, _idmPropertyName} = this.state;
+    const { disabledAttribute,
+      entityAttribute,
+      extendedAttribute,
+      activeKey,
+      strategyType,
+      passwordAttribute,
+      _idmPropertyName,
+      sendOnPasswordChange
+    } = this.state;
 
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
@@ -439,11 +448,24 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     label={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.label')}
                     helpBlock={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.help')}
                     readOnly={_isDisabled}/>
-                  <Basic.Checkbox
-                    ref="sendOnPasswordChange"
-                    label={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.help')}
-                    readOnly={_isDisabled}/>
+                  <Basic.Div style={{display: 'flex'}}>
+                    <Basic.Div style={{flex: 5}}>
+                      <Basic.Checkbox
+                        ref="sendOnPasswordChange"
+                        onChange={this._checkboxChanged.bind(this, 'sendOnPasswordChange', null)}
+                        label={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.label')}
+                        helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.help')}
+                        readOnly={_isDisabled}/>
+                    </Basic.Div>
+                    <Basic.Div style={{flex: 10}}>
+                      <Basic.Checkbox
+                        ref="sendOnlyOnPasswordChange"
+                        hidden={!sendOnPasswordChange}
+                        label={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyOnPasswordChange.label')}
+                        helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyOnPasswordChange.help')}
+                        readOnly={_isDisabled}/>
+                    </Basic.Div>
+                  </Basic.Div>
                   <Basic.Checkbox
                     ref="passwordAttribute"
                     hidden={isSynchronization}

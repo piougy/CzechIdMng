@@ -113,8 +113,8 @@ class SelectBox extends AbstractFormComponent {
     return manager.mergeSearchParameters(searchParameters, _forceSearchParameters);
   }
 
-  getOptions(input, forceSearchParameters, useFirst = false, addToEnd = false, useFirstIfOne = false) {
-    const { manager, clearable, multiSelect, emptyOptionLabel, additionalOptions } = this.props;
+  getOptions(input, forceSearchParameters, useFirst = false, addToEnd = false, useFirstIfOne) {
+    const { manager, clearable, multiSelect, emptyOptionLabel, additionalOptions, required } = this.props;
     const { options } = this.state;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
@@ -145,8 +145,12 @@ class SelectBox extends AbstractFormComponent {
                 continue;
               }
               this.itemRenderer(results[item], input);
-              // use the first value
-              if (results.length === 1 && this.state.value === null && useFirstIfOne) {
+              // Default behavior: Use the first value, but only if exist only one item and select box is required.
+              if (results.length === 1 && this.state.value === null && !!required && useFirstIfOne === undefined) {
+                this.onChange(results[item]);
+              }
+              // Use the first value, but only if exist only one item.
+              if (results.length === 1 && this.state.value === null && useFirstIfOne === true) {
                 this.onChange(results[item]);
               }
               // use the first value
@@ -783,7 +787,7 @@ SelectBox.defaultProps = {
   searchInFields: [],
   clearable: true,
   useFirst: false,
-  useFirstIfOne: true,
+  useFirstIfOne: undefined,
   pageSize: SearchParameters.getDefaultSize(),
   loadMoreContent: true,
   optionComponent: OptionDecorator,

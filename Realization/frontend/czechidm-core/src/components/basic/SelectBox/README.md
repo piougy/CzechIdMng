@@ -27,7 +27,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | niceLabel | func   | Function for transform nice label in select box|  |
 | returnProperty | oneOfType([string, bool])  | If object is selected, then this property value will be returned. If value is false, then whole object is returned. | 'id' |
 | useFirst | bool | Use the first searched value on component is inited, if selected value is empty. | false |
-| useFirstIfOne | bool | Use the first searched value if exists only one and if selected value is empty. | true |
+| useFirstIfOne | bool | Use the first searched value if exists only one and if selected value is empty. By default is attribute undefined and in that state is selected first result only if select box is required. | undefined |
 | pageSize | number | Search results page size | SearchParameters.getDefaultSize() |
 | loadMoreContent | bool | Load next options after reached end of list | true
 | optionComponent | func | Option decorator | OptionDecorator |

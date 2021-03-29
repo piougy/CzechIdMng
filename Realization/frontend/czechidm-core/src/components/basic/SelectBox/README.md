@@ -26,7 +26,8 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | disableable | bool  | Selected options cannot be selected - Disableable = ``true`` => disabled entity cannot be selected. Set property to ``false`` to enable select disabled entities. | true |
 | niceLabel | func   | Function for transform nice label in select box|  |
 | returnProperty | oneOfType([string, bool])  | If object is selected, then this property value will be returned. If value is false, then whole object is returned. | 'id' |
-| useFirst | bool | Use the first searched value on component is inited, if selcted value is empty | false |
+| useFirst | bool | Use the first searched value on component is inited, if selected value is empty. | false |
+| useFirstIfOne | bool | Use the first searched value if exists only one and if selected value is empty. | true |
 | pageSize | number | Search results page size | SearchParameters.getDefaultSize() |
 | loadMoreContent | bool | Load next options after reached end of list | true
 | optionComponent | func | Option decorator | OptionDecorator |

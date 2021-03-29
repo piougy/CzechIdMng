@@ -44,7 +44,7 @@ public class DeleteNotificationTaskExecutorIntegrationTest extends AbstractInteg
 		createDto(subject, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), NotificationState.NOT);
 		createDto(subject, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), NotificationState.ALL);
 		createDto(subject, ZonedDateTime.now().minusDays(2), NotificationState.PARTLY);
-		createDto(subject, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(23), NotificationState.ALL);
+		createDto(subject, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(22), NotificationState.ALL);
 		//
 		Assert.assertEquals(createdOne, operationOne.getCreated());
 		IdmNotificationFilter filter = new IdmNotificationFilter();

@@ -54,7 +54,7 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 		createDto(system, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.CREATED, ProvisioningEventType.CANCEL);
 		createDto(system, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
 		createDto(system, ZonedDateTime.now().minusDays(2), OperationState.EXCEPTION, ProvisioningEventType.CANCEL);
-		createDto(system, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(23), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		createDto(system, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(22), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
 		SysProvisioningArchiveDto operationOther = createDto(systemOther, ZonedDateTime.now().minusDays(2), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
 		//
 		Assert.assertEquals(createdOne, operationOne.getCreated());

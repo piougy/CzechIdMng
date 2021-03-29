@@ -56,7 +56,7 @@ public class DeleteSynchronizationLogTaskExecutorIntegrationTest extends Abstrac
 		SysSyncLogDto logOne = createDto(syncConfigOne, createdOne);
 		// all other variants for not removal
 		createDto(syncConfigOne, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1));
-		createDto(syncConfigOne, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(23));
+		createDto(syncConfigOne, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(22));
 		SysSyncLogDto logOther = createDto(syncConfigOther, ZonedDateTime.now().minusDays(2));
 		//
 		Assert.assertEquals(createdOne, logOne.getCreated());

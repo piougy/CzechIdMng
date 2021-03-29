@@ -43,7 +43,7 @@ public class DeleteExecutedEventTaskExecutorIntegrationTest extends AbstractInte
 		createDto(ownerId, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.CREATED);
 		createDto(ownerId, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.EXECUTED);
 		createDto(ownerId, ZonedDateTime.now().minusDays(2), OperationState.EXCEPTION);
-		createDto(ownerId, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(23), OperationState.EXECUTED);
+		createDto(ownerId, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(22), OperationState.EXECUTED);
 		//
 		Assert.assertEquals(createdOne, operationOne.getCreated());
 		IdmEntityEventFilter filter = new IdmEntityEventFilter();

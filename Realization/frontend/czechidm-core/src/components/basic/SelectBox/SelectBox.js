@@ -77,9 +77,9 @@ class SelectBox extends AbstractFormComponent {
   _initComponent(props) {
     // initialize value
     // We have to propagate actual forceSearchParameters (maybe from this.props, maybe from nextProps)
-    const { useFirst, forceSearchParameters } = props;
-    if (useFirst) {
-      this.getOptions('', forceSearchParameters, true);
+    const { useFirst, forceSearchParameters, useFirstIfOne } = props;
+    if (useFirst || useFirstIfOne) {
+      this.getOptions('', forceSearchParameters, useFirst, false, useFirstIfOne);
     }
   }
 
@@ -113,8 +113,8 @@ class SelectBox extends AbstractFormComponent {
     return manager.mergeSearchParameters(searchParameters, _forceSearchParameters);
   }
 
-  getOptions(input, forceSearchParameters, useFirst = false, addToEnd = false) {
-    const { manager, clearable, multiSelect, emptyOptionLabel, additionalOptions } = this.props;
+  getOptions(input, forceSearchParameters, useFirst = false, addToEnd = false, useFirstIfOne) {
+    const { manager, clearable, multiSelect, emptyOptionLabel, additionalOptions, required } = this.props;
     const { options } = this.state;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
@@ -145,6 +145,14 @@ class SelectBox extends AbstractFormComponent {
                 continue;
               }
               this.itemRenderer(results[item], input);
+              // Default behavior: Use the first value, but only if exist only one item and select box is required.
+              if (results.length === 1 && this.state.value === null && !!required && useFirstIfOne === undefined) {
+                this.onChange(results[item]);
+              }
+              // Use the first value, but only if exist only one item.
+              if (results.length === 1 && this.state.value === null && useFirstIfOne === true) {
+                this.onChange(results[item]);
+              }
               // use the first value
               if (this.state.value === null && useFirst) {
                 this.onChange(results[item]);
@@ -263,7 +271,7 @@ class SelectBox extends AbstractFormComponent {
    */
   _loadMoreContent(input = '') {
     const { actualPage } = this.state;
-    const { pageSize, manager, useFirst, loadMoreContent, forceSearchParameters } = this.props;
+    const { pageSize, manager, useFirst, useFirstIfOne, loadMoreContent, forceSearchParameters } = this.props;
     if (!loadMoreContent) {
       return;
     }
@@ -276,7 +284,7 @@ class SelectBox extends AbstractFormComponent {
       finalSearchParameters = manager.mergeSearchParameters(forceSearchParameters, finalSearchParameters);
     }
     //
-    this.getOptions(input, finalSearchParameters, useFirst, true);
+    this.getOptions(input, finalSearchParameters, useFirst, true, useFirstIfOne);
     this.setState({
       actualPage: newActualPage
     });
@@ -731,6 +739,10 @@ SelectBox.propTypes = {
    */
   useFirst: PropTypes.bool,
   /**
+   * Use the first searched value, if value is empty and exists only one value.
+   */
+  useFirstIfOne: PropTypes.bool,
+  /**
    * Search results page size
    * @see SearchParameters.getDefaultSize()
    * @see SearchParameters.MAX_SIZE
@@ -775,6 +787,7 @@ SelectBox.defaultProps = {
   searchInFields: [],
   clearable: true,
   useFirst: false,
+  useFirstIfOne: undefined,
   pageSize: SearchParameters.getDefaultSize(),
   loadMoreContent: true,
   optionComponent: OptionDecorator,

@@ -49,6 +49,13 @@
 				<role>Developer</role>
 			</roles>
 		</developer>
+		<developer>
+			<id>OH</id>
+			<name>Ondřej Husník</name>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
 	</developers>
 
 	<scm>

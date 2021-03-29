@@ -1269,7 +1269,7 @@
       },
       "validFrom": {
         "label": "Valid from",
-        "help": "The valid from is used to check minimum days, before password can be changed again. If is empty, then check is skipped for next password change attempt."
+        "help": "The valid from is used to check minimum number of days, after expiration of which the password can be changed again. If it is empty, then the check is skipped during the password change attempt."
       },
       "validTill": {
         "label": "Valid till",
@@ -5111,7 +5111,7 @@
       },
       "minPasswordAge": {
         "label": "Minimum number of days",
-        "help": "Minimum number of days, before password can be changed again."
+        "help": "Minimum number of days, after expiration of which the password can be changed again."
       },
       "enchancedControl": {
         "label": "Enhanced control",

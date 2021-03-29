@@ -6954,6 +6954,10 @@
           "load-assigned-roles": {
             "label": "Načítat přiřazené role do projekce",
             "help": "Načítat všechny přiřazené role do projekce. Vhodné pouze pokud nejsou role přiřazovány přes žádosti o role, ale napřímo. V produktové projekci není podporováno vytvářet role napřímo a načítání je proto vhodné vypnout."
+          },
+          "set-contract-guarantee": {
+            "label": "Nastavit přímého vedoucího pro nový kontrakt",
+            "help": "Nastavit aktuálně přihlášeného uživatele jako přímého vedoucího pro nově vytvářený kontrakt."
           }
         }
       }

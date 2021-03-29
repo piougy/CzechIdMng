@@ -6902,6 +6902,10 @@
           "load-assigned-roles": {
             "label": "Load assigned roles into projection",
             "help": "Load all assigned roles - will be available in projection directly. Enable this feature, if projection supports to assign role directly without role requests. Is not supported in product provided projection and could be disabled."
+          },
+          "set-contract-guarantee": {
+            "label": "Set direct guarantee for new contract",
+            "help": "Set currently logged user as direct guarantee for newly created contract."
           }
         }
       }

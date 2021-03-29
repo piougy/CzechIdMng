@@ -247,8 +247,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                 label={ this.i18n('acc:entity.RoleSystem.systemMapping') }
                 placeholder={ systemId ? null : this.i18n('systemMapping.systemPlaceholder') }
                 readOnly={!isNew || !systemId}
-                required
-                useFirst/>
+                required />
               <Basic.Checkbox
                 ref="forwardAccountManagemen"
                 label={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen.label')}

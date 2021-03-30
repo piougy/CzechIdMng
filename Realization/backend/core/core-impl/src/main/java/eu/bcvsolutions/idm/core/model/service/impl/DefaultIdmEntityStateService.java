@@ -39,7 +39,7 @@ public class DefaultIdmEntityStateService
 		implements IdmEntityStateService {
 
 	@Autowired
-	ConfidentialStorage confidentialStorage;
+	private ConfidentialStorage confidentialStorage;
 	
 	@Autowired
 	public DefaultIdmEntityStateService(

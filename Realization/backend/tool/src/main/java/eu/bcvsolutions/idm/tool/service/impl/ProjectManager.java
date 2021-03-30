@@ -55,6 +55,7 @@ public class ProjectManager {
 	private String mavenHome; // MAVEN_HOME will be used as default
 	private String nodeHome;
 	private boolean resolveDependencies = false;
+	private boolean skipFrontendBuild = false;
 	//
 	private MavenManager mavenManager;
 	private ObjectMapper mapper;
@@ -223,25 +224,29 @@ public class ProjectManager {
 						File moduleFrontendFolder = new File(String.format("%s/fe-sources/czechidm-modules", extractedModuleFolder.getPath()));
 						//
 						if (moduleFrontendFolder.exists()) {
-							// check BE vs. FE version -> throw exception otherwise
-							for (File moduleFolder : moduleFrontendFolder.listFiles()) {
-								File modulePackage = new File(moduleFolder.getPath(), "package.json");
-								try (InputStream is = new FileInputStream(modulePackage)) {
-									// FIXME: refactor super class from product / project manager (DRY - #getCurrentFrontendModuleVersion).
-									JsonNode json = mapper.readTree(IOUtils.toString(is, AttachableEntity.DEFAULT_CHARSET));
-									String frontendModuleVersion = json.get("version").textValue();
-									if (!StringUtils.equalsIgnoreCase(backendModuleVersion, frontendModuleVersion)) {
-										throw new BuildException(String.format("Module [%s] versions differs [BE: %s] vs [FE: %s]. "
-												+ "Module is wrongly released or built. Build module properly and install him again.", 
-												moduleName, backendModuleVersion, frontendModuleVersion));
-									}
-									//
-									LOG.info("Frontend module [{}] instaled in version [{}].", moduleName, frontendModuleVersion);
-								} 
+							if (skipFrontendBuild) {
+								LOG.info("Frontend build is skipped. Module [{}] frontend will not be included.", moduleName);
+							} else {
+								// check BE vs. FE version -> throw exception otherwise
+								for (File moduleFolder : moduleFrontendFolder.listFiles()) {
+									File modulePackage = new File(moduleFolder.getPath(), "package.json");
+									try (InputStream is = new FileInputStream(modulePackage)) {
+										// FIXME: refactor super class from product / project manager (DRY - #getCurrentFrontendModuleVersion).
+										JsonNode json = mapper.readTree(IOUtils.toString(is, AttachableEntity.DEFAULT_CHARSET));
+										String frontendModuleVersion = json.get("version").textValue();
+										if (!StringUtils.equalsIgnoreCase(backendModuleVersion, frontendModuleVersion)) {
+											throw new BuildException(String.format("Module [%s] versions differs [BE: %s] vs [FE: %s]. "
+													+ "Module is wrongly released or built. Build module properly and install him again.", 
+													moduleName, backendModuleVersion, frontendModuleVersion));
+										}
+										//
+										LOG.info("Frontend module [{}] instaled in version [{}].", moduleName, frontendModuleVersion);
+									} 
+								}
+								//
+								FileUtils.copyDirectory(moduleFrontendFolder, extractedFrontendModulesFolder);
+								FileUtils.copyDirectory(moduleFrontendFolder, productFrontendModulesFolder); // we need to know, what was installed in target war
 							}
-							//
-							FileUtils.copyDirectory(moduleFrontendFolder, extractedFrontendModulesFolder);
-							FileUtils.copyDirectory(moduleFrontendFolder, productFrontendModulesFolder); // we need to know, what was installed in target war
 						} else {
 							LOG.info("Module [{}] not contain frontend.", moduleName);
 						}
@@ -254,19 +259,23 @@ public class ProjectManager {
 				}
 			}
 			//
-			// copy / override project frontends
-			if (frontendFolder.exists() && frontendFolder.listFiles().length > 0) {
-				FileUtils.copyDirectory(frontendFolder, extractedFrontendFolder);
-				FileUtils.copyDirectory(frontendFolder, productFrontendFolder); // we need to know, what was installed in target war
-				//
-				LOG.info("Custom or overriden frontend artifacts installed {}.", Arrays.stream(frontendFolder.listFiles()).map(f -> f.getName()).collect(Collectors.toList()));
-			}
-			//
 			// build FE - create new maven task and build
-			LOG.info("Compile frontend application, this can take several minutes ...");
-			prepareFrontendMavenProject(extractedFrontendFolder, targetFolder);
-			mavenManager.command(targetFolder, "clean", "package", String.format("-Dnode.home=%s", nodeHome));
-			LOG.info("Frontend successfully compiled.");
+			if (!skipFrontendBuild) {
+				// copy / override project frontends
+				if (frontendFolder.exists() && frontendFolder.listFiles().length > 0) {
+					FileUtils.copyDirectory(frontendFolder, extractedFrontendFolder);
+					FileUtils.copyDirectory(frontendFolder, productFrontendFolder); // we need to know, what was installed in target war
+					//
+					LOG.info("Custom or overriden frontend artifacts installed {}.", Arrays.stream(frontendFolder.listFiles()).map(f -> f.getName()).collect(Collectors.toList()));
+				}
+				//
+				LOG.info("Compile frontend application, this can take several minutes ...");
+				prepareFrontendMavenProject(extractedFrontendFolder, targetFolder);
+				mavenManager.command(targetFolder, "clean", "package", String.format("-Dnode.home=%s", nodeHome));
+				LOG.info("Frontend successfully compiled.");
+			} else {
+				LOG.info("Frontend build is skipped. Product provided frontend will be used.");
+			}
 			//
 			// create new idm.war
 			LOG.info("Build backend application with frontend included ...");
@@ -312,6 +321,17 @@ public class ProjectManager {
 	 */
 	public void setResolveDependencies(boolean resolveDependencies) {
 		this.resolveDependencies = resolveDependencies;
+	}
+	
+	/**
+	 * Skip build frontend from product + modules. 
+	 * When frontend build is skipped, then product provided frontend will be used only.
+	 * 
+	 * @param skipFrontendBuild true - product provided frontend will be used
+	 * @since 11.0.0
+	 */
+	public void setSkipFrontendBuild(boolean skipFrontendBuild) {
+		this.skipFrontendBuild = skipFrontendBuild;
 	}
 	
 	private String getVersion(File library) throws IOException {

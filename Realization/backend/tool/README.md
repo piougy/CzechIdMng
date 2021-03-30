@@ -345,6 +345,7 @@ Usable additional tool argument:
 | -c,--clean | | Clean up dowloaded frontend libraries in node_modules. | |
 | -r,--repository-location | path | Folder structure location. | ``../`` - when IdM tool is placed by example above. |
 | --resolve-dependencies | | Third party module dependencies will be resolved automatically (not resolved by default), when project is built. Dependencies will not be resolved and included in build, if feature is not enabled => all module dependencies has to be installed manually (prepared ~ copied in 'modules' folder). | |
+| --skip-frontend-build | | Frontend build will be skipped - product provided frontend will be used for build distribution artifacts.  | |
 
 #### Third party module dependencies
 

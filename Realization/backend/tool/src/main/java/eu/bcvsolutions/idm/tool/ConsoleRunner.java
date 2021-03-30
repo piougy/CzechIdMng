@@ -34,6 +34,8 @@ import eu.bcvsolutions.idm.tool.service.impl.ProjectManager;
  * Console entry point
  * - change product versions (BE + FE)
  * - release product version
+ * - release module version
+ * - 
  * 
  * FIXME: use @SpringBootApplication - dependency hell, why?
  * FIXME: use spring application + context, cleanup construct managers internaly
@@ -255,9 +257,16 @@ public class ConsoleRunner implements CommandLineRunner {
 		Option optionResolveDependencies = Option.builder()
 	    		.required(false)
 	    		.longOpt("resolve-dependencies")
-	    		.desc("hird party module dependencies will be resolved automatically (not resolved by default), when project is built.\n" + 
+	    		.desc("Third party module dependencies will be resolved automatically (not resolved by default), when project is built.\n" + 
 	    				"Dependencies will not be resolved and included in build, if feature is not enabled => \n" + 
-	    				"all module dependencies has to be installed manually (prepared ~ copied in 'modules' folder).")
+	    				"all module dependencies has to be installed manually (prepared ~ copied in 'modules' folder).\n" + 
+	    				"Parameter is avalible for build a project only.")
+	    		.build();
+		Option optionSkipFrontendBuild = Option.builder()
+	    		.required(false)
+	    		.longOpt("skip-frontend-build")
+	    		.desc("Frontend build will be skipped - product provided frontend will be used for build distribution artifacts.\n" +
+    					"Parameter is avalible for build a project only.")
 	    		.build();
 		
 		Options options = new Options();
@@ -294,6 +303,7 @@ public class ConsoleRunner implements CommandLineRunner {
         options.addOption(optionHotfix);
         options.addOption(optionClean);
         options.addOption(optionResolveDependencies);
+        options.addOption(optionSkipFrontendBuild);
 		//
 		// parse arguments
 		CommandLineParser parser = new DefaultParser();
@@ -357,12 +367,14 @@ public class ConsoleRunner implements CommandLineRunner {
 			}
 			boolean clean = commandLine.hasOption(optionClean.getLongOpt());
 			boolean resolveDependencies = commandLine.hasOption(optionResolveDependencies.getLongOpt());
+			boolean skipFrontendBuild = commandLine.hasOption(optionSkipFrontendBuild.getLongOpt());
 			//
 			if (projectManager == null) {
 				projectManager = new ProjectManager();
 				projectManager.setMavenHome(mavenHome);
 				projectManager.setNodeHome(nodeHome);
 				projectManager.setResolveDependencies(resolveDependencies);
+				projectManager.setSkipFrontendBuild(skipFrontendBuild);
 				projectManager.init();
 			}
 			projectManager.build(rootFolder == null ? "../" : rootFolder, clean); // /tool folder by default => project is in parent folder.

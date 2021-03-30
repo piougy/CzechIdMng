@@ -29,22 +29,27 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 
 	@Test
 	public void testBuildWithAtrifact() {
-		createMockProjectStructure(false, false, true);
+		createMockProjectStructure(false, false, true, false);
 	}
 	
 	@Test
 	public void testBuildWithExtractedProduct() {
-		createMockProjectStructure(true, false, true);
+		createMockProjectStructure(true, false, true, false);
+	}
+	
+	@Test
+	public void testBuildWithoutFrontend() {
+		createMockProjectStructure(true, false, true, true);
 	}
 	
 	@Test(expected = BuildException.class)
 	public void testBuildWithDuplicateThirdPartyDependency() {
-		createMockProjectStructure(true, true, true);
+		createMockProjectStructure(true, true, true, false);
 	}
 	
 	@Test(expected = BuildException.class)
 	public void testBuildWithDuplicateThirdPartyDependencyWithoutResolvingDependenies() {
-		createMockProjectStructure(true, true, false);
+		createMockProjectStructure(true, true, false, false);
 	}
 	
 	@BeforeClass
@@ -54,7 +59,11 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 	    Assume.assumeFalse(documentationOnly);
 	}
 	
-	private void createMockProjectStructure(boolean extracted, boolean duplicateDependency, boolean resolveDependencies) {
+	private void createMockProjectStructure(
+			boolean extracted, 
+			boolean duplicateDependency, 
+			boolean resolveDependencies,
+			boolean skipFrontendBuild) {
 		File targetFolder = new File("target");
 		Assert.assertTrue(targetFolder.exists());
 		//
@@ -211,18 +220,30 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			// build
 			ProjectManager projectManager = new ProjectManager(); // MAVEN_HOME, ./npm installed from plugin
 			projectManager.setResolveDependencies(resolveDependencies);
+			projectManager.setSkipFrontendBuild(skipFrontendBuild);
 			projectManager.init();
 			projectManager.build(projectRootFolder.getPath(), false); // prevent to clean all node_modules
 			//
 			// check distribution war
 			ZipUtils.extract(new File(String.format("%s/dist/idm.war", projectRootFolder.getPath())), warFolder.getPath());
-			// two FE modules in sources => installed
+			
 			Assert.assertTrue(new File(String.format("%s/fe-sources/czechidm-modules/czechidm-core", warFolder.getPath())).exists());
-			Assert.assertTrue(new File(String.format("%s/fe-sources/czechidm-modules/czechidm-one", warFolder.getPath())).exists());
 			Assert.assertTrue(new File(String.format("%s/fe-sources/czechidm-modules/czechidm-core/package.json", warFolder.getPath())).exists());
-			Assert.assertTrue(new File(String.format("%s/fe-sources/czechidm-modules/czechidm-one/package.json", warFolder.getPath())).exists());
-			// css
-			Assert.assertTrue(new File(String.format("%s/css/main.css", warFolder.getPath())).exists());
+			//
+			if (skipFrontendBuild) {
+				// module is not copied
+				Assert.assertFalse(new File(String.format("%s/fe-sources/czechidm-modules/czechidm-one", warFolder.getPath())).exists());
+				Assert.assertFalse(new File(String.format("%s/fe-sources/czechidm-modules/czechidm-one/package.json", warFolder.getPath())).exists());
+				// css
+				Assert.assertFalse(new File(String.format("%s/css/main.css", warFolder.getPath())).exists());
+			} else  {
+				// two FE modules in sources => installed
+				Assert.assertTrue(new File(String.format("%s/fe-sources/czechidm-modules/czechidm-one", warFolder.getPath())).exists());
+				Assert.assertTrue(new File(String.format("%s/fe-sources/czechidm-modules/czechidm-one/package.json", warFolder.getPath())).exists());
+				// css
+				Assert.assertTrue(new File(String.format("%s/css/main.css", warFolder.getPath())).exists());
+			}
+			
 			// three backend modules
 			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/mock-lib.jar", warFolder.getPath())).exists());
 			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/module-one-1.0.0-SNAPSHOT.jar", warFolder.getPath())).exists());

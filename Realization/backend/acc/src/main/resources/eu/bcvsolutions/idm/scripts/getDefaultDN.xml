@@ -54,7 +54,7 @@ if (originalDn == null || originalDn.isEmpty()) {
     return defaultDn;
 }
 
-if (originalDn.endsWith(deletedOu)) {
+if (deletedOu != null && originalDn.endsWith(deletedOu)) {
     // Re-boarding -> we return to the default container.
     log.info("Account [$uid] was deleted and is returning from [$originalDn], new DN: [$defaultDn]")
     return defaultDn;

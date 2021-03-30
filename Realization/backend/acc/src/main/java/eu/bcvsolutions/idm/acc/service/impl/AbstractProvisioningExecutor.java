@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.Assert;
@@ -873,7 +874,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 		if (!schemaAttributeDto.isUpdateable()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
-					ImmutableMap.of("property", attributeMapping.getIdmPropertyName(), "uid", systemEntity.getUid()));
+					ImmutableMap.of("attribute", StringUtils.defaultIfBlank(attributeMapping.getIdmPropertyName(),
+							attributeMapping.getName()), "entity", systemEntity.getUid()));
 		}
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService
 				.get(schemaAttributeDto.getObjectClass());

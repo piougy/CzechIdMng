@@ -749,7 +749,10 @@ public class AdUserConnectorType extends DefaultConnectorType {
 				.orElse(null);
 		if (passwordAttribute == null) {
 			// Attribute missing -> create it now.
-			createSchemaAttribute(schemaDto, IcAttributeInfo.PASSWORD, GuardedString.class.getName(), false, false, false);
+			createSchemaAttribute(schemaDto, IcAttributeInfo.PASSWORD, GuardedString.class.getName(), false, true, false);
+		} else {
+			passwordAttribute.setUpdateable(true);
+			schemaAttributeService.save(passwordAttribute);
 		}
 		// Find Ldap groups attribute in the schema.
 		schemaAttributeFilter.setName(LDAP_GROUPS_ATTRIBUTE);

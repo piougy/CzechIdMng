@@ -72,10 +72,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final ProvisioningConfiguration provisioningConfiguration;
 	private final SysSystemEntityService systemEntityService;
 	//
-	@Autowired
-	private IdmRoleRequestService roleRequestService;
-	@Autowired
-	private LookupService lookupService;
+	@Autowired	private IdmRoleRequestService roleRequestService;
+	@Autowired	private LookupService lookupService;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
@@ -115,7 +113,6 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		SysSystemDto system = DtoUtils.getEmbedded(provisioningOperation, SysProvisioningOperation_.system.getName(), SysSystemDto.class, null);
 		if (system == null) {
 			system = systemService.get(provisioningOperation.getSystem());
-			;
 		}
 		Assert.notNull(system, "System is required.");
 		if (!system.isQueue()) {
@@ -146,7 +143,9 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	/**
-	 * Next processing is executed outside a transaction => operation states has to be saved in new transactions => rollback on the target system is not possible anyway
+	 * Next processing is executed outside a transaction
+	 * => operation states has to be saved in new transactions
+	 * => rollback on the target system is not possible anyway
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -155,8 +154,10 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	/**
-	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared. Next processing is executed outside a transaction => operation
-	 * states has to be saved in new transactions => rollback on the target system is not possible anyway
+	 * We need to wait to transaction commit, when provisioning is executed - all accounts have to be prepared.
+	 * Next processing is executed outside a transaction
+	 * => operation states has to be saved in new transactions
+	 * => rollback on the target system is not possible anyway
 	 *
 	 * @param provisioningOperation
 	 * @return
@@ -281,8 +282,9 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	}
 
 	/**
-	 * Next processing is executed outside a transaction => operation states has to be saved
-	 * in new transactions => rollback on the target system is not possible anyway.
+	 * Next processing is executed outside a transaction
+	 * => operation states has to be saved in new transactions
+	 * => rollback on the target system is not possible anyway.
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -387,7 +389,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 				LOG.debug(resultModel.toString());
 				provisioningOperation.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 				if (activeOperations.get(0).getResultState() == OperationState.RUNNING) { // the last operation = the first operation and it's running
-					// Retry date will be set for the second operation in the queue (the first is running). 
+					// Retry date will be set for the second operation in the queue (the first is running).
 					// Other operations will be executed automatically by batch.
 					provisioningOperation.setMaxAttempts(provisioningConfiguration.getRetryMaxAttempts());
 					batch.setNextAttempt(batchService.calculateNextAttempt(provisioningOperation));

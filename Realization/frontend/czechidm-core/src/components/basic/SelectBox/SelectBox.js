@@ -78,9 +78,7 @@ class SelectBox extends AbstractFormComponent {
     // initialize value
     // We have to propagate actual forceSearchParameters (maybe from this.props, maybe from nextProps)
     const { useFirst, forceSearchParameters, useFirstIfOne } = props;
-    if (useFirst || useFirstIfOne) {
-      this.getOptions('', forceSearchParameters, useFirst, false, useFirstIfOne);
-    }
+    this.getOptions('', forceSearchParameters, useFirst, false, useFirstIfOne);
   }
 
   getRequiredValidationSchema() {

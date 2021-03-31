@@ -6164,6 +6164,11 @@
         "help": "$t(action.redeploy.action) selected script definitions.",
         "icon": "$t(action.redeploy.icon)"
       },
+      "core-duplicate-script-bulk-action": {
+        "label": "Duplicate script",
+        "help": "Creates the new duplicate of the selected script.",
+        "icon": "fa:clone"
+      },
       "notification-template-delete-bulk-action": {
         "label": "$t(action.delete.action) notification templates",
         "help": "$t(action.delete.action) selected notification templates.",

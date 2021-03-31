@@ -6216,6 +6216,11 @@
         "help": "Obnoví vybrané definice skriptů. Aktuální skripty budou nejdříve zazálohovány a pak znovu načteny z aplikace či externího umístění.",
         "icon": "$t(action.redeploy.icon)"
       },
+      "core-duplicate-script-bulk-action": {
+        "label": "Duplikovat skript",
+        "help": "Vytvoří kopii vybraného skriptu.",
+        "icon": "fa:clone"
+      },
       "notification-template-delete-bulk-action": {
         "label": "$t(action.delete.action) šablony notifikací",
         "help": "$t(action.delete.action) vybrané šablony notifikací.",

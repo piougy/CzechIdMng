@@ -3,6 +3,9 @@ package eu.bcvsolutions.idm.acc.event.processor.contract;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -37,6 +40,7 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 	@Autowired private EntityEventManager entityEventManager;	
 	@Autowired private ProvisioningService provisioningService;
 	@Autowired private LookupService lookupService;
+	@Autowired private EntityManager entityManager;
 	
 	public IdentityContractProvisioningProcessor() {
 		super(IdentityContractEventType.DELETE, IdentityContractEventType.NOTIFY);
@@ -77,6 +81,11 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 		return new DefaultEventResult<>(event, this);
 	}
 	
+	@Override
+	public int getOrder() {
+		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
+	}
+	
 	private void doProvisioning(UUID identityId, EntityEvent<IdmIdentityContractDto> event) {
 		if (!event.hasType(IdentityContractEventType.NOTIFY)) {
 			// sync
@@ -92,6 +101,12 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 		if (!event.hasType(IdentityContractEventType.NOTIFY)) {
 			LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 			provisioningService.doProvisioning(identity);
+			//
+			// flush and clear session - manager can have a lot of subordinates
+			if (getHibernateSession().isOpen()) {
+				getHibernateSession().flush();
+				getHibernateSession().clear();
+			}
 		} else {
 			// async
 			LOG.debug("Register change for identity [{}]", identity.getId());
@@ -99,8 +114,7 @@ public class IdentityContractProvisioningProcessor extends AbstractIdentityContr
 		}
 	}
 	
-	@Override
-	public int getOrder() {
-		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
-	}	
+	private Session getHibernateSession() {
+		return (Session) this.entityManager.getDelegate();
+	}
 }

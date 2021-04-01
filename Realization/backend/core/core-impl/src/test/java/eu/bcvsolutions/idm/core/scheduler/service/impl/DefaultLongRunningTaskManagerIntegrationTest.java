@@ -177,6 +177,40 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 		assertNotEquals(count, longRunningTask.getCounter());
 	}
 	
+	@Test(expected = ResultCodeException.class)
+	public void testCancelNotRunningTask() throws InterruptedException, ExecutionException {
+		TestTaskExecutor taskExecutor = new TestTaskExecutor(); 
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setTaskType(taskExecutor.getClass().getCanonicalName());
+		task.setTaskProperties(taskExecutor.getProperties());
+		task.setTaskDescription(taskExecutor.getDescription());	
+		task.setInstanceId("mock");
+		task.setResult(new OperationResult.Builder(OperationState.BLOCKED).build());
+		task.setRunning(false);
+		task = manager.saveLongRunningTask(task);
+		//
+		manager.cancel(task.getId());
+	}
+	
+	@Test
+	public void testCancelStuckedRunningTask() throws InterruptedException, ExecutionException {
+		TestTaskExecutor taskExecutor = new TestTaskExecutor(); 
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setTaskType(taskExecutor.getClass().getCanonicalName());
+		task.setTaskProperties(taskExecutor.getProperties());
+		task.setTaskDescription(taskExecutor.getDescription());	
+		task.setInstanceId("mock");
+		task.setResult(new OperationResult.Builder(OperationState.BLOCKED).build());
+		task.setRunning(true);
+		task = manager.saveLongRunningTask(task);
+		//
+		manager.cancel(task.getId());
+		task = manager.getLongRunningTask(task.getId());
+		//
+		Assert.assertEquals(OperationState.BLOCKED, task.getResult().getState());
+		Assert.assertFalse(task.isRunning());
+	}
+	
 	@Test
 	public void testInterruptRunningTask() throws InterruptedException, ExecutionException {
 		String result = "TEST_SUCCESS_05";
@@ -412,7 +446,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 		filter.setOperationState(OperationState.EXECUTED);
 		getHelper().waitForResult(res -> {
 			return service.find(filter, null).getContent().size() != 3;
-		}, 500, 20);
+		}, 500, 30);
 		//
 		List<IdmLongRunningTaskDto> ltrs = manager.findLongRunningTasks(filter, null).getContent();
 		//

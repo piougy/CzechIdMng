@@ -185,6 +185,8 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		Assert.assertNotNull(attachmentManager.get(attachmentOther));
 		Assert.assertNull(notificationAttachmentService.get(notificationAttachment));
 		Assert.assertNotNull(notificationAttachmentService.get(notificationAttachmentOther));
+		//
+		notificationLogService.delete(notificationOther);
 	}
 
 	@Test
@@ -808,6 +810,8 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		Assert.assertEquals(2, notificationAttachments.size());
 		Assert.assertTrue(notificationAttachments.stream().allMatch(na -> na.getAttachment() != null));
 		Assert.assertTrue(notificationAttachments.stream().anyMatch(na -> na.getAttachment().equals(attachmentTwo.getId())));
+		//
+		notificationLogService.delete(notification);
 	}
 	
 	@Test
@@ -837,6 +841,8 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		Assert.assertEquals(1, notificationAttachments.size());
 		Assert.assertTrue(notificationAttachments.stream().allMatch(na -> na.getAttachment() != null));
 		Assert.assertTrue(notificationAttachments.stream().anyMatch(na -> na.getAttachment().equals(attachment.getId())));
+		//
+		notificationLogService.delete(notification);
 	}
 
 	private IdmNotificationTemplateDto createTestTemplate() {

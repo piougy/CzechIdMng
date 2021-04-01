@@ -408,7 +408,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
 		Assert.notNull(task, "Task is required.");
 		//
-		if (!OperationState.isRunnable(task.getResult().getState())) {
+		if (!OperationState.isRunnable(task.getResult().getState()) && !task.isRunning()) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING,
 					ImmutableMap.of(
 							"taskId", longRunningTaskId,
@@ -416,8 +416,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 							ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId())
 					);
 		}
-		//
-		task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
+		// preserve exception or other state, if task was stucked
+		if (OperationState.isRunnable(task.getResult().getState())) { 
+			task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
+		}
 		task.setRunning(false);
 		LOG.info("Long running task with id: [{}] was canceled.", task.getId());
 		// running to false will be set by task himself

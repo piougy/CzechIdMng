@@ -260,13 +260,13 @@ public class ConsoleRunner implements CommandLineRunner {
 	    		.desc("Third party module dependencies will be resolved automatically (not resolved by default), when project is built.\n" + 
 	    				"Dependencies will not be resolved and included in build, if feature is not enabled => \n" + 
 	    				"all module dependencies has to be installed manually (prepared ~ copied in 'modules' folder).\n" + 
-	    				"Parameter is avalible for build a project only.")
+	    				"Parameter is available for build a project only.")
 	    		.build();
 		Option optionSkipFrontendBuild = Option.builder()
 	    		.required(false)
 	    		.longOpt("skip-frontend-build")
 	    		.desc("Frontend build will be skipped - product provided frontend will be used for build distribution artifacts.\n" +
-    					"Parameter is avalible for build a project only.")
+    					"Parameter is available for build a project only.")
 	    		.build();
 		
 		Options options = new Options();

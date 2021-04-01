@@ -240,7 +240,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			entityStateManager.deleteStates(automaticRole, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED);
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
-		} catch(Exception ex) {
+		} catch (Exception ex) {
 			// catch - just for sure, but all exception will be processed in new transaction to prevent whole automatic role fails.
 			IdmRoleDto role = getLookupService().lookupEmbeddedDto(automaticRole, IdmRoleTreeNode_.role);
 			// 
@@ -259,33 +259,42 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
 		if (ex == null && BooleanUtils.isTrue(result) && removeNotProcessedIdentityRoles) {
-			Set<UUID> processedIdentityRoles = new HashSet<>(processedRoleRequests);
-			processedRoleRequests.forEach(requestId -> {
-				processedIdentityRoles.addAll(
-						conceptRoleRequestService
-							.findAllByRoleRequest(requestId)
-							.stream()
-							.map(concept -> {
-								UUID identityRole = concept.getIdentityRole();
-								Assert.notNull(identityRole, 
-										String.format(
-												"Concept [%s] is not executed [%s], identity role identifier is empty.", 
-												concept.getId(),
-												concept.getState()
-										)
-								);
-								return identityRole;
-							})
-							.collect(Collectors.toSet()
-						)
-				);
-			});
-			//
-			// remove previously assigned role, which was not processed by any automatic role
-			automaticRoles.forEach(automaticRole -> {
-				// new transaction is wrapped inside
-				processIdentityRoles(processedIdentityRoles, automaticRole);
-			});
+			try {
+				Set<UUID> processedIdentityRoles = new HashSet<>(processedRoleRequests);
+				processedRoleRequests.forEach(requestId -> {
+					processedIdentityRoles.addAll(
+							conceptRoleRequestService
+								.findAllByRoleRequest(requestId)
+								.stream()
+								.map(concept -> {
+									UUID identityRole = concept.getIdentityRole();
+									if (identityRole == null) {
+										LOG.error("Concept [{}] is not executed [{}], identity role identifier is empty.", 
+												concept.getId(), concept.getState());
+										throw new ResultCodeException(
+												CoreResultCode.AUTOMATIC_ROLE_ASSIGN_NOT_COMPLETE, 
+												ImmutableMap.of(
+														"role", String.valueOf(concept.getRole()),
+														"roleTreeNode", String.valueOf(concept.getAutomaticRole())
+												)
+										);
+									}
+									return identityRole;
+								})
+								.collect(Collectors.toSet()
+							)
+					);
+				});
+				//
+				// remove previously assigned role, which was not processed by any automatic role
+				automaticRoles.forEach(automaticRole -> {
+					// new transaction is wrapped inside
+					processIdentityRoles(processedIdentityRoles, automaticRole);
+				});
+			} catch (Exception exception) {
+				// propagate exception to super end
+				ex = exception;
+			}
 		}
 		//
 		return super.end(result, ex);

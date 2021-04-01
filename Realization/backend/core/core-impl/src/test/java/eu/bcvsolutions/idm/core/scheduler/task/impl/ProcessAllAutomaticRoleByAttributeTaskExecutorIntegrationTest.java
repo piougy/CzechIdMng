@@ -26,12 +26,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Integration test for {@link ProcessAllAutomaticRoleByAttributeTaskExecutor}
+ * Integration test for {@link ProcessAllAutomaticRoleByAttributeTaskExecutor}.
  *
  * @author Ondrej Kopr
  *
  */
-public class ProcessAllAutomaticRoleByAttributeTaskExecutorTest extends AbstractIntegrationTest {
+public class ProcessAllAutomaticRoleByAttributeTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private EntityEventManager entityEventManager;

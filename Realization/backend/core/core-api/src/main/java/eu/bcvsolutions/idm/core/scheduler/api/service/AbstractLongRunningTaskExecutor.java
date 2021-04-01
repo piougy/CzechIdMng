@@ -345,7 +345,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		// after update state is send notification with information about end of LRT
 		task = longRunningTaskService.save(task);
 		//
-		// start event is not running
+		// end start event
 		if (this.startTaskEvent != null) {
 			this.startTaskEvent.setResult(new OperationResultDto.Builder(OperationState.EXECUTED).build());
 			entityEventManager.saveEvent(this.startTaskEvent);

@@ -561,6 +561,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Test
 	public void testAssignAutomaticRoleToExistIdentitySync() {
+		getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		//
 		IdmIdentityDto identityOne = getHelper().createIdentityOnly();
 		IdmIdentityDto identityTwo = getHelper().createIdentityOnly();
 		IdmIdentityDto identityThree = getHelper().createIdentityOnly();

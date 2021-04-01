@@ -25,12 +25,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
@@ -154,11 +154,16 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 				// some assigned role was created in the meantime
 				LOG.warn("Remove role composition [{}] is not complete, some identity roles [{}] remains assigned to identities.", 
 						roleCompositionId, assignedRoles);
-				ResultModel resultModel = new DefaultResultModel(CoreResultCode.ROLE_COMPOSITION_REMOVE_HAS_ASSIGNED_ROLES, ImmutableMap.of(
-						"roleCompositionId", roleCompositionId.toString(), 
-						"assignedRoles", String.valueOf(assignedRoles)));
-				saveResult(resultModel, OperationState.EXCEPTION, null);
-				return result;
+				//
+				return super.end(
+						result, 
+						new ResultCodeException(
+								CoreResultCode.ROLE_COMPOSITION_REMOVE_HAS_ASSIGNED_ROLES, 
+								ImmutableMap.of(
+									"roleCompositionId", roleCompositionId.toString(), 
+									"assignedRoles", String.valueOf(assignedRoles))
+						)
+				);
 			}
 			//
 			LOG.debug("Remove role composition [{}]", roleCompositionId);
@@ -171,12 +176,17 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 				LOG.debug("Remove role composition [{}] failed", roleCompositionId, O_o);
 				//
 				IdmLongRunningTaskDto task = longRunningTaskService.get(getLongRunningTaskId());
-				ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
-						ImmutableMap.of(
-								"taskId", getLongRunningTaskId(), 
-								"taskType", task.getTaskType(),
-								ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
-				saveResult(resultModel, OperationState.EXCEPTION, O_o);
+				return super.end(
+						result, 
+						new ResultCodeException(
+								CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+								ImmutableMap.of(
+										"taskId", getLongRunningTaskId(), 
+										"taskType", task.getTaskType(),
+										ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()
+								)
+						)
+				);
 			}
 		}
 		//
@@ -226,6 +236,10 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
     	return true;
     }
 	
+	protected void setIdentityRoleService(IdmIdentityRoleService identityRoleService) {
+		this.identityRoleService = identityRoleService;
+	}
+	
 	/**
 	 * Identity role => one applicant => one request can be executed from prepared contracts.
 	 * 
@@ -271,13 +285,5 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 			});
 		//
 		return preparedConcepts;
-	}
-	
-	private void saveResult(ResultModel resultModel, OperationState state, Exception ex) {
-		IdmLongRunningTaskDto task = longRunningTaskService.get(getLongRunningTaskId());
-		task.setResult(new OperationResult.Builder(state).setModel(resultModel).setCause(ex).build());
-		//
-		// TODO: skips event about task ends with exception
-		getLongRunningTaskService().save(task);
 	}
 }

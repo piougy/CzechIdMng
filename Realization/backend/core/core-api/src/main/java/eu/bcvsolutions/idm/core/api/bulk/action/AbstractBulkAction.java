@@ -55,7 +55,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
- * Abstract parent for all bulk actions
+ * Abstract parent for all bulk actions.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -182,8 +182,10 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		OperationResult end = null;
 		if (result != null && result.getException() != null) {
 			end = super.end(result, (Exception) result.getException());
+		} else {
+			end = super.end(result, ex);
 		}
-		end = super.end(result, ex);
+		//
 		// send message
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setIncludeItemCounts(true);

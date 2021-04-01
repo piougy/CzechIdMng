@@ -11,7 +11,7 @@ import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 /**
- * Table of universal requests
+ * Table of universal requests.
  *
  * @author Vít Švanda
  */
@@ -49,10 +49,6 @@ export class RequestTable extends Advanced.AbstractTableContent {
     this.context.history.push(`/requests/${entity.id}/detail`);
   }
 
-  reload() {
-    this.refs.table.reload();
-  }
-
   _getCandidatesCell({ rowIndex, data, property}) {
     const entity = data[rowIndex];
     if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
@@ -80,7 +76,8 @@ export class RequestTable extends Advanced.AbstractTableContent {
         entityType={ entityType }
         entity={owner}
         showLink
-        face="popover"/>
+        face="popover"
+        showIcon/>
     );
   }
 
@@ -132,10 +129,14 @@ export class RequestTable extends Advanced.AbstractTableContent {
           forceSearchParameters={forceSearchParameters}
           manager={this.getManager()}
           showRowSelection={SecurityManager.hasAuthority('REQUEST_UPDATE')}
-          actions={
-            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
-               action: this.onDelete.bind(this), disabled: false }]
-          }
+          actions={[
+            {
+              value: 'delete',
+              niceLabel: this.i18n('action.delete.action'),
+              action: this.onDelete.bind(this),
+              disabled: false
+            }
+          ]}
           filterOpened
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -182,8 +183,7 @@ export class RequestTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             property="name"
             rendered={false}
-            face="text"
-            />
+            face="text"/>
           <Advanced.Column
             property="ownerId"
             header={ this.i18n('entity.RequestItem.ownerId') }
@@ -194,8 +194,7 @@ export class RequestTable extends Advanced.AbstractTableContent {
             property="candicateUsers"
             face="text"
             rendered={_.includes(columns, 'wf')}
-            cell={this._getCandidatesCell}
-            />
+            cell={this._getCandidatesCell}/>
           <Advanced.Column
             property="executeImmediately"
             rendered={_.includes(columns, 'executeImmediately')}
@@ -205,8 +204,7 @@ export class RequestTable extends Advanced.AbstractTableContent {
             property="currentActivity"
             rendered={_.includes(columns, 'wf')}
             face="text"
-            cell={this._getCurrentActivitiCell}
-            />
+            cell={this._getCurrentActivitiCell}/>
           <Advanced.Column
             property="wfProcessId"
             rendered={_.includes(columns, 'wf_name')}
@@ -278,7 +276,7 @@ RequestTable.defaultProps = {
   _showLoading: false,
   showFilter: true,
   columns: ['state', 'targetObject', 'created', 'modified', 'wf', 'executeImmediately',
-   'startRequest', 'detail', 'wf_name', 'result']
+    'startRequest', 'detail', 'wf_name', 'result']
 };
 
 function select(state, component) {

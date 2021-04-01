@@ -6,17 +6,13 @@ import Alert from '../Alert/Alert';
 import DateValue from '../DateValue/DateValue';
 
 /**
- * Renders flash message as Alert
+ * Renders flash message as Alert.
  *
  * TODO: message.children
  *
  * @author Radek Tomiška
  */
 export default class FlashMessage extends AbstractContextComponent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   render() {
     const { rendered, message, showDate, onClose, style, level, icon, className, buttons, children, showHtmlText } = this.props;
@@ -49,7 +45,7 @@ export default class FlashMessage extends AbstractContextComponent {
         text={ message.message }
         onClose={ onClose }
         style={ style }
-        showHtmlText= { showHtmlText }
+        showHtmlText={ showHtmlText }
         className={ className }
         buttons={ buttons }>
         { children }

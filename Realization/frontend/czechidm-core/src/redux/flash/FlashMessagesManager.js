@@ -23,7 +23,7 @@ const _DEFAULT_MESSAGE = {
   title: null,
   message: null,
   level: 'success', // React.PropTypes.oneOf(['success', 'info', 'warning', 'error']),
-  position: 'tr', // React.PropTypes.oneOf(['tr', 'tc']),
+  position: 'tr', // React.PropTypes.oneOf(['tr', 'tc', 'bl']),
   autoDismiss: 5,
   dismissible: true,
   action: null,

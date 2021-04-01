@@ -49,7 +49,7 @@ store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescrip
         <Helmet title="503" />
         <Basic.FlashMessage
           icon="exclamation-sign"
-          message={flashManager.convertFromError(error)}/>
+          message={ flashManager.convertFromError(error) }/>
       </div>,
       document.getElementById('content')
     );

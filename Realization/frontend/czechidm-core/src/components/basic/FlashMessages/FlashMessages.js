@@ -84,7 +84,7 @@ export class FlashMessages extends AbstractContextComponent {
     let messageCounter = 0;
     this.props.messages.map(m => {
       if (!m.hidden) {
-        messageCounter++;
+        messageCounter += 1;
         if (messageCounter > this.props.maxShown) {
           this._hideMessage(m);
         }
@@ -108,9 +108,6 @@ export class FlashMessages extends AbstractContextComponent {
   _getNotificationSystemStyles() {
     const styles = {
       Containers: {
-        DefaultStyle: {
-          top: '15px'
-        },
         tr: {
           top: '50px',
           bottom: 'auto',
@@ -120,6 +117,9 @@ export class FlashMessages extends AbstractContextComponent {
         tc: {
           width: '600px',
           margin: '0px auto 0px -300px'
+        },
+        bl: {
+          bottom: '0px'
         }
       },
       NotificationItem: { // Override the notification item
@@ -141,7 +141,7 @@ export class FlashMessages extends AbstractContextComponent {
   }
 
   render() {
-    const styles = this. _getNotificationSystemStyles();
+    const styles = this._getNotificationSystemStyles();
     return (
       <div id="flash-messages">
         <NotificationSystem ref="messages" style={styles}/>

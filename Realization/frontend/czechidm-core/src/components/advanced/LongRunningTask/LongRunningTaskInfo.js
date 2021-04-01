@@ -49,7 +49,10 @@ export class LongRunningTaskInfo extends AbstractEntityInfo {
     //
     let value = this.getManager().getNiceLabel(_entity, _supportedTasks, false);
     if (value.length > 60) {
-      value = `${value.substr(0, 60)}...`;
+      value = `${ value.substr(0, 60) }...`;
+    }
+    if (!value) {
+      return this.i18n('entity.LongRunningTask._type');
     }
 
     return value;

@@ -29,7 +29,7 @@ export default class LongRunningTaskService extends AbstractService {
   }
 
   getNiceLabel(entity) {
-    if (!entity) {
+    if (!entity || !entity.taskType) {
       return '';
     }
     return this.schedulerService.getSimpleTaskType(entity.taskType);

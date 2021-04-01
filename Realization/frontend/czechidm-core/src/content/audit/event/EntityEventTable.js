@@ -325,18 +325,32 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
             rendered={ _.includes(columns, 'ownerId') }
             cell={
               ({ rowIndex, data, property }) => {
+                const entity = data[rowIndex];
                 //
-                if (!data[rowIndex]._embedded || !data[rowIndex]._embedded[property]) {
+                if (!entity._embedded || !entity._embedded[property]) {
+                  if (entity.content) {
+                    return (
+                      <Advanced.EntityInfo
+                        entityType={ Utils.Ui.getSimpleJavaType(entity.ownerType) }
+                        entityIdentifier={ entity[property] }
+                        entity={ entity.content }
+                        face="popover"
+                        showDetailLink={ false }
+                        showEntityType={ false }
+                        showIcon
+                        className="deleted"/>
+                    );
+                  }
                   return (
-                    <Advanced.UuidInfo value={ data[rowIndex][property] } />
+                    <Advanced.UuidInfo value={ entity[property] } />
                   );
                 }
                 //
                 return (
                   <Advanced.EntityInfo
-                    entityType={ Utils.Ui.getSimpleJavaType(data[rowIndex].ownerType) }
-                    entityIdentifier={ data[rowIndex][property] }
-                    entity={ data[rowIndex]._embedded[property] }
+                    entityType={ Utils.Ui.getSimpleJavaType(entity.ownerType) }
+                    entityIdentifier={ entity[property] }
+                    entity={ entity._embedded[property] }
                     face="popover"
                     showEntityType={ false }
                     showIcon/>

@@ -87,6 +87,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
@@ -277,6 +278,11 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			//
 			// start long running task as event
 			IdmLongRunningTaskDto owner = new IdmLongRunningTaskDto(executor.getLongRunningTaskId());
+			owner.setTaskType(AutowireHelper.getTargetType(executor));
+			owner.setTaskProperties(executor.getProperties());
+			owner.setTaskDescription(executor.getDescription());
+			owner.setInstanceId(configurationService.getInstanceId());
+			owner.setRecoverable(executor.isRecoverable());
 			IdmEntityEventDto event = toDto(new LongRunningTaskEvent(LongRunningTaskEventType.START, owner));
 			event.setId(null);
 			event.setOwnerId(owner.getId());

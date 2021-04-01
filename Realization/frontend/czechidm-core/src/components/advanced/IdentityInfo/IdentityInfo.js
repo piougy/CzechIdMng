@@ -257,13 +257,17 @@ export class IdentityInfo extends AbstractEntityInfo {
                       )
                     )
                   }
-                  { this.renderRow(null, (
-                    <a href="#" onClick={ this.showDetail.bind(this, _entity) }>
-                      <Basic.Icon value="fa:angle-double-right"/>
-                      {' '}
-                      { this.i18n('link.profile.label') }
-                    </a>
-                  )) }
+                  {
+                    !this.showLink()
+                    ||
+                    this.renderRow(null, (
+                      <a href="#" onClick={ this.showDetail.bind(this, _entity) }>
+                        <Basic.Icon value="fa:angle-double-right"/>
+                        {' '}
+                        { this.i18n('link.profile.label') }
+                      </a>
+                    ))
+                  }
                   {
                     !this.isDevelopment() || this.isDisabled(_entity) || !_permissions || !Utils.Permission.hasPermission(_permissions, 'SWITCHUSER')
                     ||

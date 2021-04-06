@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 public class AccUniformPasswordFilter extends DataFilter implements DisableableFilter {
 
 	public static final String PARAMETER_SYSTEM_ID = "systemId";
+	public static final String PARAMETER_CHANGE_IN_IDM = "changeInIdM";
 
 	public AccUniformPasswordFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -39,6 +40,14 @@ public class AccUniformPasswordFilter extends DataFilter implements DisableableF
 
 	public void setSystemId(UUID systemId) {
 		set(PARAMETER_SYSTEM_ID, systemId);
+	}
+
+	public Boolean getChangeInIdM() {
+		return getParameterConverter().toBoolean(getData(), PARAMETER_CHANGE_IN_IDM);
+	}
+	
+	public void setChangeInIdM(Boolean disabled) {
+		set(PARAMETER_CHANGE_IN_IDM, disabled);
 	}
 
 }

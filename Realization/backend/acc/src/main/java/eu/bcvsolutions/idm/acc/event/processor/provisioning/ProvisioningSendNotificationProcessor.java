@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -95,13 +96,16 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 
 		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
 			// Uniform password notification will be send after end of sync.
-			IdmEntityStateDto uniformPasswordState = uniformPasswordManager
-					.getEntityState(provisioningOperation.getEntityIdentifier(), IdmIdentityDto.class, provisioningOperation.getTransactionId());
-			if (uniformPasswordState != null) {
-				return false;
+			UUID systemId = provisioningOperation.getSystem();
+			if (systemId != null && uniformPasswordManager.isSystemInUniformPasswordAgenda(systemId)) {
+				IdmEntityStateDto uniformPasswordState = uniformPasswordManager
+						.getEntityState(provisioningOperation.getEntityIdentifier(), IdmIdentityDto.class, provisioningOperation.getTransactionId());
+				if (uniformPasswordState != null) {
+					return false;
+				}
 			}
 		}
-		
+		 
 		return true;
 	}
 	

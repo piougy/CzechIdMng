@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordDto;
+import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
@@ -27,6 +29,8 @@ import eu.bcvsolutions.idm.acc.entity.TestContractResource;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.event.processor.IdentityInitUniformPasswordProcessor;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.SynchronizationSchedulableTaskExecutor;
+import eu.bcvsolutions.idm.acc.service.api.AccUniformPasswordService;
+import eu.bcvsolutions.idm.acc.service.api.AccUniformPasswordSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
@@ -47,6 +51,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -130,6 +135,10 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 	private IdmNotificationLogService notificationLogService;
 	@Autowired
 	private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired
+	private AccUniformPasswordService uniformPasswordService;
+	@Autowired
+	private AccUniformPasswordSystemService uniformPasswordSystemService;
 
 	@Before
 	public void init() {
@@ -290,6 +299,10 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 			// Create system two with account suffix "_targetSystemTwo".
 			String targetSystemTwoSuffix = "_targetSystemTwo";
 			SysSystemDto targetSystemTwo = helper.createTestResourceSystem(true);
+
+			// Create uniform password definition.
+			AccUniformPasswordDto uniformPasswordDef = createUniformPasswordDef(targetSystemOne, targetSystemTwo);
+
 			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(targetSystemTwo.getId(), SystemEntityType.IDENTITY);
 			List<SysSystemAttributeMappingDto> attributeMappingDtos = schemaAttributeMappingService.findBySystemMapping(provisioningMapping);
 			SysSystemAttributeMappingDto uidAttribute = schemaAttributeMappingService.getUidAttribute(attributeMappingDtos, targetSystemTwo);
@@ -321,9 +334,13 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 					.forEach(contract -> contractService.delete(contract));
 			Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
 
-			ownerOne = identityService.get(ownerOne.getId());
+			IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+			identityFilter.setAddPasswordMetadata(true);
+			ownerOne = identityService.get(ownerOne.getId(), identityFilter);
 			// Identities should be in the CREATED state.
 			Assert.assertEquals(IdentityState.CREATED, ownerOne.getState());
+			Assert.assertNull(ownerOne.getPassword());
+			Assert.assertNull(ownerOne.getPasswordMetadata());
 
 			SynchronizationSchedulableTaskExecutor lrt = new SynchronizationSchedulableTaskExecutor(config.getId());
 			LongRunningFutureTask<Boolean> longRunningFutureTask = longRunningTaskManager.execute(lrt);
@@ -375,6 +392,11 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 			Assert.assertNotNull(passwordOwnerTwo);
 			Assert.assertEquals(passwordOwnerOne, passwordOwnerTwo);
 
+			// Change in the IdM is disabled.
+			ownerOne = identityService.get(ownerOne.getId(), identityFilter);
+			Assert.assertNull(ownerOne.getPassword());
+			Assert.assertNull(ownerOne.getPasswordMetadata());
+
 			// One uniform password notification was send.
 			IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
 			notificationFilter.setRecipient(ownerOne.getUsername());
@@ -402,6 +424,161 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 			syncLogService.delete(log);
 			// Delete identities.
 			identityService.delete(ownerOne);
+			// Delete uniform password def.
+			uniformPasswordService.delete(uniformPasswordDef);
+		} finally {
+			// Turn off an async execution.
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		}
+	}
+	
+	@Test
+	public void testUniformPasswordInIdM() {
+		try {
+			// Turn on an async execution.
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+
+			SysSystemDto contractSystem = initData();
+			Assert.assertNotNull(contractSystem);
+			IdmTreeTypeDto treeType = helper.createTreeType();
+			AbstractSysSyncConfigDto config = doCreateSyncConfig(contractSystem, treeType);
+			Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+			SysSystemDto targetSystemOne = helper.createTestResourceSystem(true);
+			// Create system two with account suffix "_targetSystemTwo".
+			String targetSystemTwoSuffix = "_targetSystemTwo";
+			SysSystemDto targetSystemTwo = helper.createTestResourceSystem(true);
+
+			// Create uniform password definition.
+			AccUniformPasswordDto uniformPasswordDef = createUniformPasswordDef(targetSystemOne, targetSystemTwo);
+			// Enable change in the IdM.
+			uniformPasswordDef.setChangeInIdm(true);
+			uniformPasswordService.save(uniformPasswordDef);
+
+			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(targetSystemTwo.getId(), SystemEntityType.IDENTITY);
+			List<SysSystemAttributeMappingDto> attributeMappingDtos = schemaAttributeMappingService.findBySystemMapping(provisioningMapping);
+			SysSystemAttributeMappingDto uidAttribute = schemaAttributeMappingService.getUidAttribute(attributeMappingDtos, targetSystemTwo);
+			uidAttribute.setTransformToResourceScript("return attributeValue + \"" + targetSystemTwoSuffix + "\"");
+			schemaAttributeMappingService.save(uidAttribute);
+
+			IdmRoleDto automaticRoleTreeOne = helper.createRole();
+			helper.createRoleSystem(automaticRoleTreeOne, targetSystemOne);
+			IdmTreeNodeDto treeNodeOne = helper.createTreeNode(treeType, null);
+			helper.createAutomaticRole(automaticRoleTreeOne, treeNodeOne);
+
+			IdmRoleDto automaticRoleTreeTwo = helper.createRole();
+			helper.createRoleSystem(automaticRoleTreeTwo, targetSystemTwo);
+			IdmTreeNodeDto treeNodeTwo = helper.createTreeNode(treeType, null);
+			helper.createAutomaticRole(automaticRoleTreeTwo, treeNodeTwo);
+
+			IdmIdentityDto ownerOne = helper.createIdentityOnly();
+
+			List<TestContractResource> contractResources = Lists.newArrayList(
+					this.createContract("1", ownerOne.getUsername(), null, "true", treeNodeOne.getCode(), null, null, null),
+					this.createContract("2", ownerOne.getUsername(), null, "false", treeNodeTwo.getCode(), null, null, null)
+			);
+			this.getBean().initContractData(contractResources);
+
+			IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+			contractFilter.setIdentity(ownerOne.getId());
+			contractService.find(contractFilter, null)
+					.getContent()
+					.forEach(contract -> contractService.delete(contract));
+			Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+
+			IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+			identityFilter.setAddPasswordMetadata(true);
+			ownerOne = identityService.get(ownerOne.getId(), identityFilter);
+			// Identities should be in the CREATED state.
+			Assert.assertEquals(IdentityState.CREATED, ownerOne.getState());
+			Assert.assertNull(ownerOne.getPassword());
+			Assert.assertNull(ownerOne.getPasswordMetadata());
+
+			SynchronizationSchedulableTaskExecutor lrt = new SynchronizationSchedulableTaskExecutor(config.getId());
+			LongRunningFutureTask<Boolean> longRunningFutureTask = longRunningTaskManager.execute(lrt);
+			UUID transactionIdLrt = longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getTransactionId();
+
+			// Waiting for the LRT will be running.
+			getHelper().waitForResult(res -> {
+				return !longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
+			}, 50, 40);
+
+			// Waiting for the LRT will be EXECUTED.
+			getHelper().waitForResult(res -> {
+				return longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState() != OperationState.EXECUTED;
+			}, 250, 100);
+
+			Assert.assertEquals(longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState(), OperationState.EXECUTED);
+			SysSyncLogDto log = helper.checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2, OperationResultType.SUCCESS);
+
+			Assert.assertFalse(log.isRunning());
+			Assert.assertFalse(log.isContainsError());
+			UUID transactionId = log.getTransactionId();
+			Assert.assertNotNull(transactionId);
+			Assert.assertEquals(transactionIdLrt, transactionId);
+
+			contractFilter.setIdentity(ownerOne.getId());
+			Assert.assertEquals(2, contractService.count(contractFilter));
+
+			ownerOne = identityService.get(ownerOne.getId());
+			// Identities should have a valid state.
+			Assert.assertEquals(IdentityState.VALID, ownerOne.getState());
+
+			// Waiting for removing entity state.
+			IdmIdentityDto finalOwnerOne = ownerOne;
+			getHelper().waitForResult(res -> {
+				return uniformPasswordManager.getEntityState(finalOwnerOne.getId(), IdmIdentityDto.class, transactionId) != null;
+			}, 50, 100);
+			// LRT ended, entityStates must be removed.
+			IdmEntityStateDto entityStateDtoOwnerOne = uniformPasswordManager.getEntityState(ownerOne.getId(), IdmIdentityDto.class, transactionId);
+			Assert.assertNull(entityStateDtoOwnerOne);
+
+			TestResource resourceOwnerOne = helper.findResource(ownerOne.getUsername());
+			Assert.assertNotNull(resourceOwnerOne);
+			TestResource resourceOwnerTwo = helper.findResource(ownerOne.getUsername() + targetSystemTwoSuffix);
+			Assert.assertNotNull(resourceOwnerTwo);
+
+			String passwordOwnerOne = resourceOwnerOne.getPassword();
+			String passwordOwnerTwo = resourceOwnerTwo.getPassword();
+			Assert.assertNotNull(passwordOwnerOne);
+			Assert.assertNotNull(passwordOwnerTwo);
+			Assert.assertEquals(passwordOwnerOne, passwordOwnerTwo);
+
+			// Change in the IdM is enabled.
+			ownerOne = identityService.get(ownerOne.getId(), identityFilter);
+			Assert.assertNotNull(ownerOne.getPasswordMetadata());
+
+			// One uniform password notification was send.
+			IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
+			notificationFilter.setRecipient(ownerOne.getUsername());
+			notificationFilter.setNotificationType(IdmEmailLog.class);
+			notificationFilter.setTopic(CoreModule.TOPIC_UNIFORM_PASSWORD_SET);
+			List<IdmNotificationLogDto> notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
+			Assert.assertEquals(1, notificationLogDtos.size());
+
+			// None a new password notification was send.
+			notificationFilter.setTopic(AccModuleDescriptor.TOPIC_NEW_PASSWORD);
+			notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
+			Assert.assertEquals(0, notificationLogDtos.size());
+
+			// None password set notification was send.
+			notificationFilter.setTopic(CoreModule.TOPIC_PASSWORD_SET);
+			notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
+			Assert.assertEquals(0, notificationLogDtos.size());
+
+			// None password change notification was send.
+			notificationFilter.setTopic(CoreModule.TOPIC_PASSWORD_CHANGED);
+			notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
+			Assert.assertEquals(0, notificationLogDtos.size());
+
+			// Delete log
+			syncLogService.delete(log);
+			// Delete identities.
+			identityService.delete(ownerOne);
+			// Delete uniform password def.
+			uniformPasswordService.delete(uniformPasswordDef);
 		} finally {
 			// Turn off an async execution.
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
@@ -410,7 +587,7 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 	}
 
 	@Test
-	public void testDisableUniformPassword() {
+	public void testDisableUniformPasswordByProcessor() {
 		try {
 			// Disable the IdentityInitUniformPasswordProcessor processor -> state will be not created -> feature uniform password have to be disabled.
 			getHelper().disableProcessor(IdentityInitUniformPasswordProcessor.PROCESSOR_NAME);
@@ -539,6 +716,144 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 			// Enable processor.
 			getHelper().enableProcessor(IdentityInitUniformPasswordProcessor.PROCESSOR_NAME);
+		}
+	}
+	
+	@Test
+	public void testDisableUniformPassword() {
+		try {
+			// Turn on an async execution.
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+			// Create password generate policy if missing.
+			createGeneratePolicy();
+
+			SysSystemDto contractSystem = initData();
+			Assert.assertNotNull(contractSystem);
+			IdmTreeTypeDto treeType = helper.createTreeType();
+			AbstractSysSyncConfigDto config = doCreateSyncConfig(contractSystem, treeType);
+			Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+			SysSystemDto targetSystemOne = helper.createTestResourceSystem(true);
+			// Create system two with account suffix "_targetSystemTwo".
+			String targetSystemTwoSuffix = "_targetSystemTwo";
+			SysSystemDto targetSystemTwo = helper.createTestResourceSystem(true);
+
+			// Create uniform password definition.
+			AccUniformPasswordDto uniformPasswordDef = createUniformPasswordDef(targetSystemOne, targetSystemTwo);
+			// Disable an uniform password definition.
+			uniformPasswordDef.setDisabled(true);
+			uniformPasswordDef = uniformPasswordService.save(uniformPasswordDef);
+			
+			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(targetSystemTwo.getId(), SystemEntityType.IDENTITY);
+			List<SysSystemAttributeMappingDto> attributeMappingDtos = schemaAttributeMappingService.findBySystemMapping(provisioningMapping);
+			SysSystemAttributeMappingDto uidAttribute = schemaAttributeMappingService.getUidAttribute(attributeMappingDtos, targetSystemTwo);
+			uidAttribute.setTransformToResourceScript("return attributeValue + \"" + targetSystemTwoSuffix + "\"");
+			schemaAttributeMappingService.save(uidAttribute);
+
+			IdmRoleDto automaticRoleTreeOne = helper.createRole();
+			helper.createRoleSystem(automaticRoleTreeOne, targetSystemOne);
+			IdmTreeNodeDto treeNodeOne = helper.createTreeNode(treeType, null);
+			helper.createAutomaticRole(automaticRoleTreeOne, treeNodeOne);
+
+			IdmRoleDto automaticRoleTreeTwo = helper.createRole();
+			helper.createRoleSystem(automaticRoleTreeTwo, targetSystemTwo);
+			IdmTreeNodeDto treeNodeTwo = helper.createTreeNode(treeType, null);
+			helper.createAutomaticRole(automaticRoleTreeTwo, treeNodeTwo);
+
+			IdmIdentityDto ownerOne = helper.createIdentityOnly();
+
+			List<TestContractResource> contractResources = Lists.newArrayList(
+					this.createContract("1", ownerOne.getUsername(), null, "true", treeNodeOne.getCode(), null, null, null),
+					this.createContract("2", ownerOne.getUsername(), null, "false", treeNodeTwo.getCode(), null, null, null)
+			);
+			this.getBean().initContractData(contractResources);
+
+			IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+			contractFilter.setIdentity(ownerOne.getId());
+			contractService.find(contractFilter, null)
+					.getContent()
+					.forEach(contract -> contractService.delete(contract));
+			Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+
+			ownerOne = identityService.get(ownerOne.getId());
+			// Identities should be in the CREATED state.
+			Assert.assertEquals(IdentityState.CREATED, ownerOne.getState());
+
+			SynchronizationSchedulableTaskExecutor lrt = new SynchronizationSchedulableTaskExecutor(config.getId());
+			LongRunningFutureTask<Boolean> longRunningFutureTask = longRunningTaskManager.execute(lrt);
+			UUID transactionIdLrt = longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getTransactionId();
+
+			// Waiting for the LRT will be running.
+			getHelper().waitForResult(res -> {
+				return !longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
+			}, 50, 40);
+
+			// Waiting for the LRT will be EXECUTED.
+			getHelper().waitForResult(res -> {
+				return longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState() != OperationState.EXECUTED;
+			}, 250, 100);
+
+			Assert.assertEquals(OperationState.EXECUTED, longRunningTaskService.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).getResultState());
+			SysSyncLogDto log = helper.checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 2, OperationResultType.SUCCESS);
+
+			Assert.assertFalse(log.isRunning());
+			Assert.assertFalse(log.isContainsError());
+			UUID transactionId = log.getTransactionId();
+			Assert.assertNotNull(transactionId);
+			Assert.assertEquals(transactionIdLrt, transactionId);
+
+			contractFilter.setIdentity(ownerOne.getId());
+			Assert.assertEquals(2, contractService.count(contractFilter));
+
+			ownerOne = identityService.get(ownerOne.getId());
+			// Identities should have a valid state.
+			Assert.assertEquals(IdentityState.VALID, ownerOne.getState());
+
+			// Uniform password feature is disabled -> password could be not same.
+			IdmEntityStateDto entityStateDtoOwnerOne = uniformPasswordManager.getEntityState(ownerOne.getId(), IdmIdentityDto.class, transactionId);
+			Assert.assertNull(entityStateDtoOwnerOne);
+
+			TestResource resourceOwnerOne = helper.findResource(ownerOne.getUsername());
+			Assert.assertNotNull(resourceOwnerOne);
+			TestResource resourceOwnerTwo = helper.findResource(ownerOne.getUsername() + targetSystemTwoSuffix);
+			Assert.assertNotNull(resourceOwnerTwo);
+
+			String passwordOwnerOne = resourceOwnerOne.getPassword();
+			String passwordOwnerTwo = resourceOwnerTwo.getPassword();
+			Assert.assertNotNull(passwordOwnerOne);
+			Assert.assertNotNull(passwordOwnerTwo);
+			// Uniform password feature is disabled -> password cannot be not same.
+			Assert.assertNotEquals(passwordOwnerOne, passwordOwnerTwo);
+
+			// None a uniform password notification was send.
+			IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
+			notificationFilter.setRecipient(ownerOne.getUsername());
+			notificationFilter.setNotificationType(IdmEmailLog.class);
+			notificationFilter.setTopic(CoreModule.TOPIC_UNIFORM_PASSWORD_SET);
+			List<IdmNotificationLogDto> notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
+			Assert.assertEquals(0, notificationLogDtos.size());
+
+			// None a new password notification was send.
+			notificationFilter.setTopic(AccModuleDescriptor.TOPIC_NEW_PASSWORD);
+			notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
+			Assert.assertEquals(2, notificationLogDtos.size());
+
+			// None a password change notification was send.
+			notificationFilter.setTopic(CoreModule.TOPIC_PASSWORD_SET);
+			notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
+			Assert.assertEquals(0, notificationLogDtos.size());
+
+			// Delete log
+			syncLogService.delete(log);
+			// Delete identities.
+			identityService.delete(ownerOne);
+			// Delete uniform password def.
+			uniformPasswordService.delete(uniformPasswordDef);
+		} finally {
+			// Turn off an async execution.
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 		}
 	}
 
@@ -783,6 +1098,24 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 		// Delete all
 		Query q = entityManager.createNativeQuery("DELETE FROM " + TestResource.TABLE_NAME);
 		q.executeUpdate();
+	}
+
+	private AccUniformPasswordDto createUniformPasswordDef(SysSystemDto... systems) {
+		// Create uniform password definition.
+		AccUniformPasswordDto uniformPasswordDto = new AccUniformPasswordDto();
+		uniformPasswordDto.setCode(helper.createName());
+		uniformPasswordDto.setChangeInIdm(false);
+		uniformPasswordDto.setDisabled(false);
+		uniformPasswordDto = uniformPasswordService.save(uniformPasswordDto);
+
+		for (SysSystemDto system : systems) {
+			AccUniformPasswordSystemDto uniformPasswordSystemDto = new AccUniformPasswordSystemDto();
+			uniformPasswordSystemDto.setUniformPassword(uniformPasswordDto.getId());
+			uniformPasswordSystemDto.setSystem(system.getId());
+			uniformPasswordSystemService.save(uniformPasswordSystemDto);
+		}
+
+		return uniformPasswordDto;
 	}
 
 	private DefaultUniformPasswordManagerIntegrationTest getBean() {

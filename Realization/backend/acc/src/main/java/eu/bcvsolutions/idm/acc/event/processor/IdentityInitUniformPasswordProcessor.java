@@ -80,7 +80,7 @@ public class IdentityInitUniformPasswordProcessor
 	/**
 	 * Return true, when identity starts to be valid or future contract.
 	 */
-	private boolean stateStarting(IdmIdentityDto previousIdentity, IdmIdentityDto newIdentity) {
+	protected boolean stateStarting(IdmIdentityDto previousIdentity, IdmIdentityDto newIdentity) {
 		return (previousIdentity.getState() == IdentityState.CREATED
 				|| previousIdentity.getState() == IdentityState.NO_CONTRACT
 				|| previousIdentity.getState() == IdentityState.LEFT)

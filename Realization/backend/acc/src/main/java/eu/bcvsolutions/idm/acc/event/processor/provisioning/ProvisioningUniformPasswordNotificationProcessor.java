@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -20,7 +21,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -29,8 +29,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 /**
- * Processor adds system entity ID to system entity for uniform password.
- * This processor doesn't send notification. Notification will be send after sync ends.
+ * Processor adds system entity ID to system entity for uniform password. This processor doesn't send notification. Notification will be send after sync ends.
  *
  * @author Vít Švanda
  * @since 11.0.0
@@ -87,27 +86,19 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 			if (identityDto.getId() != null) {
 				IdmEntityStateDto uniformPasswordState = uniformPasswordManager
 						.getEntityState(identityDto.getId(), identityDto.getClass(), provisioningOperation.getTransactionId());
-				if (uniformPasswordState != null) {
-					UUID systemId = provisioningOperation.getSystem();
-					if (systemId != null) {
-						SysSystemDto systemDto = systemService.get(systemId);
-						if (systemDto != null) {
+				UUID systemId = provisioningOperation.getSystem();
+				if (systemId != null) {
+					SysSystemDto systemDto = systemService.get(systemId);
+					if (systemDto != null) {
+						if (uniformPasswordState != null) {
+							// Add name of system to the entity state.
+							uniformPasswordManager.addSystemNameToEntityState(uniformPasswordState, systemDto.getCode());
+
 							ResultModel model = uniformPasswordState.getResult().getModel();
-							// Add system name to entity state for uniform password (will be used in bulk notification).
-							Object successSystemNamesObj = model.getParameters().get(UniformPasswordManager.SUCCESS_SYSTEM_NAMES);
-							Set<String> successSystems = null;
-							if (successSystemNamesObj instanceof Set) {
-								successSystems = (Set<String>) successSystemNamesObj;
-							} else {
-								successSystems = Sets.newHashSet();
-							}
-							successSystems.add(systemDto.getCode());
-							
 							// Create new parameters for entity state.
 							HashMap<String, Object> newParameters = Maps.newHashMap(model.getParameters());
-							newParameters.put(UniformPasswordManager.SUCCESS_SYSTEM_NAMES, successSystems);
-							
-							// Add system entity ID to entity state for uniform password (will be used in bulk notification).
+
+							// Add system entity ID to entity state for uniform password (could be used in bulk notification).
 							UUID systemEntityId = provisioningOperation.getSystemEntity();
 							if (systemEntityId != null) {
 								Object successSystemEntitiesObj = model.getParameters().get(UniformPasswordManager.SUCCESS_SYSTEM_ENTITIES);
@@ -131,6 +122,7 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 		}
 		return new DefaultEventResult<>(event, this);
 	}
+	
 
 	@Override
 	public int getOrder() {

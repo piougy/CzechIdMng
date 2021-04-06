@@ -387,7 +387,7 @@ public enum CoreResultCode implements ResultCode {
 	MANUAL_TASK_DELEGATION_DELEGATOR_MISSING(HttpStatus.BAD_REQUEST, "Delegator not found. You must apply a filter by delegator (assigned user)!"),
 	MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE(HttpStatus.BAD_REQUEST, "Delegator [%s] isn't candidate of the task [%s]!"),
 	// Uniform password
-	IDENTITY_UNIFORM_PASSWORD(HttpStatus.ACCEPTED, "Identity [%s] uniform password.");
+	IDENTITY_UNIFORM_PASSWORD(HttpStatus.ACCEPTED, "Identity uniform password.");
 	
 	private final HttpStatus status;
 	private final String message;

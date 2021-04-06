@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc;
 
+import eu.bcvsolutions.idm.acc.dto.filter.AccUniformPasswordFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.acc.service.api.AccUniformPasswordService;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -102,6 +104,7 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@Autowired private SysSyncActionLogService syncActionLogService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
+	@Autowired private AccUniformPasswordService uniformPasswordService;
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -467,5 +470,8 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		syncConfigService.deleteAll(syncConfigService.find(new SysSyncConfigFilter(), null).getContent());
 		// Delete all mappings.
 		systemMappingService.deleteAll(systemMappingService.find(new SysSystemMappingFilter(), null).getContent());
+		// Delete all uniform password definitions.
+		uniformPasswordService.deleteAll(uniformPasswordService.find(new AccUniformPasswordFilter(), null).getContent());
+
 	}
 }

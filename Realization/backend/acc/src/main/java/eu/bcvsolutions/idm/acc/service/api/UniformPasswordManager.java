@@ -17,6 +17,7 @@ public interface UniformPasswordManager {
 	String PASSWORD_USED = "passwordUsed";
 	String SUCCESS_SYSTEM_NAMES = "successSystemNames";
 	String SUCCESS_SYSTEM_ENTITIES = "successSystemEntities";
+	String IDM_NAME = "CzechIdM";
 
 	/**
 	 * Create a uniform password entity state for given entity.
@@ -34,13 +35,30 @@ public interface UniformPasswordManager {
 	/**
 	 * Generate uniform password or reused it if already exists for given entity and transaction.
 	 * Password is generated only once for one entity state.
+	 *
 	 * Password is persisted in confidential storage and deleted after the entity state is deleted.
 	 * Entity state for uniform password is marked as used after generating (PASSWORD_USED).
 	 */
 	GuardedString generateUniformPassword(UUID entityIdentifier, Class<? extends AbstractDto> entityType, UUID transactionId);
 
 	/**
+	 * Is given system used in uniform password agenda?
+	 */
+	boolean isSystemInUniformPasswordAgenda(UUID systemId);
+
+	/**
 	 * Try to find a uniform password entity state for given entity and transaction.
 	 */
 	IdmEntityStateDto getEntityState(UUID entityIdentifier, Class<? extends AbstractDto> entityType, UUID transactionId);
+
+	/**
+	 * Returns true if should be uniform password set to IdM too. A password should be set
+	 * if exists some record in uniform password agenda with attribute "Change in IdM".
+	 */
+	boolean shouldBePasswordSetToIdM();
+
+	/**
+	 * Add system name to the uniform password entity state. Beware, only instance is changed, entity state will be not saved.
+	 */
+	void addSystemNameToEntityState(IdmEntityStateDto uniformPasswordState, String systemName);
 }

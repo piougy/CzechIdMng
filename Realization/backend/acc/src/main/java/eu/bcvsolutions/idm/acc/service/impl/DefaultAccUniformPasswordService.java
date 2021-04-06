@@ -1,11 +1,17 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.entity.AccTreeAccount_;
+import eu.bcvsolutions.idm.acc.entity.AccUniformPassword_;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -166,5 +172,17 @@ public class DefaultAccUniformPasswordService
 		} else {
 			return MessageFormat.format("{0} ({1})", uniformPassword.getCode(), uniformPassword.getDescription());
 		}
+	}
+
+	@Override
+	protected List<Predicate> toPredicates(Root<AccUniformPassword> root, CriteriaQuery<?> query, CriteriaBuilder builder, AccUniformPasswordFilter filter) {
+
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+
+		if (filter.getChangeInIdM() != null) {
+			predicates.add(builder.equal(root.get(AccUniformPassword_.changeInIdm), filter.getChangeInIdM()));
+		}
+		
+		return predicates;
 	}
 }

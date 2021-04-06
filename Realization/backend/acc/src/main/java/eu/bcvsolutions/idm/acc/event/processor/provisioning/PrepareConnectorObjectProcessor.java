@@ -245,11 +245,15 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				// Check if exists a uniform password for this entity. If yes, then use it.
 				if (provisioningOperation.getEntityIdentifier() != null
 						&& provisioningOperation.getEntityType() != null
+						&& provisioningOperation.getSystem() != null
 						&& provisioningOperation.getTransactionId() != null) {
-					generatedPassword = uniformPasswordManager.generateUniformPassword(
-							provisioningOperation.getEntityIdentifier(),
-							provisioningOperation.getEntityType().getEntityType(),
-							provisioningOperation.getTransactionId());
+					
+					if (uniformPasswordManager.isSystemInUniformPasswordAgenda(provisioningOperation.getSystem())) {
+						generatedPassword = uniformPasswordManager.generateUniformPassword(
+								provisioningOperation.getEntityIdentifier(),
+								provisioningOperation.getEntityType().getEntityType(),
+								provisioningOperation.getTransactionId());
+					}
 				}
 				if (generatedPassword == null) {
 					generatedPassword = generatePassword(system);

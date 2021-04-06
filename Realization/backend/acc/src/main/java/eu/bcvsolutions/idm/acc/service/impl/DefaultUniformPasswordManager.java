@@ -3,6 +3,9 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccUniformPasswordFilter;
+import eu.bcvsolutions.idm.acc.service.api.AccUniformPasswordService;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -56,6 +59,8 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 	private NotificationManager notificationManager;
 	@Autowired
 	private IdmIdentityService identityService;
+	@Autowired
+	private AccUniformPasswordService uniformPasswordService;
 
 
 	@Override
@@ -110,6 +115,28 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 		entityStateDtos
 				.forEach(entityState -> entityStateManager.deleteState(entityState));
 	}
+	
+	@Override
+	public boolean isSystemInUniformPasswordAgenda(UUID systemId) {
+		Assert.notNull(systemId, "System ID cannot be null!");
+
+		AccUniformPasswordFilter uniformPasswordFilter = new AccUniformPasswordFilter();
+		uniformPasswordFilter.setSystemId(systemId);
+		uniformPasswordFilter.setDisabled(Boolean.FALSE);
+		long count = uniformPasswordService.count(uniformPasswordFilter);
+
+		return count > 0;
+	}
+
+	@Override
+	public boolean shouldBePasswordSetToIdM() {
+		AccUniformPasswordFilter uniformPasswordFilter = new AccUniformPasswordFilter();
+		uniformPasswordFilter.setChangeInIdM(Boolean.TRUE);
+		uniformPasswordFilter.setDisabled(Boolean.FALSE);
+		long count = uniformPasswordService.count(uniformPasswordFilter);
+
+		return count > 0;
+	}
 
 	@Override
 	@Transactional
@@ -123,6 +150,7 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 		if (entityStateDto != null) {
 			GuardedString password = getPassword(entityStateDto);
 			if (password == null || password.getValue().length == 0) {
+				// TODO: how to generate password for all system policies.
 				password = new GuardedString(passwordPolicyService.generatePasswordByDefault());
 				confidentialStorage.saveGuardedString(entityStateDto, UNIFORM_PASSWORD_KEY, password);
 			}
@@ -208,5 +236,24 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 							.build(),
 					identityDto);
 		}
+	}
+
+	@Override
+	public void addSystemNameToEntityState(IdmEntityStateDto uniformPasswordState, String systemName) {
+		ResultModel model = uniformPasswordState.getResult().getModel();
+		// Add system name to entity state for uniform password (will be used in bulk notification).
+		Object successSystemNamesObj = model.getParameters().get(UniformPasswordManager.SUCCESS_SYSTEM_NAMES);
+		Set<String> successSystems = null;
+		if (successSystemNamesObj instanceof Set) {
+			successSystems = (Set<String>) successSystemNamesObj;
+		} else {
+			successSystems = Sets.newHashSet();
+		}
+		successSystems.add(systemName);
+
+		// Create new parameters for entity state.
+		HashMap<String, Object> newParameters = Maps.newHashMap(model.getParameters());
+		newParameters.put(UniformPasswordManager.SUCCESS_SYSTEM_NAMES, successSystems);
+		uniformPasswordState.getResult().setModel(new DefaultResultModel(CoreResultCode.IDENTITY_UNIFORM_PASSWORD, newParameters));
 	}
 }

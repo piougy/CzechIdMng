@@ -100,8 +100,14 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
   }
 
   _onChangeSelectRole(id, value) {
-    if (value && !this.refs.name.getValue()) {
-      this.refs.name.setValue(value.name);
+    const roleCode = value ? value.name : '';
+    const name = this.refs.name.getValue();
+    if (!name || this.state.oldRoleCode === name) {
+      this.setState({
+        oldRoleCode: roleCode
+      }, () => {
+        this.refs.name.setValue(roleCode);
+      });
     }
   }
 

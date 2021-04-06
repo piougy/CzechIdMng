@@ -99,6 +99,12 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     this.refs['automatic-role-requests-table'].reload();
   }
 
+  _onChangeSelectRole(id, value) {
+    if (value && !this.refs.name.getValue()) {
+      this.refs.name.setValue(value.name);
+    }
+  }
+
   render() {
     const { uiKey, columns, forceSearchParameters, _showLoading, _permissions } = this.props;
     const { detail } = this.state;
@@ -286,7 +292,8 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                   ref="role"
                   label={ this.i18n('entity.RoleTreeNode.role') }
                   readOnly={ !Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'role') }
-                  required/>
+                  required
+                  onChange={ this._onChangeSelectRole.bind(this) }/>
                 <Basic.TextField
                   ref="name"
                   required

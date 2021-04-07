@@ -149,6 +149,21 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 	}
 
 	/**
+	 * Activate protection for given account and set end of protection.
+	 * Method has protected modifier -> can be override on projects.
+	 */
+	protected void activateProtection(AccAccountDto accountEntity) {
+		Integer daysInterval = systemMappingService.getProtectionInterval(accountEntity);
+		accountEntity.setInProtection(true);
+		if (daysInterval == null) {
+			// Interval is null, protection is infinite
+			accountEntity.setEndOfProtection(null);
+		} else {
+			accountEntity.setEndOfProtection(ZonedDateTime.now().plusDays(daysInterval));
+		}
+	}
+
+	/**
 	 * Get role-request ID from event
 	 * 
 	 * @param properties
@@ -173,17 +188,6 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 				ImmutableMap.of(ProvisioningService.DTO_PROPERTY_NAME, identityService.get(entity),
 						ProvisioningService.CANCEL_PROVISIONING_BREAK_IN_PROTECTION, Boolean.TRUE)));
 
-	}
-
-	private void activateProtection(AccAccountDto accountEntity) {
-		Integer daysInterval = systemMappingService.getProtectionInterval(accountEntity);
-		accountEntity.setInProtection(true);
-		if (daysInterval == null) {
-			// Interval is null, protection is infinite
-			accountEntity.setEndOfProtection(null);
-		} else {
-			accountEntity.setEndOfProtection(ZonedDateTime.now().plusDays(daysInterval));
-		}
 	}
 
 	private boolean isForceDeleteAttributePresent(Map<String, Serializable> properties) {

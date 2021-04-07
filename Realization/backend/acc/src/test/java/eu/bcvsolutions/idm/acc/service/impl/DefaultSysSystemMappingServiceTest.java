@@ -39,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -251,6 +252,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		createSchemaAttribute("titleBefore", schema);
 		createSchemaAttribute("title_after", schema);
 		createSchemaAttribute("not_exist", schema);
+		createPasswordSchemaAttribute("__PASSWORD__", schema);
 
 		SysSystemMappingDto mappingDto = new SysSystemMappingDto();
 		mappingDto.setName(testHelper.createName());
@@ -270,7 +272,7 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 
 		List<SysSystemAttributeMappingDto> mappingAttributes = mappingAttributeService.find(attributeMappingFilter, null).getContent();
 		// Automatic attribute generating is enabled.
-		assertEquals(6, mappingAttributes.size());
+		assertEquals(7, mappingAttributes.size());
 
 		SysSystemAttributeMappingDto usernameAttribute = mappingAttributes
 				.stream()
@@ -331,6 +333,15 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		assertNotNull(emailAttribute);
 		assertFalse(emailAttribute.isUid());
 		assertEquals(IdmIdentity_.email.getName(), emailAttribute.getIdmPropertyName());
+		
+		SysSystemAttributeMappingDto passwordAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("__PASSWORD__"))
+				.findFirst()
+				.orElse(null);
+		assertNotNull(passwordAttribute);
+		assertFalse(passwordAttribute.isUid());
+		assertTrue(passwordAttribute.isPasswordAttribute());
 	}
 
 	@Test
@@ -530,6 +541,12 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		attributeDto.setClassType(String.class.getCanonicalName());
 		attributeDto.setMultivalued(false);
 
+		return schemaAttributeService.save(attributeDto);
+	}
+	
+	private SysSchemaAttributeDto createPasswordSchemaAttribute (String name, SysSchemaObjectClassDto schema) {
+		SysSchemaAttributeDto attributeDto = createSchemaAttribute(name, schema);
+		attributeDto.setClassType(GuardedString.class.getCanonicalName());
 		return schemaAttributeService.save(attributeDto);
 	}
 

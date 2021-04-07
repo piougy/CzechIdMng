@@ -88,6 +88,9 @@ public class SystemMappingIdentityAutoAttributesProcessor extends AbstractSystem
 			createAttributeMappingBySchemaAttribute(dto, schemaAttribute, IdmIdentity_.phone.getName(), false);
 		}
 
+		// Password attribute
+		createAttributeMappingForPassword(dto, schemaAttributes);
+
 		return new DefaultEventResult<>(event, this);
 	}
 

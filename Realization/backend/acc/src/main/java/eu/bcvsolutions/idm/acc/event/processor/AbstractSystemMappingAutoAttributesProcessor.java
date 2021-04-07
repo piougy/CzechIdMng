@@ -16,6 +16,8 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import java.util.List;
 import java.util.Set;
@@ -94,6 +96,24 @@ public abstract class AbstractSystemMappingAutoAttributesProcessor extends CoreE
 		mappingAttribute.setName(schemaAttribute.getName().trim());
 
 		return systemAttributeMappingService.save(mappingAttribute);
+	}
+	
+	/**
+	 * Specific method for password attribute mapping  
+	 */
+	protected SysSystemAttributeMappingDto createAttributeMappingForPassword(SysSystemMappingDto dto, List<SysSchemaAttributeDto> schemaAttributes) {
+		SysSchemaAttributeDto passwordSchemaAttr = schemaAttributes.stream().filter(attr -> {
+			return IcAttributeInfo.PASSWORD.equals(attr.getName())
+					&& GuardedString.class.getCanonicalName().equals(attr.getClassType());
+		}).findFirst().orElse(null);
+		
+		SysSystemAttributeMappingDto mappingAttribute = null;
+		if (passwordSchemaAttr != null) {
+			mappingAttribute = createAttributeMappingBySchemaAttribute(dto, passwordSchemaAttr, null, false);
+			mappingAttribute.setPasswordAttribute(true);
+			return systemAttributeMappingService.save(mappingAttribute);
+		}
+		return mappingAttribute;
 	}
 
 	/**

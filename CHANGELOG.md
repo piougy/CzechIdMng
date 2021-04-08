@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - 🟡 [#2684](https://redmine.czechidm.com/issues/2684) - **Some messages are missing in the Logging events.**
   - **Why:** This fix solves an issue where some logged messages cannot be saved **to the database** (because the message is too long or contains prohibited characters). The solution is to use a DB appender that solves this.
   - **What to do:** Change a log database appender from ``ch.qos.logback.classic.db.DBAppender`` to ``eu.bcvsolutions.idm.core.exception.IdmDbAppender`` in the log configuration file (**lockback-spring.xml**).
+- 🟠 [#2739](https://redmine.czechidm.com/issues/2739) - **GetDefaultDN Groovy script used by AD Wizard has to be re-deployed.** This script has been updated and has to be re-deployed in order to apply changes in the new version. This script is essential for correct funtion of the AD Wizard.
 
 ## [10.8.0]
 

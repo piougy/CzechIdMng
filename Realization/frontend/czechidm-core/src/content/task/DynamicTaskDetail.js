@@ -281,7 +281,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
                 rowClass={({rowIndex, data}) => {
                   return (data[rowIndex].changed) ? 'warning' : '';
                 }}>
-                <Basic.Column property="name" header={this.i18n('wf.formData.history.taskName')}/>
+                <Basic.Column property="taskName" header={this.i18n('wf.formData.history.taskName')}/>
                 <Basic.Column
                   property="endTime"
                   header={this.i18n('wf.formData.history.completeDate')}
@@ -292,11 +292,11 @@ class DynamicTaskDetail extends Basic.AbstractContent {
                   }
                 />
                 <Basic.Column
-                  property="assignee"
+                  property="taskAssignee"
                   header={this.i18n('wf.formData.history.assignee')}
                   cell={({rowIndex, data}) => {
                     return (<IdentityInfo
-                      entityIdentifier={ data[rowIndex].assignee }
+                      entityIdentifier={ data[rowIndex].taskAssignee }
                       face="popover" />);
                   }
                   }/>

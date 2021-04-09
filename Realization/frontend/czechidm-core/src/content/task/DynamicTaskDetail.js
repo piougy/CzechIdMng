@@ -370,7 +370,6 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               label={this.i18n('createdDate')}>
               <DateValue value={task ? task.taskCreated : null} showTime/>
             </Basic.LabelWrapper>
-            <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
           <Basic.AbstractForm ref="formData" data={formDataValues} className="panel-body">
             {this._getFormDataComponents(task)}

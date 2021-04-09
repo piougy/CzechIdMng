@@ -7,8 +7,7 @@ import * as Basic from '../../../components/basic';
 import DecisionButtons from '../DecisionButtons';
 import DynamicTaskDetail from '../DynamicTaskDetail';
 import RequestDetail from '../../request/RequestDetail';
-import SearchParameters from '../../../domain/SearchParameters';
-import WorkflowTaskInfo from '../../../components/advanced/WorkflowTaskInfo/WorkflowTaskInfo';
+import DateValue from '../../../components/advanced/DateValue/DateValue';
 
 /**
  * Custom task detail designed for use with universal request.
@@ -47,10 +46,12 @@ class DynamicRequestTaskDetail extends DynamicTaskDetail {
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
         {this.renderHeader(task)}
-        <Basic.Alert
-          title={this.i18n('description')}
-          text={<WorkflowTaskInfo entity={task} showLink={false} showLoading={!task} className="no-margin"/>}
-        />
+        {this._getTaskInfo(task)}
+        <Basic.LabelWrapper
+          ref="taskCreated"
+          label={this.i18n('createdDate')}>
+          <DateValue value={task ? task.taskCreated : null} showTime/>
+        </Basic.LabelWrapper>
         <Basic.AbstractForm style={{display: 'none'}} className="panel-body" ref="form" data={task}/>
         <Basic.Panel style={{display: 'none'}}>
           <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>

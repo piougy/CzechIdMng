@@ -507,7 +507,7 @@ public class DefaultSysSystemAttributeMappingService
 		if (dto.isSendOnlyOnPasswordChange() && !dto.isSendOnPasswordChange()) {
 			// This is invalid state. Check box "send only on password changed" can be checked
 			// only if "send on password change" is checked too. 
-			dto.setSendOnlyOnPasswordChange(Boolean.FALSE);
+			dto.setSendOnlyOnPasswordChange(false);
 		}
 		
 		return super.saveInternal(dto);

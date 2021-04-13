@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 - [#2622](https://redmine.czechidm.com/issues/2622) - **Libraries used on frontend were changed. Frontend build script was rewritten and simplified**.
   - What is needed to change after update for developing product or custom module:
     - 🟡 Gulp 4 and Babel 7 libraries are used for building frontend application. Read [doc](https://github.com/bcvsolutions/CzechIdMng/tree/develop/Realization/frontend#install-gulp-as-global) how to uninstall and install the new Gulp version.
-    - 🟢 Linter configuration has to be changed in custom module for analyze javascript source code. Make this [change]() in ``.eslintrc`` file in your custom module.
+    - 🟢 Linter configuration has to be changed in custom module for analyze javascript source code. Make this [change](https://github.com/bcvsolutions/CzechIdMng/commit/905e4c0835551ce746be8d65cbf06aa452b86033#diff-593209d8b7e6a66839cb42ec72cfc976aea35ccbf2c28cbdb0aefffcbab36f26) in ``.eslintrc`` file in your custom module.
   - Other notes (mainly informative):
     - Npx installation is not required now.
     - Gulp tasks ``install``, ``build`` and ``default`` (~ watch for development) are exposed only. Other tasks was removed (e.g. makeModules, test) and they are included in exposed tasks (e.g. tests are executed in ``default`` task). If other task is used and required for external usage, please let us know.  

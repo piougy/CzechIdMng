@@ -52,6 +52,10 @@ export default class ComponentLoader {
     for (const component of componentDescriptor.components) {
       if (!_components.has(component.id) || (_components.get(component.id).priority || 0) < (component.priority || 0)) {
         component.module = componentDescriptor.id;
+        // map default export as component if needed
+        if (component.component && component.component.__esModule && component.component.default) {
+          component.component = component.component.default;
+        }
         if (ConfigLoader.isEnabledModule(componentDescriptor.id)) {
           _components = _components.set(component.id, component);
         }

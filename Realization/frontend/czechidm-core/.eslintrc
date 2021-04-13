@@ -1,6 +1,6 @@
 {
-  "extends": "airbnb",
-  "parser": "babel-eslint",
+  "extends": ["airbnb", "airbnb/hooks"],
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module",
@@ -12,7 +12,7 @@
   },
   "plugins": [
     "react",
-    "babel"
+    "@babel"
   ],
   "env": {
     "browser": true,

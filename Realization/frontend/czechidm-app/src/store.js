@@ -217,5 +217,4 @@ const store = createStoreWithMiddleware(reducer);
 // Required for replaying actions from devtools to work
 // reduxRouterMiddleware.listenForReplays(store);
 
-
 export default store;

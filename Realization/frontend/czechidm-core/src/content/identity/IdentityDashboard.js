@@ -36,6 +36,7 @@ class IdentityDashboard extends Basic.AbstractContent {
     //
     const identityIdentifier = this.getIdentityIdentifier();
     //
+
     this.context.store.dispatch(identityManager.fetchEntity(identityIdentifier, null, (entity, error) => {
       this.handleError(error);
     }));

@@ -10,7 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.NotFound;
@@ -37,7 +36,8 @@ public class IdmNotificationAttachment extends AbstractEntity {
 
 	private static final long serialVersionUID = 6041589660726734115L;
 
-	@NotNull
+	//@NotNull
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "notification_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))

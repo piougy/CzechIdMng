@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import Immutable from 'immutable';
 //
@@ -69,12 +68,16 @@ function fillRouteMap(routesMap, moduleId, parentRouteId, route) {
     return routesMap;
   }
   // cloned route with filled default values
+  let component = route.component;
+  if (component && component.__esModule && component.default) {
+    component = component.default;
+  }
   const clonedRoute = {
     id: routeId,
     parentId: parentRouteId,
     module: route.module || moduleId,
     access: route.access || [{ type: 'IS_AUTHENTICATED' }],
-    component: route.component,
+    component,
     path: route.path,
     priority: route.priority || 0,
     order: route.order || 0
@@ -128,7 +131,6 @@ function routeFixer(route) {
         if (childRoute.path) {
           const path = trimSlash(childRoute.path);
           childRoute.path = path.substring(firstElement.length, path.length);
-          childRoute.id = childRoute.id;
         }
       });
       route.path = `${trimSlash(route.path)}/${firstElement}`;

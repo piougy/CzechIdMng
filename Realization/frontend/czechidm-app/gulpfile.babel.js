@@ -1,5 +1,6 @@
 import fs from 'fs';
 import gulp from 'gulp';
+import del from 'del';
 import path from 'path';
 import browserify from 'browserify';
 import watchify from 'watchify';
@@ -8,13 +9,10 @@ import buffer from 'vinyl-buffer';
 import shell from 'gulp-shell';
 import babelify from 'babelify';
 import uglify from 'gulp-uglify';
-import rimraf from 'rimraf';
 import notify from 'gulp-notify';
 import browserSync, { reload } from 'browser-sync';
 import sourcemaps from 'gulp-sourcemaps';
 import htmlReplace from 'gulp-html-replace';
-import image from 'gulp-image';
-import runSequence from 'run-sequence';
 import less from 'gulp-less';
 import minifyCSS from 'gulp-minify-css';
 import autoprefixer from 'gulp-autoprefixer';
@@ -32,10 +30,8 @@ import _ from 'lodash';
 import version from 'gulp-version-number';
 import packageDescriptor from './package.json';
 
-require('babel/register');
-
 /**
- * App build script
+ * App build script.
  *
  * @author Vít Švanda
  * @author Radek Tomiška
@@ -57,7 +53,7 @@ const paths = {
   srcModuleAssembler: 'src/modules/moduleAssembler.js', // default modules assembler
   srcRouteAssembler: 'src/modules/routeAssembler.js', // default routes assembler
   srcComponentAssembler: 'src/modules/componentAssembler.js', // default component assembler
-  testSrc: ['test/**/*.js', './czechidm-modules/*/test/**/**/*.js'],
+  testSrc: ['./czechidm-modules/**/test/localization/Localization-test.js'], // TODO: localization tests are supported only
   dist: 'dist',
   distJs: 'dist/js',
   distImg: 'dist/images',
@@ -82,18 +78,9 @@ let routesAssemblerContent = '';
 let componentsAssemblerContent = '';
 
 /**
- * Returns configuration for requestet environment
- * @param  {string} env environment
- * @return {object}     config json
- */
-function getConfigByEnvironment(env = 'development', profile = 'default') {
-  return require(`./config/${ profile }/${ env }.json`);
-}
-
-/**
  * Select environment stage and profile by input arguments.
  */
-function selectStageAndProfile() {
+function selectStageAndProfile(done) {
   const argv = yargs
     .alias('p', 'profile')
     .alias('s', 'stage')
@@ -118,316 +105,273 @@ function selectStageAndProfile() {
   }
   process.env.NODE_ENV = stage;
   process.env.NODE_PROFILE = profile;
+  done();
 }
 
-/**
- * Function print stdout to util.log
- */
-function printCommandLineOutput(err, stdout) {
-  util.log(stdout);
+function clean(done) {
+  del.sync([ 'dist' ]);
+  done();
 }
-
-function iterateOverModulesAndExec(command) {
-  // model array
-  const moduleList = [];
-  //
-  const exec = require('child_process').exec;
-  //
-  gulp.src(['../czechidm-*', '!../czechidm-app'])
-    .pipe(flatmap((stream, file) => {
-      const modulePathSplit = file.path.split('/');
-      const moduleName = modulePathSplit[modulePathSplit.length - 1];
-      util.log('Product module found:', moduleName);
-      // update version to release, publish and then upload version to development
-      exec(command, { cwd: file.path }, printCommandLineOutput);
-      moduleList.push(moduleName);
-      return stream;
-    }))
-    .on('finish', () => {
-      gulp.src(['../czechidm-app'])
-        .pipe(flatmap((stream, file) => {
-          // just safety check
-          if (file.path.endsWith('czechidm-app')) {
-            util.log('APP module: czechidm-app, found');
-            //
-            exec(command, { cwd: file.path }, printCommandLineOutput);
-          }
-          return stream;
-        }));
-    });
-}
-
-gulp.task('makeModules', () => vfs.src('./czechidm-modules/czechidm-*')
-  .pipe(vfs.symlink('./node_modules', {useJunctions: true})));
-
-gulp.task('makeProductModules', () => {
-  vfs.src(['../czechidm-*']) // Exclusion '!../czechidm-app' not works on linux
-    .pipe(flatmap((stream, file) => {
-      if (!file.path.endsWith('czechidm-app')) {
-        util.log('Product module found:', file.path);
-        vfs.src('./node_modules')
-          .pipe(vfs.symlink(`${file.path }/`, {useJunctions: true}))
-          .pipe(flatmap((streamLog, fileLog) => {
-            util.log('Created symlink on main "node_modules"', util.colors.magenta(fileLog.path));
-            return streamLog;
-          }))
-          .pipe(shell([
-            'npm install'
-          ], {verbose: true, quiet: false}));
-      }
-      return stream;
-    }))
-    .pipe(vfs.symlink('./czechidm-modules', {useJunctions: true}));
-});
 
 /**
  * Remove czechidm modules symlinks from node_modules
  * (prevent cyclink during "npm prune").
  */
-gulp.task('removeSymlinks', () => {
-  return vfs.src(['../czechidm-*'])
-    .pipe(flatmap(function iterateModules(stream, file) {
-      const pathToSymlink = `./node_modules/${file.basename}`;
+function removeSymlinks() {
+  return vfs
+    .src([ '../czechidm-*' ])
+    .pipe(flatmap((stream, file) => {
+      const pathToSymlink = `./node_modules/${ file.basename }`;
       util.log('Symlink to delete:', pathToSymlink);
-      rimraf.sync(pathToSymlink);
+      del.sync(pathToSymlink);
       return stream;
     }));
-});
-
+}
 
 /**
- * Npm install
+ * Delete app module from modules (prevent cycle).
  */
-gulp.task('npmInstall',
-  shell.task([
-    'npm install'
-  ], {verbose: true, quiet: false}));
+function removeAppLink(done) {
+  del.sync([ './czechidm-modules/czechidm-app' ]);
+  done();
+}
 
 /**
  * Clear node modules (remove links to ours modules)
  */
-gulp.task('npmPrune',
-  shell.task([
-    'npm prune'
-  ], {verbose: true, quiet: false}));
+function npmPrune(done) {
+  shell.task([ 'npm prune' ], { verbose: true, quiet: false });
+  done();
+}
 
 /**
- * Gulp task for relase module.
- * Has three parameters:
- * --releaseVersion (may not be defined)
- * --developmentVersion
- * --onlyPublish (when is defined, change version will be skipped)
+ * Npm install
  */
-gulp.task('release', () => {
-  // prepare arguments from comand line
-  const argv = yargs.argv;
-  const releaseVersionCommand = argv.releaseVersion === undefined ? 'npm version patch' : `npm version ${ argv.releaseVersion}`;
-  const developmentVersionCommand = argv.developmentVersion === undefined ? '' : `&& npm version ${ argv.developmentVersion}`;
-  const onlyPublish = argv.onlyPublish !== undefined;
-  //
-  if (!onlyPublish) {
-    if (argv.releaseVersion === undefined) {
-      util.log('As release version will be used generated version');
-    } else {
-      util.log('As release version will be used version: ', util.colors.magenta(argv.releaseVersion));
-    }
-    //
-    if (argv.developmentVersion === undefined) {
-      util.log('Parameter "developmentVersion" isnt set. New development version will not be aplied.');
-    } else {
-      util.log('As new development version will be used version: ', util.colors.magenta(argv.developmentVersion));
-    }
-  }
-  //
-  if (onlyPublish) {
-    iterateOverModulesAndExec('npm publish');
-  } else {
-    iterateOverModulesAndExec(`${releaseVersionCommand } && npm publish ${ developmentVersionCommand}`);
-  }
-});
+function npmInstall(done) {
+  shell.task([ 'npm install' ], { verbose: true, quiet: false });
+  done();
+}
 
 /**
- * Gulp task for path/set version of all modules.
- * Has one parameters:
- * --version (required, specific version)
+ * Register node_modules for product modules.
  */
-gulp.task('versionSet', () => {
-  const argv = yargs.argv;
-  if (argv.version === undefined) {
-    util.log('Parameter version isnt defined.');
-    return;
-  }
-  const versionCommand = `npm version ${ argv.version}`;
-  //
-  util.log('Version will be set: ', util.colors.magenta(argv.version));
-  iterateOverModulesAndExec(versionCommand);
-});
+function makeProductModules() {
+  return vfs.src([ '../czechidm-*' ]) // Exclusion '!../czechidm-app' not works on linux
+    .pipe(flatmap((stream, file) => {
+      if (!file.path.endsWith('czechidm-app')) {
+        util.log('Product module found:', file.path);
+        vfs.src('./node_modules')
+          .pipe(vfs.symlink(`${ file.path }/`, { useJunctions: true }))
+          .pipe(flatmap((streamLog, fileLog) => {
+            util.log('Created symlink on main "node_modules"', util.colors.magenta(fileLog.path));
+            return streamLog;
+          }))
+          .pipe(shell([ 'npm install' ], { verbose: true, quiet: false }));
+      }
+      return stream;
+    }))
+    .pipe(vfs.symlink('./czechidm-modules', { useJunctions: true }));
+}
 
-gulp.task('removeAppLink', cb => rimraf('./czechidm-modules/czechidm-app', cb));
+/**
+ * Register node_modules for modules.
+ */
+function makeModules() {
+  return vfs
+    .src('./czechidm-modules/czechidm-*')
+    .pipe(vfs.symlink('./node_modules', { useJunctions: true }));
+}
 
 /**
  * Load module-descriptors.
  * Move them to dist.
  * Generate content for module assembler (add to global variable).
  */
-gulp.task('loadModules', () => gulp.src(paths.srcModuleDescriptor)
-  .pipe(flatmap((stream, file) => {
-    const descriptor = require(file.path);
-    if (descriptor.npmName) {
-      util.log('Loaded module-descriptor with ID:', descriptor.id);
-      const pathRelative = `${descriptor.npmName }/module-descriptor.js`;
-      // Add row to module assembler
-      modulesAssemblerContent = `${modulesAssemblerContent } moduleDescriptors = moduleDescriptors.set("${
-        descriptor.id }", require("${ pathRelative }"));` + `\n`;
-    }
-    return stream;
-  })));
+function loadModules() {
+  return gulp
+    .src(paths.srcModuleDescriptor)
+    .pipe(flatmap((stream, file) => {
+      const descriptor = require(file.path);
+      if (descriptor.npmName) {
+        util.log('Loaded module-descriptor with ID:', descriptor.id);
+        const pathRelative = `${descriptor.npmName }/module-descriptor.js`;
+        // Add row to module assembler
+        modulesAssemblerContent = `${ modulesAssemblerContent } moduleDescriptors = moduleDescriptors.set("${
+          descriptor.id }", require("${ pathRelative }"));\n`;
+      }
+      return stream;
+    }));
+}
 
 /**
  * Create final module assembler
  * Add paths on module descriptors to modules assembler file.
  * Move modules assembler to dist.
  */
-gulp.task('createModuleAssembler', () => gulp.src(paths.srcModuleAssembler)
-  .pipe(replace(compileMark, modulesAssemblerContent))
-  .pipe(gulp.dest(paths.distModule)));
+function createModuleAssembler() {
+  return gulp
+    .src(paths.srcModuleAssembler)
+    .pipe(replace(compileMark, modulesAssemblerContent))
+    .pipe(gulp.dest(paths.distModule));
+}
 
 /**
  * Load main styles form modules and add them to css paths array.
  */
-gulp.task('loadModuleStyles', () => gulp.src(paths.srcModuleDescriptor)
-  .pipe(flatmap((stream, file) => {
-    const descriptor = require(file.path);
-    util.log('Loading style for module with ID:', descriptor.id);
-    if (descriptor.mainStyleFile) {
-      const fullStylePath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainStyleFile;
-      util.log('Main module style file path:', fullStylePath);
-      paths.srcIncludedLess.push(fullStylePath);
-    }
-    return stream;
-  })));
+function loadModuleStyles() {
+  return gulp
+    .src(paths.srcModuleDescriptor)
+    .pipe(flatmap((stream, file) => {
+      const descriptor = require(file.path);
+      util.log('Loading style for module with ID:', descriptor.id);
+      if (descriptor.mainStyleFile) {
+        const fullStylePath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainStyleFile;
+        util.log('Main module style file path:', fullStylePath);
+        paths.srcIncludedLess.push(fullStylePath);
+      }
+      return stream;
+    }));
+}
 
-gulp.task('loadModuleRoutes', () => gulp.src(paths.srcModuleDescriptor)
-  .pipe(flatmap((stream, file) => {
-    const descriptor = require(file.path);
-    if (descriptor.mainRouteFile && descriptor.npmName) {
-      util.log('Loading routes for module with ID:', descriptor.id);
-      const fullRoutePath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainRouteFile;
-      util.log('Main module route file path:', fullRoutePath);
-      const relativeRoutePath = `${descriptor.npmName }/${ descriptor.mainRouteFile}`;
-      // Add row to route assembler
-      routesAssemblerContent = `${routesAssemblerContent }require("${ relativeRoutePath }"),` + `\n`;
-    }
-    return stream;
-  })));
+/**
+ * Load modules routes.
+ */
+function loadModuleRoutes() {
+  return gulp
+    .src(paths.srcModuleDescriptor)
+    .pipe(flatmap((stream, file) => {
+      const descriptor = require(file.path);
+      if (descriptor.mainRouteFile && descriptor.npmName) {
+        util.log('Loading routes for module with ID:', descriptor.id);
+        const fullRoutePath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainRouteFile;
+        util.log('Main module route file path:', fullRoutePath);
+        const relativeRoutePath = `${ descriptor.npmName }/${ descriptor.mainRouteFile }`;
+        // Add row to route assembler
+        routesAssemblerContent = `${ routesAssemblerContent }require("${ relativeRoutePath }"),\n`;
+      }
+      return stream;
+    }));
+}
 
 /**
  * Create final routes assembler
  * Add paths on module routes to modules assembler file.
  * Move routes assembler to dist.
  */
-gulp.task('createRouteAssembler', () => gulp.src(paths.srcRouteAssembler)
-  .pipe(replace(compileMark, routesAssemblerContent))
-  .pipe(gulp.dest(paths.distModule)));
+function createRouteAssembler() {
+  return gulp
+    .src(paths.srcRouteAssembler)
+    .pipe(replace(compileMark, routesAssemblerContent))
+    .pipe(gulp.dest(paths.distModule));
+}
 
-
-gulp.task('loadModuleComponents', () => gulp.src(paths.srcModuleDescriptor)
-  .pipe(flatmap((stream, file) => {
-    const descriptor = require(file.path);
-    if (descriptor.mainComponentDescriptorFile && descriptor.npmName) {
-      util.log('Loading components for module with ID:', descriptor.id);
-      const fullComponentPath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainComponentDescriptorFile;
-      util.log('Main module route file path:', fullComponentPath);
-      const relativeComponentPath = `${descriptor.npmName }/${ descriptor.mainComponentDescriptorFile}`;
-      // Add row to component assembler
-      componentsAssemblerContent = `${componentsAssemblerContent } componentDescriptors = componentDescriptors.set("${
-        descriptor.id }", require("${ relativeComponentPath }"));` + `\n`;
-    }
-    return stream;
-  })));
+/**
+ * Load modules components.
+ */
+function loadModuleComponents() {
+  return gulp
+    .src(paths.srcModuleDescriptor)
+    .pipe(flatmap((stream, file) => {
+      const descriptor = require(file.path);
+      if (descriptor.mainComponentDescriptorFile && descriptor.npmName) {
+        util.log('Loading components for module with ID:', descriptor.id);
+        const fullComponentPath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainComponentDescriptorFile;
+        util.log('Main module route file path:', fullComponentPath);
+        const relativeComponentPath = `${ descriptor.npmName }/${ descriptor.mainComponentDescriptorFile }`;
+        // Add row to component assembler
+        componentsAssemblerContent = `${componentsAssemblerContent } componentDescriptors = componentDescriptors.set("${
+          descriptor.id }", require("${ relativeComponentPath }"));\n`;
+      }
+      return stream;
+    }));
+}
 
 /**
  * Create final component assembler
  * Add requires on components descriptors (for each fined module) to components assembler file.
  * Move components assembler to dist.
  */
-gulp.task('createComponentAssembler', () => gulp.src(paths.srcComponentAssembler)
-  .pipe(replace(compileMark, componentsAssemblerContent))
-  .pipe(gulp.dest(paths.distModule)));
+function createComponentAssembler() {
+  return gulp
+    .src(paths.srcComponentAssembler)
+    .pipe(replace(compileMark, componentsAssemblerContent))
+    .pipe(gulp.dest(paths.distModule));
+}
 
-gulp.task('clean', cb => rimraf('dist', cb));
+/**
+ * Returns configuration for requestet environment
+ * @param  {string} env environment
+ * @return {object}     config json
+ */
+function getConfigByEnvironment(env = 'development', profile = 'default') {
+  return require(`./config/${ profile }/${ env }.json`);
+}
 
-gulp.task('browserNoSync', () => browserSync({
-  server: {
-    baseDir: './'
-  },
-  ghostMode: false
-}));
-
-gulp.task('browserSync', () => browserSync({
-  server: {
-    baseDir: './'
-  },
-  ghostMode: false
-}));
-
-gulp.task('watchify', () => {
-  const bundler = watchify(
-    browserify(paths.srcJsx, watchify.args)
-      .plugin(pathmodify, pathmodifyOptions)
-      .transform(stringify)
-  );
-
-  function rebundle() {
-    return bundler
-      .bundle()
-      .on('error', notify.onError())
-      .pipe(source(paths.bundle))
-      .pipe(buffer())
-      .pipe(gulp.dest(paths.distJs))
-      .pipe(reload({stream: true}));
+/**
+ * Use configured theme (copy impages, less).
+ */
+function themes(done) {
+  const configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
+  if (configuration.theme) {
+    const themeFullPath = path.join(__dirname, '/node_modules/', configuration.theme);
+    util.log('Theme will load form path:', themeFullPath);
+    gulp
+      .src(path.join(themeFullPath, '/images/**'))
+      .pipe(gulp.dest(paths.distImg)); // Stream can not continue ...it was sometime problem during build (image directory was add as less)
+    // Find theme styles and add them to srcLess array
+    return gulp
+      .src(path.join(themeFullPath, '/css/*.less'))
+      .pipe(flatmap((stream, file) => {
+        util.log('Add theme style from:', file.path);
+        paths.srcIncludedLess.push(file.path);
+        return stream;
+      }));
   }
-  //
-  bundler
-    .transform(babelify)
-    .on('update', rebundle);
-  //
-  return rebundle();
-});
+  done();
+  return null;
+}
 
-gulp.task('browserify', () => browserify(paths.srcJsx)
-  .plugin(pathmodify, pathmodifyOptions)
-  .transform(stringify)
-  .transform(babelify)
-  .bundle()
-  .pipe(source(paths.bundle))
-  .pipe(buffer())
-  .pipe(sourcemaps.init())
-  .pipe(
-    uglify({
-      compress: {
-        global_defs: {
-          DEBUG: false
-        }
-      }
-    })
-  )
-  .pipe(sourcemaps.write('.'))
-  .pipe(gulp.dest(paths.distJs)));
+/**
+ * Select config by profile and stage.
+ */
+function config(done) {
+  fs.writeFile(
+    path.join(__dirname, paths.dist, '/config.json'),
+    JSON.stringify(getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE)),
+    done
+  );
+}
 
-gulp.task('styles', () => {
+/**
+ * Externalize config - copy to config.js - can be changed after build
+ */
+function copyConfig(done) {
+  const configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
+  //
+  return fs.writeFile(
+    path.join(__dirname, paths.dist, '/config.js'),
+    `config = ${ JSON.stringify(configuration) };\n`,
+    done
+  );
+}
+
+/**
+ * Compile less styles.
+ */
+function styles() {
   util.log('Main application less:', paths.srcLess);
   util.log('Less for include to main:', paths.srcIncludedLess);
-  const config = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
+  const configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
   //
-  return gulp.src(paths.srcLess)
+  return gulp
+    .src(paths.srcLess)
     .pipe(sourcemaps.init())
     /**
      * Dynamically injects @import statements into the main app.less file, allowing
      * .less files to be placed around the app structure with the component
      * or page they apply to.
      */
-    .pipe(inject(gulp.src(paths.srcIncludedLess, {read: false}), {
+    .pipe(inject(gulp.src(paths.srcIncludedLess, { read: false }), {
       starttag: '/* inject:imports */',
       endtag: '/* endinject */',
       transform: function transform(filepath) {
@@ -437,9 +381,9 @@ gulp.task('styles', () => {
     .pipe(less({
       compress: true,
       globalVars: {
-        ENV: config.env,
+        ENV: configuration.env,
         version: 10,
-        theme: `"${ config.theme }"` // wrap to quotes - less engine needs it to skip formating slash characters
+        theme: `"${ configuration.theme }"` // wrap to quotes - less engine needs it to skip formating slash characters
       }
     }).on('error', util.log))
     .pipe(autoprefixer('last 10 versions', 'ie 9'))
@@ -450,10 +394,14 @@ gulp.task('styles', () => {
     .pipe(reload({stream: true}))
     .pipe(gulp.src(paths.srcCssSeparate))
     .pipe(gulp.dest(paths.distCss));
-});
+}
 
-gulp.task('htmlReplace', () => {
-  return gulp.src(['index.html'])
+/**
+ * Replace links to resources used in index.html.
+ */
+function useHtmlReplace() {
+  return gulp
+    .src(['index.html'])
     .pipe(htmlReplace(
       {
         icon: {
@@ -476,204 +424,263 @@ gulp.task('htmlReplace', () => {
       }
     }))
     .pipe(gulp.dest(paths.dist));
-});
+}
 
-gulp.task('images', () => gulp.src(paths.srcImg)
-  .pipe(image())
-  .pipe(gulp.dest(paths.distImg)));
+/**
+ * Include images (no minify is aplied now).
+ */
+function images() {
+  return gulp
+    .src(paths.srcImg)
+    .pipe(gulp.dest(paths.distImg));
+}
 
-gulp.task('themes', (cb) => {
-  const config = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
-  if (config.theme) {
-    const themeFullPath = path.join(__dirname, '/node_modules/', config.theme);
-    util.log('Theme will load form path:', themeFullPath);
-    gulp.src(path.join(themeFullPath, '/images/**'))
-      .pipe(gulp.dest(paths.distImg)); // Stream can not continue ...it was sometime problem during build (image directory was add as less)
-    // Find theme styles and add them to srcLess array
-    return gulp.src(path.join(themeFullPath, '/css/*.less'))
-      .pipe(flatmap((stream, file) => {
-        util.log('Add theme style from:', file.path);
-        paths.srcIncludedLess.push(file.path);
-        return stream;
-      }));
-  }
-  cb();
-});
+/**
+ * Include css.
+ */
+function js() {
+  return gulp
+    .src(paths.srcJs)
+    .pipe(gulp.dest(paths.distJs));
+}
 
-gulp.task('js', () => gulp.src(paths.srcJs)
-  .pipe(gulp.dest(paths.distJs)));
+/**
+ * Include fonts.
+ */
+function fonts() {
+  return gulp
+    .src(paths.srcFont)
+    .pipe(gulp.dest(paths.distFont));
+}
 
-gulp.task('fonts', () => gulp.src(paths.srcFont)
-  .pipe(gulp.dest(paths.distFont)));
-
-gulp.task('webfonts', () => gulp.src(paths.srcWebFont)
-  .pipe(gulp.dest(paths.distWebFont)));
+/**
+ * Include web fonts.
+ */
+function webfonts() {
+  return gulp
+    .src(paths.srcWebFont)
+    .pipe(gulp.dest(paths.distWebFont));
+}
 
 /**
  * Load locales form modules and copy them to dist.
  */
-gulp.task('loadModuleLocales', () => gulp.src(paths.srcModuleDescriptor)
-  .pipe(flatmap((stream, file) => {
-    const descriptor = require(file.path);
-    if (descriptor.mainLocalePath) {
-      util.log('Loading locale for module with ID:', descriptor.id);
-      const fullLocalesPath = path.join(file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')), descriptor.mainLocalePath, '*.json');
-      util.log('Main module locale file path:', fullLocalesPath);
-      paths.srcLocale.push(fullLocalesPath); // For watch purpose
-      return gulp.src(fullLocalesPath)
-        .pipe(gulp.dest(path.join(paths.distLocale, '/', descriptor.id, '/')));
-    }
-    return stream;
-  })).pipe(reload({stream: true})));
-
-gulp.task('lint', shell.task([
-  'npm run lint'
-]));
-
-gulp.task('config', (cb) => fs.writeFile(path.join(__dirname, paths.dist, '/config.json'), JSON.stringify(getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE)), cb));
+function loadModuleLocales() {
+  return gulp
+    .src(paths.srcModuleDescriptor)
+    .pipe(flatmap((stream, file) => {
+      const descriptor = require(file.path);
+      if (descriptor.mainLocalePath) {
+        util.log('Loading locale for module with ID:', descriptor.id);
+        const fullLocalesPath = path.join(
+          file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')),
+          descriptor.mainLocalePath,
+          '*.json'
+        );
+        util.log('Main module locale file path:', fullLocalesPath);
+        //
+        // For watch purpose only- pattern doesn.t work under symlinks
+        paths.srcLocale.push(
+          path.join(
+            file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')),
+            descriptor.mainLocalePath,
+            'cs.json'
+          )
+        );
+        paths.srcLocale.push(
+          path.join(
+            file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')),
+            descriptor.mainLocalePath,
+            'en.json'
+          )
+        );
+        return gulp
+          .src(fullLocalesPath)
+          .pipe(gulp.dest(path.join(paths.distLocale, '/', descriptor.id, '/')));
+      }
+      return stream;
+    }))
+    .pipe(reload({ stream: true }));
+}
 
 /**
- * Externalize config - copy to config.js - can be changed after build
+ * Start browser sync.
  */
-gulp.task('copyConfig', (cb) => {
-  const configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
-  return fs.writeFile(path.join(__dirname, paths.dist, '/config.js'), `config = ${ JSON.stringify(configuration) };\n`, cb);
-});
+function useBrowserSync(done) {
+  browserSync.init({
+    server: {
+      baseDir: './'
+    },
+    ghostMode: false
+  });
+  done();
+}
 
-gulp.task('test', () => {
-  const argv = yargs.alias('w', 'watch').help('help').alias('h', 'help')
-    .usage('Usage (for only one run test): gulp test --profile [name of profile] --stage [development/test/production]\nUsage (for permanent watch on src and test changes): gulp test --watch').argv;
-  const watchArg = argv.watch;
-  if (watchArg) {
-    runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes');
-    gulp.watch([paths.testSrc, paths.bundle], ['runTest']);
-  } else {
-    selectStageAndProfile();
-    runSequence('clean', 'removeAppLink', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest');
-  }
-});
-
-gulp.task('runTest', () =>
+/**
+ * Execute tests - tests for localization are supported now only.
+ * @TODO: redesign react tests
+ */
+function runTest() {
   // https://www.npmjs.com/package/gulp-mocha#require
-  gulp.src(paths.testSrc, { read: false })
+  return gulp
+    .src(paths.testSrc, { read: false })
     .pipe(mocha({
       reporter: 'nyan',
       recursive: true,
-      compilers: ['js:babel/register'],
-      require: ['./test/setup.js'],
+      require: [ '@babel/register', 'esm', './test/setup.js'],
       ignoreLeaks: false
-    })));
+    }));
+}
 
-gulp.task('watchTask', () => {
-  gulp.watch(paths.srcLess, ['styles']);
-  gulp.watch(paths.srcIncludedLess, ['styles']);
-  gulp.watch(paths.srcJsx, ['lint']);
-  gulp.watch(paths.srcLocale, ['loadModuleLocales']);
-});
+/**
+ * Compile static js.
+ */
+function useBrowserify() {
+  return browserify(paths.srcJsx)
+    .plugin(pathmodify, pathmodifyOptions)
+    .transform(stringify)
+    .transform(babelify, {
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            useBuiltIns: 'usage',
+            corejs: '2.6.5'
+          }
+        ],
+        '@babel/preset-react'
+      ]
+    })
+    .bundle()
+    .pipe(source(paths.bundle))
+    .pipe(buffer())
+    .pipe(
+      uglify({
+        compress: {
+          global_defs: {
+            DEBUG: false
+          }
+        }
+      })
+    )
+    .pipe(gulp.dest(paths.distJs));
+}
 
-
-gulp.task('install', cb => {
-  runSequence(
-    'clean',
-    'removeSymlinks',
-    'npmPrune',
-    'npmInstall',
-    'makeProductModules',
-    'removeAppLink',
-    cb
+/**
+ * Compile js for development - watch source code changes.
+ */
+function useWatchify() {
+  const bundler = watchify(
+    browserify(paths.srcJsx, { ...watchify.args, debug: true })
+      .plugin(pathmodify, pathmodifyOptions)
+      .transform(stringify)
   );
-});
 
-gulp.task('watch', cb => {
-  selectStageAndProfile();
-  runSequence(
-    'clean',
-    'removeAppLink',
-    'makeModules',
-    'loadModules',
-    'createModuleAssembler',
-    'loadModuleStyles',
-    'loadModuleRoutes',
-    'createRouteAssembler',
-    'loadModuleComponents',
-    'createComponentAssembler',
-    'themes',
-    'runTest',
-    'config',
-    'copyConfig',
-    'styles',
-    // 'lint', too long ...
-    'images',
-    'js',
-    'fonts',
-    'webfonts',
-    'loadModuleLocales',
-    'browserSync',
-    'watchTask',
-    'watchify',
-    cb
-  );
-});
+  function rebundle() {
+    return bundler
+      .bundle()
+      .on('error', notify.onError())
+      .pipe(source(paths.bundle))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({ loadMaps: true }))
+      .pipe(sourcemaps.write('.'))
+      .pipe(gulp.dest(paths.distJs))
+      .pipe(reload({ stream: true }));
+  }
+  //
+  bundler
+    .transform(babelify, {
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            useBuiltIns: 'usage',
+            corejs: '2.6.5'
+          }
+        ],
+        '@babel/preset-react'
+      ]
+    })
+    .on('update', rebundle);
+  //
+  return rebundle();
+}
 
-gulp.task('watch-nosync', cb => {
-  selectStageAndProfile();
-  runSequence(
-    'clean',
-    'removeAppLink',
-    'makeModules',
-    'loadModules',
-    'createModuleAssembler',
-    'loadModuleStyles',
-    'loadModuleRoutes',
-    'createRouteAssembler',
-    'loadModuleComponents',
-    'createComponentAssembler',
-    'themes',
-    'runTest',
-    'config',
-    'copyConfig',
-    'styles',
-    // 'lint', too long ...
-    'images',
-    'js',
-    'fonts',
-    'webfonts',
-    'loadModuleLocales',
-    'browserNoSync',
-    'watchTask',
-    'watchify',
-    cb
-  );
-});
+/**
+ * Watch other files than rjs/eact files - e.g. css, locales.
+ */
+function useWatch() {
+  gulp.watch(paths.srcLess, styles);
+  gulp.watch(paths.srcIncludedLess, styles);
+  gulp.watch(paths.srcLocale, loadModuleLocales);
+}
 
+/**
+ * Install node libraries (after first npm install).
+ */
+exports.install = gulp.series(
+  clean,
+  removeSymlinks,
+  npmPrune,
+  npmInstall,
+  makeProductModules,
+  removeAppLink
+);
 
-gulp.task('build', cb => {
-  selectStageAndProfile();
-  runSequence(
-    'clean',
-    'removeAppLink',
-    'makeModules',
-    'loadModules',
-    'createModuleAssembler',
-    'loadModuleStyles',
-    'loadModuleRoutes',
-    'createRouteAssembler',
-    'loadModuleComponents',
-    'createComponentAssembler',
-    'themes',
-    'runTest',
-    'config',
-    'copyConfig',
-    'styles',
-    'htmlReplace',
-    'images',
-    'js',
-    'fonts',
-    'webfonts',
-    'loadModuleLocales',
-    'browserify',
-    cb
-  );
-});
+/**
+ * Build atrefact for distribution.
+ */
+exports.build = gulp.series(
+  selectStageAndProfile,
+  clean,
+  removeAppLink,
+  makeModules,
+  loadModules,
+  createModuleAssembler,
+  loadModuleStyles,
+  loadModuleRoutes,
+  createRouteAssembler,
+  loadModuleComponents,
+  createComponentAssembler,
+  themes,
+  config,
+  copyConfig,
+  styles,
+  useHtmlReplace,
+  images,
+  js,
+  fonts,
+  webfonts,
+  loadModuleLocales,
+  useBrowserify
+);
 
-gulp.task('default', ['watch']);
+/**
+ * Watch ~ for development by default.
+ */
+exports.default = gulp.series(
+  selectStageAndProfile,
+  clean,
+  removeAppLink,
+  makeModules,
+  loadModules,
+  createModuleAssembler,
+  loadModuleStyles,
+  loadModuleRoutes,
+  createRouteAssembler,
+  loadModuleComponents,
+  createComponentAssembler,
+  themes,
+  config,
+  copyConfig,
+  styles,
+  images,
+  js,
+  fonts,
+  webfonts,
+  loadModuleLocales,
+  runTest,
+  useBrowserSync,
+  useWatchify,
+  useWatch
+);

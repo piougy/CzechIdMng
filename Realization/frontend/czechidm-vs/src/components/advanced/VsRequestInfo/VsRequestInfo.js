@@ -9,7 +9,6 @@ import VsRequestState from '../../../enums/VsRequestState';
 
 const manager = new VsRequestManager();
 
-
 /**
  * Component for rendering nice identifier for virtual system request
  *

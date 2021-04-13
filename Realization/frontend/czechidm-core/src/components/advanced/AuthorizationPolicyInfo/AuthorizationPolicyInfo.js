@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as Utils from '../../../utils';
 //
-import {AuthorizationPolicyManager, SecurityManager} from '../../../redux';
+import { AuthorizationPolicyManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new AuthorizationPolicyManager();

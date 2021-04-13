@@ -1,5 +1,6 @@
 import React from 'react';
-import TestUtils from 'react-dom/test-utils'; import ShallowRenderer from 'react-test-renderer/shallow';
+import TestUtils from 'react-dom/test-utils';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import Immutable from 'immutable';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';

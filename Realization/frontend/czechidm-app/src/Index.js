@@ -1,6 +1,5 @@
 //
 // Aplication entry point
-import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Helmet from 'react-helmet';
@@ -26,13 +25,13 @@ Promise.polyfill();
 store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescriptors, (error) => {
   if (!error) {
     // We need to init routes after configuration will be loaded
-    const routes = require('./routes');
+    const routes = require('./routes').default;
     // App entry point
     ReactDOM.render(
       <Provider store={store}>
-        <IdmContext.Provider value={{store, routes}}>
+        <IdmContext.Provider value={{ store, routes }}>
           <Router>
-            <Route path="/" component={App} />
+            <Route path="/" component={ App } />
           </Router>
         </IdmContext.Provider>
       </Provider>,

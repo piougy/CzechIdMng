@@ -288,7 +288,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 		LongRunningFutureTask<String> longRunningFutureTask = manager.execute(executorOne);
 		getHelper().waitForResult(res -> {
 			return !service.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();
-		}, 150, 100);		
+		});
 		TestCheckConcurrentTaskOne executorTwo = new TestCheckConcurrentTaskOne();
 		manager.executeSync(executorTwo);
 	}

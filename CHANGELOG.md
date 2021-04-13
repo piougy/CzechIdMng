@@ -10,6 +10,27 @@ All notable changes to this project will be documented in this file.
   - **What to do:** Change a log database appender from ``ch.qos.logback.classic.db.DBAppender`` to ``eu.bcvsolutions.idm.core.exception.IdmDbAppender`` in the log configuration file (**lockback-spring.xml**).
 - 🟠 [#2739](https://redmine.czechidm.com/issues/2739) - **GetDefaultDN Groovy script used by AD Wizard has to be re-deployed.** This script has been updated and has to be re-deployed in order to apply changes in the new version. This script is essential for correct funtion of the AD Wizard.
 
+### Developer
+
+- [#2622](https://redmine.czechidm.com/issues/2622) - **Libraries used on frontend were changed. Frontend build script was rewritten and simplified**.
+  - What is needed to change after update for developing product or custom module:
+    - 🟡 Gulp 4 and Babel 7 libraries are used for building frontend application. Read [doc](https://github.com/bcvsolutions/CzechIdMng/tree/develop/Realization/frontend#install-gulp-as-global) how to uninstall and install the new Gulp version.
+    - 🟢 Linter configuration has to be changed in custom module for analyze javascript source code. Make this [change]() in ``.eslintrc`` file in your custom module.
+  - Other notes (mainly informative):
+    - Npx installation is not required now.
+    - Gulp tasks ``install``, ``build`` and ``default`` (~ watch for development) are exposed only. Other tasks was removed (e.g. makeModules, test) and they are included in exposed tasks (e.g. tests are executed in ``default`` task). If other task is used and required for external usage, please let us know.  
+    - Npm tasks ``product-install``, ``modules-link``, ``modules-link-or-skip``, ``czechidm-modules-link`` and  ``lint`` are exposed only. Other tasks was removed (e.g. test). If other task is used and required for external usage, please let us know.
+    - [Installing custom module](https://github.com/bcvsolutions/CzechIdMng/tree/develop/Realization/frontend#optional-install-the-dependencies-for-external-module) for development was a little simplified.
+    - Localization tests are executed only - frontend tests were obsolete anyway => we need to redesign tests on frontend from scratch in next version.
+    - Frontend libraries were updated (except React => React update is not fully backward compatible).
+    - Frontend libraries were removed:
+      - ``sockjs-client``, ``stompjs`` - websocket support was @deprecated @since 9.2.0.
+      - ``rimraf`` - library used for build only, use newer ``del`` library instead if needed.
+      - ``path``, ``run-sequence``, ``gulp-image``, ``gulp-util`` - libraries used for previous build only - replacement is not needed.
+      - ``jsdom``, ``nock``, ``react-addons-test-utils``, ``redux-mock-store`` - libraries used for tests only - localization tests are executed only - frontend tests were obsolete anyway => we need to redesign test on frontend from scratch in next version.
+      - ``react-tools``, ``redux-devtools`` - deprecated dev libraries (an unused in product).
+      - ``faker`` - unused dev library (in product) for generating random (~test) data - if it is used in a custom module, please let us know.
+
 ## [10.8.0]
 
 ### Administrator

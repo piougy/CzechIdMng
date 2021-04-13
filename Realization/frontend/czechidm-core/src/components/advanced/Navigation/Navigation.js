@@ -392,7 +392,7 @@ export class Navigation extends Basic.AbstractContent {
     const { environment, userContext, navigationCollapsed, rendered, i18nReady } = this.props;
     const { collapsed } = this.state;
     //
-    if (!rendered) {
+    if (!rendered) { 
       return false;
     }
 

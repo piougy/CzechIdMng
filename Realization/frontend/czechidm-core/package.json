@@ -4,11 +4,7 @@
   "description": "Core module for CzechIdM",
   "main": "index.js",
   "scripts": {
-    "test": "npm run tests-set",
-    "test-lint": "npm run lint && npm run tests-set",
-    "tests-set": "mocha ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",
-    "lint": "eslint ./",
-    "test-watch": "mocha --watch ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js"
+    "lint": "eslint ./"
   },
   "keywords": [
     "CzechIdM",
@@ -24,17 +20,21 @@
     "url": "https://redmine.czechidm.com/projects/czechidmng"
   },
   "homepage": "http://www.bcvsolutions.eu/",
-  "stringify": {
-    "appliesTo": {
-      "includeExtensions": [
-        ".md"
-      ]
-    },
-    "minify": true
-  },
-  "dependencies": {
-    "github-markdown-css": "2.2.1",
-    "react-datetime": "2.16.3",
-    "react-select": "1.2.1"
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "modules": "auto",
+          "useBuiltIns": "usage",
+          "corejs": "2.6.5"
+        }
+      ],
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties",
+      "@babel/plugin-proposal-private-property-in-object"
+    ]
   }
 }

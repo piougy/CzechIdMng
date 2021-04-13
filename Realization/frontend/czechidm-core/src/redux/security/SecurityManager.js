@@ -1,11 +1,7 @@
 import _ from 'lodash';
 //
-import Stomp from 'stompjs';
-import SockJS from 'sockjs-client';
-//
 import { AuthenticateService, IdentityService, LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
-import ConfigLoader from '../../utils/ConfigLoader';
 import { Actions } from '../config/constants';
 
 /**
@@ -28,7 +24,6 @@ const ADMIN_AUTHORITY = `APP${PERMISSION_SEPARATOR}${ADMIN_PERMISSION}`;
 const authenticateService = new AuthenticateService();
 const identityService = new IdentityService();
 const flashMessagesManager = new FlashMessagesManager();
-let stompClient = null;
 
 /**
  * Encapsulate user context / authentication and authorization
@@ -237,11 +232,6 @@ export default class SecurityManager {
 
   receiveLogin(userContext, redirect) {
     return dispatch => {
-      // login to websocket
-      // @deprecated @since 9.2.0, will be removed (move websocket notification support to your custom module if needed)
-      // dispatch(SecurityManager.connectStompClient(userContext));
-      // getState().logger.debug('received login', userContext);
-      //
       // redirect after login, if needed
       if (redirect) {
         redirect(userContext.isAuthenticated);
@@ -518,59 +508,6 @@ export default class SecurityManager {
     return accessItems.some(accessItem => {
       return accessItem.type && accessItem.type === 'DENY_ALL';
     });
-  }
-
-  /**
-   * Connect websocket client to receiving flashmessages from BE
-   *
-   * @param  {UserContext} userContext
-   * @deprecated @since 9.2.0, will be removed
-   */
-  static connectStompClient(userContext = null) {
-    return (dispatch, getState) => {
-      dispatch(this.disconectStompClient());
-      if (!userContext) {
-        userContext = AuthenticateService.getUserContext();
-      }
-      // logged user only
-      if (userContext && userContext.username) {
-        stompClient = Stomp.over(new SockJS(`${ConfigLoader.getServerUrl()}/websocket-info`));
-        const headers = {
-          login: userContext.username,
-          CIDMST: userContext.tokenCIDMST
-        };
-        stompClient.connect(headers, () => {
-          getState().logger.debug(`stomp client for messages - identity [${userContext.username}] is logged.`);
-          stompClient.subscribe(`/user/${userContext.username}/queue/messages`, (stompMessage) => {
-            const rawMessage = JSON.parse(stompMessage.body);
-            dispatch(flashMessagesManager.addMessage(flashMessagesManager.convertFromWebsocketMessage(rawMessage)));
-          }, headers);
-        }, () => {
-          // try reconnect
-          // setTimeout(SecurityManager.connectStompClient, 10000);
-        });
-      }
-    };
-  }
-
-  /**
-   * Disconnect websocket client to receiving flashmessages from BE
-   *
-   * @return {[type]} [description]
-   * @deprecated @since 9.2.0, will be removed
-   */
-  static disconectStompClient() {
-    return (dispatch, getState) => {
-      if (stompClient) {
-        try {
-          stompClient.disconnect(() => {
-            getState().logger.debug(`stomp client for messages - websocket successfully closed.`);
-          });
-        } catch (err) {
-          LOGGER.debug(`[SecurityManager]: closing stomp client failed.`, err.message);
-        }
-      }
-    };
   }
 
   static getTokenExpiration(userContext = null) {

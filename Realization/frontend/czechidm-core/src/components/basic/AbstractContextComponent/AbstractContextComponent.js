@@ -400,16 +400,16 @@ class AbstractContextComponent extends AbstractComponent {
   _getComponent(route) {
     if (route.module && !ConfigLoader.isEnabledModule(route.module)) {
       // Maybe useless, because routes are filtered in Index.js!
-      return require('../../../content/error/503');
+      return require('../../../content/error/503').default;
     }
     const state = this.context.store.getState();
     const userContext = state.security.userContext;
     // Check access to the component
     if (!SecurityManager.hasAccess(route.access, userContext)) {
       if (SecurityManager.isAuthenticated(userContext)) {
-        return require('../../../content/error/403');
+        return require('../../../content/error/403').default;
       }
-      return require('../../../content/Login');
+      return require('../../../content/Login').default;
     }
     return route.component;
   }
@@ -504,7 +504,7 @@ class AbstractContextComponent extends AbstractComponent {
     const routes = this.generateRouteComponents();
     return (
       <Switch>
-        {routes}
+        { routes }
       </Switch>
     );
   }

@@ -37,7 +37,7 @@ class Footer extends Basic.AbstractContent {
     return (
       <footer>
         <div className="pull-left">
-          {/* RT: version is visible ion about page only */}
+          {/* RT: version is visible on about page only */}
           <span title={ this.i18n('app.version.backend') + ': ' + backendVersion } className="hidden">
             {this.i18n('app.version.frontend')} {packageInfo.version}
           </span>
@@ -94,8 +94,9 @@ Footer.defaultProps = {
 
 // Which props do we want to inject, given the global state?
 // Note: use https://github.com/faassen/reselect for better performance.
-function select() {
+function select(state) {
   return {
+    i18nReady: state.config.get('i18nReady'),
     backendVersion: 'x.x.x'// settingManager.getValue(state, 'environment.version')
   };
 }

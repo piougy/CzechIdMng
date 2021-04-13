@@ -6,9 +6,8 @@ In frontend project folder:
 
 ### Install Node.js
 
-* **Node.js version 12.x.x**  (12.16.3 verified) is required
-* **NPM version 6.x.x**  (6.14.4 verified) or higher is required.
-* **NPX version 6.x.x** (6.14.4 verified) is required.
+* **Node.js version 12.x.x** (12.16.3 verified, 14.15.5 verified) is required.
+* **NPM version 6.x.x**  (6.14.11 verified) is required.
 
 Download and install Node.js by your OS.
 
@@ -22,8 +21,6 @@ For linux (ubuntu):
 
 `sudo apt install npm`
 
-`sudo npm install -g npx`
-
 Check nodejs version:
 
 `node -v`
@@ -32,23 +29,27 @@ Check npm version:
 
 `npm -v`
 
-Check npx version:
-
-`npx -v`
-
 For update nodejs from 0.x versions:
 * https://nodejs.org/en/download/package-manager/#enterprise-linux-and-fedora
 * http://tecadmin.net/upgrade-nodejs-via-npm/#
 
 ### Install gulp as global
 
-**Gulp version 3.9.0 is required.**
+> Note: If you've previously installed gulp globally, run `npm rm --global gulp` or `npm rm --global gulp-cli` before following these instructions. For more information, read [this](https://gulpjs.com/docs/en/getting-started/quick-start/).
 
-`npm install gulp@3.9.0 -g`
+**Gulp version 4.x.x is required.**
+
+`npm install --global gulp-cli`
 
 Check gulp version:
 
 `gulp -v`
+
+with result as:
+```
+CLI version: 2.3.0
+Local version: Unknown
+```
 
 For Mac:
 
@@ -64,7 +65,7 @@ This module will start whole application.
 
 `cd czechidm-app`
 
-Install basic dependencies for application module (will be common for all submodules ).
+Install basic dependencies for application module (will be common for all submodules).
 
 `npm install`
 
@@ -91,46 +92,25 @@ If you are developing a custom module (for example named as "czechidm-ext") that
 
 First, we create the symlink to the "czechidm-ext" module:
 
-`cd projects/CzechIdM/Realization/frontend/czechidm-app/czechidm-modules`
+`cd projects/CzechIdM/Realization/frontend`
 
 For Linux:
 
-`ln -s ../../../../../ExternalModule/Realization/frontend/czechidm-ext`
+`ln -s ../../../ExternalModule/Realization/frontend/czechidm-ext`
 
 For Windows (PowerShell):
 
-`new-item -itemtype symboliclink -Path . -name czechidm-ext -value ../../../../../ExternalModule/Realization/frontend/czechidm-ext`
+`new-item -itemtype symboliclink -Path . -name czechidm-ext -value ../../../ExternalModule/Realization/frontend/czechidm-ext`
 
-Then we create a symlink from the external module to the product "node_modules". This prevents the problem with multiple copies of React (https://facebook.github.io/react/warnings/refs-must-have-owner.html).
-The goal is to have only one node_modules directory (for all modules) with React.
-
-`cd ../../../../../ExternalModule/Realization/frontend/czechidm-ext`
-
-For Linux:
-
-`ln -s ../../../../CzechIdM/Realization/frontend/czechidm-app/node_modules`
-
-For Windows (PowerShell):
-
-`new-item -itemtype symboliclink -Path . -name node_modules -value ../../../../CzechIdM/Realization/frontend/czechidm-app/node_modules`
+> Note: Prevent to commit created symlinks for optional modules into product repository.
 
 
 ## Make all modules together
-After when we have installed all required modules, we have to copy them together. Its means create symlinks from czechidm-modules to app node_modules.
+After when we have installed all required modules, we have to copy them together. Its means create symlinks to czechidm-modules and to app node_modules.
 
-`gulp makeModules`
+`cd czechidm-app`
 
-## Test
-
-`gulp test`
-
-For watch use test-watch (will work after compiling application ... it means after run "gulp" or "gulp build" or "gulp test")
-
-`npm run test-watch`
-
-__Test via gulp (for profile "default" and stage "test". Profile and stage arguments are supported. Profiles could be defined in [configuration](./czechidm-app/config)):__
-
-`gulp test -p default -s test`
+`gulp install`
 
 ## Development mode with livereload
 
@@ -140,6 +120,8 @@ __For run with specific profile and stage (default value for profile is `default
 
 `gulp -p default -s test`
 
+Tests are executed, when application starts up in development mode.
+
 ## Build
 
 When you are done, a production ready version of the JS bundle can be created:
@@ -148,24 +130,40 @@ When you are done, a production ready version of the JS bundle can be created:
 
 Builded application will be located in `dist` folder. Application could be deployed to any http server (e.g. Apache).
 
-## Unmount submodule
-When we want unmount some optional module, we have to delete it (or his symlink) from czechidm-modules. Then clear all modules from app node_modules and make new compilation of modules.
+## (Optional) Unmount **external** module
+When we want unmount some optional module, we have to delete it (~ delete created symlinks) and then clear and make new compilation of modules.
 
-`rm -r czechidm-modules/czechidm-example`
 
-`npm prune`
+For Linux:
 
-`gulp makeModules`
+`cd projects/CzechIdM/Realization/frontend`
+
+`rm -r czechidm-ext`
+
+`cd czechidm-app/czechidm-modules`
+
+`rm -r czechidm-ext`
+
+`gulp install`
+
+For Windows (cmd):
+
+`cd projects\CzechIdM\Realization\frontend`
+
+`rmdir czechidm-ext`
+
+`cd czechidm-app\czechidm-modules`
+
+`rmdir czechidm-ext`
+
+`gulp install`
 
 ## Check syntax by Eslint
-**IMPORTANT!** Syntax verify is executed during each startup and build application via gulp.
 
 If you want to verify that code syntax is written correctly, you can use commands below.  
 Go to app module and then run:
 
-`npm run lint`   Check syntax in app module and in all czechidm linked modules (in directory czechidm-modules).
-
-`gulp lint`  Do same check as previous command, but run as gulp task.
+`npm run lint`   Check syntax in app module and in all czechidm linked modules (in frontend directory).
 
 ## Update dependencies
 

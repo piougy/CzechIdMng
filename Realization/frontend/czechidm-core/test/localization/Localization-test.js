@@ -10,8 +10,8 @@ chai.use(dirtyChai);
  * @author Petr Hanák
  * @author Radek Tomiška
  */
-describe('Comparing JSON catalogs', function test() {
-  it('- core', function validate() {
+describe('Comparing JSON catalogs', () => {
+  it('- core', () => {
     const cs = require('../../src/locales/cs.json');
     const en = require('../../src/locales/en.json');
     //

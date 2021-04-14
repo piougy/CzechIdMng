@@ -80,7 +80,7 @@ public class IdentityChangeContractTreeNodeAndValidityBulkActionTest extends Abs
 		bulkAction.setIdentifiers(ids);
 		
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_TREE_NODE_NAME, rootNode.getId().toString());
+		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_TREE_NODE, rootNode.getId().toString());
 		bulkAction.setProperties(properties);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 2l, null, null);
@@ -121,8 +121,8 @@ public class IdentityChangeContractTreeNodeAndValidityBulkActionTest extends Abs
 		bulkAction.setIdentifiers(ids);
 		
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_VALID_FROM_NAME, newFromDate.toString());
-		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_VALID_TILL_NAME, newTillDate.toString());
+		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_VALID_FROM, newFromDate.toString());
+		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_VALID_TILL, newTillDate.toString());
 		bulkAction.setProperties(properties);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 2l, null, null);
@@ -172,8 +172,8 @@ public class IdentityChangeContractTreeNodeAndValidityBulkActionTest extends Abs
 		bulkAction.setIdentifiers(ids);
 		
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_VALID_FROM_NAME, newFromDate.toString());
-		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_VALID_TILL_NAME, newTillDate.toString());
+		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_VALID_FROM, newFromDate.toString());
+		properties.put(IdentityChangeContractTreeNodeAndValidityBulkAction.PARAMETER_VALID_TILL, newTillDate.toString());
 		bulkAction.setProperties(properties);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, null, null, 2l);

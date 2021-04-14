@@ -18,13 +18,11 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -49,25 +47,21 @@ public class IdentityChangeContractTreeNodeAndValidityBulkAction extends Abstrac
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityChangeContractTreeNodeAndValidityBulkAction.class);
 
 	public static final String NAME = "identity-change-contract-tree-node-and-validity-bulk-action";
-	public static final String PARAMETER_TREE_NODE_NAME = "tree-node";
-	public static final String PARAMETER_VALID_FROM_NAME = "valid-from";
-	public static final String PARAMETER_VALID_TILL_NAME = "valid-till";
+	public static final String PARAMETER_TREE_NODE = "tree-node";
+	public static final String PARAMETER_VALID_FROM = "valid-from";
+	public static final String PARAMETER_VALID_TILL = "valid-till";
 		
-	
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
-	private IdmTreeNodeService treeNodeService;
-	@Autowired
 	private IdmIdentityContractService contractService;
-		
-	
+
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		List<IdmFormAttributeDto> formAttributes = super.getFormAttributes();
-		formAttributes.add(getTreeNodeFormAttr(PARAMETER_TREE_NODE_NAME));
-		formAttributes.add(getDatePickFormAttr(PARAMETER_VALID_FROM_NAME));
-		formAttributes.add(getDatePickFormAttr(PARAMETER_VALID_TILL_NAME));
+		formAttributes.add(getTreeNodeFormAttribute(PARAMETER_TREE_NODE));
+		formAttributes.add(getDateFormAttribute(PARAMETER_VALID_FROM));
+		formAttributes.add(getDateFormAttribute(PARAMETER_VALID_TILL));
 		return formAttributes;
 	}
 	
@@ -98,18 +92,17 @@ public class IdentityChangeContractTreeNodeAndValidityBulkAction extends Abstrac
 	protected OperationResult processDto(IdmIdentityDto identity) {
 		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
 		
-		IdmTreeNodeDto treeNode = getSelectedTreeNode();
-		LocalDate tillDate = getSelectedDate(PARAMETER_VALID_TILL_NAME);
-		LocalDate fromDate = getSelectedDate(PARAMETER_VALID_FROM_NAME);
+		UUID treeNodeId = getSelectedTreeNode();
+		LocalDate tillDate = getSelectedDate(PARAMETER_VALID_TILL);
+		LocalDate fromDate = getSelectedDate(PARAMETER_VALID_FROM);
 			
-		
-		if (treeNode == null && tillDate == null && fromDate == null) {
+		if (treeNodeId == null && tillDate == null && fromDate == null) {
 			return new OperationResult.Builder(OperationState.EXECUTED).build();
 		}
 		
 		for (IdmIdentityContractDto contract : contracts) {
-			if (treeNode != null) {
-				contract.setWorkPosition(treeNode.getId());
+			if (treeNodeId != null) {
+				contract.setWorkPosition(treeNodeId);
 			}
 			if (fromDate != null) {
 				contract.setValidFrom(fromDate);
@@ -143,25 +136,21 @@ public class IdentityChangeContractTreeNodeAndValidityBulkAction extends Abstrac
 		return super.logItemProcessed(item, opResult);
 	}
 	
-	private IdmTreeNodeDto getSelectedTreeNode() {
-		UUID treeNodeId = getParameterConverter().toUuid(getProperties(), PARAMETER_TREE_NODE_NAME);
-		if (treeNodeId == null) {
-			return null;
-		}
-		return treeNodeService.get(treeNodeId); 
+	private UUID getSelectedTreeNode() {
+		return getParameterConverter().toUuid(getProperties(), PARAMETER_TREE_NODE);
 	}
 	
 	private LocalDate getSelectedDate(String code) {
 		return getParameterConverter().toLocalDate(getProperties(), code);
 	}
 	
-	private IdmFormAttributeDto getTreeNodeFormAttr(String code) {
+	private IdmFormAttributeDto getTreeNodeFormAttribute(String code) {
 		IdmFormAttributeDto treeNode = new IdmFormAttributeDto(code, code, PersistentType.UUID);
 		treeNode.setFaceType(BaseFaceType.TREE_NODE_SELECT);
 		return treeNode;
 	}
 	
-	private IdmFormAttributeDto getDatePickFormAttr(String code) {
+	private IdmFormAttributeDto getDateFormAttribute(String code) {
 		return new IdmFormAttributeDto(code, code, PersistentType.DATE);
 	}
 }

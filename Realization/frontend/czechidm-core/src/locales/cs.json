@@ -6133,15 +6133,18 @@
         "attributes": {
           "tree-node": {
             "label": "Prvek stromu",
-            "help": "Nově nastavená pracovní pozice. <b>Pokud není vybrána, ke změně nedochází</b>."
+            "placeholder": "-- beze změny --",
+            "help": "Nově nastavená pracovní pozice. Pokud není vybrána, ke změně nedochází."
           },
           "valid-from": {
             "label": "Platnost kontraktu od",
-            "help": "Nově nastavený začátek platnosti kontraktu. <b>Pokud není vybrán, ke změně nedochází</b>."
+            "placeholder": "-- beze změny --",
+            "help": "Nově nastavený začátek platnosti kontraktu. Pokud není vybrán, ke změně nedochází."
           },
           "valid-till": {
             "label": "Platnost kontraktu do",
-            "help": "Nově nastavený konec platnosti kontraktu. <b>Pokud není vybrán, ke změně nedochází</b>."
+            "placeholder": "-- beze změny --",
+            "help": "Nově nastavený konec platnosti kontraktu. Pokud není vybrán, ke změně nedochází."
           }
         }
       },

@@ -6081,15 +6081,18 @@
         "attributes": {
           "tree-node": {
             "label": "Tree node",
-            "help": "The new set work position. <b>If not selected no change happens</b>."
+            "placeholder": "-- without change --",
+            "help": "The new set work position. If not selected no change happens."
           },
           "valid-from": {
             "label": "Valid from",
-            "help": "The new set start of contract validity. <b>If not selected no change happens</b>."
+            "placeholder": "-- without change --",
+            "help": "The new set start of contract validity. If not selected no change happens."
           },
           "valid-till": {
             "label": "Valid till",
-            "help": "The new set end of contract validity. <b>If not selected no change happens</b>."
+            "placeholder": "-- without change --",
+            "help": "The new set end of contract validity. If not selected no change happens."
           }
         }
       },

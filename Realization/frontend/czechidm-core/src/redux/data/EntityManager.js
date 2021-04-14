@@ -567,35 +567,6 @@ export default class EntityManager {
   }
 
   /**
-   * Generate new entity - prepare new entity by registered generators.
-   *
-   * @param  {object} entity - Entity input
-   * @param  {string} uiKey = null - ui key for loading indicator etc
-   * @param  {func} cb - function will be called after entity is patched or error occured
-   * @return {object} - action
-   * @since 11.0.0
-   */
-  generateNewEntity(entity, uiKey = null, cb = null) {
-    if (!entity) {
-      return {
-        type: EMPTY
-      };
-    }
-    uiKey = this.resolveUiKey(uiKey, entity.id || '[new]');
-    return (dispatch) => {
-      dispatch(this.requestEntity(uiKey, uiKey));
-      this.getService()
-        .generateNew(entity)
-        .then(json => {
-          dispatch(this.receiveEntity(json.id, json, uiKey, cb));
-        })
-        .catch(error => {
-          dispatch(this.receiveError(entity, uiKey, error, cb));
-        });
-    };
-  }
-
-  /**
    * Delete entity
    *
    * @param  {object} entity - Entity to delete
@@ -833,7 +804,12 @@ export default class EntityManager {
         }).catch(error => {
           if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
             if (!cb) { // if no callback given, we need show error
-              dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.duplicate.error`, { record: this.getNiceLabel(entity) }) }, error));
+              dispatch(
+                this.flashMessagesManager.addErrorMessage(
+                  { title: this.i18n(`action.duplicate.error`, { record: this.getNiceLabel(entity) }) },
+                  error
+                )
+              );
             } else { // otherwise caller has to show eror etc. himself
               cb(entity, error, null);
             }
@@ -850,7 +826,13 @@ export default class EntityManager {
           if (successEntities.length > 0) {
             dispatch(this.flashMessagesManager.addMessage({
               level: 'success',
-              message: this.i18n(`action.duplicate.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
+              message: this.i18n(
+                `action.duplicate.success`, {
+                  count: successEntities.length,
+                  records: this.getNiceLabels(successEntities).join(', '),
+                  record: this.getNiceLabel(successEntities[0])
+                }
+              )
             }));
           }
           dispatch(this.stopBulkAction());

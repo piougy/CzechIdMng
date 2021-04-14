@@ -752,7 +752,7 @@ class FormProjectionDetail extends Basic.AbstractContent {
                     formValidations.size === 0
                     ?
                     <Basic.Alert
-                      text={ this.i18n('entity.FormProjection.formValidations.help') }
+                      text={ this.i18n('entity.FormProjection.formValidations.empty') }
                       className="no-margin"
                       buttons={[
                         <Basic.Button
@@ -874,68 +874,90 @@ class FormProjectionDetail extends Basic.AbstractContent {
                   label={ this.i18n('entity.FormProjection.formDefinitions.label') }
                   helpBlock={ this.i18n('entity.FormProjection.formDefinitions.help') }>
                   {
-                    !formDefinitions
-                    ||
-                    [
-                      ...formDefinitions.map((attributes, definitionId) => (
-                        <Basic.Div style={{ display: 'flex' }}>
-                          <Basic.Div style={{ flex: 2, paddingRight: 5 }}>
-                            <Basic.SelectBox
-                              label={ null }
-                              manager={ formDefinitionManager }
-                              forceSearchParameters={
-                                new Domain.SearchParameters()
-                                  .setFilter('type', [
-                                    'eu.bcvsolutions.idm.core.model.entity.IdmIdentity',
-                                    'eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract'
-                                  ])
-                                  .setSort('code')
-                              }
-                              value={ definitionId }
-                              placeholder={ this.i18n('entity.FormProjection.formDefinitions.placeholder') }
-                              style={{ marginBottom: 5 }}
-                              onChange={ (f) => this.onChangeFormDefinition(definitionId, f) }
-                              readOnly={ definitionId !== null }
-                              clearable={ false }/>
-                          </Basic.Div>
-                          <Basic.Div style={{ flex: 3, paddingRight: 5 }}>
-                            <Basic.SelectBox
-                              label={ null }
-                              manager={ formAttributeManager }
-                              value={ attributes.toArray() }
-                              forceSearchParameters={ new Domain.SearchParameters().setFilter('definitionId', definitionId) }
-                              placeholder={ this.i18n('entity.FormProjection.formDefinitions.attributes.placeholder') }
-                              multiSelect
-                              style={{ marginBottom: 5 }}
-                              onChange={ (attrs) => this.onChangeFormAttributes(definitionId, attrs) }
-                              readOnly={ definitionId === null || !manager.canSave(projection, _permissions) }/>
-                          </Basic.Div>
-                          <Basic.Button
-                            level="danger"
-                            icon="fa:trash"
-                            title={ this.i18n('entity.FormProjection.formDefinitions.button.remove.title') }
-                            titlePlacement="left"
-                            onClick={ () => this.removeFormDefinition(definitionId) }
-                            disabled={ !manager.canSave(projection, _permissions) }/>
-                        </Basic.Div>
-                      )).values()
-                    ]
+                    !formDefinitions || formDefinitions.size === 0
+                    ?
+                    <Basic.Alert
+                      text={ this.i18n('entity.FormProjection.formDefinitions.empty') }
+                      className="no-margin"
+                      buttons={[
+                        <Basic.Button
+                          level="info"
+                          className="btn-xs"
+                          icon="fa:plus"
+                          title={ this.i18n('entity.FormProjection.formDefinitions.button.add.title') }
+                          onClick={ () => this.addFormDefinition() }
+                          disabled={
+                            !manager.canSave(projection, _permissions)
+                            ||
+                            (formDefinitions && _.includes(formDefinitions.keySeq().toArray(), null))
+                          }>
+                          { this.i18n('entity.FormProjection.formDefinitions.button.add.label') }
+                        </Basic.Button>
+                      ]}/>
+                    :
+                    <Basic.Div>
+                      {
+                        [
+                          ...formDefinitions.map((attributes, definitionId) => (
+                            <Basic.Div style={{ display: 'flex' }}>
+                              <Basic.Div style={{ flex: 2, paddingRight: 5 }}>
+                                <Basic.SelectBox
+                                  label={ null }
+                                  manager={ formDefinitionManager }
+                                  forceSearchParameters={
+                                    new Domain.SearchParameters()
+                                      .setFilter('type', [
+                                        'eu.bcvsolutions.idm.core.model.entity.IdmIdentity',
+                                        'eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract'
+                                      ])
+                                      .setSort('code')
+                                  }
+                                  value={ definitionId }
+                                  placeholder={ this.i18n('entity.FormProjection.formDefinitions.placeholder') }
+                                  style={{ marginBottom: 5 }}
+                                  onChange={ (f) => this.onChangeFormDefinition(definitionId, f) }
+                                  readOnly={ definitionId !== null }
+                                  clearable={ false }/>
+                              </Basic.Div>
+                              <Basic.Div style={{ flex: 3, paddingRight: 5 }}>
+                                <Basic.SelectBox
+                                  label={ null }
+                                  manager={ formAttributeManager }
+                                  value={ attributes.toArray() }
+                                  forceSearchParameters={ new Domain.SearchParameters().setFilter('definitionId', definitionId) }
+                                  placeholder={ this.i18n('entity.FormProjection.formDefinitions.attributes.placeholder') }
+                                  multiSelect
+                                  style={{ marginBottom: 5 }}
+                                  onChange={ (attrs) => this.onChangeFormAttributes(definitionId, attrs) }
+                                  readOnly={ definitionId === null || !manager.canSave(projection, _permissions) }/>
+                              </Basic.Div>
+                              <Basic.Button
+                                level="danger"
+                                icon="fa:trash"
+                                title={ this.i18n('entity.FormProjection.formDefinitions.button.remove.title') }
+                                titlePlacement="left"
+                                onClick={ () => this.removeFormDefinition(definitionId) }
+                                disabled={ !manager.canSave(projection, _permissions) }/>
+                            </Basic.Div>
+                          )).values()
+                        ]
+                      }
+                      <Basic.Button
+                        level="success"
+                        className="btn-xs"
+                        icon="fa:plus"
+                        title={ this.i18n('entity.FormProjection.formDefinitions.button.add.title') }
+                        style={{ marginBottom: 5 }}
+                        onClick={ () => this.addFormDefinition() }
+                        disabled={
+                          !manager.canSave(projection, _permissions)
+                          ||
+                          (formDefinitions && _.includes(formDefinitions.keySeq().toArray(), null))
+                        }>
+                        { this.i18n('entity.FormProjection.formDefinitions.button.add.label') }
+                      </Basic.Button>
+                    </Basic.Div>
                   }
-
-                  <Basic.Button
-                    level="success"
-                    className="btn-xs"
-                    icon="fa:plus"
-                    title={ this.i18n('entity.FormProjection.formDefinitions.button.add.title') }
-                    style={{ marginBottom: 5 }}
-                    onClick={ () => this.addFormDefinition() }
-                    disabled={
-                      !manager.canSave(projection, _permissions)
-                      ||
-                      (formDefinitions && _.includes(formDefinitions.keySeq().toArray(), null))
-                    }>
-                    { this.i18n('entity.FormProjection.formDefinitions.button.add.label') }
-                  </Basic.Button>
                 </Basic.LabelWrapper>
 
                 <Basic.EnumSelectBox

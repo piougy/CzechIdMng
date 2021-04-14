@@ -4367,6 +4367,7 @@
       "formDefinitions": {
         "label": "Definice formulářů",
         "help": "Definice formulářů a atributů, které budou zobrazeny.",
+        "empty": "Definice formulářů a atributů nejsou pro projekci definovány.",
         "placeholder": "Vyberte definici formuláře ...",
         "button": {
           "add": {
@@ -4393,7 +4394,8 @@
       },
       "formValidations": {
         "label": "Validace základních atributů formuláře",
-        "help": "Validace základních atributů nejsou pro projekci definovány.",
+        "help": "Validace základních atributů pro projekci.",
+        "empty": "Validace základních atributů nejsou pro projekci definovány.",
         "placeholder": "Vyberte základní atribut formuláře ...",
         "attribute": {
           "label": "Atribut",

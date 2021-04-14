@@ -4314,6 +4314,7 @@
       "formDefinitions": {
         "label": "Form definitions",
         "help": "Form definitions and attributes to show.",
+        "empty": "Form definitions and attributes are not defined.",
         "placeholder": "Select form definition ...",
         "button": {
           "add": {
@@ -4341,28 +4342,29 @@
       "formValidations": {
         "label": "Basic attributes validation",
         "help": "Validations for shown basic attributes.",
+        "empty": "Validations for shown basic attributes are not defined.",
         "placeholder": "Select basic attribute ...",
         "attribute": {
           "label": "Attribute",
-          "help": "Definovat validaci pro podporované základní atributy uživatele a kontraktu."
+          "help": "Define validation for supported user or contract basic fields."
         },
         "button": {
           "add": {
-            "label": "Přidat validaci",
-            "title": "Přidat validaci základního atributu formuláře pro projekci formuláře"
+            "label": "Add validation",
+            "title": "Add basic field validation for this form projection."
           },
           "remove": {
-            "title": "Odebrat validaci"
+            "title": "Remove validation"
           }
         },
         "create": {
-          "header": "Přidat validaci",
+          "header": "Add validation",
           "message": {
-            "contains": "Validace pro zadaný atribut je již nastavena."
+            "contains": "Validation for given basic filed is already set."
           }
         },
         "edit": {
-          "header": "Upravit validaci"
+          "header": "Edit validation"
         }
       },
       "properties": {

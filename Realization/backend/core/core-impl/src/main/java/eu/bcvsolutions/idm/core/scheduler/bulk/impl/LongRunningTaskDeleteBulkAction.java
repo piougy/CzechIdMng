@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 public class LongRunningTaskDeleteBulkAction extends AbstractRemoveBulkAction<IdmLongRunningTaskDto, IdmLongRunningTaskFilter> {
 
 	public static final String NAME = "core-long-running-task-delete-bulk-action";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(LongRunningTaskCancelBulkAction.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(LongRunningTaskDeleteBulkAction.class);
 	//
 	@Autowired private IdmLongRunningTaskService service;
 	

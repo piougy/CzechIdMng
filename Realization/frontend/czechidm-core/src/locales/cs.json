@@ -491,6 +491,9 @@
               "label": "Přejít na výchozí plný detail"
             }
           },
+          "switchUser": {
+            "label": "Přihlásit se jako uživatel"
+          },
           "profile": {
             "label": "Přejít na profil"
           },

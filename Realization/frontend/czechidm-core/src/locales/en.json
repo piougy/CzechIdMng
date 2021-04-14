@@ -459,6 +459,9 @@
               "label": "Show default full detail"
             }
           },
+          "switchUser": {
+            "label": "Login as user"
+          },
           "profile": {
             "label": "Show profile"
           },

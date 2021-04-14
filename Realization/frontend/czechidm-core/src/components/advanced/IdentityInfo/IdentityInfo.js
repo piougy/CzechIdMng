@@ -258,6 +258,17 @@ export class IdentityInfo extends AbstractEntityInfo {
                     )
                   }
                   {
+                    !this.isDevelopment() || this.isDisabled(_entity) || !_permissions || !Utils.Permission.hasPermission(_permissions, 'SWITCHUSER')
+                    ||
+                    this.renderRow(null, (
+                      <a href="#" onClick={ this.switchUser.bind(this, _entity) }>
+                        <Basic.Icon value="component:switch-user"/>
+                        {' '}
+                        { this.i18n('link.switchUser.label') }
+                      </a>
+                    ))
+                  }
+                  {
                     !this.showLink()
                     ||
                     this.renderRow(null, (
@@ -265,17 +276,6 @@ export class IdentityInfo extends AbstractEntityInfo {
                         <Basic.Icon value="fa:angle-double-right"/>
                         {' '}
                         { this.i18n('link.profile.label') }
-                      </a>
-                    ))
-                  }
-                  {
-                    !this.isDevelopment() || this.isDisabled(_entity) || !_permissions || !Utils.Permission.hasPermission(_permissions, 'SWITCHUSER')
-                    ||
-                    this.renderRow(null, (
-                      <a href="#" onClick={ this.switchUser.bind(this, _entity) }>
-                        <Basic.Icon value="component:switch-user"/>
-                        {' '}
-                        Přihlásit se jako uživatel
                       </a>
                     ))
                   }

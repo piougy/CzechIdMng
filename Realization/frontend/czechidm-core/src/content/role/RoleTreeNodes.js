@@ -26,7 +26,7 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
     //
     return (
       <Basic.Div>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ this.i18n('title') } />
         <RoleTreeNodeTableComponent
           uiKey="role-tree-nodes-table"
           forceSearchParameters={ forceSearchParameters }

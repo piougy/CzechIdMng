@@ -258,7 +258,9 @@ class RoleTable extends Advanced.AbstractTableContent {
       showAddButton,
       showEnvironment,
       showBaseCode,
-      prohibitedActions
+      prohibitedActions,
+      treePaginationRootSize,
+      treePaginationNodeSize
     } = this.props;
     const { filterOpened, showLoading } = this.state;
     const _showTree = showCatalogue && SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
@@ -286,7 +288,9 @@ class RoleTable extends Advanced.AbstractTableContent {
             manager={ this.roleCatalogueManager }
             onSelect={ this._useFilterByTree.bind(this) }
             header={ this.i18n('content.roles.roleCataloguePick') }
-            rendered={ _showTree }/>
+            rendered={ _showTree }
+            paginationRootSize={ treePaginationRootSize }
+            paginationNodeSize={ treePaginationNodeSize }/>
         </Basic.Col>
 
         <Basic.Col
@@ -479,6 +483,8 @@ function select(state, component) {
   return {
     showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true),
     showBaseCode: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.role.baseCode', true),
+    treePaginationRootSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size'),
+    treePaginationNodeSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size'),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _requestsEnabled: ConfigurationManager.getPublicValueAsBoolean(state, component.roleManager.getEnabledPropertyKey())
   };

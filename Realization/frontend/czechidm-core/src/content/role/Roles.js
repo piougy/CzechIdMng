@@ -5,12 +5,15 @@ import { RoleManager } from '../../redux';
 import RoleTable from './RoleTable';
 
 /**
- * List of roles
+ * List of roles.
+ *
+ * @author Radek Tomiška
  */
 export default class Roles extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.roleManager = new RoleManager();
   }
 
@@ -24,14 +27,14 @@ export default class Roles extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        {this.renderPageHeader()}
+      <Basic.Div>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
-          <RoleTable uiKey="role_table" roleManager={this.roleManager}/>
+          <RoleTable uiKey="role_table" roleManager={ this.roleManager }/>
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

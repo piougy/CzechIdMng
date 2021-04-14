@@ -171,4 +171,4 @@ For update NPM dependencies, you can use task 'install' in the gulp again.
 
 `gulp install`
 
-If you want to use command `npm install` instead `gulp install`. **You have to delete all symlinks on the CzechIdM modules** (from 'node_modules' folder) first. You can use command `npm prune` for that. This command is execute during 'gulp install' too.
+If you want to use command `npm install` instead `gulp install`. **You have to delete all symlinks on the CzechIdM modules** (from 'node_modules' folder) first. You can use command `npm prune` for that. This command is executed during 'gulp install' too.

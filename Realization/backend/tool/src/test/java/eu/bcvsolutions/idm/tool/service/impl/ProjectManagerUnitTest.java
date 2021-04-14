@@ -107,6 +107,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			FileUtils.copyFile(new File("../../frontend/czechidm-app/package.json"), appPackage);
 			FileUtils.copyFile(new File("../../frontend/czechidm-app/package-lock.json"), new File(feSourcesFolder, "package-lock.json"));
 			FileUtils.copyFile(new File("../../frontend/czechidm-app/gulpfile.babel.js"), new File(feSourcesFolder, "gulpfile.babel.js"));
+			FileUtils.copyFile(new File("../../frontend/czechidm-app/babel.config.json"), new File(feSourcesFolder, "babel.config.json"));
 			FileUtils.copyFile(new File("../../frontend/czechidm-app/index.html"), new File(feSourcesFolder, "index.html"));
 			FileUtils.copyDirectory(new File("../../frontend/czechidm-app/src"), new File(feSourcesFolder, "src"));
 			FileUtils.copyDirectory(new File("../../frontend/czechidm-app/config"), new File(feSourcesFolder, "config"));

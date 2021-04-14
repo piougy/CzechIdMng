@@ -557,7 +557,7 @@ class FormProjectionDetail extends Basic.AbstractContent {
 
   onChangeValidateFormAttribute(attribute) {
     this.setState({
-      validateFormAttribute: attribute.value
+      validateFormAttribute: attribute ? attribute.value : null
     });
   }
 
@@ -1033,6 +1033,7 @@ class FormProjectionDetail extends Basic.AbstractContent {
                   helpBlock={ this.i18n('entity.FormProjection.formValidations.attribute.help') }
                   options={ _availableAttributes }
                   required
+                  clearable={ false }
                   useObject
                   readOnly={ !detail.isNew }
                   onChange={ this.onChangeValidateFormAttribute.bind(this) }

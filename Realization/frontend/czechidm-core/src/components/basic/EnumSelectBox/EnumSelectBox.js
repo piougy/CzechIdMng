@@ -140,7 +140,7 @@ class EnumSelectBox extends SelectBox {
 
   _findKeyBySymbol(sym) {
     let enumeration = this.props.enum;
-    if (enumeration.__esModule && enumeration.default) {
+    if (enumeration && enumeration.__esModule && enumeration.default) {
       enumeration = enumeration.default;
     }
     //

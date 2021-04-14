@@ -63,8 +63,12 @@ class EnumSelectBox extends SelectBox {
     const results = [];
 
     if (_props.enum) {
-      const enumeration = _props.enum;
+      let enumeration = _props.enum;
       if (enumeration) {
+        if (enumeration.__esModule && enumeration.default) {
+          enumeration = enumeration.default;
+        }
+        //
         for (const enumItem in enumeration) {
           if (_.isSymbol(enumeration[enumItem])) {
             const item = this.itemRenderer(enumeration[enumItem], enumItem);
@@ -111,7 +115,11 @@ class EnumSelectBox extends SelectBox {
           niceLabel = enumItem.niceLabel;
         } else {
           // niceLabel dont exist, then get new by key
-          niceLabel = this.props.enum.getNiceLabel(key);
+          let enumeration = this.props.enum;
+          if (enumeration.__esModule && enumeration.default) {
+            enumeration = enumeration.default;
+          }
+          niceLabel = enumeration.getNiceLabel(key);
         }
       } else if (typeof enumItem === 'string') {
         niceLabel = enumItem;
@@ -131,7 +139,10 @@ class EnumSelectBox extends SelectBox {
   }
 
   _findKeyBySymbol(sym) {
-    const enumeration = this.props.enum;
+    let enumeration = this.props.enum;
+    if (enumeration.__esModule && enumeration.default) {
+      enumeration = enumeration.default;
+    }
     //
     if (sym) {
       for (const enumItem in enumeration) {
@@ -158,9 +169,12 @@ class EnumSelectBox extends SelectBox {
       rawValue = value;
     }
     //
-    const enumeration = this.props.enum;
+    let enumeration = this.props.enum;
     const { options } = this.props;
     if (enumeration) {
+      if (enumeration.__esModule && enumeration.default) {
+        enumeration = enumeration.default;
+      }
       return enumeration.getNiceLabel(rawValue);
     }
     if (options) {
@@ -187,7 +201,10 @@ class EnumSelectBox extends SelectBox {
       rawValue = value;
     }
     //
-    const enumeration = this.props.enum;
+    let enumeration = this.props.enum;
+    if (enumeration && enumeration.__esModule && enumeration.default) {
+      enumeration = enumeration.default;
+    }
     const { options } = this.props;
     //
     if (enumeration && enumeration.getIcon) {
@@ -214,9 +231,12 @@ class EnumSelectBox extends SelectBox {
       rawValue = value;
     }
     //
-    const enumeration = this.props.enum;
+    let enumeration = this.props.enum;
     const { options } = this.props;
     if (enumeration) {
+      if (enumeration.__esModule && enumeration.default) {
+        enumeration = enumeration.default;
+      }
       return enumeration.isDisabled(rawValue);
     }
     if (options) {
@@ -325,19 +345,23 @@ class EnumSelectBox extends SelectBox {
       // or useObject - keeping value intouched
       return item;
     }
-    if (!this.props.enum) {
+    let enumeration = this.props.enum;
+    if (!enumeration) {
       // Enum property has to be setted - when option props is given, then nothing can be done.
       return item.value;
+    }
+    if (enumeration.__esModule && enumeration.default) {
+      enumeration = enumeration.default;
     }
     const value = item.value;
     //
     let convertedValue = value;
     if (this.useSymbol === null || this.useSymbol) {
       if (!_.isSymbol(value)) {
-        convertedValue = this.props.enum.findSymbolByKey(value);
+        convertedValue = enumeration.findSymbolByKey(value);
       }
     } else if (_.isSymbol(value)) {
-      convertedValue = this.props.enum.findKeyBySymbol(value);
+      convertedValue = enumeration.findKeyBySymbol(value);
     }
     this.getLogger().trace('[Basic.EnumSelectBox] converted value:', convertedValue);
     return convertedValue;

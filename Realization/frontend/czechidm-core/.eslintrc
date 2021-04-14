@@ -104,6 +104,7 @@
     "no-dupe-class-members": "warn",
     "no-useless-concat": "warn",
     "newline-per-chained-call": "warn",
+    "max-classes-per-file": ["warn", 3],
     "one-var": [2, { "initialized": "never" }],
     "operator-assignment": "warn",
     "object-shorthand": "warn",

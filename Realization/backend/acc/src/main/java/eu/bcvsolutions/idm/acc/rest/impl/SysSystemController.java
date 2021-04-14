@@ -54,6 +54,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.event.SystemEvent;
+import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorManager;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorType;
 import eu.bcvsolutions.idm.acc.service.api.PasswordFilterManager;
@@ -67,6 +69,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -81,6 +84,7 @@ import eu.bcvsolutions.idm.core.model.service.api.LongPollingManager;
 import eu.bcvsolutions.idm.core.rest.DeferredResultWrapper;
 import eu.bcvsolutions.idm.core.rest.LongPollingSubscriber;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
@@ -404,7 +408,8 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		if (system == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		SysSystemDto duplicate = systemService.duplicate(system.getId());
+		EntityEvent<SysSystemDto> event = new SystemEvent(SystemEventType.DUPLICATE, system);
+		SysSystemDto duplicate = systemService.publish(event, IdmBasePermission.UPDATE).getContent();
 		return new ResponseEntity<>(toResource(duplicate), HttpStatus.OK);
 	}
 

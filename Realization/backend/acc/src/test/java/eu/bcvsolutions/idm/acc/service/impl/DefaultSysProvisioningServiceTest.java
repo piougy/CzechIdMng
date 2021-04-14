@@ -52,6 +52,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount_;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.event.SystemEvent;
+import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -77,6 +79,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -414,7 +417,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
 		SysSystemDto system = systemService.get(accountService.get(accountIdentityOne.getAccount()).getSystem());
-		SysSystemDto clonedSystem = systemService.duplicate(system.getId());
+		
+		EntityEvent<SysSystemDto> event = new SystemEvent(SystemEventType.DUPLICATE, system);
+		SysSystemDto clonedSystem = systemService.publish(event).getContent();
+		
 		clonedSystem.setReadonly(false);
 		clonedSystem.setDisabled(false);
 		clonedSystem = systemService.save(clonedSystem);

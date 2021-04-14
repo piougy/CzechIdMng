@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccUniformPasswordFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccUniformPasswordService;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;

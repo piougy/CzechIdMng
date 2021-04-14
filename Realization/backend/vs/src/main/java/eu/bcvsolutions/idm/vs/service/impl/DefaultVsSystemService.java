@@ -263,8 +263,7 @@ public class DefaultVsSystemService implements VsSystemService {
 		system = systemService.get(system.getId());
 
 		// Search attribute definition for rights and set him to multivalue
-		String virtualSystemKey = MessageFormat.format("{0}:systemId={1}", system.getConnectorKey().getFullName(),
-				system.getId().toString());
+		String virtualSystemKey = createVsFormDefinitionKey(system);
 		String type = VsAccount.class.getName();
 		IdmFormDefinitionDto definition = this.formService.getDefinition(type, virtualSystemKey);
 		IdmFormAttributeDto rightsFormAttr = formAttributeService.findAttribute(type, definition.getCode(),
@@ -306,6 +305,20 @@ public class DefaultVsSystemService implements VsSystemService {
 		Assert.notNull(synchronization, "Synchronization not found!");
 		
 		return this.systemService.get(system.getId());
+	}
+	
+	/**
+	 * Compose VS key of form attribute
+	 * @param system
+	 * @return
+	 */
+	@Override
+	public String createVsFormDefinitionKey(SysSystemDto system) {
+		if (system != null && system.getConnectorKey() != null && system.getId() != null) {
+			return MessageFormat.format("{0}:systemId={1}", system.getConnectorKey().getFullName(),
+					system.getId().toString());
+		}
+		return null;
 	}
 
 	/**

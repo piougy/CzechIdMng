@@ -65,5 +65,13 @@ public interface VsSystemService {
 	 * @param connectorClass
 	 */
 	void updateSystemConfiguration(IcConnectorConfiguration configuration, Class<? extends IcConnector> connectorClass);
+	
+	/**
+	 * Creates the key of the virtual system form definition
+	 *  
+	 * @param system
+	 * @return
+	 */
+	String createVsFormDefinitionKey(SysSystemDto system);
 
 }

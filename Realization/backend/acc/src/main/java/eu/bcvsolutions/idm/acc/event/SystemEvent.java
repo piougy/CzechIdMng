@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.event.EventType;
  * Events for {@link SysSystemDto}
  * 
  * @author svandav
+ * @author Ondrej Husnik
  *
  */
 
@@ -24,7 +25,7 @@ public class SystemEvent extends CoreEvent<SysSystemDto> {
 	 *
 	 */
 	public enum SystemEventType implements EventType {
-		CREATE, UPDATE, DELETE, EAV_SAVE;
+		CREATE, UPDATE, DELETE, EAV_SAVE, DUPLICATE;
 	}
 
 	public SystemEvent(SystemEventType operation, SysSystemDto content) {

@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import eu.bcvsolutions.idm.acc.entity.AccTreeAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccUniformPassword_;
 import java.text.MessageFormat;
 import java.util.List;

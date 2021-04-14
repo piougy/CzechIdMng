@@ -56,6 +56,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.event.SystemEvent;
+import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.acc.rest.impl.SysSystemController;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -78,6 +80,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
@@ -552,7 +555,9 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 		// Number of mapping attributes on original system
 		int numberOfMappingAttributesOrig = systemAttributeMappingService.findBySystemMapping(mappingOrig).size();
 		
-		SysSystemDto duplicatedSystem = systemService.duplicate(system.getId());
+		EntityEvent<SysSystemDto> event = new SystemEvent(SystemEventType.DUPLICATE, system);
+		SysSystemDto duplicatedSystem = systemService.publish(event).getContent();
+		
 		// check duplicate
 		systemService.checkSystem(duplicatedSystem);
 		
@@ -615,7 +620,9 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 
 		syncConfigDuplicate = syncConfigService.save(syncConfigDuplicate);
 		
-		SysSystemDto duplicatedSystem = systemService.duplicate(system.getId());
+		EntityEvent<SysSystemDto> event = new SystemEvent(SystemEventType.DUPLICATE, system);
+		SysSystemDto duplicatedSystem = systemService.publish(event).getContent();
+		
 		// check duplicate
 		systemService.checkSystem(duplicatedSystem);
 		

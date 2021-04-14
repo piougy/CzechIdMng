@@ -7,6 +7,7 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
+import eu.bcvsolutions.idm.acc.event.SystemEvent;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -158,8 +159,9 @@ public interface SysSystemService extends
 	IdmFormDefinitionDto getOperationOptionsConnectorFormDefinition(SysSystemDto system);
 
 	/**
-	 * Duplicate (create/persist new) system with all configurations
-	 * 
+	 * Duplicate (create/persist new) system with all configurations.
+	 * Do not call directly but emit {@link SystemEvent} DUPLICATE instead.
+	 *   
 	 * @param id
 	 * @return
 	 */

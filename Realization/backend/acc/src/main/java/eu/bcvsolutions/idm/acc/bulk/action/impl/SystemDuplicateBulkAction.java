@@ -13,10 +13,13 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
+import eu.bcvsolutions.idm.acc.event.SystemEvent;
+import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -25,6 +28,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
  * Bulk operation for duplication of the system
  * 
  * @author svandav
+ * @author Ondrej Husnik
  *
  */
 
@@ -40,13 +44,12 @@ public class SystemDuplicateBulkAction extends AbstractBulkAction<SysSystemDto, 
 
 	@Override
 	protected OperationResult processDto(SysSystemDto dto) {
-		Assert.notNull(dto, "Role is required!");
+		Assert.notNull(dto, "System is required!");
 		Assert.notNull(dto.getId(), "Id of system is required!");
-		// Check rights
-		systemService.checkAccess(systemService.get(dto.getId(), IdmBasePermission.READ), IdmBasePermission.UPDATE);
 		// Duplicate the system
-		systemService.duplicate(dto.getId());
-
+		EntityEvent<SysSystemDto> event = new SystemEvent(SystemEventType.DUPLICATE, dto);
+		systemService.publish(event, IdmBasePermission.UPDATE);
+			
 		return new OperationResult(OperationState.EXECUTED);
 	}
 

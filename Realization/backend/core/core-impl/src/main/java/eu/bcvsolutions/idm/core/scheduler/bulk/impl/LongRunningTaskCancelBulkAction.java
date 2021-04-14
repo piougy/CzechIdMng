@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.bulk.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -30,6 +32,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 public class LongRunningTaskCancelBulkAction extends AbstractBulkAction<IdmLongRunningTaskDto, IdmLongRunningTaskFilter> {
 
 	public static final String NAME = "core-long-running-task-cancel-bulk-action";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(LongRunningTaskCancelBulkAction.class);
 	//
 	@Autowired private IdmLongRunningTaskService service;
 	@Autowired private LongRunningTaskManager manager;
@@ -37,6 +40,16 @@ public class LongRunningTaskCancelBulkAction extends AbstractBulkAction<IdmLongR
 	@Override
 	public String getName() {
 		return NAME;
+	}
+	
+	@Override
+	protected List<UUID> getEntities(IdmBulkActionDto action, StringBuilder description) {
+		List<UUID> entities = super.getEntities(action, description);
+		if (entities.remove(getLongRunningTaskId())) {
+			LOG.debug("Cancel long running task cannot cancel itself.");
+		}
+		//
+		return entities;
 	}
 	
 	@Override

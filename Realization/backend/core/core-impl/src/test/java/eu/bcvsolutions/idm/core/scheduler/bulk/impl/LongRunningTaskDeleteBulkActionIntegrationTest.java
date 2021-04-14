@@ -41,7 +41,7 @@ public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulk
 	}
 	
 	@Test
-	public void processBulkActionByIds() {
+	public void testProcessBulkActionByIds() {
 		List<IdmLongRunningTaskDto> tasks = createTasks(5);
 		
 		IdmBulkActionDto bulkAction = findBulkAction(IdmLongRunningTask.class, LongRunningTaskDeleteBulkAction.NAME);
@@ -58,7 +58,7 @@ public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulk
 	}
 	
 	@Test
-	public void processBulkActionByFilter() {
+	public void testProcessBulkActionByFilter() {
 		List<IdmLongRunningTaskDto> tasks = createTasks(5);
 		
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
@@ -76,6 +76,21 @@ public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulk
 		Assert.assertNull(service.get(tasks.get(2)));
 		Assert.assertNotNull(service.get(tasks.get(1)));
 		Assert.assertNotNull(service.get(tasks.get(3)));
+	}
+	
+	@Test
+	public void testPreventDeleteItself() {
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setTaskType(LongRunningTaskDeleteBulkAction.class.getCanonicalName());
+		//
+		IdmBulkActionDto bulkAction = findBulkAction(IdmLongRunningTask.class, LongRunningTaskDeleteBulkAction.NAME);
+		bulkAction.setTransformedFilter(filter);
+		bulkAction.setFilter(toMap(filter));
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		
+		checkResultLrt(processAction, null, 0L, 0L);
+		
+		Assert.assertEquals(OperationState.EXECUTED, service.get(bulkAction.getLongRunningTaskId()).getResultState());
 	}
 	
 	private List<IdmLongRunningTaskDto> createTasks(int count) {

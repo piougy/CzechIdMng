@@ -41,7 +41,7 @@ public class LongRunningTaskCancelBulkActionIntegrationTest extends AbstractBulk
 	}
 	
 	@Test
-	public void processBulkActionByIds() {
+	public void testProcessBulkActionByIds() {
 		List<IdmLongRunningTaskDto> tasks = createTasks(5);
 		
 		IdmBulkActionDto bulkAction = findBulkAction(IdmLongRunningTask.class, LongRunningTaskCancelBulkAction.NAME);
@@ -58,7 +58,7 @@ public class LongRunningTaskCancelBulkActionIntegrationTest extends AbstractBulk
 	}
 	
 	@Test
-	public void processBulkActionByFilter() {
+	public void testProcessBulkActionByFilter() {
 		List<IdmLongRunningTaskDto> tasks = createTasks(5);
 		
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
@@ -76,6 +76,22 @@ public class LongRunningTaskCancelBulkActionIntegrationTest extends AbstractBulk
 		Assert.assertEquals(OperationState.CANCELED, service.get(tasks.get(2)).getResultState());
 		Assert.assertEquals(OperationState.RUNNING,service.get(tasks.get(1)).getResultState());
 		Assert.assertEquals(OperationState.RUNNING,service.get(tasks.get(3)).getResultState());
+	}
+	
+	@Test
+	public void testPreventCancelItself() {
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setRunning(Boolean.TRUE);
+		filter.setTaskType(LongRunningTaskCancelBulkAction.class.getCanonicalName());
+		//
+		IdmBulkActionDto bulkAction = findBulkAction(IdmLongRunningTask.class, LongRunningTaskCancelBulkAction.NAME);
+		bulkAction.setTransformedFilter(filter);
+		bulkAction.setFilter(toMap(filter));
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		
+		checkResultLrt(processAction, null, 0L, 0L);
+		
+		Assert.assertEquals(OperationState.EXECUTED, service.get(bulkAction.getLongRunningTaskId()).getResultState());
 	}
 	
 	private List<IdmLongRunningTaskDto> createTasks(int count) {

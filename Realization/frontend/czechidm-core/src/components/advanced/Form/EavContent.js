@@ -333,7 +333,8 @@ class EavContent extends Basic.AbstractContent {
             <Basic.Panel className={
               classnames({
                 last: index === _formInstances.size
-              })}>
+              })
+            }>
 
               <Basic.PanelHeader text={ formDefinitionName }/>
 

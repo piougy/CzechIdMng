@@ -14,15 +14,11 @@ const manager = new ContractSliceGuaranteeManager();
 const identityManager = new IdentityManager();
 
 /**
- * Identity contract's managers and guarantees
+ * Identity contract's managers and guarantees.
  *
  * @author Radek Tomiška
  */
 class ContractSliceGuarantees extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   componentDidMount() {
     this.selectSidebarItem('contract-slice-guarantees');

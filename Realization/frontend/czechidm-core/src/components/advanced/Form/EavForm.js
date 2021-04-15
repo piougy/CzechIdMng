@@ -299,6 +299,6 @@ EavForm.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   formInstance: null,
   readOnly: false,
-  useDefaultValue: true,
+  useDefaultValue: false,
   condensed: false
 };

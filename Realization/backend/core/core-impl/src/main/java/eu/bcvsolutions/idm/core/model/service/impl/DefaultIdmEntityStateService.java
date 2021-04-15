@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmEntityState_;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
 
 /**
- * CRUD for entity states
+ * CRUD for entity states.
  * 
  * @author Radek Tomiška
  *
@@ -38,8 +38,7 @@ public class DefaultIdmEntityStateService
 		extends AbstractEventableDtoService<IdmEntityStateDto, IdmEntityState, IdmEntityStateFilter> 
 		implements IdmEntityStateService {
 
-	@Autowired
-	private ConfidentialStorage confidentialStorage;
+	@Autowired private ConfidentialStorage confidentialStorage;
 	
 	@Autowired
 	public DefaultIdmEntityStateService(

@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 //
 import { Basic, Advanced } from 'czechidm-core';
 import { UniformPasswordManager } from '../../redux';
+//
+const manager = new UniformPasswordManager();
 
 /**
  * Uniform password detail with menu
@@ -10,9 +12,6 @@ import { UniformPasswordManager } from '../../redux';
  * @author Ondrej Kopr
  * @since 10.5.0
  */
-
-const manager = new UniformPasswordManager();
-
 class UniformPassword extends Basic.AbstractContent {
 
   componentDidMount() {
@@ -28,7 +27,8 @@ class UniformPassword extends Basic.AbstractContent {
         <Advanced.DetailHeader
           icon="fa:key"
           entity={ entity }
-          showLoading={ !entity && showLoading }>
+          showLoading={ !entity && showLoading }
+          back="/uniform-password">
           { manager.getNiceLabel(entity) } <small> { this.i18n('acc:content.uniformPassword.edit.header') }</small>
         </Advanced.DetailHeader>
 

@@ -2,11 +2,11 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Helmet from 'react-helmet';
 //
-import { Basic, Utils, Advanced, Enums, Managers } from 'czechidm-core';
+import { Basic, Utils, Managers } from 'czechidm-core';
 import { UniformPasswordManager } from '../../redux';
 
 /**
- * Unifrom password definition detail
+ * Unifrom password definition detail.
  *
  * @author Ondrej Kopr
  * @since 10.5.0
@@ -99,7 +99,6 @@ export default class UniformPasswordDetail extends Basic.AbstractContent {
                 ref="form"
                 showLoading={ _showLoading || showLoading }
                 readOnly={ !manager.canSave(entity, permissions) }>
-
 
                 <Basic.TextField
                   ref="code"

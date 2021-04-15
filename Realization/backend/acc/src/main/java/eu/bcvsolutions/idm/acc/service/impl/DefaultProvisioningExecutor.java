@@ -168,8 +168,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(provisioningOperation, "Provisioning operation is required.");
 		Assert.notNull(provisioningOperation.getSystemEntity(), "System entity is required.");
 		Assert.notNull(provisioningOperation.getProvisioningContext(), "Provisioning context is required.");
-		
-		try{
+		//
+		try {
 			boolean checkNotExecuted = provisioningOperation.isSynchronousProvisioning();
 			if (provisioningOperationService.isNew(provisioningOperation)) {
 				provisioningOperation = persistOperation(provisioningOperation);

@@ -423,6 +423,10 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * The point for this is control end of main LRT. For example we need to ensure that a sync will be ends after
 	 * all provisioning operations will be executed. For that we will create manual event for provisioning operation
 	 * and by it we are able manually completed it (-> sync will be ended after complete all manual events).
+	 * 
+	 * @param entityEvent event to persist
+	 * @return persisted event
+	 * @since 11.0.0
 	 */
 	IdmEntityEventDto createManualEvent(IdmEntityEventDto entityEvent);
 
@@ -431,6 +435,10 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * The point for this is control end of main LRT. For example we need to ensure that a sync will be ends after
 	 * all provisioning operations will be executed. For that we will create manual event for provisioning operation
 	 * and by it we are able manually completed it (-> sync will be ended after complete all manual events).
+	 * 
+	 * @param entityEvent event to complete
+	 * @return persisted event
+	 * @since 11.0.0
 	 */
 	IdmEntityEventDto completeManualEvent(IdmEntityEventDto entityEvent);
 

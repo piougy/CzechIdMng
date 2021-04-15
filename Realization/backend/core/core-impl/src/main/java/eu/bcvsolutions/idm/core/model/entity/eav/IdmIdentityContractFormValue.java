@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 
 /**
- * Identity contracts extended attributes
+ * Identity contracts extended attributes.
  * 
  * @author Radek Tomiška
  *

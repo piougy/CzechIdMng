@@ -74,6 +74,17 @@ public class IdentityContractDeleteProcessor
 		IdmIdentityContractDto contract = event.getContent();
 		Assert.notNull(contract.getId(), "Contract must have a ID!");
 		//
+		// check contract can be deleted - cannot be deleted, when is controlled by slices
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setParentContract(contract.getId());
+		if (contractSliceService.find(sliceFilter, null).getTotalElements() > 0){
+			// This contract is controlled by some slice -> cannot be deleted
+			throw new ResultCodeException(
+					CoreResultCode.CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED, 
+					ImmutableMap.of("contractId", contract.getId())
+			);
+		}
+		//
 		// delete referenced roles
 		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
 		identityRoleService.findAllByContract(contract.getId()).forEach(identityRole -> {
@@ -125,13 +136,6 @@ public class IdentityContractDeleteProcessor
 		contractPositionService.find(positionFilter, null).forEach(position -> {
 			contractPositionService.delete(position);
 		});
-		// delete relation (from slices) on the contract
-		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
-		sliceFilter.setParentContract(contract.getId());
-		if(contractSliceService.find(sliceFilter, null).getTotalElements() > 0){
-			// This contract is controlled by some slice -> cannot be deleted
-			throw new ResultCodeException(CoreResultCode.CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED, ImmutableMap.of("contractId", contract.getId()));
-		}
 		//
 		// delete all contract's delegations 
 		IdmDelegationDefinitionFilter delegationFilter = new IdmDelegationDefinitionFilter();

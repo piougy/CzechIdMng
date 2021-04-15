@@ -10,7 +10,7 @@ import FormInstance from '../../../domain/FormInstance';
 const attributeManager = new FormAttributeManager();
 
 /**
- * Content of eav form by given form instance (= form definition + form values)
+ * Content of eav form by given form instance (= form definition + form values).
  *
  * @author Radek Tomiška
  */

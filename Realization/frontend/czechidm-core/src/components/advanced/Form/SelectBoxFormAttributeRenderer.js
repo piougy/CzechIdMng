@@ -105,7 +105,13 @@ export default class SelectBoxFormAttributeRenderer extends UuidFormAttributeRen
     }
     if (formValue === null) {
       if (useDefaultValue) {
-        return attribute.defaultValue;
+        if (!attribute.multiple || !attribute.defaultValue) {
+          return attribute.defaultValue;
+        }
+        if (_.isArray(attribute.defaultValue)) {
+          return attribute.defaultValue;
+        }
+        return [attribute.defaultValue];
       }
       return null;
     }

@@ -144,15 +144,15 @@ class SelectBox extends AbstractFormComponent {
               }
               this.itemRenderer(results[item], input);
               // Default behavior: Use the first value, but only if exist only one item and select box is required.
-              if (results.length === 1 && this.state.value === null && !!required && useFirstIfOne === undefined) {
+              if (results.length === 1 && !this.state.value && !!required && useFirstIfOne === undefined) {
                 this.onChange(results[item]);
               }
               // Use the first value, but only if exist only one item.
-              if (results.length === 1 && this.state.value === null && useFirstIfOne === true) {
+              if (results.length === 1 && !this.state.value && useFirstIfOne === true) {
                 this.onChange(results[item]);
               }
               // use the first value
-              if (this.state.value === null && useFirst) {
+              if (!this.state.value && useFirst) {
                 this.onChange(results[item]);
               }
             }

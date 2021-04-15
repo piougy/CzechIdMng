@@ -63,6 +63,7 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 
 
 	@Override
+	@Transactional
 	public IdmEntityStateDto createEntityState(AbstractDto entityDto) {
 		Assert.notNull(entityDto, "Entity cannot be null!");
 		Assert.notNull(entityDto.getId(), "Entity ID cannot be null!");
@@ -85,6 +86,7 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 	}
 
 	@Override
+	@Transactional
 	public void endUniformPasswordProcess(UUID transactionId) {
 		Assert.notNull(transactionId, "Transaction cannot be null!");
 
@@ -215,7 +217,7 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 		GuardedString password = this.getPassword(uniformPasswordState);
 		ResultModel model = uniformPasswordState.getResult().getModel();
 		Object successSystemsObj = model.getParameters().get(UniformPasswordManager.SUCCESS_SYSTEM_NAMES);
-		Set<UUID> successSystems = null;
+		Set<UUID> successSystems;
 		if (successSystemsObj instanceof Set) {
 			successSystems = (Set<UUID>) successSystemsObj;
 		} else {
@@ -238,11 +240,12 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void addSystemNameToEntityState(IdmEntityStateDto uniformPasswordState, String systemName) {
 		ResultModel model = uniformPasswordState.getResult().getModel();
 		// Add system name to entity state for uniform password (will be used in bulk notification).
 		Object successSystemNamesObj = model.getParameters().get(UniformPasswordManager.SUCCESS_SYSTEM_NAMES);
-		Set<String> successSystems = null;
+		Set<String> successSystems;
 		if (successSystemNamesObj instanceof Set) {
 			successSystems = (Set<String>) successSystemNamesObj;
 		} else {

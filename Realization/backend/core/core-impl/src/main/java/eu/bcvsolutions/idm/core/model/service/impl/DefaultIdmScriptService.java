@@ -2,10 +2,12 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -41,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority_;
@@ -60,6 +63,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  */
 @Service("scriptService")
 public class DefaultIdmScriptService 
@@ -172,6 +176,42 @@ public class DefaultIdmScriptService
 		}
 		//
 		return backupAndDeploy(dto, foundType, permission);
+	}
+	
+	@Override
+	public IdmScriptDto clone (UUID id) {
+		IdmScriptDto script = get(id);
+		Assert.notNull(script, "Script is required.");
+		script.setId(null);
+		EntityUtils.clearAuditFields(script);
+		return script;
+	}
+	
+	@Override
+	@Transactional
+	public IdmScriptDto duplicate (UUID id) {
+		IdmScriptDto originalScript = get(id);
+		Assert.notNull(originalScript, "Script is required.");
+				
+		// find script authorities
+		IdmScriptAuthorityFilter authorityFilt = new IdmScriptAuthorityFilter();
+		authorityFilt.setScriptId(originalScript.getId());
+		List<IdmScriptAuthorityDto> authorityDtos = scriptAuthorityService.find(authorityFilt, null).getContent();
+		
+		// script attributes duplication
+		String newCode = getUniqueCode(originalScript.getCode(), 0);
+		IdmScriptDto newScript = clone(originalScript.getId());
+		newScript.setCode(newCode);
+		newScript = save(newScript);
+		
+		// script authority
+		for (IdmScriptAuthorityDto authorityDto : authorityDtos) {
+			authorityDto.setId(null);
+			EntityUtils.clearAuditFields(authorityDto);
+			authorityDto.setScript(newScript.getId());
+		}
+		scriptAuthorityService.saveAll(authorityDtos);
+		return newScript;
 	}
 
 	/**
@@ -416,5 +456,26 @@ public class DefaultIdmScriptService
 		}
 		//
 		return predicates;
+	}
+	
+	
+	/**
+	 * Get unique code for script
+	 * 
+	 * @param i
+	 * @return
+	 */
+	private String getUniqueCode(String code, int i) {
+		String newCode;
+		if (i > 0) {
+			newCode = MessageFormat.format("{0}_{1}", code, i);
+		} else {
+			newCode = code;
+		}
+		
+		if (getByCode(newCode) == null) {
+			return newCode;
+		}
+		return getUniqueCode(code, i + 1);
 	}
 }

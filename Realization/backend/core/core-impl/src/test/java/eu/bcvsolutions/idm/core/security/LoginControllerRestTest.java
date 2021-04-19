@@ -33,7 +33,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
@@ -760,7 +759,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		
 	}
 	
-	@Test(expected = ResultCodeException.class)
+	@Test
 	public void testUseDeletedToken() throws Exception {
 		IdmIdentityDto manager = getHelper().createIdentity();
 		getHelper().createIdentityRole(manager, roleConfiguration.getAdminRole());
@@ -785,14 +784,15 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		IdmTokenDto tokenDto = tokenManager.getToken(tokenId);
 		Assert.assertFalse(tokenDto.isDisabled());
 		//
-		// delete tokem
+		// delete token
 		tokenManager.deleteToken(tokenDto.getId());
 		//
 		// test call api
 		getMockMvc()
 				.perform(put(BaseController.BASE_PATH + "/identities")
 				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
-				.contentType(TestHelper.HAL_CONTENT_TYPE));
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().is4xxClientError());
 	}
 	
 	private ResultActions tryLogin(String username, String password) throws Exception {

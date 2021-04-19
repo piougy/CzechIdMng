@@ -64,7 +64,7 @@ public class FormDefinitionDeleteBulkActionIntegrationTest extends AbstractBulkA
 		IdmBulkActionDto bulkAction = findBulkAction(IdmFormDefinition.class, FormDefinitionDeleteBulkAction.NAME);
 		bulkAction.setIdentifiers(defIds);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-		checkResultLrt(processAction, new Long(TEST_COUNT), null, null);
+		checkResultLrt(processAction, Long.valueOf(TEST_COUNT), null, null);
 
 		filter.setMain(null);
 		List<IdmFormDefinitionDto> defsRemain = formDefService.find(filter, null).getContent();
@@ -96,7 +96,7 @@ public class FormDefinitionDeleteBulkActionIntegrationTest extends AbstractBulkA
 		bulkAction.setTransformedFilter(filter);
 		bulkAction.setFilter(toMap(filter));
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-		checkResultLrt(processAction, new Long(TEST_COUNT), null, null);
+		checkResultLrt(processAction, Long.valueOf(TEST_COUNT), null, null);
 
 		filter.setMain(null);
 		List<IdmFormDefinitionDto> defsRemain = formDefService.find(filter, null).getContent();

@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
   - **Why:** This fix solves an issue where some logged messages cannot be saved **to the database** (because the message is too long or contains prohibited characters). The solution is to use a DB appender that solves this.
   - **What to do:** Change a log database appender from ``ch.qos.logback.classic.db.DBAppender`` to ``eu.bcvsolutions.idm.core.exception.IdmDbAppender`` in the log configuration file (**lockback-spring.xml**).
 - 🟠 [#2739](https://redmine.czechidm.com/issues/2739) - **GetDefaultDN Groovy script used by AD Wizard has to be re-deployed.** This script has been updated and has to be re-deployed in order to apply changes in the new version. This script is essential for correct funtion of the AD Wizard.
+- 🟡 [#2758](https://redmine.czechidm.com/issues/2758) - **Java 11 is used and required for using CzechIdM application.** Update to Java 11 in your environment.
 
 ### Developer
 
@@ -30,6 +31,8 @@ All notable changes to this project will be documented in this file.
       - ``jsdom``, ``nock``, ``react-addons-test-utils``, ``redux-mock-store`` - libraries used for tests only - localization tests are executed only - frontend tests were obsolete anyway => we need to redesign test on frontend from scratch in next version.
       - ``react-tools``, ``redux-devtools`` - deprecated dev libraries (an unused in product).
       - ``faker`` - unused dev library (in product) for generating random (~test) data - if it is used in a custom module, please let us know.
+- [#2758](https://redmine.czechidm.com/issues/2758) - **Java 11 is used and required for using, developing and building CzechIdM application.** Update to Java 11 in your environment and configure your IDE to use it.
+
 
 ## [10.8.0]
 

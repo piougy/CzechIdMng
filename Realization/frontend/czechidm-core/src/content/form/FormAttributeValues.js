@@ -25,7 +25,7 @@ export default class FormAttributeValues extends Basic.AbstractContent {
     const forceSearchParameters = new SearchParameters().setFilter('attributeId', this.props.match.params.entityId);
     //
     return (
-      <div className="tab-pane-table-body">
+      <Basic.Div className="tab-pane-table-body">
         { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <FormValueTableComponent
@@ -34,7 +34,7 @@ export default class FormAttributeValues extends Basic.AbstractContent {
           showFilter={ false }
           columns={ _.difference(FormValueTable.defaultProps.columns, ['code', 'name']) }
           className="no-margin"/>
-      </div>
+      </Basic.Div>
     );
   }
 }

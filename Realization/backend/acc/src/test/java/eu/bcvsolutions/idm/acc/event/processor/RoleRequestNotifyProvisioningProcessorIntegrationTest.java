@@ -59,7 +59,6 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
-	@Autowired private TestHelper helper;
 
 	@Before
 	public void init() {

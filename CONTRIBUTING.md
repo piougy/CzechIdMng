@@ -42,7 +42,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Configuration
   * Use ``Configurable`` interface for configurations.
   *  If the name of a configuration item contains the ``password`` or ``token`` chain, the value of the configuration item is hidden in the rest interface listing (or rather replaced with substitute characters).
-  * It is better to use constants for configuration properties (keys), e.g. ``ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.delete"`` - using separator ot other constant in key name is not preferred - configuration property can be simply found by key suffix (``"ctrl-f" + "core.identity.delete"``). Another benefit - key is readable without finding other constant or string concatiation in code. 
+  * It is better to use constants for configuration properties (keys), e.g. ``ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.delete"`` - using separator ot other constant in key name is not preferred - configuration property can be simply found by key suffix (``"ctrl-f" + "core.identity.delete"``). Another benefit - key is readable without finding other constant or string concatiation in code.
   * Configuration properties (constants in code) should start with ``PROPERTY_`` prefix.
   * Registrable component parameters configurable by eav form (constants in code) should start with ``PARAMETER_`` prefix.
 * Database
@@ -91,7 +91,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Commas last,
 * 2 spaces for indentation
 * Prefer `'` over `"`
-* 80 character line length
+* 150 character line length
 * Do not use the optional parameters of `setTimeout` and `setInterval`
 * Use JSDoc for documentation (`@author` etc.) https://developers.google.com/closure/compiler/docs/js-for-compiler
 * Make tests (mocha, chai)

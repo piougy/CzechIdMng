@@ -821,7 +821,7 @@ public class DefaultImportManager implements ImportManager {
 					}
 
 					ReadWriteDtoService<BaseDto, BaseFilter> dtoService = getDtoService(serviceDtoClass);
-					BaseFilter filterBase = dtoService.getFilterClass().newInstance();
+					BaseFilter filterBase = dtoService.getFilterClass().getDeclaredConstructor().newInstance();
 
 					// Fill super-parent-property by superParentId (call setter = check if filter is
 					// implemented).

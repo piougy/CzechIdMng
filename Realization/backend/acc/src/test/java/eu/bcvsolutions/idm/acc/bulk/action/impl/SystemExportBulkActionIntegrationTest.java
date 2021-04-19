@@ -399,7 +399,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkAct
 	
 	@Test
 	public void testExportAndImportConnectorOperationOptions() {
-		final Integer testPageSizeVal = new Integer(123456);
+		final Integer testPageSizeVal = Integer.valueOf(123456);
 		final String testAttrsToGetVal = "testVAlue1";
 		SysSystemDto system = createSystem();
 

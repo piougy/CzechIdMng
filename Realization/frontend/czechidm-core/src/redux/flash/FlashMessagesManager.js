@@ -306,7 +306,8 @@ export default class FlashMessagesManager {
         || error.statusEnum === 'LOG_IN'
         || error.statusEnum === 'AUTH_EXPIRED'
         || error.statusEnum === 'AUTHORITIES_CHANGED'
-        || error.statusEnum === 'TOKEN_NOT_FOUND') {
+        || error.statusEnum === 'TOKEN_NOT_FOUND'
+        || error.statusEnum === 'TWO_FACTOR_AUTH_REQIURED') {
       return true;
     }
     return false;

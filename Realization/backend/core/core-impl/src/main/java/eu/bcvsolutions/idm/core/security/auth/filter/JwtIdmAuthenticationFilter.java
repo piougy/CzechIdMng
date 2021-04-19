@@ -70,8 +70,17 @@ public class JwtIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 			LOG.debug("User [{}] successfully logged in.", auth.getName());
 			return auth.isAuthenticated();
 		} catch (ResultCodeException ex) {
-			// publish additional authentication requirement
-			throw ex;
+			String statusEnum = ex.getError().getError().getStatusEnum();
+			if (CoreResultCode.TOKEN_NOT_FOUND.getCode().equals(statusEnum)
+					|| CoreResultCode.AUTHORITIES_CHANGED.getCode().equals(statusEnum)
+					|| CoreResultCode.AUTH_EXPIRED.getCode().equals(statusEnum)) {
+				LOG.warn("Invalid token, reason: [{}]", ex.getMessage());
+				ctx.setCodeEx(ex);
+				ctx.setToken(claims); // only expired or authorities changed
+			} else {
+				// publish additional authentication requirement
+				throw ex;
+			}
 		} catch (AuthenticationException ex) {
 			LOG.warn("Invalid authentication, reason: [{}]", ex.getMessage());
 			ctx.setAuthEx(ex);

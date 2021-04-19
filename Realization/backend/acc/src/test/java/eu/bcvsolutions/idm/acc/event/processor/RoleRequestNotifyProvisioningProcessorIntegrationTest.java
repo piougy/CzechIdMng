@@ -64,7 +64,8 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 	@Before
 	public void init() {
 		// Workaround ... manual delete of all automatic roles, sync, mappings ... Because previous tests didn't make a delete well.
-		helper.cleaner();
+		// Sometime is necessary, some time not :-(.
+		// helper.cleaner();
 	}
 	
 	@Test

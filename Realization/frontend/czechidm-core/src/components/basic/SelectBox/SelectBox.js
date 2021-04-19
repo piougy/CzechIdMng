@@ -136,6 +136,7 @@ class SelectBox extends AbstractFormComponent {
 
           const result = json;
           let data = null;
+          let addEmptyOption = true;
           const results = result._embedded[manager.getCollectionType()];
           if (results) {
             for (const item in results) {
@@ -143,6 +144,12 @@ class SelectBox extends AbstractFormComponent {
                 continue;
               }
               this.itemRenderer(results[item], input);
+              // Disable a clear button if only one item is available and no filter (input) is used and if a select box is required.
+              // Private property '_disableClear' was created only for this purpose.
+              if (results.length === 1 && clearable && !input && !!required) {
+                results[item]._disableClear = true;
+                addEmptyOption = false;
+              }
               // Default behavior: Use the first value, but only if exist only one item and select box is required.
               if (results.length === 1 && !this.state.value && !!required && useFirstIfOne === undefined) {
                 this.onChange(results[item]);
@@ -151,7 +158,7 @@ class SelectBox extends AbstractFormComponent {
               if (results.length === 1 && !this.state.value && useFirstIfOne === true) {
                 this.onChange(results[item]);
               }
-              // use the first value
+              // Use the first value.
               if (!this.state.value && useFirst) {
                 this.onChange(results[item]);
               }
@@ -184,7 +191,7 @@ class SelectBox extends AbstractFormComponent {
               }
             }
             // add empty option at start
-            if (clearable && !multiSelect && data.options.length > 0) {
+            if (addEmptyOption && clearable && !multiSelect && data.options.length > 0) {
               const emptyOption = this.getEmptyOption(emptyOptionLabel);
               if (emptyOption) {
                 if (result.page.number === 0) { // only once
@@ -678,7 +685,7 @@ class SelectBox extends AbstractFormComponent {
         placeholder={this.getPlaceholder(placeholder)}
         searchingText={this.i18n('component.basic.SelectBox.searchingText')}
         searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        clearable={clearable}
+        clearable={clearable && (!value || ! value._disableClear === true)}
         onInputChange={this.onInputChange.bind(this)}
         options={ options.map(option => {
           const _option = _.clone(option);

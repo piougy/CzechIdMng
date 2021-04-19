@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
- * Tree nodes
+ * Tree nodes.
  * 
  * @author Ondřej Kopr
  */
@@ -137,7 +137,7 @@ public class IdmTreeNode
 	}
 
 	/**
-	 * Children count based on index
+	 * Children count based on index.
 	 * 
 	 * @return
 	 */

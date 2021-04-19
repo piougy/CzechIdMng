@@ -65,7 +65,13 @@ public class AuthenticationExceptionContext {
 	}
 
 	public boolean isAuthoritiesChanged() {
-		return codeEx != null && getStatusEnum(codeEx).equals(CoreResultCode.AUTHORITIES_CHANGED.getCode());
+		return codeEx != null 
+				&& 
+				(
+						getStatusEnum(codeEx).equals(CoreResultCode.AUTHORITIES_CHANGED.getCode())
+						||
+						getStatusEnum(codeEx).equals(CoreResultCode.TOKEN_NOT_FOUND.getCode())
+				);
 	}
 
 	public boolean isDisabledOrNotExists() {

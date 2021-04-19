@@ -692,6 +692,9 @@
         "nextAttempt": {
           "header": "Další pokus",
           "label": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn po <strong>{{nextAttempt}}</strong>"
+        },
+        "switchShowChangesOnly": {
+          "label": "Pouze změny určené k provisioningu"
         }
       },
       "filter": {

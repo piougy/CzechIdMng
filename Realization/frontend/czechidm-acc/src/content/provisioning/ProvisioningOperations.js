@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import _ from 'lodash';
 //
 import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
@@ -82,6 +83,16 @@ class ProvisioningOperations extends Basic.AbstractContent {
   }
 
   /**
+   * Switching ALL values vs CHANGES ONLY of the displayed attributes in the detail table.
+   * @return {[type]} [description]
+   */
+  _toggleShowChangesOnly() {
+    this.setState({
+      showChangesOnly: !this.refs.switchShowChangesOnly.getValue()
+    });
+  }
+
+  /**
    * Rearranges data to suitable form used in following functions.
    * It also solves siuations when data to display is in connectorObject only
    * and is missing in other in accountObject e.g. __PASSWORD__ provisioning.
@@ -149,7 +160,15 @@ class ProvisioningOperations extends Basic.AbstractContent {
     if (!detail.entity) {
       return null;
     }
-    const resultContent = this._reorganizeTableData(detail);
+    let resultContent = this._reorganizeTableData(detail);
+
+    // filter out unchanged values if set so
+    if (this.state.showChangesOnly) {
+      resultContent = _.filter(resultContent, item => {
+        return item.hasOwnProperty('changedVal');
+      });
+    }
+
     // sort by name
     resultContent.sort((lItem, rItem) => {
       const l = lItem.property;
@@ -217,18 +236,12 @@ class ProvisioningOperations extends Basic.AbstractContent {
           trigger={['click', 'hover']}
           value={ helpText }
           className="abstract-entity-info-popover">
-          {
-            <span>
-              <Basic.Button
-                level="link"
-                style={{ padding: 0, marginLeft: 3 }}
-                icon="fa:question-circle"/>
-            </span>
-          }
+          <span>
+            <Basic.Icon level="success" icon="question-sign" />
+          </span>
         </Basic.Popover>
       </div>
     );
-
   }
 
   /**
@@ -413,6 +426,11 @@ class ProvisioningOperations extends Basic.AbstractContent {
                     }
                   </div>
                 }
+                <Basic.ToggleSwitch
+                  ref="switchShowChangesOnly"
+                  label={this.i18n('detail.switchShowChangesOnly.label')}
+                  onChange={this._toggleShowChangesOnly.bind(this)}
+                />
                 <Basic.Row>
                   <Basic.Col lg={ 12 }>
                     <Basic.Table

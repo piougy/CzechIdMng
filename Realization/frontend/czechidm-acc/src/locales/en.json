@@ -692,6 +692,9 @@
         "nextAttempt": {
           "header": "Next attempt",
           "label": "<strong>Attempt:</strong> {{currentAttempt}} / {{maxAttempts}}, Next attempt will execute after <strong>{{nextAttempt}}</strong>"
+        },
+        "switchShowChangesOnly": {
+          "label": "Changes for provisioning only"
         }
       },
       "filter": {

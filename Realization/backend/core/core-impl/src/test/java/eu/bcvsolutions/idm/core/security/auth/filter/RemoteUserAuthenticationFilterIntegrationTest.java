@@ -105,7 +105,7 @@ public class RemoteUserAuthenticationFilterIntegrationTest extends AbstractRestT
 		getMockMvc().perform(get(getRemotePath())
 				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
 				.contentType(TestHelper.HAL_CONTENT_TYPE))
-			.andExpect(status().is4xxClientError());
+			.andExpect(status().isUnauthorized());
 	}
 	
 	@Test

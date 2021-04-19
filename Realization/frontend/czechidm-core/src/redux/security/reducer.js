@@ -25,7 +25,8 @@ const INITIAL_STATE = {
     authorities: [], // identity authorities
     profile: null, // identity profile @since 9.3.0
     navigationCollapsed: false,
-    originalUsername: null // before switch
+    originalUsername: null, // before switch
+    twoFactorToken: null
   }
 };
 
@@ -87,7 +88,8 @@ export default function reduce(state = INITIAL_STATE, action) {
           isExpired: true,
           showLoading: false,
           isTryRemoteLogin: true,
-          tokenCIDMST: null
+          tokenCIDMST: null,
+          twoFactorToken: action.twoFactorToken === undefined ? null : action.twoFactorToken
         })
       });
     }

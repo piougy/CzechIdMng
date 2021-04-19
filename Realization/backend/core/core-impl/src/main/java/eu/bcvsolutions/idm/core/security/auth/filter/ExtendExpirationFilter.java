@@ -67,9 +67,13 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 	}
 
 	private void handleToken(HttpServletRequest req, HttpServletResponse res) {
-		if (securityService.isAuthenticated() && isExtendExpiration()) {
-			doExtendExpiration(req, res);
+		if (securityService.isAuthenticated()) {
+			if (isExtendExpiration()) {
+				// try to extend expiration
+				doExtendExpiration(req, res);
+			}
 		} else {
+			// not authenticated => check and throw authentication exceptions
 			doCheckTokenExpired(req, res);
 		}
 	}

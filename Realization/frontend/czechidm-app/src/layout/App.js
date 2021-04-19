@@ -91,7 +91,7 @@ export class App extends Basic.AbstractContent {
     }
     const formData = this.refs.form.getData();
     const verificationCode = formData.verificationCode;
-    const { token } = this.state;
+    const token = this.props.userContext.twoFactorToken || this.state.token;
     this.context.store.dispatch(securityManager.loginTwoFactor({ token, verificationCode }, (result, error) => {
       if (error) {
         if (error.statusEnum && error.statusEnum === 'MUST_CHANGE_IDM_PASSWORD') {
@@ -146,7 +146,8 @@ export class App extends Basic.AbstractContent {
 
   render() {
     const { userContext, bulk, appReady, navigationCollapsed, hideFooter } = this.props;
-    const { isLogout, showTwoFactor } = this.state;
+    const { isLogout } = this.state;
+    const showTwoFactor = this.state.showTwoFactor || userContext.twoFactorToken !== null;
     const titleTemplate = `%s | ${ this.i18n('app.name') }`;
     const classnames = classNames(
       { 'with-sidebar': !userContext.isExpired && Managers.SecurityManager.isAuthenticated(userContext) },

@@ -35,7 +35,6 @@ public class RemoteUserAuthenticationFilter extends SsoIdmAuthenticationFilter {
 	@Override
 	public boolean authorize(HttpServletRequest request, HttpServletResponse response) {
 		String remoteUser = request.getRemoteUser();
-		// String remoteUser = "tomiska";
 		//
 		LOG.debug("Starting filter authorization, value of the remote user is: [{}]", remoteUser);
 		//

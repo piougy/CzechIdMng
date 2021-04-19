@@ -269,9 +269,16 @@ export default class FlashMessagesManager {
           }
         }
         this._logoutImmediatelly(); // we dont want to propagate LOGOUT dispatch event ... we want propagate new event:
-        dispatch({
-          type: 'RECEIVE_LOGIN_EXPIRED'
-        });
+        if (error.statusEnum && error.statusEnum === 'TWO_FACTOR_AUTH_REQIURED') {
+          dispatch({
+            type: 'RECEIVE_LOGIN_EXPIRED',
+            twoFactorToken: error.parameters.token
+          });
+        } else {
+          dispatch({
+            type: 'RECEIVE_LOGIN_EXPIRED'
+          });
+        }
       } else {
         dispatch(this.addMessage(errorMessage));
       }

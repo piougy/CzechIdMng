@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Authentication filter which enables login to IdM by a request remote user.
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -31,7 +31,7 @@ public class RemoteUserAuthenticationFilter extends SsoIdmAuthenticationFilter {
 	public String getName() {
 		return FILTER_NAME;
 	}
-	
+
 	@Override
 	public boolean authorize(HttpServletRequest request, HttpServletResponse response) {
 		String remoteUser = request.getRemoteUser();
@@ -40,13 +40,13 @@ public class RemoteUserAuthenticationFilter extends SsoIdmAuthenticationFilter {
 		//
 		return super.authorize(remoteUser, request, response);
 	}
-	
+
 	@Override
 	public boolean authorize(String token, HttpServletRequest request, HttpServletResponse response) {
 		// prevent to authorize by header
 		return false;
 	}
-	
+
 	@Override
 	protected boolean isSsoDisabledForIdentity(IdmIdentityDto identity) {
 		// all identities can be authenticated thru remote user

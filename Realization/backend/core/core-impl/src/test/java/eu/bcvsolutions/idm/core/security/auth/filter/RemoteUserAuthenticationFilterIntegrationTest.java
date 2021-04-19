@@ -22,7 +22,10 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
+import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -46,6 +49,7 @@ public class RemoteUserAuthenticationFilterIntegrationTest extends AbstractRestT
 	@Autowired private IdmConfigurationService configurationService;
 	@Autowired private RemoteUserAuthenticationFilter filter;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private TokenManager tokenManager;
 	
 	@Before
 	public void init() {
@@ -71,6 +75,37 @@ public class RemoteUserAuthenticationFilterIntegrationTest extends AbstractRestT
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(jsonPath("$.username", equalTo(TEST_SSO_USER_SSO_ENABLED)));
+	}
+	
+	
+	@Test
+	public void testRemoteLoginWithMissingToken() throws Exception {
+		LoginDto login = getHelper().loginAdmin();
+		getHelper().logout(); // ~ disable token
+		tokenManager.deleteToken(login.getAuthentication().getId()); // ~ delete token
+		//
+		getMockMvc().perform(get(getRemotePath())
+				.with(request -> {
+                    request.setRemoteUser(TEST_SSO_USER_SSO_ENABLED);
+                    return request;
+                })
+				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(jsonPath("$.username", equalTo(TEST_SSO_USER_SSO_ENABLED)));
+	}
+	
+	@Test
+	public void testRemoteLoginWithMissingTokenWithouAuthentication() throws Exception {
+		LoginDto login = getHelper().loginAdmin();
+		getHelper().logout(); // ~ disable token
+		tokenManager.deleteToken(login.getAuthentication().getId()); // ~ delete token
+		//
+		getMockMvc().perform(get(getRemotePath())
+				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().is4xxClientError());
 	}
 	
 	@Test

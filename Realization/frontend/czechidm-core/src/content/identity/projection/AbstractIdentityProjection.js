@@ -133,7 +133,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     const { location } = this.props;
     const { generatePassword } = this.state;
     const isNew = !!Utils.Ui.getUrlParameter(location, 'new');
-    const _contractPositions = contractPositions || this.props.contractPositions || [];
+    const _contractPositions = contractPositions || [];
     let activeKey = null;
     //
     // prepare form friendly projection

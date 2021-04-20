@@ -37,8 +37,7 @@ function select(state, component) {
     userContext: state.security.userContext,
     showLoading: identityProjectionManager.isShowLoading(state, null, !identityProjection ? entityId : identityProjection.id),
     _imageUrl: profile ? profile.imageUrl : null,
-    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
-    contractPositions: codeListManager.getCodeList(state, 'contract-position') || []
+    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange')
   };
 }
 

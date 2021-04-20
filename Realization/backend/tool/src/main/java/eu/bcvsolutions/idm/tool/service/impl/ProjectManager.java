@@ -360,6 +360,18 @@ public class ProjectManager {
 	 */
 	private void prepareFrontendMavenProject(File extractedFrontendFolder, File targetFolder) throws IOException {
 		String frontendMavenProject = "eu/bcvsolutions/idm/build/fe-pom.xml";
+		File appModulePackage = new File(extractedFrontendFolder, "package.json");
+
+		try (InputStream is = new FileInputStream(appModulePackage)) {
+			JsonNode json = mapper.readTree(IOUtils.toString(is, AttachableEntity.DEFAULT_CHARSET));
+			//
+			if (json.get("resolutions") == null 
+					&& json.get("devDependencies").get("gulp").asText().equals("3.9.0")) {
+				LOG.warn("Frontend product will be built under old Node version 10. "
+						+ "Node version 12 is availble for CzechIdM >= 10.4.0.");
+				frontendMavenProject = "eu/bcvsolutions/idm/build/fe-pom-node-10.xml";
+			}
+		}
 		//
 		FileUtils.copyInputStreamToFile(
 				new ClassPathResource(frontendMavenProject).getInputStream(),

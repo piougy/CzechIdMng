@@ -4,14 +4,12 @@ import {
   IdentityManager,
   IdentityProjectionManager,
   DataManager,
-  ConfigurationManager,
-  CodeListManager
+  ConfigurationManager
 } from '../../../redux';
 import AbstractIdentityProjection from './AbstractIdentityProjection';
 
 const identityManager = new IdentityManager();
 const identityProjectionManager = new IdentityProjectionManager();
-const codeListManager = new CodeListManager();
 
 /**
  * Univarzal form for identity projection..

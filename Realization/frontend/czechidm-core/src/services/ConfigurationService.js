@@ -54,7 +54,7 @@ export default class ConfigurationService extends AbstractService {
    */
   getPublicConfigurations() {
     return RestApiService
-      .get(RestApiService.getUrl(`/public${ this.getApiPath() }`), '')
+      .get(RestApiService.getUrl(`/public${ this.getApiPath() }`))
       .then(response => {
         return response.json();
       })

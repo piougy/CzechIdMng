@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -77,6 +78,8 @@ public class IdentityRemoveContractGuaranteeBulkAction extends AbstractContractG
 				} catch (ForbiddenEntityException ex) {
 					LOG.warn("Not authorized to remove contract guarantee [{}] of contract [{}].", guarantee.getGuarantee(), contractId, ex);
 					logContractGuaranteePermissionError(guarantee, guarantee.getGuarantee(), contractId, IdmBasePermission.DELETE, ex);
+				} catch (ResultCodeException ex) {
+					logResultCodeException(guarantee, ex);
 				}
 			}
 		});

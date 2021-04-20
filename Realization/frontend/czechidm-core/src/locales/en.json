@@ -7479,6 +7479,14 @@
       "title": "Contract cannot be deleted!",
       "message": "Contract {{contractId}} cannot be deleted, because is controlled by time slices! Contract will be removed, when last of slice will be deleted. (Contract identifier [{{contractId}}])"
     },
+    "CONTRACT_IS_CONTROLLED_GUARANTEE_CANNOT_BE_MODIFIED": {
+      "title": "Contract guarantee cannot be modified!",
+      "message": "Contract guarantees of {{contractId}} cannot be modified, because the contract is controlled by time slices! Contract guarantees can be modified via valid contract slice."
+    },
+    "CONTRACT_IS_CONTROLLED_GUARANTEE_CANNOT_BE_DELETED": {
+      "title": "Contract guarantee cannot be deleted!",
+      "message": "Contract guarantees of {{contractId}} cannot be deleted, because the contract is controlled by time slices! Contract guarantees can be deleted via valid contract slice."
+    },
     "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
       "title": "The [{{definition}}] policy does not have a user lockout timeout defined!",
       "message": "The [[{definition}}] policy defines the maximum number of logon attempts but does not have a user lockout timeout defined!"

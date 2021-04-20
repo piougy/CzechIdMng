@@ -47,6 +47,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
+import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
@@ -417,7 +419,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 					.filter(cg -> guarantee.getGuarantee().equals(cg.getGuarantee())) //
 					.findFirst() //
 					.isPresent(); //
-		}).forEach(guaranteeToAdd -> contractGuaranteeService.save(guaranteeToAdd));
+		}).forEach(guaranteeToAdd -> {
+			ContractGuaranteeEvent event = new ContractGuaranteeEvent(
+					contractGuaranteeService.isNew(guaranteeToAdd) ? ContractGuaranteeEventType.CREATE
+							: ContractGuaranteeEventType.UPDATE,
+					guaranteeToAdd, 
+					ImmutableMap.of(ContractSliceManager.SKIP_CHECK_FOR_SLICES, Boolean.TRUE));
+			contractGuaranteeService.publish(event);
+		});
 
 		// Find and remove guarantees which missing in the current result set
 		currentGuarantees.stream().filter(guarantee -> { //
@@ -425,7 +434,13 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 					.filter(cg -> guarantee.getGuarantee().equals(cg.getGuarantee())) //
 					.findFirst() //
 					.isPresent(); //
-		}).forEach(guaranteeToRemove -> contractGuaranteeService.delete(guaranteeToRemove));
+		}).forEach(guaranteeToRemove -> {
+			ContractGuaranteeEvent event = new ContractGuaranteeEvent(
+					ContractGuaranteeEventType.DELETE,
+					guaranteeToRemove, 
+					ImmutableMap.of(ContractSliceManager.SKIP_CHECK_FOR_SLICES, Boolean.TRUE));
+			contractGuaranteeService.publish(event);
+		});
 
 	}
 

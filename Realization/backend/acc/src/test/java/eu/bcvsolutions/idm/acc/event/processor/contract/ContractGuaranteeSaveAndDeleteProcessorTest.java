@@ -2,11 +2,15 @@ package eu.bcvsolutions.idm.acc.event.processor.contract;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +22,20 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmContractSliceGuarantee_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -39,6 +52,9 @@ public class ContractGuaranteeSaveAndDeleteProcessorTest extends AbstractIntegra
 	
 	@Autowired
 	private IdmContractGuaranteeService contractGuaranteeService;
+	
+	@Autowired
+	private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	
 	@Autowired
 	private SysProvisioningArchiveService provisioningArchiveService;
@@ -197,5 +213,83 @@ public class ContractGuaranteeSaveAndDeleteProcessorTest extends AbstractIntegra
 		filter.setEntityIdentifier(identity.getId());
 		List<SysProvisioningArchiveDto> content = provisioningArchiveService.find(filter, null).getContent();
 		assertEquals(0, content.size()); 
+	}
+	
+	@Test
+	public void testDeleteGuaranteeOfContractWithSlice() {
+		IdmIdentityDto sliceGuarantee = getHelper().createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmContractSliceDto slice = getHelper().createContractSlice(identity, null, LocalDate.now().minusDays(1), null, null);
+		UUID contractId = slice.getParentContract();
+		getHelper().createContractSliceGuarantee(slice.getId(), sliceGuarantee.getId());
+
+		IdmContractSliceGuaranteeFilter sliceGuaranteefilter = new IdmContractSliceGuaranteeFilter();
+		sliceGuaranteefilter.setGuaranteeId(sliceGuarantee.getId());
+		List<IdmContractSliceGuaranteeDto> sliceGuarantees = contractSliceGuaranteeService.find(sliceGuaranteefilter, null).getContent();
+		Assert.assertEquals(1, sliceGuarantees.size());
+		
+		IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
+		guaranteeFilter.setIdentityContractId(contractId);
+		List<IdmContractGuaranteeDto> contractGuarantees = contractGuaranteeService.find(guaranteeFilter, null).getContent();
+		Assert.assertEquals(1, contractGuarantees.size());
+		
+		IdmIdentityDto sliceGuaranteeIdent = DtoUtils.getEmbedded(sliceGuarantees.get(0),IdmContractSliceGuarantee_.guarantee);
+		IdmIdentityDto contractGuaranteeIdent = DtoUtils.getEmbedded(contractGuarantees.get(0),IdmContractSliceGuarantee_.guarantee);
+		Assert.assertEquals(sliceGuaranteeIdent.getId(), contractGuaranteeIdent.getId());
+		
+		try {
+			contractGuaranteeService.delete(contractGuarantees.get(0));
+			fail("Contract guarantee can't be deleted directly when slice is applied");
+		} catch (ResultCodeException ex) {
+			Assert.assertTrue(CoreResultCode.CONTRACT_IS_CONTROLLED_GUARANTEE_CANNOT_BE_DELETED.toString()
+					.equals(ex.getError().getErrors().get(0).getStatusEnum()));
+		}
+		
+		// guarantee can be still deleted via contract slice operation
+		contractSliceGuaranteeService.delete(sliceGuarantees.get(0));
+		
+		sliceGuarantees = contractSliceGuaranteeService.find(sliceGuaranteefilter, null).getContent();
+		Assert.assertEquals(0, sliceGuarantees.size());
+		
+		contractGuarantees = contractGuaranteeService.find(guaranteeFilter, null).getContent();
+		Assert.assertEquals(0, contractGuarantees.size());
+	}
+	
+	@Test
+	public void testCreateGuaranteeOfContractWithSlice() {
+		IdmIdentityDto sliceGuarantee = getHelper().createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmContractSliceDto slice = getHelper().createContractSlice(identity, null, LocalDate.now().minusDays(1), null, null);
+		UUID contractId = slice.getParentContract();
+		
+		// guarantee can't be created directly
+		try {
+			getHelper().createContractGuarantee(contractId, sliceGuarantee.getId());
+			fail("Contract guarantee can't be created directly when slice is applied");
+		} catch (ResultCodeException ex) {
+			Assert.assertTrue(CoreResultCode.CONTRACT_IS_CONTROLLED_GUARANTEE_CANNOT_BE_MODIFIED.toString()
+					.equals(ex.getError().getErrors().get(0).getStatusEnum()));
+		}
+		
+		IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
+		guaranteeFilter.setIdentityContractId(contractId);
+		List<IdmContractGuaranteeDto> contractGuarantees = contractGuaranteeService.find(guaranteeFilter, null).getContent();
+		Assert.assertEquals(0, contractGuarantees.size());
+		
+		// contract slice guarantee can be created
+		getHelper().createContractSliceGuarantee(slice.getId(), sliceGuarantee.getId());
+
+		IdmContractSliceGuaranteeFilter sliceGuaranteefilter = new IdmContractSliceGuaranteeFilter();
+		sliceGuaranteefilter.setGuaranteeId(sliceGuarantee.getId());
+		List<IdmContractSliceGuaranteeDto> sliceGuarantees = contractSliceGuaranteeService.find(sliceGuaranteefilter, null).getContent();
+		Assert.assertEquals(1, sliceGuarantees.size());
+
+		// applying slice with guarantee causes creating of contract guarantee which is correct
+		contractGuarantees = contractGuaranteeService.find(guaranteeFilter, null).getContent();
+		Assert.assertEquals(1, contractGuarantees.size());
+		
+		IdmIdentityDto sliceGuaranteeIdent = DtoUtils.getEmbedded(sliceGuarantees.get(0),IdmContractSliceGuarantee_.guarantee);
+		IdmIdentityDto contractGuaranteeIdent = DtoUtils.getEmbedded(contractGuarantees.get(0),IdmContractSliceGuarantee_.guarantee);
+		Assert.assertEquals(sliceGuaranteeIdent.getId(), contractGuaranteeIdent.getId());
 	}
 }

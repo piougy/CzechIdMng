@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -84,6 +85,9 @@ public class IdentityAddContractGuaranteeBulkAction extends AbstractContractGuar
 					LOG.warn("Not authorized to set contract guarantee [{}] of contract [{}].", guaranteeId, contractId, ex);
 					IdmIdentityContractDto dto = identityContractService.get(contractId);
 					logContractGuaranteePermissionError(dto, guaranteeId, contractId, IdmBasePermission.CREATE, ex);
+				} catch (ResultCodeException ex) {
+					IdmIdentityContractDto dto = identityContractService.get(contractId);
+					logResultCodeException(dto, ex);
 				}
 			}
 		}

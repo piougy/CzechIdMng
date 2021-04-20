@@ -7531,6 +7531,14 @@
       "title": "Pracovní pozici není možné odstranit.",
       "message": "Pracovní pozici není možné odstranit, protože je kontrolována časovým řezem! Pracovní pozice bude odstraněna, po odstranění jejího posledního časového řezu. (Identifikátor pozice [{{contractId}}])"
     },
+    "CONTRACT_IS_CONTROLLED_GUARANTEE_CANNOT_BE_MODIFIED": {
+      "title": "Garant kontraktu nemůže být změněn!",
+      "message": "Garanti kontraktu {{contractId}} nemohou být změněni, protože kontrakt je řízen časovým řezem! Garanti kontraktu mohou být měněni prostřednictvím platného časového řezu."
+    },
+    "CONTRACT_IS_CONTROLLED_GUARANTEE_CANNOT_BE_DELETED": {
+      "title": "Garant kontraktu nemůže být odstraněn!",
+      "message": "Garanti kontraktu {{contractId}} nemohou být odstraněni, protože kontrakt je řízen časovým řezem! Garanti kontraktu mohou být odstraněni prostřednictvím platného časového řezu."
+    },
     "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
       "title": "Politika [{{definition}}] nemá definovaný interval blokování!",
       "message": "Politika [{{definition}}] definuje maximální počet pokusů přihlášení, ale nemá definovaný časový interval blokování uživatele!"

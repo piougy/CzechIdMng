@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -188,6 +189,13 @@ public abstract class AbstractContractGuaranteeBulkAction extends AbstractBulkAc
 										"permission", permission.toString(), 
 										"guaranteeId", String.valueOf(guaranteeId), 
 										"contractId", String.valueOf(contractId))))
+						.build());
+	}
+	
+	protected void logResultCodeException(AbstractDto dto, ResultCodeException e) {
+		logItemProcessed(dto,
+				new OperationResult.Builder(OperationState.NOT_EXECUTED)
+						.setException(e)
 						.build());
 	}
 	

@@ -317,7 +317,8 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                     { Utils.Ui.getSimpleJavaType(data[rowIndex][property]) }
                   </span>
                 );
-              }}
+              }
+            }
           />
           <Advanced.Column
             property="ownerId"
@@ -335,7 +336,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                         entityIdentifier={ entity[property] }
                         entity={ entity.content }
                         face="popover"
-                        showDetailLink={ false }
+                        showLink={ false }
                         showEntityType={ false }
                         showIcon
                         className="deleted"/>

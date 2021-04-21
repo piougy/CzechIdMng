@@ -180,7 +180,7 @@ public class DefaultIdmScriptService
 	
 	@Override
 	public IdmScriptDto clone (UUID id) {
-		IdmScriptDto script = get(id);
+		IdmScriptDto script = this.get(id);
 		Assert.notNull(script, "Script is required.");
 		script.setId(null);
 		EntityUtils.clearAuditFields(script);

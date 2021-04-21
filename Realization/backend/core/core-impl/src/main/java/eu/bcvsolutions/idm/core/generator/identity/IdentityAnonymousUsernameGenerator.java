@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.generator.identity;
 import java.math.BigDecimal;
 import java.lang.Math;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,11 +50,13 @@ public class IdentityAnonymousUsernameGenerator extends AbstractValueGenerator<I
 	private static final int MIN_GENERATED_NUMBER_LENGTH = 1;
 	private static final int MAX_GENERATED_NUMBER_LENGTH = 9;
 	private static final int GENERATE_ATTEMPTS = 5;
-	private static final int SEARCH_PAGE_SIZE = 1000; 
+	private static final int SEARCH_PAGE_SIZE = 1000;
+	
+	private Random randomGenerator = new Random();
 
 	@Autowired
 	private IdmIdentityService identityService;
-	
+
 	@Override
 	public String getName() {
 		return GENERATOR_NAME;
@@ -287,7 +290,7 @@ public class IdentityAnonymousUsernameGenerator extends AbstractValueGenerator<I
 	 * @return
 	 */
 	private int generateNumberPart(int max) {
-		return (int)(Math.random() * max);
+		return randomGenerator.nextInt(max + 1);
 	}
 	
 	/**

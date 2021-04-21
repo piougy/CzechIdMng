@@ -61,7 +61,7 @@ public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIden
 
 		if (!Objects.equals(newProjectionId, oldProjectionId)) {
 			identity.setFormProjection(newProjectionId);
-			identity = identityService.save(identity);
+			identityService.save(identity);
 		}
 		return new OperationResult.Builder(OperationState.EXECUTED).build();
 	}

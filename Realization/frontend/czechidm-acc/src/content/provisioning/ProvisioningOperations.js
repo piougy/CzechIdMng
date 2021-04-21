@@ -50,7 +50,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
         show: true,
         entity,
         isArchive
-      }
+      },
+      showChangesOnly: true
     });
   }
 
@@ -268,7 +269,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
   render() {
     const { forceSearchParameters, columns, uiKey, showDeleteAllButton } = this.props;
-    const { detail, activeKey} = this.state;
+    const { detail, activeKey, showChangesOnly} = this.state;
 
     const tableContent = this._prepareProvisioningDetail(detail);
     //
@@ -430,6 +431,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   ref="switchShowChangesOnly"
                   label={this.i18n('detail.switchShowChangesOnly.label')}
                   onChange={this._toggleShowChangesOnly.bind(this)}
+                  value={showChangesOnly}
                 />
                 <Basic.Row>
                   <Basic.Col lg={ 12 }>

@@ -45,7 +45,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
  */
 @Component
 @Description("Deletes identity - ensures core referential integrity.")
-public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
+public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> implements SystemProcessor {
 
 	public static final String PROCESSOR_NAME = "system-delete-processor";
 	private final SysSystemService service;

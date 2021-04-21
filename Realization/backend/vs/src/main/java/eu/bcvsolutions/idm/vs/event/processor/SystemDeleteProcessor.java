@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
+import eu.bcvsolutions.idm.acc.event.processor.SystemProcessor;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -37,7 +38,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
  */
 @Component("vsSystemDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
-public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSystemDto> {
+public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSystemDto> implements SystemProcessor {
 
 	public static final String PROCESSOR_NAME = "system-delete-processor";
 	@Autowired

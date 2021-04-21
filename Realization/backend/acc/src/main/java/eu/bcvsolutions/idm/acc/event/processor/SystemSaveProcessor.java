@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 @Component
 @Description("Persists target system.")
-public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
+public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> implements SystemProcessor {
 
 	public static final String PROCESSOR_NAME = "system-save-processor";
 	private final SysSystemService service;

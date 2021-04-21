@@ -11,7 +11,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.event.processor.SystemProcessor;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -33,14 +33,12 @@ import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
  */
 @Component(DuplicateSystemProcessor.PROCESSOR_NAME)
 @Description("Duplicate system - virtual system duplication. ")
-public class DuplicateSystemProcessor extends AbstractEntityEventProcessor<SysSystemDto> {
+public class DuplicateSystemProcessor extends AbstractEntityEventProcessor<SysSystemDto> implements SystemProcessor {
 	
 	public static final String PROCESSOR_NAME = "vs-duplicate-system-processor";
-	
+
 	@Autowired
-	SysSystemService systemService;
-	@Autowired
-	VsSystemService vsSystemService;
+	private VsSystemService vsSystemService;
 	@Autowired
 	private FormService formService;
 	

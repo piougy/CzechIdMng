@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
+import eu.bcvsolutions.idm.acc.event.processor.SystemProcessor;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -29,7 +30,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
  */
 @Component("vsSystemSaveProcessor")
 @Description("Ensures update configuration of virtual system (form definition, implementers). Is invoke after SysSystem save.")
-public class SystemSaveProcessor extends AbstractEntityEventProcessor<SysSystemDto> {
+public class SystemSaveProcessor extends AbstractEntityEventProcessor<SysSystemDto> implements SystemProcessor {
 
 	public static final String PROCESSOR_NAME = "system-save-processor";
 	@Autowired

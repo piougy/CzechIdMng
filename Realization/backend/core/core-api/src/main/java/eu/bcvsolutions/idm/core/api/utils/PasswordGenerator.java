@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.identityconnectors.common.StringUtil;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
@@ -495,13 +494,13 @@ public class PasswordGenerator {
 	private StringBuilder getRandomChars(String base, int length, String prohibited) {
 		StringBuilder result = new StringBuilder();
 		// if base is empty return empty result 
-		if (StringUtil.isEmpty(base)) {
+		if (StringUtils.isEmpty(base)) {
 			return result;
 		}
-		if (StringUtil.isNotEmpty(prohibited)) {
+		if (StringUtils.isNotEmpty(prohibited)) {
 			base = removeProhibited(base, prohibited);
 		}
-		if (StringUtil.isEmpty(base)) {
+		if (StringUtils.isEmpty(base)) {
 			return result;
 		}
 		for (int index = 0; index < length; index++) {
@@ -635,7 +634,7 @@ public class PasswordGenerator {
 	/**
 	 * Returns baseCont containing {@code character}
 	 * 
-	 * @param charac
+	 * @param character
 	 * @param baseList
 	 * @return
 	 */

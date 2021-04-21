@@ -52,6 +52,8 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 	public final static String ORIGINAL_SLICE = "originalSlice";
 	public final static String CURRENT_SLICE = "currentSlice";
 	public final static String TO_DELETE = "toDelete";
+	// Workaround - skip provisioning is from the ACC module, but work with slices and dirty states is only in core. So this is safe way how remove a skip property.
+	private static final String SKIP_PROVISIONING = "skip_provisioning";
 
 	@Autowired
 	private EntityStateManager entityStateManager;
@@ -243,6 +245,9 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 			Map<String, Serializable> transformedParameters = transformParameters(parameters);
 			// Current using flag was sets to FALSE (during making as dirty), we want to force recalculate
 			transformedParameters.put(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE, Boolean.TRUE);
+			// Provisioning skip have to by removed. We need to make a provisioning in this phase.
+			// Workaround - skip provisioning is from the ACC module, but work with slices and dirty states is only in core. So this is safe way how remove a skip property.
+			transformedParameters.put(SKIP_PROVISIONING, Boolean.FALSE);
 
 			contractSliceManager.recalculateContractSlice(contractSliceDto, originalSlice, transformedParameters);
 

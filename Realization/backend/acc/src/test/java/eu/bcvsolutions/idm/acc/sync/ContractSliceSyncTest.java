@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.acc.sync;
 
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningArchiveDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
+import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -150,6 +154,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	private SysSyncItemLogService syncItemLogService;
 	@Autowired
 	private SysSyncActionLogService syncActionLogService;
+	@Autowired
+	private SysProvisioningArchiveService provisioningArchiveService;
 
 	@After
 	public void logout() {
@@ -674,7 +680,98 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 		// Delete log
 		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void testIdentityProvisioningOnChangeContractBySlice() {
+		SysSystemDto identitySystem = helper.createSystem(TestResource.TABLE_NAME);
+		helper.createMapping(identitySystem);
+		IdmRoleDto roleWithIdentitySystem = helper.createRole();
+		helper.createRoleSystem(roleWithIdentitySystem, identitySystem);
 
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		IdmIdentityDto owner = helper.createIdentity(CONTRACT_OWNER_ONE);
+
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+		// Assign identity system to the owner.
+		helper.assignRoles(helper.getPrimeContract(owner), roleWithIdentitySystem);
+
+		SysProvisioningOperationFilter provisioningOperationFilter = new SysProvisioningOperationFilter();
+		provisioningOperationFilter.setEntityIdentifier(owner.getId());
+		provisioningOperationFilter.setSystemId(identitySystem.getId());
+
+		List<SysProvisioningArchiveDto> provisioningArchiveDtos = provisioningArchiveService.find(provisioningOperationFilter, null).getContent();
+		Assert.assertEquals(1, provisioningArchiveDtos.size());
+
+		IdmContractSliceFilter contractSliceFilter = new IdmContractSliceFilter();
+		contractSliceFilter.setIdentity(owner.getId());
+		contractSliceFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractSliceFilter.setValue("1");
+		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+		contractSliceFilter.setValue("2");
+		Assert.assertEquals(0, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		contractSliceFilter.setValue("1");
+		Assert.assertEquals(1, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+		contractSliceFilter.setValue("2");
+		List<IdmContractSliceDto> slicesTwo = contractSliceService.find(contractSliceFilter, null).getContent();
+		Assert.assertEquals(1, slicesTwo.size());
+		contractSliceFilter.setValue("3");
+		List<IdmContractSliceDto> contractsThree = contractSliceService.find(contractSliceFilter, null).getContent();
+		Assert.assertEquals(1, contractsThree.size());
+		Assert.assertEquals(null, contractsThree.get(0).getState());
+		contractSliceFilter.setValue("4");
+		Assert.assertEquals(1, contractSliceService.find(contractSliceFilter, null).getTotalElements());
+
+		// Find created contract
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setIdentity(owner.getId());
+		List<IdmIdentityContractDto> contracts = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(3, contracts.size());
+		// Slice with id "2" should be current using
+		Assert.assertEquals(1, contracts.stream().filter(c -> c.getPosition().equals("2") && c.isValid()).count());
+		Assert.assertTrue(slicesTwo.get(0).isUsingAsContract());
+
+		provisioningArchiveDtos = provisioningArchiveService.find(provisioningOperationFilter, null).getContent();
+		Assert.assertEquals(9, provisioningArchiveDtos.size());
+		// Delete log
+		syncLogService.delete(log);
+
+		// Slice with id "2" reassign from contract ONE to TWO
+		this.getBean().changeContractData();
+
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 4);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Find created contract
+		contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setIdentity(owner.getId());
+		contracts = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(3, contracts.size());
+		// Slice with id "2" should not be current used
+		Assert.assertEquals(0, contracts.stream().filter(c -> c.getPosition().equals("2") && c.isValid()).count());
+		// But slice with id "4" should be current used
+		Assert.assertEquals(1, contracts.stream().filter(c -> c.getPosition().equals("4") && c.isValid()).count());
+		Assert.assertTrue(slicesTwo.get(0).isUsingAsContract());
+
+		provisioningArchiveDtos = provisioningArchiveService.find(provisioningOperationFilter, null).getContent();
+		Assert.assertEquals(15, provisioningArchiveDtos.size());
+		// Delete log
+		syncLogService.delete(log);
 	}
 
 	@Test

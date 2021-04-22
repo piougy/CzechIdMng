@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -535,6 +536,10 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 	private void deleteContract(EntityEvent<IdmIdentityProjectionDto> event, IdmIdentityContractDto contract, BasePermission... permission) {
 		IdentityContractEventType contractEventType = IdentityContractEventType.DELETE;
 		IdentityContractEvent otherContractEvent = new IdentityContractEvent(contractEventType, contract);
+		if (BooleanUtils.isTrue(contract.getControlledBySlices())) {
+			LOG.debug("Contract [{}] is controlled by contract slices, will be ignored in projection.", contract.getId());
+			return;
+		}
 		//
 		contractService.publish(
 				otherContractEvent,

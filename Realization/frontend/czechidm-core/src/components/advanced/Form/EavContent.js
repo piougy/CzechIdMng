@@ -225,7 +225,8 @@ class EavContent extends Basic.AbstractContent {
       showAttributesOnly,
       _formInstances,
       showDefinitions,
-      userContext
+      userContext,
+      useDefaultValue
     } = this.props;
     const { error, showLoadingKeys } = this.state;
     const validationErrors = this.state.validationErrors || this.props.validationErrors;
@@ -297,7 +298,8 @@ class EavContent extends Basic.AbstractContent {
               validationErrors={ validationErrors }
               formableManager={ formableManager }
               showAttributes={ _renderAttributes }
-              showLoading={ showLoadingKeys.has(definitionCode) }/>
+              showLoading={ showLoadingKeys.has(definitionCode) }
+              useDefaultValue={ useDefaultValue }/>
           );
           if (!SecurityManager.hasAllAuthorities(['FORMDEFINITION_UPDATE', 'FORMATTRIBUTE_UPDATE'], userContext)
               || !this.isDevelopment()
@@ -350,7 +352,8 @@ class EavContent extends Basic.AbstractContent {
                   readOnly={ !showSaveButton }
                   validationErrors={ validationErrors }
                   formableManager={ formableManager }
-                  showAttributes={ _renderAttributes }/>
+                  showAttributes={ _renderAttributes }
+                  useDefaultValue={ useDefaultValue }/>
               </Basic.PanelBody>
 
               <Basic.PanelFooter rendered={ _showSaveButton && showSaveButton && _formInstance.getAttributes().size > 0 }>
@@ -416,6 +419,12 @@ EavContent.propTypes = {
    */
   validationErrors: PropTypes.arrayOf(PropTypes.object),
   /**
+   * Use default value as filled value.
+   *
+   * @since 11.0.0
+   */
+  useDefaultValue: PropTypes.bool,
+  /**
    * Internal properties (loaded by redux)
    */
   _formInstances: PropTypes.object, // immutable map
@@ -426,7 +435,8 @@ EavContent.defaultProps = {
   showAttributesOnly: false,
   _formInstances: null,
   _showLoading: false,
-  rendered: true
+  rendered: true,
+  useDefaultValue: false
 };
 
 function select(state, component) {

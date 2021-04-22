@@ -1148,7 +1148,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         showDefinitions={ attributes }
         entityId={ isNew ? null : entityId }
         formInstances={ isNew ? null : identityProjection._eav }
-        validationErrors={ validationErrors }/>
+        validationErrors={ validationErrors }
+        useDefaultValue={ isNew }/>
     );
   }
 
@@ -1280,7 +1281,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         showDefinitions={ attributes }
         entityId={ isNew ? null : contract.id }
         formInstances={ isNew ? null : contract._eav }
-        validationErrors={ validationErrors }/>
+        validationErrors={ validationErrors }
+        useDefaultValue={ isNew }/>
     );
   }
 

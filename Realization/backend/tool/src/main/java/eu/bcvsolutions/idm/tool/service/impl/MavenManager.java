@@ -321,7 +321,7 @@ public class MavenManager {
 	 *
 	 * @return
 	 */
-	private String getMavenBaseCommand() {
+	private final String getMavenBaseCommand() {
 		if (mavenBaseCommand == null) {
 			if (StringUtils.isEmpty(mavenHome)) {
 				mavenHome = System.getenv("MAVEN_HOME");

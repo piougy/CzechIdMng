@@ -111,7 +111,7 @@ public class RoleDuplicateBulkAction extends AbstractBulkAction<IdmRoleDto, IdmR
 		if (StringUtils.isEmpty(environment) || Objects.equals(environment, dto.getEnvironment())) { // duplicate on the same environment
 			environment = dto.getEnvironment();
 			// create role with the same name on the target environment and append index if needed into base code
-			baseCode = getUniqueBaseCode(baseCode, environment, 0);
+			baseCode = getUniqueBaseCode(baseCode, environment);
 			targetRole = prepareRole(baseCode, environment); // new clone
 		} else {
 			// try to find role with the same code on the target environment => update role content
@@ -155,20 +155,14 @@ public class RoleDuplicateBulkAction extends AbstractBulkAction<IdmRoleDto, IdmR
 	 * @param i
 	 * @return
 	 */
-	private String getUniqueBaseCode(String baseCode, String environment, int i) {
-		String newCode;
-		if (i > 0) {
-			newCode = MessageFormat.format("{0}_{1}", baseCode, i);
-		} else {
-			newCode = baseCode;
+	private String getUniqueBaseCode(String baseCode, String environment) {
+		for (int i = 0;;i++) {
+			String newCode = (i > 0) ? MessageFormat.format("{0}_{1}", baseCode, i) : baseCode;
+			if (roleService.getByBaseCodeAndEnvironment(newCode, environment) == null) {
+				return newCode;
+			}
 		}
-		
-		if (roleService.getByBaseCodeAndEnvironment(newCode, environment) == null) {
-			return newCode;
-		}
-		return getUniqueBaseCode(baseCode, environment, i + 1);
-
-	}	
+	}
 	
 	/**
 	 * Prepare new role on the target environment - role with given code doesn't exist jet.

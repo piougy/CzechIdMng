@@ -108,7 +108,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 		}
 	}
 	
-	private void setFormAttributeDto(IdmFormAttributeDto formAttribute) {
+	private final void setFormAttributeDto(IdmFormAttributeDto formAttribute) {
 		this.formAttribute = formAttribute.getId();
 		this.persistentType = formAttribute.getPersistentType();
 		this.confidential = formAttribute.isConfidential();

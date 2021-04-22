@@ -1248,7 +1248,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             this.getInvalidBasicField(validationErrors, 'IdmIdentityContract.workPosition')
           }/>
 
-        { this.renderOtherPosition(index, _readOnly) }
+        { this.renderOtherPosition(index, readOnly) }
 
         { this.renderContractAttributes(index, readOnly || contract.controlledBySlices) }
 

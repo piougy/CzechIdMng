@@ -253,10 +253,15 @@ java -jar idm-tool.jar --get-version
 ### Change product version
 
 Change product version for all product modules (FE + BE).
-Versions are changes only in develop branch (without commit) => changed versions in modules can be re
+Versions are changes only in develop branch (without commit) => changed versions in modules can be reverted.
 
 ```bash
 java -jar idm-tool.jar --set-version --develop-version 10.1.0-SNAPSHOT
+```
+#### Example how create new hotifix branch
+
+```bash
+java -jar idm-tool.jar --set-version --develop-version 10.1.4-SNAPSHOT --develop-branch hotfix-10.1.4
 ```
 
 ### Revert product version

@@ -10,6 +10,11 @@ All notable changes to this project will be documented in this file.
   - **What to do:** Change a log database appender from ``ch.qos.logback.classic.db.DBAppender`` to ``eu.bcvsolutions.idm.core.exception.IdmDbAppender`` in the log configuration file (**lockback-spring.xml**).
 - 🟠 [#2739](https://redmine.czechidm.com/issues/2739) - **GetDefaultDN Groovy script used by AD Wizard has to be re-deployed.** This script has been updated and has to be re-deployed in order to apply changes in the new version. This script is essential for correct funtion of the AD Wizard.
 - 🟡 [#2758](https://redmine.czechidm.com/issues/2758) - **Java 11 is used and required for using CzechIdM application.** Update to Java 11 in your environment.
+- 🟡 [#2775](https://redmine.czechidm.com/issues/2775) - **PostgreSQL 9.x and 10.x are not oficially supported anymore.** (Although it should still work.) PostgreSQL 11.x, 12.x, 13.x are oficially supported. Update to PostgreSQL 12 (recommended) in your environment.
+- 🟡 [#2775](https://redmine.czechidm.com/issues/2775) - **PostgreSQL 13.x is now supported.**
+- 🟡 [#2775](https://redmine.czechidm.com/issues/2775) - **Apache Tomcat 8.0.x and 8.5.x are not oficially supported anymore.** (Although the 8.5.x branch should still work.) Update to Apache Tomcat 9.0.x branch.
+- 🟡 [#2775](https://redmine.czechidm.com/issues/2775) - **WildFly application server is no longer supported.** Change your application server to Apache Tomcat.
+- 🟡 [#2775](https://redmine.czechidm.com/issues/2775) - **Microsoft Internet Explorer 11 is no longer oficially supported.** Use other supported browsers (Chrome, Firefox, Edge, Safari, etc.).
 
 ### Developer
 

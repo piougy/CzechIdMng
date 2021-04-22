@@ -731,7 +731,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       if (this.refs[`otherWorkPosition-${ i }`]) {
         preserveOtherPositionOnIndex = 1;
         const otherPosition = otherPositions[0];
-        if (contractPositionManager.canSave(otherPosition) && identityContractManager.canSave(isNew ? {} : contract)) {
+        if (contractPositionManager.canSave(otherPosition) && identityContractManager.canSaveContract(isNew ? {} : contract)) {
           otherPosition.workPosition = data[`otherWorkPosition-${ i }`];
           if (otherPosition.workPosition) {
             if (!otherPosition.identityContract) {
@@ -1315,7 +1315,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           header={ this.i18n('otherPosition.workPosition.label') }
           treeNodeLabel={ this.i18n('otherPosition.workPosition.label') }
           useFirstType
-          readOnly={ readOnly || !contractPositionManager.canSave(otherPosition) || !identityContractManager.canSave(contract) }/>
+          readOnly={ readOnly || !contractPositionManager.canSave(otherPosition) || !identityContractManager.canSaveContract(contract) }/>
       </Basic.Div>
     );
   }

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +98,7 @@ public class RemoteUserAuthenticationFilterIntegrationTest extends AbstractRestT
 	}
 	
 	@Test
-	public void testRemoteLoginWithMissingTokenWithouAuthentication() throws Exception {
+	public void testRemoteLoginWithMissingTokenWithoutAuthentication() throws Exception {
 		LoginDto login = getHelper().loginAdmin();
 		getHelper().logout(); // ~ disable token
 		tokenManager.deleteToken(login.getAuthentication().getId()); // ~ delete token
@@ -106,6 +107,42 @@ public class RemoteUserAuthenticationFilterIntegrationTest extends AbstractRestT
 				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
 				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isUnauthorized());
+	}
+	
+	@Test
+	public void testRemoteLoginOnPublicEndpoint() throws Exception {
+		// clean up all admin tokens
+		IdmIdentityDto identity = getHelper().createIdentity();
+		// => only one token should exists
+		LoginDto login = getHelper().login(identity);
+		//
+		getMockMvc().perform(get(BaseDtoController.BASE_PATH + "/public/configurations")
+				.with(request -> {
+                    request.setRemoteUser(TEST_SSO_USER_SSO_ENABLED);
+                    return request;
+                })
+				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().isOk());
+		//
+		Assert.assertEquals(1, tokenManager.getTokens(identity).size());
+	}
+	
+	@Test
+	public void testIgnoreMissingTokenOnPublicEndpoint() throws Exception {
+		// clean up all admin tokens
+		IdmIdentityDto identity = getHelper().createIdentity();
+		// => only one token should exists
+		LoginDto login = getHelper().login(identity);
+		getHelper().logout(); // ~ disable token
+		tokenManager.deleteToken(login.getAuthentication().getId()); // ~ delete token
+		//
+		getMockMvc().perform(get(BaseDtoController.BASE_PATH + "/public/configurations")
+				.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, login.getToken())
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+			.andExpect(status().isOk());
+		//
+		Assert.assertTrue(tokenManager.getTokens(identity).isEmpty());
 	}
 	
 	@Test

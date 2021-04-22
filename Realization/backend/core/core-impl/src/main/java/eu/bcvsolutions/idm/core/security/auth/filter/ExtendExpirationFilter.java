@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.HttpFilterUtils;
+import eu.bcvsolutions.idm.core.security.api.auth.filter.AuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -51,6 +52,7 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 	@Autowired private AuthenticationExceptionContext ctx;
 	@Autowired private ConfigurationService configService;
 	@Autowired @Lazy private ObjectMapper mapper;
+	@Autowired @Lazy private AuthenticationFilter authenticationFilter;
 	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
@@ -72,8 +74,13 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 				// try to extend expiration
 				doExtendExpiration(req, res);
 			}
+		} else if (authenticationFilter
+				.getPublicPathRequestMatchers()
+				.stream()
+				.anyMatch(requestMatcher -> requestMatcher.matches(req))) {
+			LOG.debug("Authentication will be optional for public path [{}].", req.getServletPath());
 		} else {
-			// not authenticated => check and throw authentication exceptions
+			// not authenticated => throw preset authentication exception
 			doCheckTokenExpired(req, res);
 		}
 	}

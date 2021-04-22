@@ -2074,7 +2074,7 @@
         "header": "Nová definice formuláře"
       },
       "filter": {
-        "text": "Kód či název"
+        "text": "Kód, název, typ či popis"
       },
       "attributes": {
         "title": "Atributy formuláře"

@@ -2024,7 +2024,7 @@
         "header": "New form definition"
       },
       "filter": {
-        "text": "Code or name"
+        "text": "Code, name, type or description"
       },
       "attributes": {
         "title": "Form Attributes"

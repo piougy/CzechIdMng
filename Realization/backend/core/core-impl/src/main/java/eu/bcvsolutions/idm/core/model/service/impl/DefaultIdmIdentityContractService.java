@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -112,13 +113,28 @@ public class DefaultIdmIdentityContractService
 		if (resultDto != null && resultDto.getId() != null && !resultDto.isTrimmed()) {
 			IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
 			sliceFilter.setParentContract(resultDto.getId());
-			if (contractSliceService.find(sliceFilter, null).getTotalElements() > 0) {
-				resultDto.setControlledBySlices(Boolean.TRUE);
-			} else {
-				resultDto.setControlledBySlices(Boolean.FALSE);
-			}
+			resultDto.setControlledBySlices(contractSliceService.count(sliceFilter) > 0);
 		}
 		return resultDto;
+	}
+	
+	@Override
+	protected IdmIdentityContractDto applyContext(IdmIdentityContractDto dto, IdmIdentityContractFilter context,
+			BasePermission... permission) {
+		dto = super.applyContext(dto, context, permission);
+		if (dto == null || context == null) {
+			return dto;
+		}
+		if (dto.getControlledBySlices() != null || !context.isAddControlledBySlices()) {
+			// flag already initialized in toDto method
+			return dto;
+		}
+		//
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setParentContract(dto.getId());
+		dto.setControlledBySlices(contractSliceService.count(sliceFilter) > 0);
+		//
+		return dto;
 	}
 	
 	@Override

@@ -125,6 +125,8 @@ public class IdmIdentityFilter
 	public static final String PARAMETER_WITHOUT_WORK_POSITION = "withoutWorkPosition";
 	/**
 	 * Load information about password into DTO.
+	 * 
+	 * @since 11.0.0
 	 */
 	public static final String PARAMETER_ADD_PASSWORD_METADATA = "addPasswordMetadata";
 	

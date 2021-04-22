@@ -368,6 +368,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			Assert.assertEquals(primeContract.getValidFrom(), updatedPrimeContract.getValidFrom());
 			Assert.assertEquals(primeContract.getValidTill(), updatedPrimeContract.getValidTill());
 			Assert.assertEquals(updatedProjection.getIdentity().getId(), updatedPrimeContract.getIdentity());
+			Assert.assertFalse(updatedPrimeContract.getControlledBySlices());
 			// other contract
 			Assert.assertEquals(2, updatedProjection.getOtherContracts().size());
 			Assert.assertTrue(updatedProjection.getOtherContracts().stream().anyMatch(c -> {
@@ -377,6 +378,9 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 				return c.getWorkPosition().equals(otherContractTwo.getWorkPosition()) 
 						&& c.getPosition().equals(otherContractTwo.getPosition())
 						&& c.getId().equals(otherContractTwo.getId()); // preserve id
+			}));
+			Assert.assertTrue(updatedProjection.getOtherContracts().stream().allMatch(c -> {
+				return !c.getControlledBySlices();
 			}));
 			// other position
 			Assert.assertEquals(2, updatedProjection.getOtherPositions().size());

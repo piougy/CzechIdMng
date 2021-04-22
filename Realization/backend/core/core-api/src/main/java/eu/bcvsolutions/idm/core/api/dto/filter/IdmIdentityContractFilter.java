@@ -72,6 +72,12 @@ public class IdmIdentityContractFilter
 	 * @since 10.4.0
 	 */
 	public static final String PARAMETER_VALID_CONTRACT_MANAGERS = "validContractManagers";
+	/**
+	 * Load information about contract is controlled by contract slices.
+	 * 
+	 * @since 11.0.0
+	 */
+	public static final String PARAMETER_ADD_CONTROLLED_BY_SLICES = "addControlledBySlices";
 
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -331,5 +337,25 @@ public class IdmIdentityContractFilter
 	 */
 	public void setRecursionType(RecursionType recursionType) {
 		set(PARAMETER_RECURSION_TYPE, recursionType);
+	}
+	
+	/**
+	 * Load information about contract is controlled by contract slices.
+	 * 
+	 * @return true - load, false - not load (default)
+	 * @since 11.0.0
+	 */
+	public boolean isAddControlledBySlices() {
+		return getParameterConverter().toBoolean(getData(), PARAMETER_ADD_CONTROLLED_BY_SLICES, false);
+	}
+	
+	/**
+	 * Load information about contract is controlled by contract slices.
+	 * 
+	 * @param addControlledBySlices true - load
+	 * @since 11.0.0
+	 */
+	public void setAddControlledBySlices(boolean addControlledBySlices) {
+		set(PARAMETER_ADD_CONTROLLED_BY_SLICES, addControlledBySlices);
 	}
 }

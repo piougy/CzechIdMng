@@ -1192,7 +1192,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     const { formProjection, identityProjection, validationErrors } = this.state;
     const contract = identityProjection.allContracts.length > index ? identityProjection.allContracts[index] : {};
     const isNew = !!Utils.Ui.getUrlParameter(location, 'new');
-    const _readOnly = readOnly || !identityContractManager.canSave(contract);
+    const _readOnly = readOnly || !identityContractManager.canSave(contract) || contract.controlledBySlices;
     //
     return (
       <Basic.Div>
@@ -1248,9 +1248,9 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             this.getInvalidBasicField(validationErrors, 'IdmIdentityContract.workPosition')
           }/>
 
-        { this.renderOtherPosition(index, readOnly) }
+        { this.renderOtherPosition(index, _readOnly) }
 
-        { this.renderContractAttributes(index, readOnly) }
+        { this.renderContractAttributes(index, readOnly || contract.controlledBySlices) }
 
         {
           !isNew

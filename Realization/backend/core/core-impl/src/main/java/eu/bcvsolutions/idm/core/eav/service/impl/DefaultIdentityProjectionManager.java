@@ -439,6 +439,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
 		contractFilter.setAddPermissions(true);
 		contractFilter.setAddBasicFields(true);
+		contractFilter.setAddControlledBySlices(true);
 		contractFilter.setIdentity(identity.getId());
 		setAddEavMetadata(contractFilter, identity);
 		// eav attributes are secured automatically on this form (without configuration is needed)

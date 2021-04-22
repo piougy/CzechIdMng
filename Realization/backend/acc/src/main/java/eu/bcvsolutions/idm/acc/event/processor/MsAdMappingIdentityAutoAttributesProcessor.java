@@ -295,7 +295,6 @@ public class MsAdMappingIdentityAutoAttributesProcessor extends AbstractSystemMa
 	private Set<String> getPrimaryKeyCatalogue() {
 		Set<String> catalogue = Sets.newLinkedHashSet();
 		catalogue.add(AdUserConnectorType.SAM_ACCOUNT_NAME_ATTRIBUTE);
-		catalogue.add("__NAME__");
 
 		return catalogue;
 	}

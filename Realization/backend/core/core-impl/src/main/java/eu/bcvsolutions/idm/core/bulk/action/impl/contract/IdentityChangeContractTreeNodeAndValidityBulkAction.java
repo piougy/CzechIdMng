@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -120,6 +121,11 @@ public class IdentityChangeContractTreeNodeAndValidityBulkAction extends Abstrac
 						new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(
 								new DefaultResultModel(CoreResultCode.BULK_ACTION_NOT_AUTHORIZED_MODIFY_CONTRACT,
 										ImmutableMap.of("contractId", contract.getId())))
+								.build());
+			} catch (ResultCodeException ex) {
+				logItemProcessed(contract,
+						new OperationResult.Builder(OperationState.NOT_EXECUTED)
+								.setException(ex)
 								.build());
 			}
 		}

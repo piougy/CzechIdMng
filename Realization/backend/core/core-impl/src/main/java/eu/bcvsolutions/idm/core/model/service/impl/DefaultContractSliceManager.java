@@ -102,9 +102,14 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		}
 
 		// Save contract
+		ImmutableMap<String,Serializable> parameters = new ImmutableMap.Builder<String,Serializable>()
+				.putAll(eventProperties)
+				.put(ContractSliceManager.SKIP_CHECK_FOR_SLICES, Boolean.TRUE)
+				.build();
+		
 		EventContext<IdmIdentityContractDto> publishContext = contractService.publish(
 				new IdentityContractEvent(isNew ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
-						contract, ImmutableMap.copyOf(eventProperties)));
+						contract, parameters));
 		IdmIdentityContractDto savedContract = publishContext.getContent();
 		
 		// We need to flag recalculation for contract immediately to prevent e.g. synchronization ends before flag is created by NOTIFY event asynchronously.

@@ -7523,6 +7523,10 @@
       "title": "Hromadnou akci nelze spustit",
       "message": "Špatná třída filtru. Je požadována třída [{{filter}}]. Obdržená třída [{{givenFilter}}]."
     },
+    "CONTRACT_IS_CONTROLLED_CANNOT_BE_MODIFIED": {
+      "title": "Pracovní pozici není možné změnit.",
+      "message": "Pracovní pozici není možné změnit, protože je kontrolována časovým řezem! Pracovní pozice může být změněna prostřednictvím změny platného časového řezu. (Identifikátor pozice [{{contractId}}])"
+    },
     "CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED": {
       "title": "Pracovní pozici není možné odstranit.",
       "message": "Pracovní pozici není možné odstranit, protože je kontrolována časovým řezem! Pracovní pozice bude odstraněna, po odstranění jejího posledního časového řezu. (Identifikátor pozice [{{contractId}}])"

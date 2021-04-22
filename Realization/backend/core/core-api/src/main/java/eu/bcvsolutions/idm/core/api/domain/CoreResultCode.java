@@ -326,7 +326,8 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY(HttpStatus.FOUND, "[%s] request concepts need to be modified. It may tak a while."),
 	//
 	// Contract slices
-	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. Cannot be deleted directly!"),
+	CONTRACT_IS_CONTROLLED_CANNOT_BE_MODIFIED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. It cannot be modified directly!"),
+	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. It cannot be deleted directly!"),
 	CONTRACT_SLICE_DUPLICATE_CANDIDATES(HttpStatus.CONFLICT, "We found more then once slice which should be use as contract. This is not allowed. None from this slices will be used as contract. It means contracts [%s] are in incorrect state now!"),
 	//
 	// Universal requests

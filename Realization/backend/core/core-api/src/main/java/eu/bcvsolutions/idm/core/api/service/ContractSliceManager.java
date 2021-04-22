@@ -20,6 +20,12 @@ import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
  *
  */
 public interface ContractSliceManager extends ScriptEnabled  {
+	
+	/**
+	 * Property used in events. If set to TRUE, changes related to contract are not checked 
+	 * whether the contract is controlled by contract slice.
+	 */
+	String SKIP_CHECK_FOR_SLICES = "skip_check_for_slices";
 
 	/**
 	 * Create or update contract by given slice

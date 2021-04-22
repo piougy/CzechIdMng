@@ -32,7 +32,7 @@ All notable changes to this project will be documented in this file.
       - ``jsdom``, ``nock``, ``react-addons-test-utils``, ``redux-mock-store`` - libraries used for tests only - localization tests are executed only - frontend tests were obsolete anyway => we need to redesign test on frontend from scratch in next version.
       - ``react-tools``, ``redux-devtools`` - deprecated dev libraries (an unused in product).
       - ``faker`` - unused dev library (in product) for generating random (~test) data - if it is used in a custom module, please let us know.
-- [#2758](https://redmine.czechidm.com/issues/2758) - **Java 11 is used and required for using, developing and building CzechIdM application.** Update to Java 11 in your environment and configure your IDE to use it.
+- 🟡 [#2758](https://redmine.czechidm.com/issues/2758) - **Java 11 is used and required for using, developing and building CzechIdM application.** Update to Java 11 in your environment and configure your IDE to use it.
 
 
 ## [10.8.0]

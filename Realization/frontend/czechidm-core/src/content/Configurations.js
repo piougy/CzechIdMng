@@ -14,7 +14,7 @@ const manager = new ConfigurationManager();
 const IDM_CONFIGURATION_PREFIX = 'idm.';
 
 /**
- * Application configurations
+ * Application configurations.
  *
  * @author Radek Tomiška
  * @author Patrik Stroukal
@@ -427,25 +427,25 @@ class Configurations extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.Configuration.name') }
                   onChange={ this._changeName.bind(this) }
                   required
-                  helpBlock={ this.i18n('guarded', { guarded: ConfigurationManager.GUARDED_PROPERTY_NAMES.join(', '), escape: false }) }/>
+                  helpBlock={ this.i18n('guarded', { guarded: ConfigurationManager.GUARDED_PROPERTY_NAMES.join(', '), escape: false }) }
+                  max={ 255 }/>
                 <Basic.TextField
                   type={ isGuarded ? 'password' : 'text' }
                   ref="value"
                   label={ this.i18n('entity.Configuration.value') }
-                  confidential={ isGuarded !== false }/>
+                  confidential={ isGuarded !== false }
+                  max={ 255 }/>
                 <Basic.Checkbox
                   ref="confidential"
                   label={ this.i18n('entity.Configuration.confidential') }
                   helpBlock={ this.i18n('confidential.help') }
                   onChange={ this._changeConfidential.bind(this) }
-                  readOnly={ isGuarded === 'by_name' }>
-                </Basic.Checkbox>
+                  readOnly={ isGuarded === 'by_name' }/>
                 <Basic.Checkbox
                   ref="public"
                   label={ this.i18n('entity.Configuration.public') }
                   readOnly={ isSecured }
-                  helpBlock={ this.i18n('secured.help') }>
-                </Basic.Checkbox>
+                  helpBlock={ this.i18n('secured.help') }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

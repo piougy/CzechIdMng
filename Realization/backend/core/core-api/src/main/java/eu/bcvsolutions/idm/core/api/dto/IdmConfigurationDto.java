@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.dto;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.springframework.hateoas.core.Relation;
 
@@ -10,9 +11,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
 /**
- * Configuration item
+ * Configuration item.
  * 
  * @author Radek Tomiška 
  */
@@ -22,7 +24,9 @@ public class IdmConfigurationDto extends AbstractDto implements Codeable {
 
 	private static final long serialVersionUID = 1L;
 	@NotNull
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	private String name;
+	@Size(max = DefaultFieldLengths.NAME)
 	private String value;
 	private boolean secured;
 	private boolean confidential;

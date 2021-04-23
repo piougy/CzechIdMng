@@ -38,7 +38,8 @@ public class IdmConfiguration extends AbstractEntity implements Codeable {
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
-	@Column(name = "value")
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "value", length = DefaultFieldLengths.NAME)
 	private String value;
 	
 	@NotNull

@@ -110,7 +110,7 @@ public class DuplicateSystemProcessor extends AbstractEntityEventProcessor<SysSy
 	 * @return
 	 */
 	private List<IdmFormAttributeDto> prepareFormAttributes (List<IdmFormAttributeDto> attributes, UUID formDefinition) {
-		List<IdmFormAttributeDto> newAttrs = new ArrayList<IdmFormAttributeDto>();
+		List<IdmFormAttributeDto> newAttrs = new ArrayList<IdmFormAttributeDto>(attributes.size());
 		for (IdmFormAttributeDto attr : attributes) {
 			attr.setId(null);
 			attr.setFormDefinition(formDefinition);

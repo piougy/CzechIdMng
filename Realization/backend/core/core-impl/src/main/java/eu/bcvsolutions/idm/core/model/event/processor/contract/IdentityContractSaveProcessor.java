@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -20,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -44,7 +46,7 @@ public class IdentityContractSaveProcessor
 	//
 	@Autowired private IdmIdentityContractService service;
 	@Autowired private IdmIdentityService identityService;
-	@Autowired private ContractSliceManager sliceManager;
+	@Autowired private IdmContractSliceService contractSliceService;
 	
 	public IdentityContractSaveProcessor() {
 		super(IdentityContractEventType.UPDATE, IdentityContractEventType.CREATE);
@@ -111,15 +113,18 @@ public class IdentityContractSaveProcessor
 	 * 
 	 * @param guarantee
 	 * @return
+	 * @since 11.0.0
 	 */
-	private void checkControlledBySlices(EntityEvent<IdmIdentityContractDto> event) {
+	protected void checkControlledBySlices(EntityEvent<IdmIdentityContractDto> event) {
 		IdmIdentityContractDto contract = event.getContent();
-		if(contract == null || getBooleanProperty(ContractSliceManager.SKIP_CHECK_FOR_SLICES, event.getProperties())) {
+		if (getBooleanProperty(ContractSliceManager.SKIP_CHECK_FOR_SLICES, event.getProperties())) {
 			return;
 		}
-		
+		//
 		UUID contractId = contract.getId();
-		if(contractId != null && sliceManager.findAllSlices(contractId).size() > 0) {
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setParentContract(contractId);
+		if (contractId != null && contractSliceService.count(sliceFilter) > 0) {
 			throw new ResultCodeException(CoreResultCode.CONTRACT_IS_CONTROLLED_CANNOT_BE_MODIFIED,
 					ImmutableMap.of("contractId", contractId));
 		}

@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -18,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
+import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
 
 /**
@@ -35,7 +37,7 @@ public class ContractGuaranteeSaveProcessor extends CoreEventProcessor<IdmContra
 	public static final String PROCESSOR_NAME = "contract-guarantee-save";
 	
 	@Autowired
-	private ContractSliceManager sliceManager;
+	private IdmContractSliceService sliceService;
 	private final IdmContractGuaranteeService contractGuaranteeService;
 	
 	@Autowired
@@ -78,11 +80,13 @@ public class ContractGuaranteeSaveProcessor extends CoreEventProcessor<IdmContra
 	 */
 	private void checkControlledBySlices(EntityEvent<IdmContractGuaranteeDto> event) {
 		IdmContractGuaranteeDto guarantee = event.getContent();
-		if(guarantee == null || getBooleanProperty(ContractSliceManager.SKIP_CHECK_FOR_SLICES, event.getProperties())) {
+		if(getBooleanProperty(ContractSliceManager.SKIP_CHECK_FOR_SLICES, event.getProperties())) {
 			return;
 		}
 		UUID contract = guarantee.getIdentityContract();
-		if (contract != null && sliceManager.findAllSlices(contract).size() > 0) {
+		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
+		sliceFilter.setParentContract(contract);
+		if (contract != null && sliceService.count(sliceFilter) > 0) {
 			throw new ResultCodeException(CoreResultCode.CONTRACT_IS_CONTROLLED_GUARANTEE_CANNOT_BE_MODIFIED,
 					ImmutableMap.of("contractId", contract));
 		}

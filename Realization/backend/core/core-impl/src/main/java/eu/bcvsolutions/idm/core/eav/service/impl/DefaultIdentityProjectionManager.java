@@ -373,6 +373,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 				concept.setOperation(ConceptRoleRequestOperation.ADD);
 				concept.setValidFrom(assignedRole.getValidFrom());
 				concept.setValidTill(assignedRole.getValidTill());
+				concept.setEavs(assignedRole.getEavs());
 				//
 				concepts.add(concept);
 			}

@@ -269,7 +269,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			connectorType.getMetadata().put(PROTECTED_MODE_SWITCH_KEY, String.valueOf(mappingDto.isProtectionEnabled()));
 		}
 
-		// Load the provisioning mapping.
+		// Load the sync mapping.
 		SysSystemMappingFilter syncMappingFilter = new SysSystemMappingFilter();
 		syncMappingFilter.setSystemId(systemDto.getId());
 		syncMappingFilter.setOperationType(SystemOperationType.SYNCHRONIZATION);
@@ -687,9 +687,10 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			setValueToConnectorInstance(USER_SEARCH_CONTAINER_KEY, searchUserContainer, systemDto, operationOptionsFormDefinition);
 		}
 
+		String mappingSyncId = connectorType.getMetadata().get(MAPPING_SYNC_ID);
 		String mappingId = connectorType.getMetadata().get(MAPPING_ID);
-		if (mappingId == null) {
-			// This attributes will be updated only if system doesn't have provisioning mapping.
+		if (mappingId == null && mappingSyncId == null) {
+			// This attributes will be updated only if system doesn't have mapping.
 			// Checking by existing mapping and not by reopen flag solves a problem with reopen wizard for to early closed wizard. For example in the certificate step.
 			initDefaultConnectorSettings(systemDto, connectorFormDef);
 		}

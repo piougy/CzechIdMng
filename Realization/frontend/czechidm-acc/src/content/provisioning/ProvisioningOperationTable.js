@@ -53,6 +53,9 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
+    if (this.refs.emptyProvisioning) {
+      this.refs.emptyProvisioning.setValue(null);
+    }
     this.refs.table.cancelFilter(this.refs.filterForm);
   }
 

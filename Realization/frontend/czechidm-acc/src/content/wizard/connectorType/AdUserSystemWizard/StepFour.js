@@ -107,6 +107,7 @@ export default class StepFour extends AbstractWizardStep {
       formData.deleteUserContainer = metadata.deleteUserContainer && protectedModeSwitch ? metadata.deleteUserContainer : null;
       formData.domainContainer = metadata.domainContainer;
     }
+    const hasPairingSync = _connectorType && _connectorType.metadata && !!_connectorType.metadata.pairingSyncId;
     const formDataPairingSync = {};
     formDataPairingSync.pairingSyncSwitch = pairingSyncSwitch;
     formDataPairingSync.newRoleWithSystem = newRoleWithSystem;
@@ -162,7 +163,7 @@ export default class StepFour extends AbstractWizardStep {
           ref="formPairingSync"
           data={formDataPairingSync}>
           <Basic.Panel
-            rendered={!reopened}
+            rendered={!hasPairingSync}
             style={{backgroundColor: '#d9edf7', borderColor: '#bce8f1', color: '#31708f'}}>
             <Basic.PanelBody style={{padding: 10, paddingBottom: 0}}>
               <Basic.ToggleSwitch

@@ -79,6 +79,11 @@ export default class StepOne extends AbstractWizardStep {
       formData.host = metadata.host;
       formData.user = metadata.user;
       formData.sslSwitch = sslSwitch;
+      // Only for a help during testing. 
+      // formData.host = 'adradic1.piskoviste.bcv';
+      // formData.user = 'CN=Administrator,CN=Users,DC=piskoviste,DC=bcv';
+      // formData.password = '';
+      //
       if (_connectorType.reopened) {
         // We expecting the password was already filled for reopened system.
         formData.password = '********';

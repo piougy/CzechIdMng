@@ -616,8 +616,8 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
 		boolean pairingSyncSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(PAIRING_SYNC_SWITCH_KEY));
 		String pairingSyncAttributeCode = connectorType.getMetadata().get(PAIRING_SYNC_DN_ATTR_KEY);
-		if (pairingSyncAttributeCode != null) {
-			Assert.notNull(pairingSyncAttributeCode, "EAV code pairing sync cannot be null!");
+		if (pairingSyncAttributeCode == null) {
+			pairingSyncAttributeCode = PAIRING_SYNC_DN_ATTR_DEFAULT_VALUE;
 		}
 		boolean protectedModeSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(PROTECTED_MODE_SWITCH_KEY));
 
@@ -687,9 +687,10 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			setValueToConnectorInstance(USER_SEARCH_CONTAINER_KEY, searchUserContainer, systemDto, operationOptionsFormDefinition);
 		}
 
-		boolean reopened = connectorType.isReopened();
-		if (!reopened) {
-			// This attributes will be updated only for first time.
+		String mappingId = connectorType.getMetadata().get(MAPPING_ID);
+		if (mappingId == null) {
+			// This attributes will be updated only if system doesn't have provisioning mapping.
+			// Checking by existing mapping and not by reopen flag solves a problem with reopen wizard for to early closed wizard. For example in the certificate step.
 			initDefaultConnectorSettings(systemDto, connectorFormDef);
 		}
 
@@ -764,8 +765,8 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			// Attribute missing -> create it now.
 			createSchemaAttribute(schemaDto, LDAP_GROUPS_ATTRIBUTE, String.class.getName(), true, true, true);
 		}
-
-		String mappingId = connectorType.getMetadata().get(MAPPING_ID);
+	
+		mappingId = connectorType.getMetadata().get(MAPPING_ID);
 		if (mappingId == null) {
 			// Create identity mapping for provisioning.
 			SysSystemMappingDto mappingDto = new SysSystemMappingDto();

@@ -6,6 +6,8 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -48,6 +50,8 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 	private IdmIdentityService identityService;
 	@Autowired
 	private SysSystemService systemService;
+	@Autowired
+	private AccAccountService accountService;
 
 
 	@Override
@@ -65,6 +69,22 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 		// Uniform password notification can be send, only when account is created => update can be switched to create, if target account does not exist.
 		// @see PrepareConnectorObjectProcessor
 		if (provisioningOperation.getOperationType() != ProvisioningEventType.CREATE) {
+			return false;
+		}
+		
+		if (provisioningOperation.getSystem() == null || provisioningOperation.getSystemEntity() == null) {
+			return false;
+		}
+
+		// Check if this system supports change of a password.
+		AccAccountFilter accountFilter = new AccAccountFilter();
+		accountFilter.setSystemEntityId(provisioningOperation.getSystemEntity());
+		accountFilter.setSystemId(provisioningOperation.getSystem());
+		accountFilter.setSupportChangePassword(Boolean.TRUE);
+
+		long count = accountService.count(accountFilter);
+		if (count == 0) {
+			// System doesn't support a password change!
 			return false;
 		}
 
@@ -123,7 +143,6 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 		return new DefaultEventResult<>(event, this);
 	}
 	
-
 	@Override
 	public int getOrder() {
 		return 900;

@@ -78,7 +78,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	}
 
 	@Override
-	public void notifyEnd() {
+	protected Boolean end(Boolean result, Exception ex) {
 		Assert.notNull(this.getLongRunningTaskId(), "LRT has to be persisted before task ends.");
 		IdmLongRunningTaskDto task = longRunningTaskService.get(this.getLongRunningTaskId());
 		// Send notification with password to identities where was uniform password used.
@@ -86,7 +86,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 		// TODO: Check only for contract sync?
 		uniformPasswordManager.endUniformPasswordProcess(task.getTransactionId());
 		
-		super.notifyEnd();
+		return super.end(result, ex);
 	}
 
 	private AbstractSysSyncConfigDto getConfig() {

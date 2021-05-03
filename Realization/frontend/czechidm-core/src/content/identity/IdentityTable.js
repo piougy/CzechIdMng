@@ -398,6 +398,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             header={ this.i18n('entity.Identity._type') }
             property="entityinfo"
             sort
+            sortProperty="username"
             cell={
               ({ rowIndex, data }) => (
                 <Advanced.EntityInfo

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -50,6 +51,11 @@ public interface UniformPasswordManager {
 	 * Try to find a uniform password entity state for given entity and transaction.
 	 */
 	IdmEntityStateDto getEntityState(UUID entityIdentifier, Class<? extends AbstractDto> entityType, UUID transactionId);
+
+	/**
+	 * Find uniform password DTO by system ID.
+	 */
+	AccUniformPasswordDto getUniformPasswordBySystem(UUID systemId);
 
 	/**
 	 * Returns true if should be uniform password set to IdM too. A password should be set

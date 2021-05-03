@@ -66,15 +66,15 @@ public class IdentitySetUniformPasswordProcessor
 							IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto,
 							EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFICATION, Boolean.TRUE)); // Notification will be send after end of sync.
 			getEntityEventManager().process(identityEvent);
-
-			IdmEntityStateDto uniformPasswordState = uniformPasswordManager
-					.getEntityState(newIdentity.getId(), newIdentity.getClass(), newIdentity.getTransactionId());
-			if (uniformPasswordState != null) {
-				// Add name of IdM system to the entity state.
-				uniformPasswordManager.addSystemNameToEntityState(uniformPasswordState, UniformPasswordManager.IDM_NAME);
-				// Save entity state with new parameters.
-				entityStateManager.saveState(null, uniformPasswordState);
-			}
+			// Add IdM to uniform password set notification.
+//			IdmEntityStateDto uniformPasswordState = uniformPasswordManager
+//					.getEntityState(newIdentity.getId(), newIdentity.getClass(), newIdentity.getTransactionId());
+//			if (uniformPasswordState != null) {
+//				// Add name of IdM system to the entity state.
+//				uniformPasswordManager.addSystemNameToEntityState(uniformPasswordState, UniformPasswordManager.IDM_NAME);
+//				// Save entity state with new parameters.
+//				entityStateManager.saveState(null, uniformPasswordState);
+//			}
 			return new DefaultEventResult<>(event, this);
 		}
 		return new DefaultEventResult<>(event, this);

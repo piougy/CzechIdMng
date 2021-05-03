@@ -404,6 +404,11 @@ public class DefaultUniformPasswordManagerIntegrationTest extends AbstractIntegr
 			notificationFilter.setTopic(CoreModule.TOPIC_UNIFORM_PASSWORD_SET);
 			List<IdmNotificationLogDto> notificationLogDtos = notificationLogService.find(notificationFilter, null).getContent();
 			Assert.assertEquals(1, notificationLogDtos.size());
+			
+			// Check if notification contains code of uniform password group.
+			IdmNotificationLogDto uniformPasswordSetNotification = notificationLogDtos.get(0);
+			String notificationBody = uniformPasswordSetNotification.getMessage().getHtmlMessage();
+			Assert.assertTrue(notificationBody.contains(uniformPasswordDef.getCode()));
 
 			// None a new password notification was send.
 			notificationFilter.setTopic(AccModuleDescriptor.TOPIC_NEW_PASSWORD);

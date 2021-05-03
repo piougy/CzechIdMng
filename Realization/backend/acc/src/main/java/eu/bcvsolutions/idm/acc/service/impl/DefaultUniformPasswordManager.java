@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccUniformPasswordFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccUniformPasswordService;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
@@ -127,6 +128,20 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 		long count = uniformPasswordService.count(uniformPasswordFilter);
 
 		return count > 0;
+	}
+
+	@Override
+	public AccUniformPasswordDto getUniformPasswordBySystem(UUID systemId) {
+		Assert.notNull(systemId, "System ID cannot be null!");
+
+		AccUniformPasswordFilter uniformPasswordFilter = new AccUniformPasswordFilter();
+		uniformPasswordFilter.setSystemId(systemId);
+		uniformPasswordFilter.setDisabled(Boolean.FALSE);
+		return uniformPasswordService.find(uniformPasswordFilter, null)
+				.getContent()
+				.stream()
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override

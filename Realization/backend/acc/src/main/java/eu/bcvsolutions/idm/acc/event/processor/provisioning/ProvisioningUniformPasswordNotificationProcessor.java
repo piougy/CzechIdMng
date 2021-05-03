@@ -4,6 +4,7 @@ import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Maps;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
@@ -108,11 +109,10 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 						.getEntityState(identityDto.getId(), identityDto.getClass(), provisioningOperation.getTransactionId());
 				UUID systemId = provisioningOperation.getSystem();
 				if (systemId != null) {
-					SysSystemDto systemDto = systemService.get(systemId);
-					if (systemDto != null) {
-						if (uniformPasswordState != null) {
-							// Add name of system to the entity state.
-							uniformPasswordManager.addSystemNameToEntityState(uniformPasswordState, systemDto.getCode());
+					AccUniformPasswordDto uniformPasswordBySystem = uniformPasswordManager.getUniformPasswordBySystem(systemId);
+					if (uniformPasswordBySystem != null && uniformPasswordState != null) {
+							// Add name of uniform password group to the entity state.
+							uniformPasswordManager.addSystemNameToEntityState(uniformPasswordState, uniformPasswordBySystem.getCode());
 
 							ResultModel model = uniformPasswordState.getResult().getModel();
 							// Create new parameters for entity state.
@@ -135,7 +135,6 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 							// Save entity state with new parameters.
 							uniformPasswordState.getResult().setModel(new DefaultResultModel(CoreResultCode.IDENTITY_UNIFORM_PASSWORD, newParameters));
 							entityStateManager.saveState(null, uniformPasswordState);
-						}
 					}
 				}
 			}

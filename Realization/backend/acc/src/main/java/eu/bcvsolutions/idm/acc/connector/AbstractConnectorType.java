@@ -286,7 +286,7 @@ public abstract class AbstractConnectorType implements
 	}
 	
 	protected void setValueToConnectorInstance(String attributeCode, List<Serializable> values, SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {
-		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(attributeCode);;
+		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(attributeCode);
 		formService.saveValues(systemDto, attribute, values);
 	}
 

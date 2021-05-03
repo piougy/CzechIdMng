@@ -715,8 +715,8 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		}
 		// Generate a system schema.
 		generateSchema(connectorType, systemDto);
-		// Second we will set full user search base DN and again generate the schema.
-		this.setValueToConnectorInstance(ROOT_SUFFIXES_KEY, searchUserContainer, systemDto, connectorFormDef);
+		// Second we will set full user search / new / delete base DN and again generate the schema.
+		this.setValueToConnectorInstance(ROOT_SUFFIXES_KEY, values, systemDto, connectorFormDef);
 		SysSchemaObjectClassDto schemaDto = generateSchema(connectorType, systemDto);
 
 		// Find sAMAccountName attribute in the schema.

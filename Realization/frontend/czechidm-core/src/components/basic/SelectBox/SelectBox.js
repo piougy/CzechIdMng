@@ -150,12 +150,12 @@ class SelectBox extends AbstractFormComponent {
                 results[item]._disableClear = true;
                 addEmptyOption = false;
               }
-              // Default behavior: Use the first value, but only if exist only one item and select box is required.
-              if (results.length === 1 && !this.state.value && !!required && useFirstIfOne === undefined) {
+              // Default behavior: Use the first value, but only if exist only one item and select box is required. This feature is skipped if input is use.
+              if (results.length === 1 && !this.state.value && !!required && useFirstIfOne === undefined && !input) {
                 this.onChange(results[item]);
               }
-              // Use the first value, but only if exist only one item.
-              if (results.length === 1 && !this.state.value && useFirstIfOne === true) {
+              // Use the first value, but only if exist only one item. This feature is skipped if input is use.
+              if (results.length === 1 && !this.state.value && useFirstIfOne === true && !input) {
                 this.onChange(results[item]);
               }
               // Use the first value.

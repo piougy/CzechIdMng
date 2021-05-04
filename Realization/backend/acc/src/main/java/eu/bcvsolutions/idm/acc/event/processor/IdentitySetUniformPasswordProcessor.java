@@ -1,8 +1,12 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Component;
+
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
-import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -11,14 +15,10 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
-import org.springframework.stereotype.Component;
 
 /**
  * Set uniform password for identity to the IdM.
@@ -36,8 +36,6 @@ public class IdentitySetUniformPasswordProcessor
 
 	@Autowired
 	private UniformPasswordManager uniformPasswordManager;
-	@Autowired
-	private EntityStateManager entityStateManager;
 
 	@Override
 	public String getName() {
@@ -66,15 +64,7 @@ public class IdentitySetUniformPasswordProcessor
 							IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto,
 							EntityEventManager.EVENT_PROPERTY_SKIP_NOTIFICATION, Boolean.TRUE)); // Notification will be send after end of sync.
 			getEntityEventManager().process(identityEvent);
-			// Add IdM to uniform password set notification.
-//			IdmEntityStateDto uniformPasswordState = uniformPasswordManager
-//					.getEntityState(newIdentity.getId(), newIdentity.getClass(), newIdentity.getTransactionId());
-//			if (uniformPasswordState != null) {
-//				// Add name of IdM system to the entity state.
-//				uniformPasswordManager.addSystemNameToEntityState(uniformPasswordState, UniformPasswordManager.IDM_NAME);
-//				// Save entity state with new parameters.
-//				entityStateManager.saveState(null, uniformPasswordState);
-//			}
+			//
 			return new DefaultEventResult<>(event, this);
 		}
 		return new DefaultEventResult<>(event, this);

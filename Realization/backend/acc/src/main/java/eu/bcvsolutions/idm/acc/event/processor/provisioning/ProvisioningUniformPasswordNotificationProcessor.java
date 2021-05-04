@@ -1,15 +1,22 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
+import java.util.HashMap;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Component;
+
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Maps;
+
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.api.UniformPasswordManager;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
@@ -24,12 +31,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
-import org.springframework.stereotype.Component;
 
 /**
  * Processor adds system entity ID to system entity for uniform password. This processor doesn't send notification. Notification will be send after sync ends.
@@ -50,10 +51,7 @@ public class ProvisioningUniformPasswordNotificationProcessor extends AbstractEn
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
-	private SysSystemService systemService;
-	@Autowired
 	private AccAccountService accountService;
-
 
 	@Override
 	public String getName() {

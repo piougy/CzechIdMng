@@ -9,18 +9,25 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
 /**
- * Delete entity's states from queue
+ * Delete entity state
  *
  * @author artem
+ * @author Radek Tomiška
  */
 @Component(EntityStateDeleteBulkAction.NAME)
-@Description("Delete entity state from queue.")
+@Description("Delete entity state.")
 public class EntityStateDeleteBulkAction extends AbstractRemoveBulkAction<IdmEntityStateDto, IdmEntityStateFilter> {
 
     public static final String NAME = "core-entity-state-delete-bulk-action";
@@ -37,6 +44,11 @@ public class EntityStateDeleteBulkAction extends AbstractRemoveBulkAction<IdmEnt
     public ReadWriteDtoService<IdmEntityStateDto, IdmEntityStateFilter> getService() {
         return service;
     }
+    
+    @Override
+	protected List<String> getAuthoritiesForEntity() {
+		return Lists.newArrayList(CoreGroupPermission.ENTITYSTATE_DELETE);
+	}
 
     @Override
     protected OperationResult processDto(IdmEntityStateDto dto) {

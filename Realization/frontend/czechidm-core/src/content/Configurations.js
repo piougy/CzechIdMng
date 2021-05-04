@@ -531,23 +531,23 @@ class Configurations extends Advanced.AbstractTableContent {
               cell={
                 ({ rowIndex, data }) => (
                   <Basic.Button
-                    title={this.i18n('button.edit')}
+                    title={ this.i18n('button.edit') }
                     className="btn-xs"
                     icon="fa:pencil"
                     onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                 )
               }/>
-            <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width={ 250 }/>
-            <Basic.Column property="value" header={this.i18n('entity.Configuration.value')} />
+            <Basic.Column property="name" header={ this.i18n('entity.Configuration.name') } width={ 250 }/>
+            <Basic.Column property="value" header={ this.i18n('entity.Configuration.value') } />
             <Basic.Column
               property="confidential"
-              header={<Basic.Cell className="column-face-bool">{this.i18n('entity.Configuration.confidential')}</Basic.Cell>}
-              cell={<Basic.BooleanCell className="column-face-bool"/>}
+              header={ <Basic.Cell className="column-face-bool">{ this.i18n('entity.Configuration.confidential') }</Basic.Cell> }
+              cell={ <Basic.BooleanCell className="column-face-bool"/> }
               width={ 150 }/>
             <Basic.Column
               property="public"
-              header={<Basic.Cell className="column-face-bool">{this.i18n('entity.Configuration.public')}</Basic.Cell>}
-              cell={<Basic.BooleanCell className="column-face-bool"/>}
+              header={ <Basic.Cell className="column-face-bool">{ this.i18n('entity.Configuration.public') }</Basic.Cell> }
+              cell={ <Basic.BooleanCell className="column-face-bool"/> }
               width={ 100 }/>
           </Basic.Table>
         </Basic.Panel>

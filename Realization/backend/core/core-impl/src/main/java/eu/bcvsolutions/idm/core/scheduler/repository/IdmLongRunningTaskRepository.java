@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 
 /**
- * Persists long running tasks
+ * Persists long running tasks.
  * 
  * @author Radek Tomiška
  *
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 public interface IdmLongRunningTaskRepository extends AbstractEntityRepository<IdmLongRunningTask> {
 	
 	/**
-	 * Finds all tasks by given machine and state
+	 * Finds all tasks by given machine and state.
 	 * 
 	 * @param instanceId
 	 * @return
@@ -31,7 +31,7 @@ public interface IdmLongRunningTaskRepository extends AbstractEntityRepository<I
 			@Param("state") OperationState state);
 	
 	/**
-	 * Update state only
+	 * Update state only.
 	 * 
 	 * @param id
 	 * @param count

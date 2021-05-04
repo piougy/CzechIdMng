@@ -41,7 +41,9 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
+    if (SecurityManager.hasAuthority('AUDIT_READ')) {
+      this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
+    }
   }
 
   getContentKey() {
@@ -219,21 +221,25 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last" rendered={ _.includes(columns, 'ownerType') }>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ SecurityManager.hasAuthority('AUDIT_READ') ? 4 : 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={ this.i18n('filter.text.placeholder') }
                       help={ Advanced.Filter.getTextHelp({ includeUuidHelp: true }) }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.EnumSelectBox
-                      ref="ownerType"
-                      searchable
-                      placeholder={this.i18n('filter.ownerType.placeholder')}
-                      options={ auditedEntities }
-                      onChange={ this.onEntityTypeChange.bind(this) }/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 }>
+                  {
+                    !SecurityManager.hasAuthority('AUDIT_READ')
+                    ||
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.EnumSelectBox
+                        ref="ownerType"
+                        searchable
+                        placeholder={this.i18n('filter.ownerType.placeholder')}
+                        options={ auditedEntities }
+                        onChange={ this.onEntityTypeChange.bind(this) }/>
+                    </Basic.Col>
+                  }
+                  <Basic.Col lg={ SecurityManager.hasAuthority('AUDIT_READ') ? 4 : 6 }>
                     <Advanced.Filter.TextField
                       ref="ownerId"
                       placeholder={ entityType ? this.i18n('filter.entityId.codeable') : this.i18n('filter.entityId.placeholder') }
@@ -255,7 +261,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
               key="delete-all-button"
               className="btn-xs"
               onClick={ this._deleteAll.bind(this) }
-              rendered={ showDeleteAllButton && SecurityManager.hasAnyAuthority('APP_ADMIN') }
+              rendered={ showDeleteAllButton && SecurityManager.hasAuthority('APP_ADMIN') }
               title={ this.i18n('action.deleteAll.button.title') }
               titlePlacement="bottom"
               icon="fa:trash">
@@ -462,7 +468,8 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                         entityIdentifier={ detail.entity.ownerId }
                         style={{ margin: 0 }}
                         face="popover"
-                        showEntityType={ false }/>
+                        showEntityType={ false }
+                        showIcon/>
                     }
                   </Basic.LabelWrapper>
                 </Basic.Col>
@@ -500,17 +507,24 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
               <Advanced.OperationResult value={ detail.entity.result } face="full" rendered={ !detail.message }/>
             </Basic.AbstractForm>
 
-            <Basic.ContentHeader text={ this.i18n('state.header') } style={{ marginBottom: 0 }} rendered={ !detail.message } />
+            {
+              !SecurityManager.hasAuthority('ENTITYSTATE_READ')
+              ||
+              <Basic.Div>
+                <Basic.ContentHeader text={ this.i18n('state.header') } style={{ marginBottom: 0 }} rendered={ !detail.message } />
 
-            <EntityStateTableComponent
-              ref="stateTable"
-              uiKey={ `entity-event-state-table-${detail.entity.id}` }
-              rendered={ !detail.message && detail.entity.id !== undefined && detail.entity.id !== null }
-              showFilter={ false }
-              showToolbar
-              forceSearchParameters={ stateForceSearchParameters }
-              columns={ _.difference(EntityStateTable.defaultProps.columns, ['ownerType', 'ownerId', 'event', 'instanceId']) }
-              className="no-margin"/>
+                <EntityStateTableComponent
+                  ref="stateTable"
+                  uiKey={ `entity-event-state-table-${detail.entity.id}` }
+                  rendered={ !detail.message && detail.entity.id !== undefined && detail.entity.id !== null }
+                  showFilter={ false }
+                  showToolbar
+                  forceSearchParameters={ stateForceSearchParameters }
+                  columns={ _.difference(EntityStateTable.defaultProps.columns, ['ownerType', 'ownerId', 'event', 'instanceId']) }
+                  className="no-margin"/>
+              </Basic.Div>
+            }
+
           </Basic.Modal.Body>
 
           <Basic.Modal.Footer>

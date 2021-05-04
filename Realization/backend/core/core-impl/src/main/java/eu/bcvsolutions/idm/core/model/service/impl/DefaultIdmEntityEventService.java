@@ -32,10 +32,12 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -62,6 +64,11 @@ public class DefaultIdmEntityEventService
 		super(repository, entityEventManager);
 		//
 		this.repository = repository;
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.ENTITYEVENT, getEntityClass());
 	}
 
 	@Override

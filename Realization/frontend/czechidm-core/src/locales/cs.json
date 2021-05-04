@@ -1217,7 +1217,9 @@
       "GENERATEVALUE": "Generování hodnot",
       "PASSWORD": "Uživatelská hesla",
       "EXPORTIMPORT": "Export/Import",
-      "DELEGATIONDEFINITION": "Delegace"
+      "DELEGATIONDEFINITION": "Delegace",
+      "ENTITYEVENT": "Události",
+      "ENTITYSTATE": "Stavy entit"
     }
   },
   "content": {
@@ -6369,6 +6371,16 @@
         "label": "$t(action.delete.action) oprávnění",
         "help": "Smaže vybraná oprávnění.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-authorization-policy-disable-bulk-action": {
+        "label": "Deaktivovat oprávnění",
+        "help": "Deaktivuje vybraná oprávnění",
+        "icon": "fa:ban"
+      },
+      "core-authorization-policy-enable-bulk-action": {
+        "label": "Aktivovat oprávnění",
+        "help": "Aktivuje vybraná oprávnění.",
+        "icon": "fa:check-square-o"
       },
       "core-password-policy-delete-bulk-action": {
         "label": "$t(action.delete.action) politiky hesel",

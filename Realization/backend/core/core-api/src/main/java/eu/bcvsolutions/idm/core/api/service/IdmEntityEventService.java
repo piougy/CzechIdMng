@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
  * Persisted entity events.
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
  */
 public interface IdmEntityEventService extends 
 		EventableDtoService<IdmEntityEventDto, IdmEntityEventFilter>,
+		AuthorizableService<IdmEntityEventDto>,
 		ScriptEnabled {
 
 	/**

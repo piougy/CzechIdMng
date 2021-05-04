@@ -1,12 +1,13 @@
+import moment from 'moment';
+//
 import * as Utils from '../utils';
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
-import LocalizationService from './LocalizationService';
-import moment from 'moment';
+import { i18n } from './LocalizationService';
 
 /**
- * Entity events and states
+ * Entity events and states.
  *
  * @author Radek Tomiška
  */
@@ -20,11 +21,15 @@ export default class EntityEventService extends AbstractService {
     return true;
   }
 
+  getGroupPermission() {
+    return 'ENTITYEVENT';
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';
     }
-    return `${moment(entity.created).format(LocalizationService.i18n('format.date'))}: ${entity.eventType}`;
+    return `${ moment(entity.created).format(i18n('format.date')) }: ${ entity.eventType }`;
   }
 
   /**
@@ -43,7 +48,7 @@ export default class EntityEventService extends AbstractService {
    */
   deleteAll() {
     return RestApiService
-      .delete(RestApiService.getUrl(this.getApiPath() + `/action/bulk/delete`))
+      .delete(RestApiService.getUrl(`${ this.getApiPath() }/action/bulk/delete`))
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);

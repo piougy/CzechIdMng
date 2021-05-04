@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
-import { EntityEventManager, DataManager } from '../../../redux';
+import { EntityEventManager, DataManager, SecurityManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import EntityEventTable from './EntityEventTable';
 
@@ -30,18 +30,20 @@ class EntityEvents extends Basic.AbstractContent {
     }
     //
     // fetch counts
-    this.context.store.dispatch(
-      manager.fetchEntitiesCount(
-        new SearchParameters().setFilter('states', ['CREATED', 'RUNNING']),
-        `entity-event-info-count`
-      )
-    );
-    this.context.store.dispatch(
-      manager.fetchEntitiesCount(
-        new SearchParameters().setFilter('states', ['EXCEPTION']),
-        `entity-event-error-count`
-      )
-    );
+    if (SecurityManager.hasAuthority('ENTITYEVENT_COUNT')) {
+      this.context.store.dispatch(
+        manager.fetchEntitiesCount(
+          new SearchParameters().setFilter('states', ['CREATED', 'RUNNING']),
+          `entity-event-info-count`
+        )
+      );
+      this.context.store.dispatch(
+        manager.fetchEntitiesCount(
+          new SearchParameters().setFilter('states', ['EXCEPTION']),
+          `entity-event-error-count`
+        )
+      );
+    }
   }
 
   render() {

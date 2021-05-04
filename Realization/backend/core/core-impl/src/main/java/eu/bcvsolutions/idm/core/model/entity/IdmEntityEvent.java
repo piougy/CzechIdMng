@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
- * Persisted entity event
+ * Persisted entity event.
  * 
  * @since 8.0.0
  * @author Radek Tomiška

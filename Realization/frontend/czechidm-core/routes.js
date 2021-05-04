@@ -142,7 +142,7 @@ module.exports = {
         {
           path: 'events',
           component: require('./src/content/identity/IdentityEvents'),
-          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN' ] } ]
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ENTITYEVENT_READ' ] } ]
         },
         {
           path: 'delegation-definitions/',
@@ -1053,12 +1053,12 @@ module.exports = {
     {
       path: 'audit/entity-events',
       component: require('./src/content/audit/event/EntityEvents'),
-      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ENTITYEVENT_READ'] } ]
     },
     {
       path: 'audit/entity-states',
       component: require('./src/content/audit/event/EntityStates'),
-      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ENTITYSTATE_READ'] } ]
     },
     {
       path: 'generate-values',

@@ -16,6 +16,10 @@ export default class EntityStateService extends AbstractService {
     return true;
   }
 
+  getGroupPermission() {
+    return 'ENTITYSTATE';
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

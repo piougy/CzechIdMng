@@ -3,7 +3,6 @@ import {connect} from 'react-redux';
 import * as Basic from '../../../components/basic';
 import EntityStateTable from './EntityStateTable';
 
-
 /**
  * Audit of entity events state.
  *

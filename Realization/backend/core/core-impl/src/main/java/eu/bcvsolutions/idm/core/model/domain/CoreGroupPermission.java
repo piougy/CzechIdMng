@@ -379,6 +379,22 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	ENTITYEVENT( // @since 11.1.0
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE),
+	ENTITYSTATE( // @since 11.1.0
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authorize SpEl expressions
@@ -701,6 +717,22 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String DELEGATIONDEFINITION_CREATE = "DELEGATIONDEFINITION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String DELEGATIONDEFINITION_UPDATE = "DELEGATIONDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String DELEGATIONDEFINITION_DELETE = "DELEGATIONDEFINITION" + BasePermission.SEPARATOR + "DELETE";
+	// @since 11.1.0
+	public static final String ENTITYEVENT_ADMIN = "ENTITYEVENT" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String ENTITYEVENT_COUNT = "ENTITYEVENT" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ENTITYEVENT_AUTOCOMPLETE = "ENTITYEVENT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String ENTITYEVENT_READ = "ENTITYEVENT" + BasePermission.SEPARATOR + "READ";
+	public static final String ENTITYEVENT_CREATE = "ENTITYEVENT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ENTITYEVENT_UPDATE = "ENTITYEVENT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ENTITYEVENT_DELETE = "ENTITYEVENT" + BasePermission.SEPARATOR + "DELETE";
+	// @since 11.1.0
+	public static final String ENTITYSTATE_ADMIN = "ENTITYSTATE" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String ENTITYSTATE_COUNT = "ENTITYSTATE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ENTITYSTATE_AUTOCOMPLETE = "ENTITYSTATE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String ENTITYSTATE_READ = "ENTITYSTATE" + BasePermission.SEPARATOR + "READ";
+	public static final String ENTITYSTATE_CREATE = "ENTITYSTATE" + BasePermission.SEPARATOR + "CREATE";
+	public static final String ENTITYSTATE_UPDATE = "ENTITYSTATE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String ENTITYSTATE_DELETE = "ENTITYSTATE" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

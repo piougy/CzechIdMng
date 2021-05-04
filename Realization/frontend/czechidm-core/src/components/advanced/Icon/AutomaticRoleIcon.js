@@ -16,8 +16,8 @@ export default class AutomaticRoleIcon extends AbstractIcon {
   renderIcon() {
     return (
       <span className={ this.getClassName('fa-layers fa-fw') }>
-        <FontAwesomeIcon icon={ faKey } transform="down--4 shrink-4" style={{ color: '#ccc' }}/>
-        <FontAwesomeIcon icon={ faMagic } transform="down-3 right-6 shrink-4"/>
+        <FontAwesomeIcon icon={ faKey } transform="down--4 left-2" style={{ color: '#ccc' }}/>
+        <FontAwesomeIcon icon={ faMagic } transform="down-3 right-4 shrink-4"/>
       </span>
     );
   }

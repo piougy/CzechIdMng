@@ -6,7 +6,7 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { EntityStateManager, AuditManager } from '../../../redux';
+import { EntityStateManager, AuditManager, SecurityManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
 
@@ -37,7 +37,9 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
+    if (SecurityManager.hasAuthority('AUDIT_READ')) {
+      this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
+    }
   }
 
   getContentKey() {
@@ -132,21 +134,25 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row rendered={ _.includes(columns, 'ownerType') }>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ SecurityManager.hasAuthority('AUDIT_READ') ? 4 : 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={ this.i18n('filter.text.placeholder') }
                       help={ Advanced.Filter.getTextHelp({ includeUuidHelp: true }) }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.EnumSelectBox
-                      ref="ownerType"
-                      searchable
-                      placeholder={this.i18n('filter.ownerType.placeholder')}
-                      options={ auditedEntities }
-                      onChange={ this.onEntityTypeChange.bind(this) }/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 }>
+                  {
+                    !SecurityManager.hasAuthority('AUDIT_READ')
+                    ||
+                    <Basic.Col lg={ 4 }>
+                      <Advanced.Filter.EnumSelectBox
+                        ref="ownerType"
+                        searchable
+                        placeholder={this.i18n('filter.ownerType.placeholder')}
+                        options={ auditedEntities }
+                        onChange={ this.onEntityTypeChange.bind(this) }/>
+                    </Basic.Col>
+                  }
+                  <Basic.Col lg={ SecurityManager.hasAuthority('AUDIT_READ') ? 4 : 6 }>
                     <Advanced.Filter.TextField
                       ref="ownerId"
                       placeholder={ entityType ? this.i18n('filter.entityId.codeable') : this.i18n('filter.entityId.placeholder') }
@@ -201,19 +207,20 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="created" sort face="datetime" rendered={ _.includes(columns, 'created') } width={ 175 }/>
           <Advanced.Column
             property="ownerType"
-            rendered={_.includes(columns, 'ownerType')}
+            rendered={ _.includes(columns, 'ownerType') }
             width={ 200 }
             cell={
               ({rowIndex, data, property}) => (
                 <span title={data[rowIndex][property]}>
                   { Utils.Ui.getSimpleJavaType(data[rowIndex][property]) }
                 </span>
-              )}
+              )
+            }
           />
           <Advanced.Column
             property="ownerId"
             header={ this.i18n('entity.EntityEvent.owner.label') }
-            rendered={_.includes(columns, 'ownerId')}
+            rendered={ _.includes(columns, 'ownerId') }
             cell={
               ({ rowIndex, data, property }) => {
                 //

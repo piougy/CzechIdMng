@@ -23,10 +23,12 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityState;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityState_;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * CRUD for entity states.
@@ -45,6 +47,11 @@ public class DefaultIdmEntityStateService
 			IdmEntityStateRepository repository,
 			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
+	}
+	
+	@Override
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(CoreGroupPermission.ENTITYSTATE, getEntityClass());
 	}
 
 	@Override

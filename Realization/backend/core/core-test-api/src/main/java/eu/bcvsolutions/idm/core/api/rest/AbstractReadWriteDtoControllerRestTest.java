@@ -945,11 +945,28 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		DTO dto = createDto();
 		for (IdmBulkActionDto action : actions) {
 			action.setIdentifiers(Sets.newHashSet(dto.getId()));
+			//
+			// prevalidate
 			getMockMvc().perform(post(getBulkPrevalidateUrl())
 	        		.with(authentication(authentication))
 	        		.content(getMapper().writeValueAsString(action))
 	        		.contentType(TestHelper.HAL_CONTENT_TYPE))
 					.andExpect(status().isOk());
+			// execute without identifier is set ~ no change, but endpoint can be called
+			action.setIdentifiers(null);
+			if (!action.isShowWithoutSelection()
+					&& action.isShowWithSelection()
+					&& !action.isDisabled()) {
+				Assert.assertNotNull(
+						getMockMvc().perform(post(getBulkActionUrl())
+			        		.with(authentication(authentication))
+			        		.content(getMapper().writeValueAsString(action))
+			        		.contentType(TestHelper.HAL_CONTENT_TYPE))
+							.andReturn()
+			                .getResponse()
+			                .getContentAsString()
+			    );
+			}
 		}
 	}
 	

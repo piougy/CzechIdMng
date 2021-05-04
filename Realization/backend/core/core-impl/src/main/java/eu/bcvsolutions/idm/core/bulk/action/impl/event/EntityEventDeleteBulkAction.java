@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 
 /**
  * Delete entity events from queue.
@@ -42,7 +42,7 @@ public class EntityEventDeleteBulkAction extends AbstractRemoveBulkAction<IdmEnt
 
 	@Override
 	protected List<String> getAuthoritiesForEntity() {
-		return Lists.newArrayList(IdmGroupPermission.APP_ADMIN);
+		return Lists.newArrayList(CoreGroupPermission.ENTITYEVENT_DELETE);
 	}
 
 	@Override

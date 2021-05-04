@@ -324,7 +324,7 @@ module.exports = {
                     labelKey: 'content.entityEvents.label',
                     order: 550,
                     path: '/identity/:entityId/events',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ENTITYEVENT_READ'] } ]
                   },
                   {
                     id: 'profile-delegations',
@@ -1016,7 +1016,7 @@ module.exports = {
             access: [
               {
                 type: 'HAS_ANY_AUTHORITY',
-                authorities: ['APP_ADMIN']
+                authorities: ['ENTITYEVENT_READ']
               }
             ]
           },
@@ -1026,7 +1026,7 @@ module.exports = {
             titleKey: 'content.entityStates.title',
             order: 150,
             path: '/audit/entity-states',
-            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ENTITYSTATE_READ'] } ]
           }
         ]
       },

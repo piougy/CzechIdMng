@@ -171,6 +171,17 @@ public interface LongRunningTaskManager {
 	 * @since 8.2.0
 	 */
 	boolean isAsynchronous();
+	
+	/**
+	 * Asynchronous task processing is stopped.
+	 * Asynchronous task processing is stopped, when instance for processing is switched => prevent to process asynchronous task in the meantime.
+	 * Asynchronous task processing can be stopped for testing or debugging purposes.
+	 * Asynchronous task are still created in queue, but they are not processed.
+	 * 
+	 * @since 11.1.0
+	 * @return true - asynchronous events are not processed 
+	 */
+	boolean isStopProcessing();
 
 	/**
 	 * Get attachment for long running task. {@link IdmLongRunningTaskDto} must exists,
@@ -185,4 +196,15 @@ public interface LongRunningTaskManager {
 	 * @since 9.4.0
 	 */
 	IdmAttachmentDto getAttachment(UUID longRunningTaskId, UUID attachmentId, BasePermission... permission);
+	
+	/**
+	 * Switch instanceId for processing long running tasks.
+	 * All tasks created for previous instance will be moved to new instance.
+	 * 
+	 * @param previousInstanceId previously used instance
+	 * @param newInstanceId [optional] currently configured instance will be used as default
+	 * @return updated tasks count
+	 * @since 11.1.0
+	 */
+	int switchInstanceId(String previousInstanceId, String newInstanceId);
 }

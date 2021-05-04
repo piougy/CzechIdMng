@@ -40,9 +40,10 @@ class Configurations extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     this.selectNavigationItem('system-configuration');
-    this.context.store.dispatch(manager.fetchAllConfigurationsFromFile());
+    this.context.store.dispatch(this.getManager().fetchAllConfigurationsFromFile());
+    this.context.store.dispatch(this.getManager().clearBulkActions()); // ~ reload bulk action default values
     if (SecurityManager.hasAuthority('CONFIGURATION_ADMIN')) {
-      this.context.store.dispatch(manager.fetchAllConfigurationsFromEnvironment());
+      this.context.store.dispatch(this.getManager().fetchAllConfigurationsFromEnvironment());
     }
     this.refs.text.focus();
   }
@@ -179,7 +180,7 @@ class Configurations extends Advanced.AbstractTableContent {
     // reload public configurations
     this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
     // reload all bulk actions
-    this.context.store.dispatch(this.getManager().clearBulkActions());
+    this.context.store.dispatch(this.getManager().clearAllBulkActions());
   }
 
   _forceSave(entity) {
@@ -211,7 +212,7 @@ class Configurations extends Advanced.AbstractTableContent {
       // reload public configurations
       this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
       // reload all bulk actions
-      this.context.store.dispatch(this.getManager().clearBulkActions());
+      this.context.store.dispatch(this.getManager().clearAllBulkActions());
     }
   }
 
@@ -322,12 +323,10 @@ class Configurations extends Advanced.AbstractTableContent {
               <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
-                    <Basic.Col lg={ 4 }>
+                    <Basic.Col lg={ 8 }>
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={ this.i18n('entity.Configuration.name') }/>
-                    </Basic.Col>
-                    <Basic.Col lg={ 4 }>
                     </Basic.Col>
                     <Basic.Col lg={ 4 } className="text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
@@ -373,7 +372,12 @@ class Configurations extends Advanced.AbstractTableContent {
                   // reload public configurations
                   this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
                   // reload all bulk actions
+                  this.context.store.dispatch(this.getManager().clearAllBulkActions());
+                } else if (processedBulkAction.id === 'core-configuration-switch-instance-bulk-action') {
+                  // reload all bulk actions
                   this.context.store.dispatch(this.getManager().clearBulkActions());
+                  // enforce reload for underlying table
+                  this.refs.table.reloadBulkActions();
                 }
               }
             }

@@ -72,7 +72,7 @@ export default class BulkActionManager extends EntityManager {
           }
           dispatch(this.dataManager.receiveData(uiKey, registeredBulkActions));
           // reload all bulk actions
-          dispatch(this.clearBulkActions());
+          dispatch(this.clearAllBulkActions());
           //
           if (cb) {
             cb(json, null);

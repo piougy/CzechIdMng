@@ -577,6 +577,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String MODULE_CREATE = "MODULE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String MODULE_UPDATE = "MODULE" + BasePermission.SEPARATOR + "UPDATE";
 	//
+	public static final String SCHEDULER_ADMIN = "SCHEDULER" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String SCHEDULER_COUNT = "SCHEDULER" + BasePermission.SEPARATOR + "COUNT";
 	public static final String SCHEDULER_AUTOCOMPLETE = "SCHEDULER" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String SCHEDULER_READ = "SCHEDULER" + BasePermission.SEPARATOR + "READ";

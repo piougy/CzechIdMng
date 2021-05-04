@@ -1446,11 +1446,29 @@ export default class EntityManager {
    * Clear all loaded bulk actions in redux state.
    *
    * @return {action}
+   * @since 11.1.0
+   */
+  clearAllBulkActions() {
+    return (dispatch) => {
+      dispatch(this.dataManager.clearData(this.getBulkActionContainerUiKey()));
+    };
+  }
+
+  /**
+   * Clear loaded bulk actions in redux state for related manager.
+   *
+   * @return {action}
    * @since 10.6.0
    */
   clearBulkActions() {
-    return (dispatch) => {
-      dispatch(this.dataManager.clearData(this.getBulkActionContainerUiKey()));
+    return (dispatch, getState) => {
+      const uiKey = this.getUiKeyForBulkActions();
+      const allActions = DataManager.getData(getState(), this.getBulkActionContainerUiKey()) || new Immutable.Map({});
+      const actions = allActions.get(uiKey);
+      if (actions) {
+        dispatch(this.dataManager.receiveData(this.getBulkActionContainerUiKey(), allActions.remove(uiKey)));
+        dispatch(this.dataManager.receiveData(uiKey, null));
+      }
     };
   }
 

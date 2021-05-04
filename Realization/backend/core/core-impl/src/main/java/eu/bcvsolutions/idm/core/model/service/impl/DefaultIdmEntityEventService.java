@@ -170,6 +170,12 @@ public class DefaultIdmEntityEventService
 	}
 	
 	@Override
+	@Transactional
+	public int switchInstanceId(String previousInstanceId, String newInstanceId) {
+		return repository.switchInstanceId(previousInstanceId, newInstanceId, OperationState.CREATED);
+	}
+	
+	@Override
 	protected List<Predicate> toPredicates(Root<IdmEntityEvent> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			IdmEntityEventFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);

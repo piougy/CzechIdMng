@@ -22,13 +22,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Integration tests for {@link IdmConfigurationDeleteBulkAction}
+ * Integration tests for {@link IdmConfigurationDeleteBulkAction}.
  *
  * @author Ondrej Husnik
  *
  */
-
-public class ConfigurationDeleteBulkActionTest extends AbstractBulkActionTest {
+public class ConfigurationDeleteBulkActionIntegrationTest extends AbstractBulkActionTest {
 
 	final private String commonNameRoot = "commonNameRoot";
 	final int testCount = 5;

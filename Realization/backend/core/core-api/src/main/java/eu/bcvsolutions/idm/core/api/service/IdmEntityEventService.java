@@ -62,4 +62,15 @@ public interface IdmEntityEventService extends
 	 * @since 8.1.4
 	 */
 	void deleteAll();
+	
+	/**
+	 * Switch instanceId for processing asynchronous events.
+	 * All events created for previous instance will be moved to new instance.
+	 * 
+	 * @param previuosInstanceId previously used instance
+	 * @param newInstanceId new instance
+	 * @return updated events count
+	 * @since 11.1.0
+	 */
+	int switchInstanceId(String previuosInstanceId, String newInstanceId);
 }

@@ -35,6 +35,12 @@ public class DefaultEventConfiguration extends AbstractConfiguration implements 
 	}
 	
 	@Override
+	public boolean isStopProcessing() {
+		return !isAsynchronous() // ~ all events are executed synchronously
+				|| getConfigurationService().getBooleanValue(PROPERTY_EVENT_ASYNCHRONOUS_STOP_PROCESSING, DEFAULT_EVENT_ASYNCHRONOUS_STOP_PROCESSING);
+	}
+	
+	@Override
 	public String getAsynchronousInstanceId() {
 		String eventInstanceId = getConfigurationService().getValue(PROPERTY_EVENT_ASYNCHRONOUS_INSTANCE_ID);
 		if (StringUtils.isNotBlank(eventInstanceId)) {

@@ -6199,6 +6199,21 @@
         "help": "$t(action.delete.action) selected configuration items.",
         "icon": "$t(action.delete.icon)"
       },
+      "core-configuration-switch-instance-bulk-action": {
+        "label": "Change server for asynchronous processing",
+        "help": "Change server (instance) for scheduled tasks, asynchronous long running tasks and asynchronous events.",
+        "icon": "component:setting",
+        "attributes": {
+          "previous-instance-id": {
+            "label": "Previous instance",
+            "help": "Previous instance, which processed asynchronous tasks and events."
+          },
+          "new-instance-id": {
+            "label": "New instance",
+            "help": "New instance for asynchronous processing."
+          }
+        }
+      },
       "core-entity-event-delete-bulk-action": {
         "label": "$t(action.delete.action) events",
         "help": "$t(action.delete.action) selected events.",
@@ -7098,6 +7113,18 @@
     "CONFIGURATION_DISABLED": {
       "title": "Function is deactivated",
       "message": "Application function directed by configuration item [{{property}}] is deactivated."
+    },
+    "CONFIGURATION_SWITCH_INSTANCE_NOT_CHANGED": {
+      "title": "Instance not changed",
+      "message": "Previous instance is the same as newly used for asynchronous processing [{{instanceId}}]. Instance will not be changed."
+    },
+    "CONFIGURATION_SWITCH_INSTANCE_SUCCESS": {
+      "title": "Instance changed",
+      "message": "Instance for asynchronous processing changed from [{{previousInstanceId}}] to [{{newInstanceId}}]. Updated [{{scheduledTaskCount}}] scheduled tasks, [{{longRunningTaskcount}}] created long runnung tasks and [{{eventCount}}] created events."
+    },
+    "CONFIGURATION_SWITCH_INSTANCE_MORE_PREVIOUS_FOUND": {
+      "title": "More instances found",
+      "message": "Found more previously used instances for asynchronous processing [{{previousInstanceIds}}]."
     },
     "TREE_TYPE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Structure cannot be removed",

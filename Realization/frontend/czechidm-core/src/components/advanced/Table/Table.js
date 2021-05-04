@@ -85,10 +85,47 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
-    const { manager, initialReload } = this.props;
+    const { initialReload } = this.props;
     if (initialReload) {
       this.reload();
     }
+    //
+    this.reloadBulkActions();
+  }
+
+  UNSAFE_componentWillReceiveProps(newProps) {
+    if (!Domain.SearchParameters.is(newProps.forceSearchParameters, this.props.forceSearchParameters)) {
+      this.reload(newProps);
+    } else if (!Domain.SearchParameters.is(newProps.defaultSearchParameters, this.props.defaultSearchParameters)) {
+      this.reload(newProps);
+    } else if (newProps.rendered !== this.props.rendered) {
+      this.reload(newProps);
+    }
+  }
+
+  reload(props = null) {
+    let _props = this.props;
+    if (props) {
+      _props = {
+        ...this.props,
+        ...props
+      };
+    }
+    const { rendered, _searchParameters } = _props;
+    if (!rendered) {
+      return;
+    }
+    this.fetchEntities(_searchParameters, _props);
+  }
+
+  /**
+   * Relaoad available backedn bulk actions.
+   * e.g. refresh default values in bulk action setting.
+   *
+   * @since 11.1.0
+   */
+  reloadBulkActions() {
+    const { manager } = this.props;
     //
     if (manager.supportsBulkAction() && manager.canRead()) {
       this.context.store.dispatch(manager.fetchAvailableBulkActions((actions, error) => {
@@ -115,6 +152,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 level: backendBulkAction.level && backendBulkAction.level !== 'SUCCESS' ? backendBulkAction.level.toLowerCase() : 'default',
                 deleteAction: backendBulkAction.deleteAction,
                 quickButton: backendBulkAction.quickButton,
+                quickButtonable: backendBulkAction.quickButtonable,
                 niceLabel: (
                   <span key={ `b-a-${backendBulkAction.name}` }>
                     <Basic.Icon
@@ -137,31 +175,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         }
       }));
     }
-  }
-
-  UNSAFE_componentWillReceiveProps(newProps) {
-    if (!Domain.SearchParameters.is(newProps.forceSearchParameters, this.props.forceSearchParameters)) {
-      this.reload(newProps);
-    } else if (!Domain.SearchParameters.is(newProps.defaultSearchParameters, this.props.defaultSearchParameters)) {
-      this.reload(newProps);
-    } else if (newProps.rendered !== this.props.rendered) {
-      this.reload(newProps);
-    }
-  }
-
-  reload(props = null) {
-    let _props = this.props;
-    if (props) {
-      _props = {
-        ...this.props,
-        ...props
-      };
-    }
-    const { rendered, _searchParameters } = _props;
-    if (!rendered) {
-      return;
-    }
-    this.fetchEntities(_searchParameters, _props);
   }
 
   /**
@@ -1229,10 +1242,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         continue;
       }
       // add quick button
-      if (buttonActions.length >= buttonActionCount) {
-        menuActions.push(action);
-      } else {
+      if (buttonActions.length < buttonActionCount && action.quickButtonable) {
         buttonActions.push(action);
+      } else {
+        menuActions.push(action);
       }
     }
     if (buttonActions.length < buttonActionCount) {
@@ -1246,10 +1259,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           continue;
         }
         //
-        if (buttonActions.length >= buttonActionCount) {
-          newDeleteActions.push(action);
-        } else {
+        if (buttonActions.length < buttonActionCount && action.quickButtonable) {
           buttonActions.push(action);
+        } else {
+          newDeleteActions.push(action);
         }
       }
       deleteActions = newDeleteActions;
@@ -1268,12 +1281,18 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           title={ this.isDevelopment() ? `Action order: ${ action.order }, Action key: ${ action.actionKey }` : null }
           onClick={
             (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+            ||
+            (selectedRows.length > 0 && !action.showWithSelection && action.showWithoutSelection)
             ?
             null
             :
             this.onBulkAction.bind(this, action)
           }
-          disabled={ (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection) }>
+          disabled={
+            (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+            ||
+            (selectedRows.length > 0 && !action.showWithSelection && action.showWithoutSelection)
+          }>
           <Basic.Icon icon={ action.icon } level={ action.level }/>
           { action.label || action.niceLabel }
         </MenuItem>
@@ -1354,7 +1373,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                               :
                               (action.label || action.niceLabel)
                             }
-                            disabled={ (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection) }
+                            disabled={
+                              (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+                              ||
+                              (selectedRows.length > 0 && !action.showWithSelection && action.showWithoutSelection)
+                            }
                             titlePlacement="bottom"
                             onClick={ this.onBulkAction.bind(this, action) }>
                             <Basic.Icon icon={ action.icon } level={ action.level }/>
@@ -1387,11 +1410,17 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                                   title={ this.isDevelopment() ? `Action order: ${ action.order }, Action key: ${ action.actionKey }` : null }
                                   onClick={
                                     (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+                                    ||
+                                    (selectedRows.length > 0 && !action.showWithSelection && action.showWithoutSelection)
                                     ?
                                     null
                                     : this.onBulkAction.bind(this, action)
                                   }
-                                  disabled={ (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection) }>
+                                  disabled={
+                                    (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+                                    ||
+                                    (selectedRows.length > 0 && !action.showWithSelection && action.showWithoutSelection)
+                                  }>
                                   <Basic.Icon icon={ action.icon } level={ action.level }/>
                                   { action.label || action.niceLabel }
                                 </MenuItem>
@@ -1410,6 +1439,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                                   title={ this.isDevelopment() ? `Action order: ${ action.order }` : null }
                                   onClick={
                                     (selectedRows.length === 0 && action.showWithSelection && !action.showWithoutSelection)
+                                    ||
+                                    (selectedRows.length > 0 && !action.showWithSelection && action.showWithoutSelection)
                                     ?
                                     null
                                     :

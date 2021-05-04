@@ -6251,6 +6251,21 @@
         "help": "Smaže vybrané konfigurace",
         "icon": "$t(action.delete.icon)"
       },
+      "core-configuration-switch-instance-bulk-action": {
+        "label": "Změnit server pro zpracování úloh",
+        "help": "Změnit server (instanci) pro spouštění plánovaných úloh, asynchronních úloh i událostí.",
+        "icon": "component:setting",
+        "attributes": {
+          "previous-instance-id": {
+            "label": "Předchozí instance",
+            "help": "Předchozí instance, na které byly zpracovávány asynchronní úlohy a události."
+          },
+          "new-instance-id": {
+            "label": "Nová instance",
+            "help": "Nová instance, na které jsou zpracovávány asynchronní úlohy a události."
+          }
+        }
+      },
       "core-entity-event-delete-bulk-action": {
         "label": "$t(action.delete.action) události",
         "help": "Smaže vybrané události.",
@@ -7150,6 +7165,18 @@
     "CONFIGURATION_DISABLED": {
       "title": "Funkce je deaktivovaná",
       "message": "Funkce aplikace řízená konfigurační položkou [{{property}}] je deaktivovaná."
+    },
+    "CONFIGURATION_SWITCH_INSTANCE_NOT_CHANGED": {
+      "title": "Instance nebyla změněna",
+      "message": "Předchozí a nově zadaná instance pro zpracování asynchronních úloh je shodná [{{instanceId}}]. Instance nebude změněna."
+    },
+    "CONFIGURATION_SWITCH_INSTANCE_SUCCESS": {
+      "title": "Instance byla změněna",
+      "message": "Instance pro zpracování asynchronních úloh byla změněna z [{{previousInstanceId}}] na [{{newInstanceId}}]. Upraveno [{{scheduledTaskCount}}] naplánovaných úloh, [{{longRunningTaskcount}}] vytvořených dlouhotrvajích úloh  a [{{eventCount}}] vytvořených událostí ve frontě."
+    },
+    "CONFIGURATION_SWITCH_INSTANCE_MORE_PREVIOUS_FOUND": {
+      "title": "Nalezeno více instancí",
+      "message": "Nalezeno více instancí, které byly předešle použity pro zpracovávání asynchronních úloh [{{previousInstanceIds}}]."
     },
     "TREE_TYPE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Typ struktury nelze odebrat",

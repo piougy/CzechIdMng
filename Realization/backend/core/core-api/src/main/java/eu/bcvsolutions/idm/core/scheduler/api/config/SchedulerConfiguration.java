@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.api.config;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 
@@ -32,6 +35,20 @@ public interface SchedulerConfiguration {
 	 */
 	String PROPERTY_TASK_ASYNCHRONOUS_ENABLED = "scheduler.task.asynchronous.enabled";
 	boolean DEFAULT_TASK_ASYNCHRONOUS_ENABLED = true;
+	
+	/**
+	 * Asynchronous task processing is stopped.
+	 * Asynchronous task processing is stopped, when instance for processing is switched => prevent to process asynchronous task in the meantime.
+	 * Asynchronous task processing can be stopped for testing or debugging purposes.
+	 * Asynchronous task are still created in queue, but they are not processed.
+	 * 
+	 * Lookout: under idm private prefix => can be changed on fly.
+	 * 
+	 * @since 11.1.0
+	 */
+	String PROPERTY_TASK_ASYNCHRONOUS_STOP_PROCESSING = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.scheduler.task.asynchronous.stopProcessing";
+	boolean DEFAULT_TASK_ASYNCHRONOUS_STOP_PROCESSING = false;
 	
 	/**
 	 * Task queue processing period (ms)

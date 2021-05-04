@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 
 /**
- * Configuration for event processing
+ * Configuration for event processing.
  * 
  * @see SchedulerConfiguration
  * @author Radek Tomiška
@@ -18,10 +18,23 @@ public interface EventConfiguration extends Configurable {
 	
 	/**
 	 * Asynchronous event processing is enabled. Asynchronous event processing can be disabled for testing or debugging purposes.
+	 * Events are processed synchronously.
 	 */
 	String PROPERTY_EVENT_ASYNCHRONOUS_ENABLED = 
 			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.event.asynchronous.enabled";
 	boolean DEFAULT_EVENT_ASYNCHRONOUS_ENABLED = true;
+	
+	/**
+	 * Asynchronous event processing is stopped.
+	 * Asynchronous event processing is stopped, when instance for processing is switched => prevent to process asynchronous events in the meantime.
+	 * Asynchronous event processing can be stopped for testing or debugging purposes.
+	 * Asynchronous events are still created in queue, but they are not processed.
+	 * 
+	 * @since 11.1.0
+	 */
+	String PROPERTY_EVENT_ASYNCHRONOUS_STOP_PROCESSING = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.event.asynchronous.stopProcessing";
+	boolean DEFAULT_EVENT_ASYNCHRONOUS_STOP_PROCESSING = false;
 	
 	/**
 	 * Asynchronous events will be executed on server instance with id. Default is the same as {@link ConfigurationService#getInstanceId()} (current server instance).
@@ -74,8 +87,16 @@ public interface EventConfiguration extends Configurable {
 	 */
 	boolean isAsynchronous();
 	
-	// TODO: stop processing created events only
-	//boolean stopProcessing();
+	/**
+	 * Asynchronous event processing is stopped.
+	 * Asynchronous event processing is stopped, when instance for processing is switched => prevent to process asynchronous events in the meantime.
+	 * Asynchronous event processing can be stopped for testing or debugging purposes.
+	 * Asynchronous events are still created in queue, but they are not processed.
+	 * 
+	 * @since 11.1.0
+	 * @return true - asynchronous events are not processed 
+	 */
+	boolean isStopProcessing();
 	
 	/**
 	 * Asynchronous events will be executed on server instance with returned id.

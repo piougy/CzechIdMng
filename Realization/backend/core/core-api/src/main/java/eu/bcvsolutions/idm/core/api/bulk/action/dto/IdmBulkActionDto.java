@@ -65,8 +65,10 @@ public class IdmBulkActionDto extends AbstractComponentDto implements Ordered {
 	private boolean deleteAction;
 	@ApiModelProperty(notes = "Action FE icon. Icon from locale will be used by default.")
 	private String icon;
-	@ApiModelProperty(notes = "Action will be included in quick buttons on FE. Action can be shown as quick button, when icon is defined (in locale or by icon property).")
+	@ApiModelProperty(notes = "Action will be included in quick buttons on FE. Action will be shown as quick button, when icon is defined (in locale or by icon property).")
 	private boolean quickButton = false;
+	@ApiModelProperty(notes = "Action can be included in quick buttons on FE. Action can be shown as quick button, when icon is defined (in locale or by icon property).")
+	private boolean quickButtonable = true;
 
 	public UUID getLongRunningTaskId() {
 		return longRunningTaskId;
@@ -269,12 +271,34 @@ public class IdmBulkActionDto extends AbstractComponentDto implements Ordered {
 
 	/**
 	 * Action will be included in quick buttons on FE. 
-	 * Action can be shown as quick button, when icon is defined (in locale or by icon property).
+	 * Action will be shown as quick button, when icon is defined (in locale or by icon property).
 	 * 
 	 * @param quickAccess true - action button will be shown, if icon is defined.
 	 * @since 10.6.0
 	 */
 	public void setQuickButton(boolean quickButton) {
 		this.quickButton = quickButton;
+	}
+	
+	/**
+	 * Action can be included in quick buttons on FE. 
+	 * Action can be shown as quick button, when icon is defined (in locale or by icon property).
+	 * 
+	 * @return true - action button will be shown, if icon is defined.
+	 * @since 10.6.0
+	 */
+	public boolean isQuickButtonable() {
+		return quickButtonable;
+	}
+	
+	/**
+	 * Action can be included in quick buttons on FE. 
+	 * Action can be shown as quick button, when icon is defined (in locale or by icon property).
+	 * 
+	 * @param quickAccess true - action button will be shown, if icon is defined.
+	 * @since 11.1.0
+	 */
+	public void setQuickButtonable(boolean quickButtonable) {
+		this.quickButtonable = quickButtonable;
 	}
 }

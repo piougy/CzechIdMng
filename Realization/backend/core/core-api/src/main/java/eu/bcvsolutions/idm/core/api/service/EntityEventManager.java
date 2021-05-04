@@ -460,4 +460,15 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * @since 10.8.0
 	 */
 	void completeEvent(IdmEntityEventDto event);
+	
+	/**
+	 * Switch instanceId for processing asynchronous events.
+	 * All events created for previous instance will be moved to new instance.
+	 * 
+	 * @param previousInstanceId previously used instance
+	 * @param newInstanceId [optional] currently configured instance will be used as default
+	 * @return updated enevents count
+	 * @since 11.1.0
+	 */
+	int switchInstanceId(String previousInstanceId, String newInstanceId);
 }

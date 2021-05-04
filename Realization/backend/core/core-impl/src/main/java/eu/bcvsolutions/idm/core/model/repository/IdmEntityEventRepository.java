@@ -1,9 +1,10 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -104,4 +105,22 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 	@Query("delete from #{#entityName}")
 	void deleteAll();
 	
+	
+	/**
+	 * Switch instanceId for processing asynchronous events.
+	 * All events for previous instance will be moved to currently configured instance.
+	 * 
+	 * @param previousInstanceId previously used instance
+	 * @param newInstanceId newly used instance
+	 * @param state // ~ created
+	 * @return updated events count
+	 * @since 11.1.0
+	 */
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("update #{#entityName} e set e.instanceId = :newInstanceId where e.instanceId = :previousInstanceId and e.result.state = :state")
+	int switchInstanceId(
+			@Param("previousInstanceId") String previousInstanceId, 
+			@Param("newInstanceId") String newInstanceId,
+			@Param("state") OperationState state
+	);
 }

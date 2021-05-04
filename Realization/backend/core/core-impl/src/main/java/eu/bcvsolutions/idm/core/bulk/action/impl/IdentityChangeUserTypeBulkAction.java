@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -17,7 +16,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -79,8 +77,7 @@ public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIden
 	 * @return
 	 */
 	private UUID getUserType() {
-		Object userTypeObj = this.getProperties().get(PROPERTY_USER_TYPE);
-		return DtoUtils.toUuid(userTypeObj);
+		return getParameterConverter().toUuid(getProperties(), PROPERTY_USER_TYPE);
 	}
 	
 	/**

@@ -49,6 +49,12 @@ public interface IdmBulkAction<DTO extends BaseDto, F extends BaseFilter> extend
 	 */
 	String PROPERTY_QUICK_BUTTON = "quickButton";
 	/**
+	 * Configurable property for posibility to include action in quick access buttons.
+	 * 
+	 * @since 11.1.0
+	 */
+	String PROPERTY_QUICK_BUTTONABLE = "quickButtonable";
+	/**
 	 * Bulk action configurable type.
 	 * 
 	 * @since 10.6.0
@@ -165,5 +171,17 @@ public interface IdmBulkAction<DTO extends BaseDto, F extends BaseFilter> extend
 	 */
 	default boolean isQuickButton() {
 		return false;
+	}
+	
+	/**
+	 * Action can be included in quick buttons on FE. 
+	 * Action can be shown as quick button, when icon is defined (in locale or by icon property).
+	 * Returns {@code true} by default.
+	 * 
+	 * @return false - action button will not be shown
+	 * @since 11.0.0
+	 */
+	default boolean isQuickButtonable() {
+		return true;
 	}
 }

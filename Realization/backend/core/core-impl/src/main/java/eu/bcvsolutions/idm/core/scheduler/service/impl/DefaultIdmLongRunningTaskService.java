@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Persists long running tasks
+ * Persists long running tasks.
  * 
  * Look out: 
  * @Transactional(propagation = Propagation.REQUIRES_NEW) is needed. 

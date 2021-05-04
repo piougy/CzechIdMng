@@ -14,6 +14,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -130,7 +131,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Transactional
 	@Scheduled(fixedDelayString = "${" + SchedulerConfiguration.PROPERTY_TASK_QUEUE_PROCESS + ":" + SchedulerConfiguration.DEFAULT_TASK_QUEUE_PROCESS + "}")
 	public void scheduleProcessCreated() {
-		if (!isAsynchronous()) {
+		if (isStopProcessing()) {
 			// asynchronous processing is disabled
 			// prevent to debug some messages into log - usable for devs
 			return;
@@ -529,6 +530,15 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED,
 				SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
 	}
+	
+	@Override
+	public boolean isStopProcessing() {
+		return !isAsynchronous() // ~ all tasks are executed synchronously
+				|| configurationService.getBooleanValue(
+						SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_STOP_PROCESSING,
+						SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_STOP_PROCESSING
+		);
+	}
 
 	@Override
 	public IdmAttachmentDto getAttachment(UUID longRunningTaskId, UUID attachmentId, BasePermission... permission) {
@@ -589,6 +599,46 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task = service.get(taskExecutor.getLongRunningTaskId());
 		}
 		return task;
+	}
+	
+	@Override
+	@Transactional
+	public int switchInstanceId(String previousInstanceId, String newInstanceId) {
+		Assert.hasLength(previousInstanceId, "Previous asynchronous instance is required.");
+		boolean stopProcessing = configurationService.getBooleanValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_STOP_PROCESSING, false);
+		//
+		try {
+			String asynchronousInstanceId = configurationService.getInstanceId();
+			// resolve default
+			if (StringUtils.isEmpty(newInstanceId)) {
+				newInstanceId = asynchronousInstanceId;
+			}
+			if (previousInstanceId.equals(newInstanceId)) {
+				LOG.info("Previous instance is same as newly used for asynchronous task processing [{}].", newInstanceId);
+				// return currently used
+				return 0;
+			}
+			// stop asynchronous task processing
+			configurationService.setBooleanValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_STOP_PROCESSING, true);
+			// find all created tasks with old instance and move them to new instance
+			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+			filter.setInstanceId(previousInstanceId);
+			filter.setOperationState(OperationState.CREATED);
+			List<IdmLongRunningTaskDto> tasks = findLongRunningTasks(filter, null).getContent();
+			for (IdmLongRunningTaskDto task : tasks) {
+				task.setInstanceId(newInstanceId);
+				Map<String, Object> taskProperties = task.getTaskProperties();
+				if (taskProperties.containsKey(LongRunningTaskExecutor.PARAMETER_INSTANCE_ID)) {
+					taskProperties.put(LongRunningTaskExecutor.PARAMETER_INSTANCE_ID, newInstanceId);
+				}
+				saveLongRunningTask(task);
+			}
+			//
+			return tasks.size();
+		} finally {
+			// start asynchronous task processing
+			configurationService.setBooleanValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_STOP_PROCESSING, stopProcessing);	
+		}
 	}
 	
 	/**

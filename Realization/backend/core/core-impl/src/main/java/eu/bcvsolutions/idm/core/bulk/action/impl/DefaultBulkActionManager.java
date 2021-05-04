@@ -306,6 +306,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		actionDto.setOrder((int) parameterConverter.toLong(configurationMap, ConfigurationService.PROPERTY_ORDER, action.getOrder())); // FIXME: add ParameterConverter#toInteger method instead.
 		actionDto.setDeleteAction(parameterConverter.toBoolean(configurationMap, IdmBulkAction.PROPERTY_DELETE_ACTION, action.isDeleteAction()));
 		actionDto.setQuickButton(parameterConverter.toBoolean(configurationMap, IdmBulkAction.PROPERTY_QUICK_BUTTON, action.isQuickButton()));
+		actionDto.setQuickButtonable(parameterConverter.toBoolean(configurationMap, IdmBulkAction.PROPERTY_QUICK_BUTTONABLE, action.isQuickButtonable()));
 		actionDto.setLevel(action.getLevel());
 		try {
 			NotificationLevel level = parameterConverter.toEnum(configurationMap, ConfigurationService.PROPERTY_LEVEL, NotificationLevel.class);

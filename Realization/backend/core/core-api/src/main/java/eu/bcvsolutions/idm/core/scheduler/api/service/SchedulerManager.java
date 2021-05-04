@@ -155,4 +155,15 @@ public interface SchedulerManager {
 	 * @return
 	 */
 	Task updateTask(String taskId, Task task);
+	
+	/**
+	 * Switch instanceId for creating long running tasks.
+	 * All scheduled tasks, which creates long running tasks for previous instance will be updated to ctreate tasks to new instance.
+	 * 
+	 * @param previousInstanceId previously used instance
+	 * @param newInstanceId [optional] currently configured instance will be used as default
+	 * @return updated scheduled tasks count
+	 * @since 11.1.0
+	 */
+	int switchInstanceId(String previousInstanceId, String newInstanceId);
 }

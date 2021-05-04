@@ -124,6 +124,15 @@ public interface SecurityService {
 	boolean hasAnyAuthority(String... authorities);
 	
 	/**
+	 * Returns true, if currently logged identity has all of given authorities
+	 * 
+	 * @param authorities
+	 * @return true, if currently logged identity has all of given authorities
+	 * @since 11.1.0
+	 */
+	boolean hasAllAuthorities(String... authorities);
+	
+	/**
 	 * Returns true, if logged identity is super administrator. Could be used for single user mode.
 	 * 
 	 * @return

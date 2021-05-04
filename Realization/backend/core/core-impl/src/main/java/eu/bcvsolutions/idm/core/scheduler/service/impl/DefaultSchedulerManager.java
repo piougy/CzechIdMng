@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -79,6 +80,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	private final ApplicationContext context;
 	private final Scheduler scheduler;
 	private final IdmDependentTaskTriggerRepository dependentTaskTriggerRepository;
+	private ConfigurationService configurationService;
 	
 	@Autowired
 	public DefaultSchedulerManager(
@@ -264,6 +266,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	@Override
 	public Task updateTask(String taskId, Task newTask) {
 		Assert.notNull(taskId, "Task identifier is required.");
+		//
 		Task task = getTask(taskId);
 		String description = newTask.getDescription();
 		if (StringUtils.isEmpty(description)) {
@@ -428,6 +431,40 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		} catch (org.quartz.SchedulerException ex) {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_RESUME_TRIGGER_FAILED, ex);
 		}
+	}
+	
+	@Override
+	@Transactional
+	public int switchInstanceId(String previousInstanceId, String newInstanceId) {
+		Assert.hasLength(previousInstanceId, "Previous asynchronous instance is required.");
+		//
+		String asynchronousInstanceId = getConfigurationService().getInstanceId();
+		int count = 0;
+		// resolve default
+		if (StringUtils.isEmpty(newInstanceId)) {
+			newInstanceId = asynchronousInstanceId;
+		}
+		if (previousInstanceId.equals(newInstanceId)) {
+			LOG.info("Previous instance is same as newly used for asynchronous task processing [{}].", newInstanceId);
+			//
+			return count;
+		}
+		// find all tasks with old instance and update them to use new
+		for (Task task : getAllTasks()) {
+			Map<String, String> parameters = task.getParameters();
+			
+			String taskInstanceId = parameters.get(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID);
+			if (previousInstanceId.equals(taskInstanceId)) {
+				task.setInstanceId(newInstanceId);
+				parameters.put(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID, newInstanceId);
+				// set new instance id
+				updateTask(task.getId(), task);
+				//
+				count++;
+			}
+		}
+		//
+		return count;
 	}
 	
 	/**
@@ -600,5 +637,12 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		}
 		//
 		return true;
+	}
+	
+	private ConfigurationService getConfigurationService() {
+		if (configurationService == null) {
+			configurationService = context.getBean(ConfigurationService.class);
+		}
+		return configurationService;
 	}
 }

@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.security;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
- * Test for {@link DefaultSecurityService}
+ * Test for {@link DefaultSecurityService}.
  * 
  * @author Radek Tomiška 
  *
@@ -81,12 +81,42 @@ public class DefaultSecurityServiceUnitTest extends AbstractUnitTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testHasTestAuthority() {
 		// setup static authentication
-		when(securityContext.getAuthentication()).thenReturn(AUTHENTICATION);
-		when(authorityHierarchy.getReachableGrantedAuthorities(any())).thenReturn((Collection) AUTHORITIES);
+		Mockito.when(securityContext.getAuthentication()).thenReturn(AUTHENTICATION);
+		Mockito.when(authorityHierarchy.getReachableGrantedAuthorities(any())).thenReturn((Collection) AUTHORITIES);
 		//
-		boolean result = defaultSecurityService.hasAnyAuthority(TEST_AUTHORITY);
+		Assert.assertTrue(defaultSecurityService.hasAnyAuthority(TEST_AUTHORITY));
+		Assert.assertFalse(defaultSecurityService.hasAnyAuthority());
+	}
+	
+	@Test
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testHasAllAuthorities() {
+		// setup static authentication
+		Mockito.when(securityContext.getAuthentication()).thenReturn(new IdmJwtAuthentication(
+				new IdmIdentityDto(CURRENT_USERNAME), 
+				new IdmIdentityDto(ORIGINAL_USERNAME), 
+				ZonedDateTime.now(),
+				ZonedDateTime.now(),
+				(Collection) Arrays.asList(
+						new DefaultGrantedAuthority("one"),
+						new DefaultGrantedAuthority("two"),
+						new DefaultGrantedAuthority("three")
+				),
+				"test"));
+		Mockito.when(authorityHierarchy.getReachableGrantedAuthorities(any())).thenReturn(
+				(Collection) Arrays.asList(
+					new DefaultGrantedAuthority("one"),
+					new DefaultGrantedAuthority("two"),
+					new DefaultGrantedAuthority("three")
+		));
 		//
-		assertTrue(result);
+		Assert.assertTrue(defaultSecurityService.hasAllAuthorities("one"));
+		Assert.assertTrue(defaultSecurityService.hasAllAuthorities("one", "two"));
+		Assert.assertTrue(defaultSecurityService.hasAllAuthorities("one", "two", "three"));
+		Assert.assertFalse(defaultSecurityService.hasAllAuthorities());
+		Assert.assertFalse(defaultSecurityService.hasAllAuthorities("one", "four"));
+		Assert.assertFalse(defaultSecurityService.hasAllAuthorities("four"));
+		Assert.assertFalse(defaultSecurityService.hasAllAuthorities("one", "two", "three", "four"));
 	}
 	
 	@Test

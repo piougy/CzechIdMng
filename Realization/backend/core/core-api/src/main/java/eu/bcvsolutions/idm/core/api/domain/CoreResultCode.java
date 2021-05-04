@@ -120,6 +120,9 @@ public enum CoreResultCode implements ResultCode {
 	MODULE_NOT_DISABLEABLE(HttpStatus.BAD_REQUEST, "Module [%s] is not disableable."),
 	MODULE_DISABLED(HttpStatus.BAD_REQUEST, "Module [%s] is disabled."),
 	CONFIGURATION_DISABLED(HttpStatus.BAD_REQUEST, "Configuration [%s] is disabled."),
+	CONFIGURATION_SWITCH_INSTANCE_NOT_CHANGED(HttpStatus.BAD_REQUEST, "Previous instance is the same as newly used for asynchronous processing [%s]. Instance will not be changed."),
+	CONFIGURATION_SWITCH_INSTANCE_MORE_PREVIOUS_FOUND(HttpStatus.FOUND, "Found more previously used instances for asynchronous processing [%s].", NotificationLevel.INFO),
+	CONFIGURATION_SWITCH_INSTANCE_SUCCESS(HttpStatus.OK, "Instance for asynchronous processing changed from [%s] to [%s]. Updated [%s] scheduled tasks, [%s] created long runnung tasks and [%s] created events."),
 	// role
 	ROLE_DELETE_FAILED_IDENTITY_ASSIGNED(HttpStatus.CONFLICT, "Role [%s] cannot be deleted - some identites have role assigned."),
 	ROLE_DELETE_FAILED_HAS_TREE_NODE(HttpStatus.CONFLICT, "Role [%s] has assigned automatic roles. Remove automatic roles at first."),

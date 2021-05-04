@@ -139,7 +139,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	public void init() {
 		LOG.info("Cancel unprocessed events - event was interrupt during instance restart");
 		//
-		String instanceId = configurationService.getInstanceId();
+		String instanceId = eventConfiguration.getAsynchronousInstanceId();
 		entityEventService.findByState(instanceId, OperationState.RUNNING).forEach(event -> {
 			LOG.info("Cancel unprocessed event [{}] - event was interrupt during instance [{}] restart", event.getId(), instanceId);
 			//
@@ -476,8 +476,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 */
 	@Scheduled(fixedDelayString = "${" + SchedulerConfiguration.PROPERTY_EVENT_QUEUE_PROCESS + ":" + SchedulerConfiguration.DEFAULT_EVENT_QUEUE_PROCESS + "}")
 	public void scheduleProcessCreated() {
-		if (!eventConfiguration.isAsynchronous()) {
-			// asynchronous processing is disabled
+		if (eventConfiguration.isStopProcessing()) {
+			// asynchronous event processing is disabled
 			// prevent to debug some messages into log - usable for devs
 			return;
 		}
@@ -497,7 +497,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 */
 	protected int processCreated() {
 		// calculate events to process
-		String instanceId = configurationService.getInstanceId();
+		String instanceId = eventConfiguration.getAsynchronousInstanceId();
 		List<IdmEntityEventDto> events = getCreatedEvents(instanceId);
 		LOG.trace("Events to process [{}] on instance [{}].", events.size(), instanceId);
 		for (IdmEntityEventDto event : events) {
@@ -937,6 +937,49 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	public boolean isAsynchronous() {
 		return eventConfiguration.isAsynchronous();
+	}
+	
+	/**
+	 * Registered tasks have to be notified after all other events are committed.
+	 * Lookout: public method required for aop event listener only.
+	 * 
+	 * @param event
+	 * @since 10.8.2
+	 * @since 11.0.0
+	 */
+	@TransactionalEventListener(fallbackExecution = true)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void notifyLongRunningTask(NotifyLongRunningTaskEvent event) {
+		event.getLrt().notifyEnd();
+	}
+	
+	@Override
+	@Transactional
+	public int switchInstanceId(String previousInstanceId, String newInstanceId) {
+		Assert.hasLength(previousInstanceId, "Previous asynchronous instance is required.");
+		boolean stopProcessing = eventConfiguration.isStopProcessing();
+		//
+		try {
+			String asynchronousInstanceId = eventConfiguration.getAsynchronousInstanceId();
+			// resolve default
+			if (StringUtils.isEmpty(newInstanceId)) {
+				newInstanceId = asynchronousInstanceId;
+			}
+			if (previousInstanceId.equals(newInstanceId)) {
+				LOG.info("Previous instance is same as newly used for asynchronous event processing [{}].", newInstanceId);
+				//
+				return 0;
+			}
+			// stop event processing
+			configurationService.setBooleanValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_STOP_PROCESSING, true);
+			// set new instance id => newly created events will be on the new instance
+			configurationService.setValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_INSTANCE_ID, newInstanceId);
+			// find all created events with old instance and move them to new
+			return entityEventService.switchInstanceId(previousInstanceId, newInstanceId);
+		} finally {
+			// start event processing
+			configurationService.setBooleanValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_STOP_PROCESSING, stopProcessing);	
+		}
 	}
 	
 	/**
@@ -1477,19 +1520,6 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		} finally {
 			lock.unlock();
 		}
-	}
-	
-	/**
-	 * Registered tasks have to be notified after all other events are committed.
-	 * 
-	 * @param event
-	 * @since 10.8.2
-	 * @since 11.0.0
-	 */
-	@TransactionalEventListener(fallbackExecution = true)
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void notifyLongRunningTask(NotifyLongRunningTaskEvent event) {
-		event.getLrt().notifyEnd();
 	}
 	
 	/**

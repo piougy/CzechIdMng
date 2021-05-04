@@ -26,7 +26,7 @@ public class IdmConfigurationDto extends AbstractDto implements Codeable {
 	@NotNull
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	private String name;
-	@Size(max = DefaultFieldLengths.NAME)
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String value;
 	private boolean secured;
 	private boolean confidential;

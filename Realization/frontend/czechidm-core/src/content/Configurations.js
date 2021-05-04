@@ -434,7 +434,7 @@ class Configurations extends Advanced.AbstractTableContent {
                   ref="value"
                   label={ this.i18n('entity.Configuration.value') }
                   confidential={ isGuarded !== false }
-                  max={ 255 }/>
+                  max={ 2000 }/>
                 <Basic.Checkbox
                   ref="confidential"
                   label={ this.i18n('entity.Configuration.confidential') }

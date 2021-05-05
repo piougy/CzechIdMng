@@ -127,7 +127,7 @@ public class ConfigurationSwitchInstanceBulkActionIntegrationTest extends Abstra
 	@Test
 	public void testProcessWithoutAuthority() {
 		logout();
-		loginWithout(TestHelper.ADMIN_USERNAME, IdmGroupPermission.APP_ADMIN, CoreGroupPermission.SCHEDULER_ADMIN, CoreGroupPermission.SCHEDULER_EXECUTE);
+		loginWithout(TestHelper.ADMIN_USERNAME, IdmGroupPermission.APP_ADMIN, CoreGroupPermission.SCHEDULER_ADMIN, CoreGroupPermission.SCHEDULER_UPDATE);
 		//
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmConfiguration.class, ConfigurationSwitchInstanceBulkAction.NAME);
 		Map<String, Object> properties = new HashMap<>();

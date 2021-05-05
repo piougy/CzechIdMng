@@ -70,8 +70,7 @@ public class ConfigurationSwitchInstanceBulkAction extends AbstractBulkAction<Id
 	@Override
 	public List<String> getAuthorities() {
 		List<String> authorities = super.getAuthorities(); // adds CoreGroupPermission.CONFIGURATION_UPDATE bellow
-		// 
-		authorities.add(CoreGroupPermission.SCHEDULER_EXECUTE);
+		//
 		authorities.add(CoreGroupPermission.SCHEDULER_UPDATE);
 		authorities.add(CoreGroupPermission.ENTITYEVENT_UPDATE);
 		//

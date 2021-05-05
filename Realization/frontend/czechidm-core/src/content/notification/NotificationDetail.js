@@ -23,7 +23,8 @@ class NotificationDetail extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      showLoading: false
+      showLoading: false,
+      activeTab: 2
     };
     this.identityManager = new IdentityManager();
     this.notificationManager = new NotificationManager();
@@ -107,6 +108,10 @@ class NotificationDetail extends Basic.AbstractContent {
     }
   }
 
+  _onChangeSelectTabs(activeTab) {
+    this.setState({ activeTab });
+  }
+
   renderRecipients(notification, isNew, identityOnly) {
     if (!notification.recipients) {
       return null;
@@ -131,7 +136,7 @@ class NotificationDetail extends Basic.AbstractContent {
 
   render() {
     const { notification, identityOnly, isNew, userContext, showTopic } = this.props;
-    const { showLoading } = this.state;
+    const { showLoading, activeTab } = this.state;
     //
     if (!notification) {
       return null;
@@ -235,7 +240,9 @@ class NotificationDetail extends Basic.AbstractContent {
               readOnly={ !isNew }
               hidden={ !isNew && !notification.message.textMessage } />
 
-            <Basic.Tabs>
+            <Basic.Tabs
+              activeKey={ activeTab }
+              onSelect={ this._onChangeSelectTabs.bind(this) }>
               <Basic.Tab
                 eventKey={ 1 }
                 title={ this.i18n('entity.Notification.message.htmlMessage') }

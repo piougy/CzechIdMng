@@ -38,6 +38,7 @@ All notable changes to this project will be documented in this file.
       - ``react-tools``, ``redux-devtools`` - deprecated dev libraries (an unused in product).
       - ``faker`` - unused dev library (in product) for generating random (~test) data - if it is used in a custom module, please let us know.
 - 🟡 [#2758](https://redmine.czechidm.com/issues/2758) - **Java 11 is used and required for using, developing and building CzechIdM application.** Update to Java 11 in your environment and configure your IDE to use it.
+- 🟡 (_edited 5.5.2021_) [#2758](https://redmine.czechidm.com/issues/2758) - **Use Jacoco plugin version 0.8.7** or higher in your module **pom.xml** descriptor (example commit is [here](https://github.com/bcvsolutions/CzechIdMng/commit/e931000a4f3456ba9b9e8072c7fb037c3a9a9f80)). Older versions (e.g. 0.7.x) will throw exception (_Corrupted stdin stream in forked JVM 1._), when tests are executed under Java 11. 
 
 
 ## [10.8.0]

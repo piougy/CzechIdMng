@@ -45,11 +45,9 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	Page<IdmIdentityRole> findByIdentityContract_Identity_Username(@Param("username") String username, Pageable pageable);
 	
 	/**
-	 * Count assigned roles by role identifier.
-	 * 
-	 * @param roleId
-	 * @return
+	 * @deprecated @since 11.1.0 use count method in service.
 	 */
+	@Deprecated
 	Long countByRole_Id(UUID roleId);
 	
 	/**

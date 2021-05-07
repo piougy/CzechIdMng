@@ -6116,7 +6116,13 @@
       "role-delete-bulk-action": {
         "label": "$t(action.delete.action) roles",
         "help": "$t(action.delete.action) selected roles.",
-        "icon": "$t(action.delete.icon)"
+        "icon": "$t(action.delete.icon)",
+        "attributes": {
+          "force-delete": {
+            "label": "Force delete",
+            "help": "Delete role and all related assigned roles to users, automatic roles, business roles and other related records."
+          }
+        }
       },
       "role-export-bulk-action": {
         "icon": "export",
@@ -7903,12 +7909,16 @@
       "message": "Generate verification code failed."
     },
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
-      "message": "Role <strong>{{role}}</strong> contains <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships before role deletion.</strong>",
-      "title": ""
+      "title": "",
+      "message": "Role <strong>{{role}}</strong> contains <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships before role deletion.</strong>"
+    },
+    "ROLE_FORCE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
+      "title": "",
+      "message": "Role <strong>{{role}}</strong> contains <strong class=\"highlight\">{{count}}</strong> user relationships. Remove user relationships before role deletion or use force delete."
     },
     "ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY": {
-      "message": "Deleted role needs to be removed from <strong class=\"highlight\">{{conceptCount}}</strong> request concepts. It may take some time.",
-      "title": ""
+      "title": "",
+      "message": "Deleted role needs to be removed from <strong class=\"highlight\">{{conceptCount}}</strong> request concepts. It may take some time."
     },
     "ROLE_COMPOSITION_ASSIGN_ROLE_FAILED": {
       "title": "Role wasn't assigned",

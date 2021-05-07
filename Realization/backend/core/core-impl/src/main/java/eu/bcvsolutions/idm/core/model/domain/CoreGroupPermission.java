@@ -499,6 +499,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String TREETYPE_UPDATE = "TREETYPE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String TREETYPE_DELETE = "TREETYPE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String ROLE_ADMIN = "ROLE" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String ROLE_COUNT = "ROLE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String ROLE_AUTOCOMPLETE = "ROLE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String ROLE_READ = "ROLE" + BasePermission.SEPARATOR + "READ";

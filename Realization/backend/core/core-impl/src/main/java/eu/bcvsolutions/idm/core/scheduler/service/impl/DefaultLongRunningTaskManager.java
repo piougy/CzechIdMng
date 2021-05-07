@@ -355,7 +355,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		UUID longRunningTaskId = taskExecutor.getLongRunningTaskId();
 		//
 		LOG.debug("Execute task [{}] asynchronously, logged user [{}], transaction: [{}].",
-				longRunningTaskId, securityService.getUsername(), TransactionContextHolder.getContext().getTransactionId());
+				longRunningTaskId, securityService.getUsername(), 
+				TransactionContextHolder.getContext().getTransactionId());
 		try {
 			executor.execute(futureTask.getFutureTask());
 		} catch (RejectedExecutionException ex) {
@@ -366,7 +367,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			IdmLongRunningTaskDto task = service.get(taskId);
 			markTaskAsCreated(task);
 			//
-			// Throw exception here doesn't make sense here - is after transaction listener => exception is not propagated to caller. 
+			// Throw exception here doesn't make sense - is after transaction listener => exception is not propagated to caller. 
 		}
 	}
 

@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
  * @param <DTO>
  * @param <F>
  */
-
 public abstract class AbstractRemoveBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 		extends AbstractBulkAction<DTO, F> {
 

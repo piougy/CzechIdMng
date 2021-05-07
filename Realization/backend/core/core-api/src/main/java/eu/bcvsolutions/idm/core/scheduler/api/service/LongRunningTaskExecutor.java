@@ -59,6 +59,10 @@ public interface LongRunningTaskExecutor<V> extends Callable<V>, Configurable {
 	 * When task publish and execute some events asynchronously, then this method will be called,
 	 * after all asynchronous events are processed => task end is delayed, till all events are processed.
 	 * 
+	 * Lookout: method is called, when LRT is in waiting 
+	 * state only. Implement {@link AbstractLongRunningTaskExecutor#end(Object, Exception)} properly instead.
+	 * 
+	 * @see AbstractLongRunningTaskExecutor#end(Object, Exception)
 	 * @since 10.6.0
 	 */
 	void notifyEnd();

@@ -274,7 +274,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 				notifiedLrts.remove(executor.getLongRunningTaskId());
 				cacheManager.evictValue(TRANSACTION_EVENT_CACHE_NAME, transactionId);
 			}
-			lrts.get(transactionId).add(executor);
+			lrts.get(transactionId).add(0, executor); // LIFO -> last task need to end first -> then first task end after all.
 			//
 			// start long running task as event
 			IdmLongRunningTaskDto owner = new IdmLongRunningTaskDto(executor.getLongRunningTaskId());
@@ -1510,11 +1510,13 @@ public class DefaultEntityEventManager implements EntityEventManager {
 						&& lrts.get(transactionId).stream().allMatch(lrt -> lrt.getResult() != null)) {
 					List<LongRunningTaskExecutor<?>> longRunningTaskExecutors = lrts.remove(transactionId);
 					//
-					longRunningTaskExecutors.forEach(lrt -> {
-						notifiedLrts.put(lrt.getLongRunningTaskId(), Boolean.TRUE);
-						//
-						publishEvent(new NotifyLongRunningTaskEvent(lrt));
-					});
+					longRunningTaskExecutors
+						.stream()
+						.forEach(lrt -> {
+							notifiedLrts.put(lrt.getLongRunningTaskId(), Boolean.TRUE);
+							//
+							publishEvent(new NotifyLongRunningTaskEvent(lrt));
+						});
 				}
 			}
 		} finally {

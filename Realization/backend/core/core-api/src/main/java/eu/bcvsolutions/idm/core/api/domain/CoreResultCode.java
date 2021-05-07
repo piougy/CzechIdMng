@@ -326,6 +326,7 @@ public enum CoreResultCode implements ResultCode {
 	BULK_ACTION_NOT_AUTHORIZED_MODIFY_CONTRACT (HttpStatus.FORBIDDEN, "Insufficient permissions for [%s] contract modification."),
 	// Role bulk actions
 	ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES(HttpStatus.FOUND, "Role [%s] has [%s] role-identities."),
+	ROLE_FORCE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES(HttpStatus.FOUND, "Role [%s] is assigned [%s] to users. Remove assigned roles before or use force delete."),
 	ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY(HttpStatus.FOUND, "[%s] request concepts need to be modified. It may tak a while."),
 	//
 	// Contract slices

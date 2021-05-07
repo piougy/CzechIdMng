@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 
 /**
- * Before role delete - deletes all role system mappings
+ * Before role delete - deletes all role system mappings.
  * 
  * @author Radek Tomiška
  *
@@ -56,33 +56,36 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> implemen
 	@Override
 	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
 		IdmRoleDto role = event.getContent();
-		if (role.getId() != null) {
-			// delete mapped roles
-			SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
-			roleSystemFilter.setRoleId(role.getId());
-			roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
-				roleSystemService.delete(roleSystem);
-			});
-			//
-			// delete relations on account (includes delete of account )
-			AccRoleAccountFilter filter = new AccRoleAccountFilter();
-			filter.setRoleId(role.getId());
-			roleAccountService.find(filter, null).forEach(roleAccount -> {
-				roleAccountService.delete(roleAccount);
-			});
-			//
-			// remove all recipients from provisioning break
-			deleteProvisioningRecipient(event.getContent().getId());
-			//
-			// Delete link to sync identity configuration
-			syncConfigRepository
-				.findByDefaultRole(role.getId())
-				.forEach(config -> {
-					SysSyncIdentityConfigDto configDto = (SysSyncIdentityConfigDto) syncConfigService.get(config.getId());
-					configDto.setDefaultRole(null);
-					syncConfigService.save(configDto);
-				});
+		//
+		if (role.getId() == null) {
+			return new DefaultEventResult<>(event, this);
 		}
+		//
+		// delete mapped roles
+		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
+		roleSystemFilter.setRoleId(role.getId());
+		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
+			roleSystemService.delete(roleSystem);
+		});
+		//
+		// delete relations on account (includes delete of account )
+		AccRoleAccountFilter filter = new AccRoleAccountFilter();
+		filter.setRoleId(role.getId());
+		roleAccountService.find(filter, null).forEach(roleAccount -> {
+			roleAccountService.delete(roleAccount);
+		});
+		//
+		// remove all recipients from provisioning break
+		deleteProvisioningRecipient(event.getContent().getId());
+		//
+		// delete link to sync identity configuration
+		syncConfigRepository
+			.findByDefaultRole(role.getId())
+			.forEach(config -> {
+				SysSyncIdentityConfigDto configDto = (SysSyncIdentityConfigDto) syncConfigService.get(config.getId());
+				configDto.setDefaultRole(null);
+				syncConfigService.save(configDto);
+			});
 
 		return new DefaultEventResult<>(event, this);
 	}

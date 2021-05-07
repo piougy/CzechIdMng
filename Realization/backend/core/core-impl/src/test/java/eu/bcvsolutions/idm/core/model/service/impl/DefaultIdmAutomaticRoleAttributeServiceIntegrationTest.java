@@ -2194,7 +2194,7 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 			filter.setAutomaticRoleId(automaticRole.getId());
 			getHelper().waitForResult(res -> {
-				return identityRoleService.find(filter, PageRequest.of(0, 1)).getTotalElements() != 187;
+				return identityRoleService.count(filter) != 187;
 			}, 1000, 300);
 			
 			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();

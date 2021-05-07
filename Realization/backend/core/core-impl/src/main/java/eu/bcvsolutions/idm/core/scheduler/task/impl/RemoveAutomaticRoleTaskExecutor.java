@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
@@ -55,6 +56,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -114,6 +117,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(AutowireHelper.getTargetType(this));
 		filter.setOperationState(OperationState.RUNNING);
+		filter.setRunning(Boolean.TRUE); // ignore waiting tasks
 		//
 		if (byTree) {
 			for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
@@ -203,13 +207,31 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	@Override
 	public Optional<OperationResult> processItem(IdmIdentityRoleDto identityRole) {	
 		try {
+			IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract);
+			UUID identityId = contract.getIdentity();
+			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+			roleRequest.setState(RoleRequestState.CONCEPT);
+			roleRequest.setExecuteImmediately(true); // without approval
+			roleRequest.setApplicant(identityId);
+			roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
+			roleRequest = roleRequestService.save(roleRequest);
+			//
 			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setRoleRequest(roleRequest.getId());
 			conceptRoleRequest.setIdentityRole(identityRole.getId());
 			conceptRoleRequest.setRole(identityRole.getRole());
 			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
 			conceptRoleRequest.setIdentityContract(identityRole.getIdentityContract());
-			IdmIdentityContractDto contract = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract);
-			roleRequestService.executeConceptsImmediate(contract.getIdentity(), Lists.newArrayList(conceptRoleRequest));
+			conceptRoleRequest.setContractPosition(identityRole.getContractPosition());
+			conceptRequestService.save(conceptRoleRequest);
+			//
+			// start event with skip check authorities
+			RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+			requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+			// prevent to start asynchronous event before previous update event is completed. 
+			requestEvent.setSuperOwnerId(identityId);
+			//
+			roleRequestService.startRequestInternal(requestEvent);
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {
@@ -234,87 +256,88 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		if (BooleanUtils.isTrue(result) && ex == null) {
-			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role);
+		if (!BooleanUtils.isTrue(result) || ex != null) {
+			return super.end(result, ex);
+		}
+		//
+		IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role);
+		long assignedRoles = identityRoleService.findByAutomaticRole(getAutomaticRoleId(), PageRequest.of(0, 1)).getTotalElements();
+		if (assignedRoles != 0) {
+			// some assigned role was created in the meantime
+			UUID automaticRoleId = getAutomaticRoleId();
+			LOG.debug("Remove role [{}] by automatic role [{}] is not complete, some roles [{}] remains assigned to identities.", 
+					role.getCode(), automaticRoleId, assignedRoles);
+			ResultModel resultModel = new DefaultResultModel(CoreResultCode.AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES, ImmutableMap.of(
+					"automaticRoleId", automaticRoleId.toString(), 
+					"assignedRoles", String.valueOf(assignedRoles)));
+			saveResult(resultModel, OperationState.EXCEPTION, null);
+		} else {
 			//
-			long assignedRoles = identityRoleService.findByAutomaticRole(getAutomaticRoleId(), PageRequest.of(0, 1)).getTotalElements();
-			if (assignedRoles != 0) {
-				// some assigned role was created in the meantime
-				UUID automaticRoleId = getAutomaticRoleId();
-				LOG.debug("Remove role [{}] by automatic role [{}] is not complete, some roles [{}] remains assigned to identities.", 
-						role.getCode(), automaticRoleId, assignedRoles);
-				ResultModel resultModel = new DefaultResultModel(CoreResultCode.AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES, ImmutableMap.of(
-						"automaticRoleId", automaticRoleId.toString(), 
-						"assignedRoles", String.valueOf(assignedRoles)));
-				saveResult(resultModel, OperationState.EXCEPTION, null);
-			} else {
+			LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
+			try {
 				//
-				LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
-				try {
-					//
-					// Find all concepts and remove relation on role tree
-					IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
-					conceptRequestFilter.setAutomaticRole(getAutomaticRoleId());
-					//
-					List<IdmConceptRoleRequestDto> concepts = conceptRequestService.find(conceptRequestFilter, null).getContent();
-					for (IdmConceptRoleRequestDto concept : concepts) {
-						IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
-						String message = null;
-						if (concept.getState().isTerminatedState()) {
-							message = MessageFormat.format(
-									"Automatic role [{0}] (reqested in concept [{1}]) was deleted (not from this role request)!",
-									getAutomaticRoleId(), concept.getId());
-						} else {
-							message = MessageFormat.format(
-									"Request change in concept [{0}], was not executed, because requested automatic role [{1}] was deleted (not from this role request)!",
-									concept.getId(), getAutomaticRoleId());
-							concept.setState(RoleRequestState.CANCELED);
-						}
-						roleRequestService.addToLog(request, message);
-						conceptRequestService.addToLog(concept, message);
-						concept.setAutomaticRole(null);
-						
-						roleRequestService.save(request);
-						conceptRequestService.save(concept);
+				// Find all concepts and remove relation on role tree
+				IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
+				conceptRequestFilter.setAutomaticRole(getAutomaticRoleId());
+				//
+				List<IdmConceptRoleRequestDto> concepts = conceptRequestService.find(conceptRequestFilter, null).getContent();
+				for (IdmConceptRoleRequestDto concept : concepts) {
+					IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
+					String message = null;
+					if (concept.getState().isTerminatedState()) {
+						message = MessageFormat.format(
+								"Automatic role [{0}] (reqested in concept [{1}]) was deleted (not from this role request)!",
+								getAutomaticRoleId(), concept.getId());
+					} else {
+						message = MessageFormat.format(
+								"Request change in concept [{0}], was not executed, because requested automatic role [{1}] was deleted (not from this role request)!",
+								concept.getId(), getAutomaticRoleId());
+						concept.setState(RoleRequestState.CANCELED);
 					}
-					// Find all automatic role requests and remove relation on automatic role
-					if (automaticRoleId != null) {
-						IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
-						automaticRoleRequestFilter.setAutomaticRoleId(automaticRoleId);
-						
-						automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
-							request.setAutomaticRole(null);
-							automaticRoleRequestService.save(request);
-							// WFs cannot be cancel here, because this method can be called from the same WF
-							// automaticRoleRequestService.cancel(request);
-						});
-					}
-					//
-					// by default is this allowed
-					if (this.isDeleteEntity()) {
-						// delete entity
-						if (getAutomaticRole() instanceof IdmRoleTreeNodeDto) {
-							roleTreeNodeService.deleteInternalById(getAutomaticRole().getId());
-						} else {
-							// remove all rules
-							automaticRoleAttributeRuleService.deleteAllByAttribute(getAutomaticRole().getId());
-							automaticRoleAttributeService.deleteInternalById(getAutomaticRole().getId());
-						}
-					}
-					//
-					LOG.debug("End: Remove role [{}] by automatic role [{}].", role.getCode(), getAutomaticRole().getId());
-					//
-				} catch (Exception O_o) {
-					LOG.debug("Remove role [{}] by automatic role [{}] failed", role.getCode(), getAutomaticRole().getId(), O_o);
-					//
-					IdmLongRunningTaskDto task = longRunningTaskService.get(getLongRunningTaskId());
-					ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
-							ImmutableMap.of(
-									"taskId", getLongRunningTaskId(), 
-									"taskType", task.getTaskType(),
-									ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
-					saveResult(resultModel, OperationState.EXCEPTION, O_o);
+					roleRequestService.addToLog(request, message);
+					conceptRequestService.addToLog(concept, message);
+					concept.setAutomaticRole(null);
+					
+					roleRequestService.save(request);
+					conceptRequestService.save(concept);
 				}
+				// Find all automatic role requests and remove relation on automatic role
+				if (automaticRoleId != null) {
+					IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
+					automaticRoleRequestFilter.setAutomaticRoleId(automaticRoleId);
+					
+					automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
+						request.setAutomaticRole(null);
+						automaticRoleRequestService.save(request);
+						// WFs cannot be cancel here, because this method can be called from the same WF
+						// automaticRoleRequestService.cancel(request);
+					});
+				}
+				//
+				// by default is this allowed
+				if (this.isDeleteEntity()) {
+					// delete entity
+					if (getAutomaticRole() instanceof IdmRoleTreeNodeDto) {
+						roleTreeNodeService.deleteInternalById(getAutomaticRole().getId());
+					} else {
+						// remove all rules
+						automaticRoleAttributeRuleService.deleteAllByAttribute(getAutomaticRole().getId());
+						automaticRoleAttributeService.deleteInternalById(getAutomaticRole().getId());
+					}
+				}
+				//
+				LOG.debug("End: Remove role [{}] by automatic role [{}].", role.getCode(), getAutomaticRole().getId());
+				//
+			} catch (Exception O_o) {
+				LOG.debug("Remove role [{}] by automatic role [{}] failed", role.getCode(), getAutomaticRole().getId(), O_o);
+				//
+				IdmLongRunningTaskDto task = longRunningTaskService.get(getLongRunningTaskId());
+				ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+						ImmutableMap.of(
+								"taskId", getLongRunningTaskId(), 
+								"taskType", task.getTaskType(),
+								ConfigurationService.PROPERTY_INSTANCE_ID, task.getInstanceId()));
+				saveResult(resultModel, OperationState.EXCEPTION, O_o);
 			}
 		}
 		//

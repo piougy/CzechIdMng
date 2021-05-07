@@ -6168,7 +6168,13 @@
       "role-delete-bulk-action": {
         "label": "$t(action.delete.action) role",
         "help": "Smaže vybrané role.",
-        "icon": "$t(action.delete.icon)"
+        "icon": "$t(action.delete.icon)",
+        "attributes": {
+          "force-delete": {
+            "label": "Smazat i navázané záznamy (force delete)",
+            "help": "Smazat roli včetně oderání všech přiřazených rolí uživatelům, atomatických i busnis rolí a všech dalších navázaných záznamů."
+          }
+        }
       },
       "role-export-bulk-action": {
         "icon": "export",
@@ -7955,12 +7961,16 @@
       "message": "Generování verifikačního kódu selhalo."
     },
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
-      "message": "Role <strong>{{role}}</strong> obsahuje <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>",
-      "title": ""
+      "title": "",
+      "message": "Role <strong>{{role}}</strong> obsahuje <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>"
+    },
+    "ROLE_FORCE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
+      "title": "",
+      "message": "Role <strong>{{role}}</strong> obsahuje <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. Před smazáním musíte nejdříve odstranit všechny vazby na uživatele nebo smažte roli včetně všech navázaných záznamů."
     },
     "ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY": {
-      "message": "Mazaná role musí být odstraněna z <strong class=\"highlight\">{{conceptCount}}</strong> konceptů žádostí. To může nějakou dobu trvat.",
-      "title": ""
+      "title": "",
+      "message": "Mazaná role musí být odstraněna z <strong class=\"highlight\">{{conceptCount}}</strong> konceptů žádostí. To může nějakou dobu trvat."
     },
     "ROLE_COMPOSITION_ASSIGN_ROLE_FAILED": {
       "title": "Role nebyla přiřazena",

@@ -43,33 +43,31 @@ public class RoleTreeNodeDeleteProcessor extends CoreEventProcessor<IdmRoleTreeN
 	public EventResult<IdmRoleTreeNodeDto> process(EntityEvent<IdmRoleTreeNodeDto> event) {
 		IdmRoleTreeNodeDto roleTreeNode = event.getContent();
 		//
-		// Find all automatic role requests and remove relation on automatic role
-		if (roleTreeNode.getId() != null) {
-			//
-			// delete all assigned roles gained by this automatic role by long running task
-			RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
-			automaticRoleTask.setAutomaticRoleId(roleTreeNode.getId());
-			if (event.getPriority() == PriorityType.IMMEDIATE) {
-				longRunningTaskManager.executeSync(automaticRoleTask);
-				return new DefaultEventResult.Builder<>(event, this).build();
-			}
-			//
-			automaticRoleTask.setContinueOnException(true);
-			if (longRunningTaskManager.isAsynchronous()) {
-				automaticRoleTask.setRequireNewTransaction(true);
-			}
-			try {
-				longRunningTaskManager.execute(automaticRoleTask);
-			} catch (AcceptedException ex) {
-				DefaultEventResult<IdmRoleTreeNodeDto> result = new DefaultEventResult<>(event, this);
-				result.setSuspended(true);
-				//
-				return result;
-			}
-			//
+		if (roleTreeNode.getId() == null) {
+			return new DefaultEventResult<>(event, this);
+		}
+		//
+		// delete all assigned roles gained by this automatic role by long running task
+		RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
+		automaticRoleTask.setAutomaticRoleId(roleTreeNode.getId());
+		if (event.getPriority() == PriorityType.IMMEDIATE) {
+			longRunningTaskManager.executeSync(automaticRoleTask);
 			return new DefaultEventResult.Builder<>(event, this).build();
 		}
 		//
-		return new DefaultEventResult<>(event, this);
+		automaticRoleTask.setContinueOnException(true);
+		if (longRunningTaskManager.isAsynchronous()) {
+			automaticRoleTask.setRequireNewTransaction(true);
+		}
+		try {
+			longRunningTaskManager.execute(automaticRoleTask);
+		} catch (AcceptedException ex) {
+			DefaultEventResult<IdmRoleTreeNodeDto> result = new DefaultEventResult<>(event, this);
+			result.setSuspended(true);
+			//
+			return result;
+		}
+		//
+		return new DefaultEventResult.Builder<>(event, this).build();
 	}
 }

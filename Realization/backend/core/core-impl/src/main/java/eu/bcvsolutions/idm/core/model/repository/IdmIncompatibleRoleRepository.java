@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIncompatibleRole;
 
 /**
- * Segregation of Duties
+ * Segregation of Duties.
  * 
  * @author Radek Tomiška
  * @since 9.4.0

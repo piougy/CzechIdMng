@@ -216,6 +216,9 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			//
 			// remove role composition
 			roleCompositionService.delete(compositionWithSystem);
+			getHelper().waitForResult(res -> {
+				return roleCompositionService.get(compositionWithSystem) != null;
+			});
 			//
 			assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 			Assert.assertEquals(2, assignedRoles.size());

@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -203,6 +205,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 			filter.setTaskType(taskType);
 			filter.setOperationState(OperationState.RUNNING);
+			filter.setRunning(Boolean.TRUE); // ignore waiting tasks
 			List<UUID> runningTasks = longRunningTaskService
 					.findIds(filter, null)
 					.getContent()
@@ -237,6 +240,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 				IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 				filter.setTaskType(concurrentTaskType);
 				filter.setOperationState(OperationState.RUNNING);
+				filter.setRunning(Boolean.TRUE); // ignore waiting tasks
 				List<UUID> runningTasks = longRunningTaskService
 						.findIds(filter, null)
 						.getContent()
@@ -292,6 +296,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	}
 	
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void notifyEnd() {
 		end(this.result == null ? null : result.orElse(null), null);
 	}

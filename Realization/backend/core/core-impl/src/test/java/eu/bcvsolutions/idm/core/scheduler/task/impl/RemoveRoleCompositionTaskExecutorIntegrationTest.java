@@ -102,19 +102,24 @@ public class RemoveRoleCompositionTaskExecutorIntegrationTest extends AbstractIn
 		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getRole().equals(subOneSub.getId())));
 		//
 		// remove role composition by task with mock service => we want to throw exception
-		Mockito.when(mockIdentityRoleService.find(ArgumentMatchers.any(IdmIdentityRoleFilter.class), ArgumentMatchers.any()))
-			.then(new AssignedRolesAnswer(subOneSubRoleComposition.getId()));
+		Mockito.when(mockIdentityRoleService.count(ArgumentMatchers.any(IdmIdentityRoleFilter.class)))
+			.thenReturn(1L);
 		Mockito.when(mockIdentityRoleService.find(ArgumentMatchers.any(IdmIdentityRoleFilter.class), ArgumentMatchers.isNull()))
 			.then(new AssignedRolesAnswer(subOneSubRoleComposition.getId()));
 		RemoveRoleCompositionTaskExecutor taskExecutor = new RemoveRoleCompositionTaskExecutor();
 		AutowireHelper.autowire(taskExecutor);
 		IdmLongRunningTaskDto lrt = longRunningTaskManager.resolveLongRunningTask(taskExecutor, null, OperationState.RUNNING);
+		UUID taskId = lrt.getId();
 		taskExecutor.setIdentityRoleService(mockIdentityRoleService);
 		taskExecutor.setRoleCompositionId(subOneSubRoleComposition.getId());
 		//
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			taskExecutor.call();
+			
+			getHelper().waitForResult(res -> {
+				return longRunningTaskManager.getLongRunningTask(taskId).getResultState().isRunnable();
+			});
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		}

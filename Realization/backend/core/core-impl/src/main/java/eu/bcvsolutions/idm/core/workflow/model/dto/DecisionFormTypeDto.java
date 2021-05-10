@@ -10,6 +10,7 @@ public class DecisionFormTypeDto {
 	private String premissions;
 	private String warningMessage;
 	private boolean skipValidation = false;
+	private Boolean reasonRequired;
 
 	public String getId() {
 		return id;
@@ -74,4 +75,14 @@ public class DecisionFormTypeDto {
 	public void setSkipValidation(boolean skipValidation) {
 		this.skipValidation = skipValidation;
 	}
+
+	public Boolean isReasonRequired() {
+		return reasonRequired;
+	}
+
+	public void setReasonRequired(Boolean reasonRequired) {
+		this.reasonRequired = reasonRequired;
+	}
+	
+	
 }

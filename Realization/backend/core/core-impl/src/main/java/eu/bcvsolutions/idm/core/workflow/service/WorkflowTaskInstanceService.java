@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
  * Service for control workflow task instances.
  * 
  * @author svandav
- *
+ * @author Ondrej Husnik
  */
 public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto> {
 
@@ -22,6 +22,8 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	String WORKFLOW_DECISION_APPROVE = "approve";
 	String WORKFLOW_DECISION_DISAPPROVE = "disapprove";
 	String SORT_BY_TASK_CREATED = "taskCreated";
+	String PROPERTY_DISAPPROVE_DECISION_REASON_REQUIRED = "idm.sec.core.wf.disapproval.reason.required";
+	String PROPERTY_APPROVE_DECISION_REASON_REQUIRED = "idm.sec.core.wf.approval.reason.required";
 
 	/**
 	 * Complete task.

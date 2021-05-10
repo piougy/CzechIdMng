@@ -133,7 +133,7 @@ if(!skip){
     <sequenceFlow id="flow41" sourceRef="scripttask9" targetRef="approveByManager"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
-        <activiti:value>{"showWarning":false,,"level":"success"}</activiti:value>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
       </extensionElements>
     </dataObject>
     <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">

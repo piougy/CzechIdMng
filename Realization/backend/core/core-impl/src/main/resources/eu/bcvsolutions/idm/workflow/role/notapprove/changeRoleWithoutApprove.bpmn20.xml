@@ -33,7 +33,7 @@ conceptRoleRequestService.save(conceptDto);
     <sequenceFlow id="flow40" sourceRef="servicetask2" targetRef="scripttask5"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
-        <activiti:value>{"showWarning":false,,"level":"success"}</activiti:value>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
       </extensionElements>
     </dataObject>
     <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">

@@ -1624,6 +1624,10 @@
         "delegation": {
           "header": "Delegovaný úkol",
           "text": "Tento úkol na Vás byl delegován."
+        },
+        "decision": {
+          "placeholder": "Vložte odůvodnění",
+          "validationMessage": "Důvod musí být vyplněn"
         }
       },
       "historicInstance": {

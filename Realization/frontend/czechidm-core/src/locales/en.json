@@ -1578,6 +1578,10 @@
         "delegation": {
           "header": "Delegated task",
           "text": "This task was delegated to you."
+        },
+        "decision": {
+          "placeholder": "Insert the reason",
+          "validationMessage": "Reason has to be provided"
         }
       },
       "historicInstance": {

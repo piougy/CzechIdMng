@@ -15,15 +15,21 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 
 /**
  * Process all contracts that passed and not passed given automatic role.
@@ -53,6 +59,51 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 	public void init(Map<String, Object> properties) {
 		this.setAutomaticRoleId(getParameterConverter().toUuid(properties, PARAMETER_ROLE_TREE_NODE));
 		super.init(properties);
+	}
+	
+	/**
+	 * Automatic role removal can be start, if previously LRT ended.
+	 */
+	@Override
+	public void validate(IdmLongRunningTaskDto task) {
+		super.validate(task);
+		//
+		UUID automaticRoleId = getAutomaticRoleId();
+		AbstractIdmAutomaticRoleDto automaticRole = automaticRoleAttributeService.get(automaticRoleId);
+		if (automaticRole == null) {
+			throw new EntityNotFoundException(AbstractIdmAutomaticRoleDto.class, automaticRoleId);
+		}
+		//
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setTaskType(AutowireHelper.getTargetType(this));
+		filter.setOperationState(OperationState.RUNNING);
+		// filter.setRunning(Boolean.TRUE); // ignore waiting tasks is not possible => remove vs adding new role updates the same requests
+		//
+		// by attribute - prevent currently processed role only
+		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
+			if (longRunningTask.getId().equals(getLongRunningTaskId())) {
+				continue;
+			}
+			if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
+				throw new AcceptedException(
+						CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
+						ImmutableMap.of("taskId", longRunningTask.getId().toString())
+				);
+			}
+		}
+		//
+		filter.setTaskType(AutowireHelper.getTargetType(RemoveAutomaticRoleTaskExecutor.class));
+		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
+			if (longRunningTask.getId().equals(getLongRunningTaskId())) {
+				continue;
+			}
+			if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
+				throw new AcceptedException(
+						CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
+						ImmutableMap.of("taskId", longRunningTask.getId().toString())
+				);
+			}
+		}
 	}
 	
 	@Override

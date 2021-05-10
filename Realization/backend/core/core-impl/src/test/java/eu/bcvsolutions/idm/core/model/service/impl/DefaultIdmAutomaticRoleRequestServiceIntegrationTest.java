@@ -57,7 +57,6 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test for change automatic role via request.
@@ -67,8 +66,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends AbstractCoreWorkflowIntegrationTest {
 
-	@Autowired
-	protected TestHelper helper;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
@@ -109,7 +106,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 
 	private IdmRoleDto prepareRole() {
 		// create roles
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		role.setPriority(APPROVE_ROLE_BY_GUARANTEE_PRIORITY);
 		role.setApproveRemove(true);
 		roleService.save(role);
@@ -121,11 +118,10 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 
 	@Test
 	public void testCreateAutomaticAttributeRole() {
-		// TODO: why this not work synchronously?
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		try {
 			IdmRoleDto role = prepareRole();
-			IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+			IdmIdentityDto guaranteeIdentity = getHelper().createIdentity();
 			getHelper().createRoleGuarantee(role, guaranteeIdentity);
 	
 			IdmAutomaticRoleRequestDto request = new IdmAutomaticRoleRequestDto();
@@ -165,17 +161,16 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 			Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
 			Assert.assertNotNull(identityRoles.get(0).getAutomaticRole());
 		} finally {
-			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 		}
 	}
 
-	@Test
 	/**
 	 * Test for AutomaticRoleManager. Create automatic role with rule.
 	 */
+	@Test
 	public void testCreateAutomaticAttributeRoleViaManager() {
-		// TODO: why this not work synchronously?
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		try {
 			IdmRoleDto role = prepareRole();
 			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
@@ -204,16 +199,16 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 			Assert.assertEquals(role.getId(), identityRoles.get(0).getRole());
 			Assert.assertNotNull(identityRoles.get(0).getAutomaticRole());
 		} finally {
-			helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 		}
 	}
 
 	@Test
 	public void testDeleteAutomaticAttributeRoleApproval() {
 		IdmRoleDto role = prepareRole();
-		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+		IdmIdentityDto guaranteeIdentity = getHelper().createIdentity();
 		getHelper().createRoleGuarantee(role, guaranteeIdentity);
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
@@ -256,8 +251,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testChangeRule() {
 		IdmRoleDto role = prepareRole();
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity();
 
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
@@ -292,11 +287,11 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 
 	@Test
 	public void testRemoveRule() {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 		//
 		IdmRoleDto role = prepareRole();
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
 
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
@@ -329,8 +324,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testAddRule() {
 		IdmRoleDto role = prepareRole();
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity();
 
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
 		automaticRole.setRole(role.getId());
@@ -372,7 +367,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testCreateTreeAutomaticRole() {
 		IdmRoleDto role = prepareRole();
-		IdmTreeNodeDto nodeOne = helper.createTreeNode();
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode();
 
 		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
 		automaticRole.setRole(role.getId());
@@ -393,7 +388,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testCreateTreeAutomaticRoleWithRecursion() {
 		IdmRoleDto role = prepareRole();
-		IdmTreeNodeDto nodeOne = helper.createTreeNode();
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode();
 
 		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
 		automaticRole.setRole(role.getId());
@@ -439,7 +434,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testDeleteTreeAutomaticRole() {
 		IdmRoleDto role = prepareRole();
-		IdmTreeNodeDto nodeOne = helper.createTreeNode();
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode();
 
 		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
 		automaticRole.setRole(role.getId());
@@ -464,8 +459,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testDeleteTreeAutomaticRoleApproval() {
 		IdmRoleDto role = prepareRole();
-		IdmTreeNodeDto nodeOne = helper.createTreeNode();
-		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode();
+		IdmIdentityDto guaranteeIdentity = getHelper().createIdentity();
 		getHelper().createRoleGuarantee(role, guaranteeIdentity);
 
 		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
@@ -510,11 +505,11 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	
 	@Test
 	public void testAutomaticRoleRequestReferentialIntegrity () {
-		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
 		//
 		IdmRoleDto role = prepareRole();
-		IdmTreeNodeDto nodeOne = helper.createTreeNode();
-		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode();
+		IdmIdentityDto guaranteeIdentity = getHelper().createIdentity();
 		getHelper().createRoleGuarantee(role, guaranteeIdentity);
 		
 		// Creates automatic role assigned to tree node and then delete them
@@ -542,7 +537,7 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test(expected = RoleRequestException.class)
 	public void notRightForExecuteImmediatelyExceptionTest() {
 		this.logout();
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		// Log as user without right for immediately execute role request (without
 		// approval)
 		Collection<GrantedAuthority> authorities = IdmAuthorityUtils
@@ -581,8 +576,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testCreateAutomaticAttributeRoleWithApproval() {
 		IdmRoleDto role = prepareRole();
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityDto guaranteeIdentity = getHelper().createIdentity();
 		getHelper().createRoleGuarantee(role, guaranteeIdentity);
 
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
@@ -626,8 +621,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testCreateAutomaticAttributeRoleWithApprovalDisapprove() {
 		IdmRoleDto role = prepareRole();
-		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityDto guaranteeIdentity = getHelper().createIdentity();
 		getHelper().createRoleGuarantee(role, guaranteeIdentity);
 
 		IdmAutomaticRoleAttributeDto automaticRole = new IdmAutomaticRoleAttributeDto();
@@ -667,8 +662,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	@Test
 	public void testCreateTreeAutomaticRoleWithApproval() {
 		IdmRoleDto role = prepareRole();
-		IdmTreeNodeDto nodeOne = helper.createTreeNode();
-		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+		IdmTreeNodeDto nodeOne = getHelper().createTreeNode();
+		IdmIdentityDto guaranteeIdentity = getHelper().createIdentity();
 		getHelper().createRoleGuarantee(role, guaranteeIdentity);
 
 		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();

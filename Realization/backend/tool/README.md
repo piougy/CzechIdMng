@@ -355,7 +355,7 @@ Usable additional tool argument:
 
 @since 10.7.0 (draft added @since 10.4.0,  fully supported @since 10.7.0)
 
-Third party module dependencies are inluded in target build automatically, when ``--resolve-dependencies`` argument is given:
+Third party module dependencies are included in target build automatically, when ``--resolve-dependencies`` argument is given:
 - Product modules (``core``, ``acc`` etc.) are not defined as maven dependencies. These libraries are installed from product placed in product folder. **Product dependency should be defined as provided in module dependencies**.
 - Modules or libraries added into ``modules`` folder are **registered as project dependencies for build. All libraries have to be available in local or nexus repository => see settings.xml above to resolve private artefacts**),
 - libraries are included:

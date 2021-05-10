@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -77,12 +76,12 @@ public class AutomaticRoleAttributeRuleDeleteProcessor extends CoreEventProcesso
 		// in some case we want skip check for last rule (remove all automatic role)
 		// by default is skip value null => false
 		if (!this.getBooleanProperty(SKIP_CHECK_LAST_RULE, event.getProperties())) {
-			// it's last rule, remove all identity role
+			// it's last rule, remove all identity roles
 			if (allRules.size() == 1 && dto.getId().equals(allRules.get(0).getId())) {
 				// before we start delete identity role, we check how many identities has the auto role
 				// if doesn't exist identities that has the role, skip remove
 				IdmIdentityFilter identityFilter = new IdmIdentityFilter();
-				long totalElements = identityService.find(identityFilter, PageRequest.of(0, 1)).getTotalElements();
+				long totalElements = identityService.count(identityFilter);
 				if (totalElements > 0) {
 					UUID automaticRoleAttributeId = dto.getAutomaticRoleAttribute();
 					removeAllRoles(automaticRoleAttributeId);
@@ -120,6 +119,7 @@ public class AutomaticRoleAttributeRuleDeleteProcessor extends CoreEventProcesso
 	private void removeAllRoles(UUID automaticRoleId) {
 		RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
 		automaticRoleTask.setAutomaticRoleId(automaticRoleId);
+		// FIXME: this is will not work, when LRT is executed asynchronously, when other task already running or LRT pool is exhausted!
 		automaticRoleTask.setDeleteEntity(false); // we don't want delete entity
 		automaticRoleTask.setContinueOnException(true);
 		automaticRoleTask.setRequireNewTransaction(true);

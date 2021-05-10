@@ -105,11 +105,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Automatic role by attribute service
+ * Automatic role by attribute service.
  * 
- * @author Radek Tomiška
  * @author Ondrej Kopr
- *
+ * @author Radek Tomiška
  */
 public class DefaultIdmAutomaticRoleAttributeService
 	extends AbstractReadWriteDtoService<IdmAutomaticRoleAttributeDto, IdmAutomaticRoleAttribute, IdmAutomaticRoleFilter>
@@ -120,8 +119,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 */
 	private int PROCESS_ROLE_SIZE = 10;
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultIdmAutomaticRoleAttributeService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmAutomaticRoleAttributeService.class);
 	
 	private final IdmIdentityContractService identityContractService;
 	private final IdmFormAttributeService formAttributeService;
@@ -333,6 +331,10 @@ public class DefaultIdmAutomaticRoleAttributeService
 		List<IdmAutomaticRoleAttributeRuleDto> rulesForContracts = automaticRoleAttributeRuleService.findAllRulesForAutomaticRole(automaticRoleId);
 		//
 		if (rulesForContracts.isEmpty()) {
+			if (pageable == null) {
+				// pageable is required
+				pageable = PageRequest.of(0, Integer.MAX_VALUE);
+			}
 			return new PageImpl<>(Collections.emptyList(), pageable, 0);
 		}
 		//
@@ -421,19 +423,24 @@ public class DefaultIdmAutomaticRoleAttributeService
 	public IdmAutomaticRoleAttributeDto recalculate(EntityEvent<IdmAutomaticRoleAttributeDto> event) {
 		Assert.notNull(event, "Event is required.");
 		IdmAutomaticRoleAttributeDto automaticRoleAttributeDto = event.getContent();
-		Assert.notNull(automaticRoleAttributeDto.getId(), "Automatic role identifier is required.");
+		UUID automaticRoleId = automaticRoleAttributeDto.getId();
+		Assert.notNull(automaticRoleId, "Automatic role identifier is required.");
 		//
 		// set concept to false before recalculation
 		automaticRoleAttributeDto.setConcept(false);
 		automaticRoleAttributeDto = this.save(automaticRoleAttributeDto);
 		//
-		ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
-		automaticRoleTask.setAutomaticRoleId(automaticRoleAttributeDto.getId());
-		if (event.getPriority() == PriorityType.IMMEDIATE) {
-			automaticRoleTask.setAsync(false);
-			longRunningTaskManager.executeSync(automaticRoleTask);
-		} else {
-			longRunningTaskManager.execute(automaticRoleTask);
+		try {
+			ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
+			automaticRoleTask.setAutomaticRoleId(automaticRoleId);
+			if (event.getPriority() == PriorityType.IMMEDIATE) {
+				automaticRoleTask.setAsync(false);
+				longRunningTaskManager.executeSync(automaticRoleTask);
+			} else {
+				longRunningTaskManager.execute(automaticRoleTask);
+			}
+		} catch(AcceptedException ex) {
+			LOG.info("Automatic role by attribute [{}] will be processed asynchronously.", automaticRoleId, ex);
 		}
 		//
 		return automaticRoleAttributeDto;

@@ -34,6 +34,8 @@ import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
@@ -71,7 +73,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByAttributeTaskExecutor;
@@ -79,7 +81,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Test for automatic roles by attribute and their rules
+ * Test for automatic roles by attribute and their rules.
  * 
  * @author Ondrej Kopr
  *
@@ -98,8 +100,6 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private LongRunningTaskManager longRunningTaskManager;
-	@Autowired
-	private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired
 	private FormService formService;
 	@Autowired
@@ -865,6 +865,40 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 		// after recalculate is identity passed all rules
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, identityRoles.size());
+	}
+	
+	@Test
+	public void testRemoveLastRuleRecount() {
+		TransactionContextHolder.setContext(TransactionContextHolder.createEmptyContext()); //start transaction
+		UUID transactionId = TransactionContextHolder.getContext().getTransactionId();
+		//
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		//
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+		//
+		IdmAutomaticRoleAttributeRuleDto automaticRoleRule = getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.username.getName(), null, identity.getUsername());
+		this.recalculateSync(automaticRole.getId());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, identityRoles.size());
+		Assert.assertEquals(transactionId, identityRoles.get(0).getTransactionId());
+		//
+		automaticRoleAttributeRuleService.delete(automaticRoleRule);
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(identityRoles.isEmpty());
+		//
+		this.recalculateSync(automaticRole.getId());
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(identityRoles.isEmpty());
+		//
+		// check all LRT ended successfully
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setTransactionId(transactionId);
+		List<IdmLongRunningTaskDto> lrts = longRunningTaskManager.findLongRunningTasks(filter, null).getContent();
+		Assert.assertFalse(lrts.isEmpty());
+		Assert.assertTrue(lrts.stream().allMatch(lrt -> lrt.getResultState() == OperationState.EXECUTED));
 	}
 	
 	@Test
@@ -2287,7 +2321,7 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 		automaticRoleTask.setAutomaticRoleId(automaticRole.getId());
 		longRunningTaskManager.executeSync(automaticRoleTask);
 		
-		IdmLongRunningTaskDto task = longRunningTaskService.get(automaticRoleTask.getLongRunningTaskId());
+		IdmLongRunningTaskDto task = longRunningTaskManager.getLongRunningTask(automaticRoleTask.getLongRunningTaskId());
 		assertEquals(Long.valueOf(111), task.getCount());
 		assertEquals(Long.valueOf(111), task.getCounter());
 	}

@@ -276,7 +276,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
 			try {
 				//
-				// Find all concepts and remove relation on role tree
+				// Find all concepts and remove relation on automatic role
 				IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 				conceptRequestFilter.setAutomaticRole(getAutomaticRoleId());
 				//
@@ -301,7 +301,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 					roleRequestService.save(request);
 					conceptRequestService.save(concept);
 				}
-				// Find all automatic role requests and remove relation on automatic role
+				// Find all automatic role requests and remove relation on automatic role.
 				if (automaticRoleId != null) {
 					IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
 					automaticRoleRequestFilter.setAutomaticRoleId(automaticRoleId);

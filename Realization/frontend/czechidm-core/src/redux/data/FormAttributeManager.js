@@ -52,7 +52,7 @@ export default class FormAttributeManager extends EntityManager {
    * @return {object} component or null
    */
   getFormComponent(attribute) {
-    if (!attribute) {
+    if (!attribute || !attribute.persistentType) {
       return null;
     }
     //

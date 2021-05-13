@@ -331,10 +331,10 @@ public class DefaultIdmRoleRequestService
 		IdmRoleRequestDto request = get(requestId);
 		Assert.notNull(request, "Role request DTO is required!");
 		//
-		// Throw event
-		Map<String, Serializable> variables = new HashMap<>();
-		variables.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
-		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, request, variables);
+		// Throw event.
+		Map<String, Serializable> properties = new HashMap<>();
+		properties.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, checkRight);
+		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, request, properties);
 		if (immediate) {
 			event.setPriority(PriorityType.IMMEDIATE);
 		}

@@ -4,14 +4,21 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
@@ -26,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
@@ -41,10 +49,9 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
- * Delete identity - ensures referential integrity
+ * Delete identity - ensures referential integrity.
  * 
  * @author Radek Tomiška
- *
  */
 @Component
 @Description("Deletes identity - ensures core referential integrity.")
@@ -53,6 +60,7 @@ public class IdentityDeleteProcessor
 		implements IdentityProcessor {
 
 	public static final String PROCESSOR_NAME = "identity-delete-processor";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityDeleteProcessor.class);
 	//
 	@Autowired private IdmIdentityService service;
 	@Autowired private IdentityPasswordProcessor passwordProcessor;
@@ -67,7 +75,7 @@ public class IdentityDeleteProcessor
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	@Autowired private IdmProfileService profileService;
 	@Autowired private IdmDelegationDefinitionService delegationDefinitionService;
-	
+	@Autowired private EntityStateManager entityStateManager;
 
 	public IdentityDeleteProcessor() {
 		super(IdentityEventType.DELETE);
@@ -81,80 +89,103 @@ public class IdentityDeleteProcessor
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdmIdentityDto identity = event.getContent();
-		Assert.notNull(identity.getId(), "Identity ID is required!");
+		UUID identityId = identity.getId();
+		Assert.notNull(identityId, "Identity ID is required!");
+		boolean forceDelete = getBooleanProperty(PROPERTY_FORCE_DELETE, event.getProperties());
 		//
 		// delete contract slices
 		IdmContractSliceFilter sliceFilter = new IdmContractSliceFilter();
-		sliceFilter.setIdentity(identity.getId());
+		sliceFilter.setIdentity(identityId);
 		contractSliceService.find(sliceFilter, null).forEach(guarantee -> {
 			contractSliceService.delete(guarantee);
 		});
 		// delete contract slice guarantees
 		IdmContractSliceGuaranteeFilter sliceGuaranteeFilter = new IdmContractSliceGuaranteeFilter();
-		sliceGuaranteeFilter.setGuaranteeId(identity.getId());
+		sliceGuaranteeFilter.setGuaranteeId(identityId);
 		contractSliceGuaranteeService.find(sliceGuaranteeFilter, null).forEach(guarantee -> {
 			contractSliceGuaranteeService.delete(guarantee);
 		});
 		//
 		// contracts
-		identityContractService.findAllByIdentity(identity.getId()).forEach(identityContract -> {
-			// when identity is deleted, then HR processes has to be shipped (prevent to update deleted identity, when contract is removed)
+		identityContractService.findAllByIdentity(identityId).forEach(identityContract -> {
+			// when identity is deleted, then HR processes has to be skipped (prevent to update deleted identity, when contract is removed)
 			Map<String, Serializable> properties = new HashMap<>();
 			properties.put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
+			// propagate force attribute
+			properties.put(PROPERTY_FORCE_DELETE, forceDelete);
+			//
 			identityContractService.publish(new CoreEvent<>(CoreEventType.DELETE, identityContract, properties));
 		});
+		
 		// delete contract guarantees
 		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
-		filter.setGuaranteeId(identity.getId());
+		filter.setGuaranteeId(identityId);
 		contractGuaranteeService.find(filter, null).forEach(guarantee -> {
 			contractGuaranteeService.delete(guarantee);
 		});
 		// remove role guarantee
 		IdmRoleGuaranteeFilter roleGuaranteeFilter = new IdmRoleGuaranteeFilter();
-		roleGuaranteeFilter.setGuarantee(identity.getId());
+		roleGuaranteeFilter.setGuarantee(identityId);
 		roleGuaranteeService.find(roleGuaranteeFilter, null).forEach(roleGuarantee -> {
 			roleGuaranteeService.delete(roleGuarantee);
 		});
 		// remove password
 		passwordProcessor.deletePassword(identity);
 		// delete password history for identity
-		passwordHistoryService.deleteAllByIdentity(identity.getId());
+		passwordHistoryService.deleteAllByIdentity(identityId);
 		// disable related tokens - tokens has to be disabled to prevent their usage (when tokens are deleted, then token is recreated)
 		tokenManager.disableTokens(identity);
 		//
-		// Delete all role requests where is this identity applicant
-		IdmRoleRequestFilter roleRequestFilter = new IdmRoleRequestFilter();
-		roleRequestFilter.setApplicantId(identity.getId());
-		roleRequestService.find(roleRequestFilter, null).forEach(request ->{
-			roleRequestService.delete(request);
-		});
-		//
 		// delete all identity's profiles
 		IdmProfileFilter profileFilter = new IdmProfileFilter();
-		profileFilter.setIdentityId(identity.getId());
+		profileFilter.setIdentityId(identityId);
 		profileService.find(profileFilter,  null).forEach(profile -> {
 			profileService.delete(profile);
 		});
 		// remove all IdentityRoleValidRequest for this identity
-		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
+		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identityId);
 		identityRoleValidRequestService.deleteAll(validRequests);
 		//
 		// delete all identity's delegations - delegate
 		IdmDelegationDefinitionFilter delegationFilter = new IdmDelegationDefinitionFilter();
-		delegationFilter.setDelegateId(identity.getId());
+		delegationFilter.setDelegateId(identityId);
 		delegationDefinitionService.find(delegationFilter,  null).forEach(delegation -> {
 			delegationDefinitionService.delete(delegation);
 		});
 		//
 		// delete all identity's delegations - delegator
 		delegationFilter = new IdmDelegationDefinitionFilter();
-		delegationFilter.setDelegatorId(identity.getId());
+		delegationFilter.setDelegatorId(identityId);
 		delegationDefinitionService.find(delegationFilter,  null).forEach(delegation -> {
 			delegationDefinitionService.delete(delegation);
 		});
 		// deletes identity
-		service.deleteInternal(identity);
-		
+		if (forceDelete) {
+			LOG.debug("Identity [{}] should be deleted by caller after all asynchronus processes are completed.", identityId);
+			//
+			// dirty flag only - will be processed after asynchronous events ends
+			IdmEntityStateDto stateDeleted = new IdmEntityStateDto();
+			stateDeleted.setEvent(event.getId());
+			stateDeleted.setResult(
+					new OperationResultDto.Builder(OperationState.RUNNING)
+						.setModel(new DefaultResultModel(CoreResultCode.DELETED))
+						.build()
+			);
+			entityStateManager.saveState(identity, stateDeleted);
+			//
+			// set disabled (automatically)
+			identity.setState(IdentityState.DISABLED);
+			service.saveInternal(identity);
+		} else {
+			// delete all role requests where is this identity applicant
+			IdmRoleRequestFilter roleRequestFilter = new IdmRoleRequestFilter();
+			roleRequestFilter.setApplicantId(identityId);
+			roleRequestService.find(roleRequestFilter, null).forEach(request ->{
+				roleRequestService.delete(request);
+			});
+			//
+			service.deleteInternal(identity);
+		}
 		return new DefaultEventResult<>(event, this);
 	}
 

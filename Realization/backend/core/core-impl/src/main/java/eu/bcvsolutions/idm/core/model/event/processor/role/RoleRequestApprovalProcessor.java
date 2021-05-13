@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
- * Approve requested permission changes processor
+ * Approve requested permission changes processor.
  * 
  * @author svandav
  *
@@ -29,7 +29,6 @@ public class RoleRequestApprovalProcessor extends CoreEventProcessor<IdmRoleRequ
 	
 	public static final String PROCESSOR_NAME = "role-request-approval-processor";
 	public static final String PROPERTY_WF = "wf";
-	public static final String CHECK_RIGHT_PROPERTY = "checkRight";
 	public static final String DEFAULT_WF_PROCESS_NAME = "approve-identity-change-permissions";
 	
 	private final IdmRoleRequestService service;

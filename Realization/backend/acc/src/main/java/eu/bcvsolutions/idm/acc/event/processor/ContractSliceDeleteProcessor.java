@@ -17,10 +17,10 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.ContractSliceProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
-import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 
 /**
- * Before contract slice delete - deletes all contract-slice-account relations
+ * Before contract slice delete - deletes all contract-slice-account relations.
  *
  * @author svandav
  *
@@ -39,7 +39,7 @@ public class ContractSliceDeleteProcessor
 	@Autowired
 	public ContractSliceDeleteProcessor(
 			AccContractSliceAccountService entityAccountService) {
-		super(IdentityContractEventType.DELETE);
+		super(ContractSliceEventType.DELETE);
 		//
 		Assert.notNull(entityAccountService, "Service is required.");
 		//

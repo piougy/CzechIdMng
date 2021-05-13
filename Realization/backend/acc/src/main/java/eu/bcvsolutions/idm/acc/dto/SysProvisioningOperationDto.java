@@ -24,11 +24,10 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
- * DTO for {@link SysProvisioningOperation}
+ * DTO for {@link SysProvisioningOperation}.
  * 
  * @author Radek Tomiška
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
  */
 @Relation(collectionRelation = "provisioningOperations")
 public class SysProvisioningOperationDto extends AbstractDto implements ProvisioningOperation {
@@ -58,6 +57,13 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	@JsonIgnore
 	// Internal attribute, not persisted - for set manual event. A manual event prevents end sync to soon.
 	private UUID manualEventId;
+	
+	public SysProvisioningOperationDto() {
+	}
+	
+	public SysProvisioningOperationDto(UUID id) {
+		super(id);
+	}
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;

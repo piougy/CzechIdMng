@@ -667,7 +667,7 @@ public class DefaultIdmIdentityService
 		                		//
 		                		// valid identity role
 		                		RepositoryUtils.getValidPredicate(subRoot, builder)
-		                		)
+		                )
 		        );
 				predicates.add(builder.exists(subquery));
 				// 

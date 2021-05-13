@@ -33,10 +33,11 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
-import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -71,10 +72,12 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptRoleRequestService;
-	@Autowired 
+	@Autowired
 	private EntityEventManager entityEventManager;
-	@Autowired 
+	@Autowired
 	private SecurityService securityService;
+	@Autowired
+	private EntityStateManager entityStateManager;
 	//
 	private final List<UUID> processedRoleIds = new ArrayList<UUID>();
 
@@ -95,8 +98,8 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 		//
 		// add force delete, if currently logged user is ROLE_ADMIN
 		if (securityService.hasAnyAuthority(CoreGroupPermission.ROLE_ADMIN)) {
-			formAttributes.add(new IdmFormAttributeDto(RoleProcessor.PROPERTY_FORCE_DELETE, "Force delete", PersistentType.BOOLEAN));
-			distinctAttributes.add(RoleProcessor.PROPERTY_FORCE_DELETE);
+			formAttributes.add(new IdmFormAttributeDto(EntityEventProcessor.PROPERTY_FORCE_DELETE, "Force delete", PersistentType.BOOLEAN));
+			distinctAttributes.add(EntityEventProcessor.PROPERTY_FORCE_DELETE);
 		}
 		//
 		// check registered processors and use the setting
@@ -187,7 +190,7 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 	
 	@Override
 	protected OperationResult processDto(IdmRoleDto role) {
-		boolean forceDelete = getParameterConverter().toBoolean(getProperties(), RoleProcessor.PROPERTY_FORCE_DELETE, false);
+		boolean forceDelete = getParameterConverter().toBoolean(getProperties(), EntityEventProcessor.PROPERTY_FORCE_DELETE, false);
 		if (!forceDelete) {
 			return super.processDto(role);
 		}
@@ -246,6 +249,8 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 				} else {
 					LOG.debug("Role [{}] already deleted.", roleId);
 				}
+				// clean up all states
+				entityStateManager.deleteStates(new IdmRoleDto(roleId), null, null);
 			}
 		}
 		return super.end(result, exception);
@@ -254,9 +259,5 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 	@Override
 	public ReadWriteDtoService<IdmRoleDto, IdmRoleFilter> getService() {
 		return roleService;
-	}
-	
-	private boolean isForceDelete() {
-		return getParameterConverter().toBoolean(getProperties(), RoleProcessor.PROPERTY_FORCE_DELETE, false);
 	}
 }

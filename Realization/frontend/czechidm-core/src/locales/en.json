@@ -7910,11 +7910,11 @@
     },
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "title": "",
-      "message": "Role <strong>{{role}}</strong> contains <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships before role deletion.</strong>"
+      "message": "Role <strong>{{role}}</strong> contains user relationships [<strong class=\"highlight\">{{count}}</strong>]. <strong>Remove user relationships before role deletion.</strong>"
     },
     "ROLE_FORCE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "title": "",
-      "message": "Role <strong>{{role}}</strong> contains <strong class=\"highlight\">{{count}}</strong> user relationships. Remove user relationships before role deletion or use force delete."
+      "message": "Role <strong>{{role}}</strong> contains user relationships [<strong class=\"highlight\">{{count}}</strong>]. Remove user relationships before role deletion or use force delete bellow."
     },
     "ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY": {
       "title": "",

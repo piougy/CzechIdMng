@@ -2996,6 +2996,10 @@
       "title": "Entity in system cannot be removed",
       "message": "Entity [{{uid}}] in system [{{system}}] cannot be removed. Active provisioning operations exist for the entity."
     },
+    "SYSTEM_ENTITY_NOT_FOUND": {
+      "title": "Entity in system was deleted",
+      "message": "Entity in system [{{system}}] was already deleted. Active provisioning operations cannot be executed, can be deleted from database only."
+    },
     "REMOTE_SYSTEM_DELETE_FAILED_HAS_SYSTEMS": {
       "title": "Server cannot be removed",
       "message": "Remote connector server {{remoteServer}} cannot be removed. It is already used in configured systems."

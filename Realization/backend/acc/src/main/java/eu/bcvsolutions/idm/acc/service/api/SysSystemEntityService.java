@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
- * Entities on target system
+ * Entities on target system.
  * 
  * @author Radek Tomiška
  *
@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 public interface SysSystemEntityService extends ReadWriteDtoService<SysSystemEntityDto, SysSystemEntityFilter>, ScriptEnabled {
 
 	/**
-	 * Returns {@link SysSystemEntityDto} by given system, entityType, and uid
+	 * Returns {@link SysSystemEntityDto} by given system, entityType, and uid.
 	 * 
 	 * @param uid
 	 * @param entityType
@@ -28,7 +28,7 @@ public interface SysSystemEntityService extends ReadWriteDtoService<SysSystemEnt
 	SysSystemEntityDto getBySystemAndEntityTypeAndUid(SysSystemDto system, SystemEntityType entityType, String uid);
 	
 	/**
-	 * Returns {@link SysSystemEntityDto} by given provisioning operation
+	 * Returns {@link SysSystemEntityDto} by given provisioning operation.
 	 * 
 	 * @param operation
 	 * @return
@@ -36,7 +36,8 @@ public interface SysSystemEntityService extends ReadWriteDtoService<SysSystemEnt
 	SysSystemEntityDto getByProvisioningOperation(ProvisioningOperation operation);
 
 	/**
-	 * Load object from the connector
+	 * Load object from the connector.
+	 * 
 	 * @param systemEntity
 	 * @param permissions
 	 * @return

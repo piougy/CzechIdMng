@@ -2997,6 +2997,10 @@
       "title": "Entita na systému nemůže být smazána",
       "message": "Entita [{{uid}}] na systému [{{system}}] nemůže být smazána. Pro entitu existují aktivní operace na provisioning."
     },
+    "SYSTEM_ENTITY_NOT_FOUND": {
+      "title": "Entita na systému je již smazána",
+      "message": "Entita na systému [{{system}}] již byla smazána. Aktivní operace na provisioning již nemůže být provedena. Operaci je pouze možné smazat z databáze."
+    },
     "REMOTE_SYSTEM_DELETE_FAILED_HAS_SYSTEMS": {
       "title": "Server nemůže být smazán",
       "message": "Vzdálený konektor server {{remoteServer}} nemůže být smazán. Server používají nakonfigurované systémy."

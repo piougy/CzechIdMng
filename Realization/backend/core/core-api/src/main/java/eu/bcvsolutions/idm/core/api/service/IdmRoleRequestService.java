@@ -73,7 +73,9 @@ public interface IdmRoleRequestService extends
 	 * @param requestId
 	 * @param checkRight- If is true, then will be check right for immediately execution (if is requires)
 	 * @param immediate - will be executed synchronously
+	 * @deprecated @since 11.1.0 use {@link #startRequestInternal(EntityEvent)} with {@link RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY}. Synchronous role request are prohibited.
 	 */
+	@Deprecated
 	IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight, boolean immediate);
 	
 	/**

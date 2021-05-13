@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BulkActionFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
- * Interface for bulk action manager
+ * Interface for bulk action manager.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška

@@ -6,13 +6,14 @@ import moment from 'moment';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
-import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
+import { ProvisioningOperationManager, ProvisioningArchiveManager, SystemManager } from '../../redux';
 import ProvisioningOperationTableComponent, { ProvisioningOperationTable } from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 //
 const manager = new ProvisioningOperationManager();
 const archiveManager = new ProvisioningArchiveManager();
+const systemManager = new SystemManager();
 
 /**
  * Active and archived provisioning operations
@@ -401,9 +402,22 @@ class ProvisioningOperations extends Basic.AbstractContent {
                     </Basic.Col>
                     <Basic.Col lg={ 8 }>
                       <Basic.LabelWrapper label={ this.i18n('acc:entity.SystemEntity.uid') }>
-                        <div style={{ margin: '7px 0' }}>
-                          { detail.isArchive ? detail.entity.systemEntityUid : detail.entity._embedded.systemEntity.uid }
-                        </div>
+                        <Basic.Div style={{ margin: '7px 0' }} rendered={ detail.isArchive }>
+                          { detail.entity.systemEntityUid }
+                        </Basic.Div>
+                        <Basic.Div style={{ margin: '7px 0' }} rendered={ !detail.isArchive && detail.entity._embedded.systemEntity }>
+                          { detail.entity._embedded.systemEntity ? detail.entity._embedded.systemEntity.uid : null }
+                        </Basic.Div>
+                        <Basic.Div style={{ margin: '7px 0' }} rendered={ !detail.isArchive && !detail.entity._embedded.systemEntity }>
+                          <Basic.Alert
+                            level="error"
+                            title={ this.i18n('acc:error.SYSTEM_ENTITY_NOT_FOUND.title') }
+                            text={
+                              this.i18n('acc:error.SYSTEM_ENTITY_NOT_FOUND.message', {
+                                system: systemManager.getNiceLabel(detail.entity._embedded.system)
+                              })
+                            }/>
+                        </Basic.Div>
                       </Basic.LabelWrapper>
                     </Basic.Col>
                   </Basic.Row>

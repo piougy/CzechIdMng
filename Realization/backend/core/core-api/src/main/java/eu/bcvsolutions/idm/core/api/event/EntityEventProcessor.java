@@ -32,6 +32,13 @@ public interface EntityEventProcessor<T extends Serializable> extends Ordered, C
 	String PROPERTY_EVENT_TYPES = "eventTypes";
 	
 	/**
+	 * Cascade delete for all related entities.
+	 * 
+	 * @since 11.1.0
+	 */
+	String PROPERTY_FORCE_DELETE = "force-delete";
+	
+	/**
 	 *  bean name / unique identifier (spring bean name)
 	 *  
 	 * @return

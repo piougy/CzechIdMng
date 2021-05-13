@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -43,6 +47,9 @@ import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -155,7 +162,12 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 				concept = conceptRoleRequestService.save(concept, IdmBasePermission.CREATE);
 			}
 			//
-			roleRequest = roleRequestService.startRequestInternal(roleRequest.getId(), true, true);
+			Map<String, Serializable> properties = new HashMap<>();
+			properties.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, true);
+			RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest, properties);
+			event.setPriority(PriorityType.HIGH);
+			roleRequest = roleRequestService.startRequestInternal(event);
+			//
 			if (roleRequest.getState() == RoleRequestState.EXECUTED) {
 				return new OperationResult.Builder(OperationState.EXECUTED).build();
 			} else {

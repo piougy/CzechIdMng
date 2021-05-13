@@ -52,6 +52,7 @@ public enum AccResultCode implements ResultCode {
 	//
 	// system entity
 	SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS(HttpStatus.BAD_REQUEST, "System entity [%s] on system [%s] cannot be deleted. It is used in active provisioning operations!"),
+	SYSTEM_ENTITY_NOT_FOUND(HttpStatus.CONFLICT, "System entity on system not found. Provisioning operation will be cancelled."),
 	//
 	// Provisioning
 	PROVISIONING_IDM_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM field [%s] for entity [%s] defined by schema attribute [%s] not found!"),

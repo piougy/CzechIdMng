@@ -88,10 +88,9 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 
 /**
- * Persists provisioning operations
+ * Persists provisioning operations.
  * 
  * @author Radek Tomiška
- *
  */
 @Service
 public class DefaultSysProvisioningOperationService
@@ -538,7 +537,7 @@ public class DefaultSysProvisioningOperationService
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void deleteOperation(SysProvisioningOperationDto operation) {
-		deleteById(operation.getId());
+		delete(operation);
 	}
 	
 	/**

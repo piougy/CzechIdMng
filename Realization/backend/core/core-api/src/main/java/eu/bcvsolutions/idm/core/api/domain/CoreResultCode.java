@@ -83,6 +83,7 @@ public enum CoreResultCode implements ResultCode {
 	IDENTITYIMAGE_WRONG_FORMAT(HttpStatus.BAD_REQUEST, "Uploaded file is not an image!"),
 	IDENTITY_USERNAME_EXIST(HttpStatus.CONFLICT, "Username [%s] already exists!"),
 	IDENTITY_UNABLE_GENERATE_UNIQUE_USERNAME(HttpStatus.CONFLICT, "Unable to generate unique username. All numbers from set range have been used!"),
+	IDENTITY_DELETE_FAILED_HAS_CONTRACTS(HttpStatus.CONFLICT, "Identity [%s] cannot be deleted - have assigned contracts."),
 	// password change
 	PASSWORD_CHANGE_NO_SYSTEM(HttpStatus.BAD_REQUEST, "No system selected."),
 	PASSWORD_CHANGE_CURRENT_FAILED_IDM(HttpStatus.BAD_REQUEST, "Given current password doesn't match to current idm password."),
@@ -329,7 +330,8 @@ public enum CoreResultCode implements ResultCode {
 	ROLE_FORCE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES(HttpStatus.FOUND, "Role [%s] is assigned [%s] to users. Remove assigned roles before or use force delete."),
 	ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY(HttpStatus.FOUND, "[%s] request concepts need to be modified. It may tak a while."),
 	//
-	// Contract slices
+	// Contract and slices
+	CONTRACT_DELETE_FAILED_ROLE_ASSIGNED(HttpStatus.CONFLICT, "Contract [%s] cannot be deleted - have assigned roles."),
 	CONTRACT_IS_CONTROLLED_CANNOT_BE_MODIFIED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. It cannot be modified directly!"),
 	CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. It cannot be deleted directly!"),
 	CONTRACT_IS_CONTROLLED_GUARANTEE_CANNOT_BE_MODIFIED(HttpStatus.CONFLICT, "Contract [%s] is controlled by slices. Contract guarantee cannot be modified directly!"),

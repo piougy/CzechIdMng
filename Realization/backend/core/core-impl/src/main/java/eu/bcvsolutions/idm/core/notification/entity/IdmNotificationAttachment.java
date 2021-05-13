@@ -36,7 +36,6 @@ public class IdmNotificationAttachment extends AbstractEntity {
 
 	private static final long serialVersionUID = 6041589660726734115L;
 
-	//@NotNull
 	@NotFound(action = NotFoundAction.IGNORE)
 	@JsonBackReference
 	@ManyToOne(optional = false)

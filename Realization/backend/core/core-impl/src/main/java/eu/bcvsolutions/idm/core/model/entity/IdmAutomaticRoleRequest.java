@@ -14,6 +14,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleRequestType;
@@ -26,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Entity for request keeps main information about automatic roles and their
- * assignment
+ * assignment.
  * 
  * @author svandav
  * @since 8.0.0
@@ -53,6 +55,7 @@ public class IdmAutomaticRoleRequest extends AbstractEntity {
 
 	@Audited
 	@ManyToOne(optional = true)
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "auto_role_att_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private IdmAutomaticRole automaticRole;
 
@@ -63,6 +66,7 @@ public class IdmAutomaticRoleRequest extends AbstractEntity {
 
 	@Audited
 	@ManyToOne(optional = true)
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private IdmRole role;
 

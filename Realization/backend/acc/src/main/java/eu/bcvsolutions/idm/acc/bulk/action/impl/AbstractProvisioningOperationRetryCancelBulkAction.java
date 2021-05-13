@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  * Abstract class for provisioning operation retry and cancel. These two operation has same options.
  *
  * @author Ondrej Kopr
- *
+ * @author Radek Tomiška
  */
 public abstract class AbstractProvisioningOperationRetryCancelBulkAction extends AbstractBulkAction<SysProvisioningOperationDto, SysProvisioningOperationFilter> {
 
@@ -52,15 +53,43 @@ public abstract class AbstractProvisioningOperationRetryCancelBulkAction extends
 		for (UUID entityId : entitiesId) {
 			SysProvisioningOperationDto dto = getService().get(entityId);
 			if (dto == null) {
-				LOG.warn("Entity with id [{}] not found. The Entity will be skipped.", entityId);
-				dto = new SysProvisioningOperationDto();
-				dto.setId(entityId);
-
+				dto = new SysProvisioningOperationDto(entityId);
+				boolean processed = false;
+				//
+				// try to find provisioning operation by id => NotFound(Ignore) annotation will be effective
+				SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+				filter.setId(entityId);
+				List<SysProvisioningOperationDto> operations = getService().find(filter, PageRequest.of(0, 1)).getContent();
+				if (operations.size() == 1) {
+					SysProvisioningOperationDto invalidOperation = operations.get(0);
+					if (invalidOperation.getSystemEntity() == null) {
+						// FIXME: how to delete invalid provisioning operation ... ?
+						LOG.warn("System entity for provisioning operation [{}] was already deleted. "
+								+ "Operation cannot be executed or canceled. Operation can be deleted from database only.", 
+								entityId);
+						processed = true;
+						//
+						this.logItemProcessed(
+								invalidOperation,
+								new OperationResult
+									.Builder(OperationState.NOT_EXECUTED)
+									.setModel(new DefaultResultModel(
+											AccResultCode.SYSTEM_ENTITY_NOT_FOUND,
+											ImmutableMap.of("system", invalidOperation.getSystem())))
+									.build()
+						);
+					}
+				}
+				//
 				// There must be log item and update state, some provisioning operation are processed by 
-				// batch and it not exists
-				if (!isRetryWholeBatchAttribute()) {
+				// batch and it not exists.
+				if (processed) {
+					// item logged above already
+				} else if (!isRetryWholeBatchAttribute()) {
 					this.logItemProcessed(dto, new OperationResult.Builder(OperationState.NOT_EXECUTED).build());
 				} else {
+					LOG.warn("Entity with id [{}] not found. The Entity will be skipped by batch processing.", entityId);
+					//
 					this.logItemProcessed(
 							dto, 
 							new OperationResult

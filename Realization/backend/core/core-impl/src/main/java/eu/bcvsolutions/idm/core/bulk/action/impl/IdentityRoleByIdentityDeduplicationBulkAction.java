@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +25,7 @@ import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -44,6 +47,9 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -136,8 +142,12 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 			concept.setRoleRequest(roleRequest.getId());
 			concept = conceptRoleRequestService.save(concept, IdmBasePermission.CREATE);
 		}
-
-		IdmRoleRequestDto request = roleRequestService.startRequestInternal(roleRequest.getId(), true, true);
+		Map<String, Serializable> properties = new HashMap<>();
+		properties.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, true);
+		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest, properties);
+		event.setPriority(PriorityType.HIGH);
+		IdmRoleRequestDto request = roleRequestService.startRequestInternal(event);
+		//
 		if (request.getState() == RoleRequestState.EXECUTED) {
 			return new OperationResult.Builder(OperationState.EXECUTED).build();
 		} else {

@@ -6172,7 +6172,7 @@
         "attributes": {
           "force-delete": {
             "label": "Smazat i navázané záznamy (force delete)",
-            "help": "Smazat roli včetně oderání všech přiřazených rolí uživatelům, atomatických i busnis rolí a všech dalších navázaných záznamů."
+            "help": "Smazat roli včetně oderání všech přiřazených rolí uživatelům, atomatických i business rolí a všech dalších navázaných záznamů."
           }
         }
       },
@@ -7962,11 +7962,11 @@
     },
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "title": "",
-      "message": "Role <strong>{{role}}</strong> obsahuje <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>"
+      "message": "Role <strong>{{role}}</strong> obsahuje vazby na uživatele [<strong class=\"highlight\">{{count}}</strong>]. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>"
     },
     "ROLE_FORCE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "title": "",
-      "message": "Role <strong>{{role}}</strong> obsahuje <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. Před smazáním musíte nejdříve odstranit všechny vazby na uživatele nebo smažte roli včetně všech navázaných záznamů."
+      "message": "Role <strong>{{role}}</strong> obsahuje vazby na uživatele [<strong class=\"highlight\">{{count}}</strong>]. Před smazáním musíte nejdříve odstranit všechny vazby na uživatele nebo zaškrtněte smazání i navázaných záznamů níže."
     },
     "ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY": {
       "title": "",

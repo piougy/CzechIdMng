@@ -14,12 +14,11 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
- * Bulk operation to cancel given provisioning operation
+ * Bulk operation to cancel given provisioning operation.
  *
  * @author Ondrej Kopr
  *
  */
-
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Component("provisioningOperationCancelBulkAction")
 @Description("Bulk operation to cancel given provisioning operation.")

@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
- * Entities on target system
+ * Entities on target system.
  * 
  * @author Radek Tomiška
  *

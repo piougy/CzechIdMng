@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -806,7 +807,9 @@ public interface TestHelper {
  	IdmRoleRequestDto executeRequest(IdmRoleRequestDto roleRequest, boolean startInNewTransaction);
  	
  	/**
- 	 * Execute created role request
+ 	 * Execute created role request "the old way" - synchronous role requests are prohibited now.
+ 	 * Use {@link IdmRoleRequestService#startRequestInternal(eu.bcvsolutions.idm.core.api.event.EntityEvent)
+ 	 * instead in production code.
  	 * 
  	 * @param roleRequest
  	 * @param startInNewTransaction
@@ -814,6 +817,19 @@ public interface TestHelper {
  	 * @return
  	 */
  	IdmRoleRequestDto executeRequest(IdmRoleRequestDto roleRequest, boolean startInNewTransaction, boolean immediate);
+ 	
+ 	/**
+ 	 * Start role request "the old way" - synchronous role requests are prohibited now.
+ 	 * Use {@link IdmRoleRequestService#startRequestInternal(eu.bcvsolutions.idm.core.api.event.EntityEvent)
+ 	 * instead in production code.
+ 	 * 
+ 	 * @param roleRequest
+ 	 * @param checkRight
+ 	 * @param immediate
+ 	 * @return
+ 	 * @since 11.1.0
+ 	 */
+ 	IdmRoleRequestDto startRequestInternal(IdmRoleRequestDto roleRequest, boolean checkRight, boolean immediate);
 
 	/**
 	 * Prepare processed item instance by given LRT

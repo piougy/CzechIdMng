@@ -240,8 +240,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmConceptRoleRequestDto concept = createRoleConcept(test_role, contract, request);
 		concept = conceptRoleRequestService.save(concept);
 
-		roleRequestService.startRequestInternal(request.getId(), true, true);
-		request = roleRequestService.get(request.getId());
+		request = getHelper().startRequestInternal(request, true, true);
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();

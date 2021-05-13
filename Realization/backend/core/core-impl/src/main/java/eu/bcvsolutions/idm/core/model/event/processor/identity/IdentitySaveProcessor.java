@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
- * Save identity, catch event UPDATE and CREATE
+ * Save identity, catch event UPDATE and CREATE.
  * 
  * @author Radek Tomiška
  *

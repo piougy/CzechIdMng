@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -80,5 +81,15 @@ public abstract class AbstractRemoveBulkAction<DTO extends AbstractDto, F extend
 	@Override
 	public boolean isDeleteAction() {
 		return true;
+	}
+	
+	/**
+	 * True - force (~asynchronous) delete - cascade delete for all related entities.
+	 * 
+	 * @return true - force 
+	 * @since 11.1.0
+	 */
+	protected boolean isForceDelete() {
+		return getParameterConverter().toBoolean(getProperties(), EntityEventProcessor.PROPERTY_FORCE_DELETE, false);
 	}
 }

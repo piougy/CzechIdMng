@@ -15,6 +15,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
@@ -63,8 +66,8 @@ public class SysProvisioningOperation extends AbstractEntity {
 	@Column(name = "entity_type", nullable = false)
 	private SystemEntityType entityType;
 	
-	@NotNull
-	@ManyToOne(optional = false)
+	@NotFound(action = NotFoundAction.IGNORE) // system entity can be deleted in the meantime
+	@ManyToOne(optional = true)
 	@JoinColumn(name = "system_entity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private SysSystemEntity systemEntity;
 	
@@ -81,12 +84,20 @@ public class SysProvisioningOperation extends AbstractEntity {
 	private OperationResult result;
 
 	@ManyToOne
+	@NotFound(action = NotFoundAction.IGNORE) // system entity ~ and batch can be deleted in the meantime
 	@JoinColumn(name = "provisioning_batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private SysProvisioningBatch batch;
 	
 	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exist! 
 	@Column(name = "role_request_id")
     private UUID roleRequestId;
+	
+	public SysProvisioningOperation() {
+	}
+	
+	public SysProvisioningOperation(UUID id) {
+		super(id);
+	}
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -173,7 +184,7 @@ public class SysProvisioningOperation extends AbstractEntity {
 	}
 	
 	public String getSystemEntityUid() {
-		if(this.systemEntity != null) {
+		if (this.systemEntity != null) {
 			return this.systemEntity.getUid();
 		}
 		return null;

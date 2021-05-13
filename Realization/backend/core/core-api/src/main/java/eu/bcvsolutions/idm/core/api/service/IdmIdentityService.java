@@ -197,7 +197,7 @@ public interface IdmIdentityService extends
 	IdmIdentityDto disable(UUID identityId, BasePermission... permission);
 	
 	/**
-	 * Returns state from identity contracts state.
+	 * Returns state evaluated from current identity contracts. Identity is not changed, just state is evaluated.
 	 * - manually disabled identity  remains disabled manually even valid contracts are found
 	 * 
 	 * @since 7.6.0

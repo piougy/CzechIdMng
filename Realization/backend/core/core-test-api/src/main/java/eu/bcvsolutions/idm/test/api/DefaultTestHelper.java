@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -27,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
@@ -63,6 +66,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.EventType;
+import eu.bcvsolutions.idm.core.api.event.processor.RoleRequestProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
@@ -809,8 +814,25 @@ public class DefaultTestHelper implements TestHelper {
 		if (startInNewTransaction) {
 			roleRequestService.startRequest(roleRequest.getId(), false);
 		} else {
-			roleRequestService.startRequestInternal(roleRequest.getId(), false, immediate);
+			startRequestInternal(roleRequest, false, immediate);
 		}
+		return roleRequestService.get(roleRequest.getId(), new IdmRoleRequestFilter(true));
+	}
+	
+	@Override
+	public IdmRoleRequestDto startRequestInternal(
+			IdmRoleRequestDto roleRequest, 
+			boolean checkRight,
+			boolean immediate) {
+		Map<String, Serializable> properties = new HashMap<>();
+		properties.put(RoleRequestProcessor.CHECK_RIGHT_PROPERTY, checkRight);
+		CoreEvent<IdmRoleRequestDto> event = new CoreEvent<IdmRoleRequestDto>((EventType) () -> "EXCECUTE", roleRequest, properties);
+		if (immediate) {
+			event.setPriority(PriorityType.IMMEDIATE);
+		}
+		//
+		roleRequestService.startRequestInternal(event);
+		//
 		return roleRequestService.get(roleRequest.getId(), new IdmRoleRequestFilter(true));
 	}
 

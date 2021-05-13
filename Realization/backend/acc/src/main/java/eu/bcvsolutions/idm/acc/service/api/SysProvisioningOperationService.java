@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
- * Persists provisioning operations
+ * Persists provisioning operations.
  * 
  * @author Radek Tomiška
  *

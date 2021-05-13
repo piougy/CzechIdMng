@@ -2,9 +2,13 @@ package eu.bcvsolutions.idm.core.model.event.processor.role;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -14,13 +18,15 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
@@ -38,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
@@ -65,7 +72,6 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveRoleCompositionTaskExe
  * Deletes role - ensures referential integrity.
  * 
  * @author Radek Tomiška
- *
  */
 @Component(RoleDeleteProcessor.PROCESSOR_NAME)
 @Description("Deletes role from repository.")
@@ -92,6 +98,8 @@ public class RoleDeleteProcessor
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
 	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private EntityManager entityManager;
+	@Autowired private EntityStateManager entityStateManager;
 	
 	public RoleDeleteProcessor() {
 		super(RoleEventType.DELETE);
@@ -118,26 +126,27 @@ public class RoleDeleteProcessor
 		// Find all concepts and remove relation on role - has to be the first => concepts are created bellow 
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
 		conceptRequestFilter.setRoleId(roleId);
-		conceptRoleRequestService
-			.find(conceptRequestFilter, null)
-			.stream()
-			.forEach(concept -> {
-				String message = null;
-				if (concept.getState().isTerminatedState()) {
-					message = MessageFormat.format(
-							"Role [{0}] (requested in concept [{1}]) was deleted (not from this role request)!",
-							role.getCode(), concept.getId());
-				} else {
-					message = MessageFormat.format(
-							"Request change in concept [{0}], was not executed, because requested role [{1}] was deleted (not from this role request)!",
-							concept.getId(), role.getCode());
-					// Cancel concept and WF
-					concept = conceptRoleRequestService.cancel(concept);
-				}
-				conceptRoleRequestService.addToLog(concept, message);
-				concept.setRole(null);
-				conceptRoleRequestService.save(concept);
-			});
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService.find(conceptRequestFilter, null).getContent();
+		for (int counter = 0; counter < concepts.size(); counter++) {
+			IdmConceptRoleRequestDto concept = concepts.get(counter);
+			String message = null;
+			if (concept.getState().isTerminatedState()) {
+				message = MessageFormat.format(
+						"Role [{0}] (requested in concept [{1}]) was deleted (not from this role request)!",
+						role.getCode(), concept.getId());
+			} else {
+				message = MessageFormat.format(
+						"Request change in concept [{0}], was not executed, because requested role [{1}] was deleted (not from this role request)!",
+						concept.getId(), role.getCode());
+				// Cancel concept and WF
+				concept = conceptRoleRequestService.cancel(concept);
+			}
+			conceptRoleRequestService.addToLog(concept, message);
+			conceptRoleRequestService.save(concept);
+			if (counter % 100 == 0) {
+				clearSession();
+			}
+		}
 		//
 		// remove related assigned roles etc.
 		if (forceDelete) {
@@ -146,42 +155,30 @@ public class RoleDeleteProcessor
 			identityRoleFilter.setRoleId(roleId);
 			identityRoleFilter.setDirectRole(Boolean.TRUE);
 			identityRoleFilter.setAutomaticRole(Boolean.FALSE);
-			identityRoleService
-					.find(identityRoleFilter, null)
-					.stream()
-					.forEach(identityRole -> {
-						IdmIdentityContractDto contract = lookupService.lookupEmbeddedDto(identityRole, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT);
-						UUID identityId = contract.getIdentity();
-						IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
-						roleRequest.setState(RoleRequestState.CONCEPT);
-						roleRequest.setExecuteImmediately(true); // without approval
-						roleRequest.setApplicant(identityId);
-						roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
-						roleRequest = roleRequestService.save(roleRequest);
-						//
-						IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
-						conceptRoleRequest.setRoleRequest(roleRequest.getId());
-						conceptRoleRequest.setIdentityRole(identityRole.getId());
-						conceptRoleRequest.setRole(identityRole.getRole());
-						conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
-						conceptRoleRequest.setIdentityContract(contract.getId());
-						conceptRoleRequest.setContractPosition(identityRole.getContractPosition());
-						//
-						// prevent to cancel in other concepts bellow ...
-						conceptRoleRequestService.save(conceptRoleRequest);
-						//
-						// start event with skip check authorities
-						RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
-						requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
-						// set priority if given
-						requestEvent.setPriority(event.getPriority());
-						// set parent event (role is deleted)
-						requestEvent.setParentId(event.getId());
-						// prevent to start asynchronous event before previous update event is completed. 
-						requestEvent.setSuperOwnerId(identityId);
-						//
-						roleRequestService.startRequestInternal(requestEvent);
-					});
+			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+			for (int counter = 0; counter < assignedRoles.size(); counter++) {
+				IdmIdentityRoleDto identityRole = assignedRoles.get(counter);
+				IdmIdentityContractDto contract = lookupService.lookupEmbeddedDto(identityRole, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT);
+				UUID identityId = contract.getIdentity();
+				IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+				roleRequest.setApplicant(identityId);
+				//
+				IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+				conceptRoleRequest.setIdentityRole(identityRole.getId());
+				conceptRoleRequest.setRole(identityRole.getRole());
+				conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+				conceptRoleRequest.setIdentityContract(contract.getId());
+				conceptRoleRequest.setContractPosition(identityRole.getContractPosition());
+				roleRequest.getConceptRoles().add(conceptRoleRequest);
+				//
+				// start event
+				RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+				roleRequestService.startConcepts(requestEvent, event);
+				//
+				if (counter % 100 == 0) {
+					clearSession();
+				}
+			}
 			//
 			// related automatic roles by tree structure
 			IdmRoleTreeNodeFilter roleTreeNodefilter = new IdmRoleTreeNodeFilter();
@@ -194,6 +191,7 @@ public class RoleDeleteProcessor
 					RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
 					automaticRoleTask.setAutomaticRoleId(roleTreeNodeId);
 					longRunningTaskManager.executeSync(automaticRoleTask);
+					clearSession();
 				});
 			//
 			// related automatic roles by attribute
@@ -207,6 +205,7 @@ public class RoleDeleteProcessor
 					RemoveAutomaticRoleTaskExecutor automaticRoleTask = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
 					automaticRoleTask.setAutomaticRoleId(automaticRoleId);
 					longRunningTaskManager.executeSync(automaticRoleTask);
+					clearSession();
 				});
 			//
 			// business roles
@@ -225,6 +224,7 @@ public class RoleDeleteProcessor
 					longRunningTaskManager.executeSync(roleCompositionTask);
 					//
 					processedCompositionIds.add(roleCompositionTask.getRoleCompositionId());
+					clearSession();
 				});
 			// by superior
 			compositionFilter = new IdmRoleCompositionFilter();
@@ -240,6 +240,7 @@ public class RoleDeleteProcessor
 					longRunningTaskManager.executeSync(roleCompositionTask);
 					//
 					processedCompositionIds.add(roleCompositionTask.getRoleCompositionId());
+					clearSession();
 				});
 		}
 		
@@ -250,16 +251,15 @@ public class RoleDeleteProcessor
 		authorizationPolicyService.find(policyFilter, null).forEach(dto -> {
 			authorizationPolicyService.delete(dto);
 		});
+		clearSession();
 		//
-		// Find all automatic role requests and remove relation on automatic role
+		// Cancel all related automatic role requests
 		IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
 		automaticRoleRequestFilter.setRoleId(roleId);
-		
 		automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
-			request.setRole(null);
-			automaticRoleRequestService.save(request);
 			automaticRoleRequestService.cancel(request);
 		});
+		clearSession();
 		//
 		// remove role guarantee
 		IdmRoleGuaranteeRoleFilter roleGuaranteeRoleFilter = new IdmRoleGuaranteeRoleFilter();
@@ -267,11 +267,13 @@ public class RoleDeleteProcessor
 		roleGuaranteeRoleService.find(roleGuaranteeRoleFilter, null).forEach(roleGuarantee -> {
 			roleGuaranteeRoleService.delete(roleGuarantee);
 		});
+		clearSession();
 		roleGuaranteeRoleFilter = new IdmRoleGuaranteeRoleFilter();
 		roleGuaranteeRoleFilter.setRole(roleId);
 		roleGuaranteeRoleService.find(roleGuaranteeRoleFilter, null).forEach(roleGuarantee -> {
 			roleGuaranteeRoleService.delete(roleGuarantee);
 		});
+		clearSession();
 		//
 		// remove guarantees
 		IdmRoleGuaranteeFilter roleGuaranteeFilter = new IdmRoleGuaranteeFilter();
@@ -279,6 +281,7 @@ public class RoleDeleteProcessor
 		roleGuaranteeService.find(roleGuaranteeFilter, null).forEach(roleGuarantee -> {
 			roleGuaranteeService.delete(roleGuarantee);
 		});
+		clearSession();
 		//
 		// remove catalogues
 		IdmRoleCatalogueRoleFilter roleCatalogueRoleFilter = new IdmRoleCatalogueRoleFilter();
@@ -286,11 +289,13 @@ public class RoleDeleteProcessor
 		roleCatalogueRoleService.find(roleCatalogueRoleFilter, null).forEach(roleCatalogue -> {
 			roleCatalogueRoleService.delete(roleCatalogue);
 		});
+		clearSession();
 		//
 		// remove incompatible roles from both sides
 		incompatibleRoleService.findAllByRole(roleId).forEach(incompatibleRole -> {
 			incompatibleRoleService.delete(incompatibleRole);
 		});
+		clearSession();
 		//
 		// Remove role-form-attributes
 		IdmRoleFormAttributeFilter roleFormAttributeFilter = new IdmRoleFormAttributeFilter();
@@ -301,6 +306,20 @@ public class RoleDeleteProcessor
 		//
 		if (forceDelete) {
 			LOG.debug("Role [{}] should be deleted by caller after all asynchronus processes are completed.", role.getCode());
+			//
+			// dirty flag only - will be processed after asynchronous events ends
+			IdmEntityStateDto stateDeleted = new IdmEntityStateDto();
+			stateDeleted.setEvent(event.getId());
+			stateDeleted.setResult(
+					new OperationResultDto.Builder(OperationState.RUNNING)
+						.setModel(new DefaultResultModel(CoreResultCode.DELETED))
+						.build()
+			);
+			entityStateManager.saveState(role, stateDeleted);
+			//
+			// set disabled
+			role.setDisabled(true);
+			service.saveInternal(role);
 		} else {
 			service.deleteInternal(role);
 		}
@@ -355,5 +374,17 @@ public class RoleDeleteProcessor
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_HAS_COMPOSITION, 
 					ImmutableMap.of("role", role.getCode()));
 		}
+	}
+	
+	private void clearSession() {
+		// flush and clear session - manager can have a lot of subordinates
+		if (getHibernateSession().isOpen()) {
+			getHibernateSession().flush();
+			getHibernateSession().clear();
+		}
+	}
+	
+	private Session getHibernateSession() {
+		return (Session) this.entityManager.getDelegate();
 	}
 }

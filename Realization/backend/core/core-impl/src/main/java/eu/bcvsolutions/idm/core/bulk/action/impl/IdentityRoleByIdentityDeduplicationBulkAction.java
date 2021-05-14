@@ -143,7 +143,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 			concept = conceptRoleRequestService.save(concept, IdmBasePermission.CREATE);
 		}
 		Map<String, Serializable> properties = new HashMap<>();
-		properties.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, true);
+		properties.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, Boolean.TRUE);
 		RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest, properties);
 		event.setPriority(PriorityType.HIGH);
 		IdmRoleRequestDto request = roleRequestService.startRequestInternal(event);

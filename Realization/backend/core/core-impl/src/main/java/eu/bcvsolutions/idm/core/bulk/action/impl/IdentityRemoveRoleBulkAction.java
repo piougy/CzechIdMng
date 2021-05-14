@@ -163,7 +163,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 			}
 			//
 			Map<String, Serializable> properties = new HashMap<>();
-			properties.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, true);
+			properties.put(RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY, Boolean.TRUE);
 			RoleRequestEvent event = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest, properties);
 			event.setPriority(PriorityType.HIGH);
 			roleRequest = roleRequestService.startRequestInternal(event);

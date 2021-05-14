@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
@@ -142,7 +143,8 @@ public class IdentityContractDeleteProcessor
 			roleRequest.setApplicant(contract.getIdentity());
 			roleRequest.setConceptRoles(concepts);
 			//
-			RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);	
+			RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+			requestEvent.setPriority(PriorityType.HIGH);
 			//
 			roleRequestService.startConcepts(requestEvent, event);
 		} else {

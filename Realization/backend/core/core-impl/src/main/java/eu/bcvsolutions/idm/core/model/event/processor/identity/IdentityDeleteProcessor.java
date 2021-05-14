@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -26,8 +27,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmDelegationDefinitionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmProfileFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -45,6 +44,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordHistoryService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
@@ -113,8 +114,15 @@ public class IdentityDeleteProcessor
 			properties.put(IdmIdentityContractService.SKIP_HR_PROCESSES, Boolean.TRUE);
 			// propagate force attribute
 			properties.put(PROPERTY_FORCE_DELETE, forceDelete);
+			// prepare event
+			IdentityContractEvent contractEvent = new IdentityContractEvent(
+					IdentityContractEventType.DELETE, 
+					identityContract, 
+					properties
+			);
+			contractEvent.setPriority(PriorityType.HIGH);
 			//
-			identityContractService.publish(new CoreEvent<>(CoreEventType.DELETE, identityContract, properties));
+			identityContractService.publish(contractEvent);
 		});
 		
 		// delete contract guarantees

@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractRemoveBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
@@ -67,9 +68,9 @@ public class IdentityContractDeleteBulkAction extends AbstractRemoveBulkAction<I
 		try {
 			Map<String, Serializable> properties = new HashMap<>();
 			properties.put(EntityEventProcessor.PROPERTY_FORCE_DELETE, Boolean.TRUE); // force delete by default - ensures asynchronous processing
-			EventContext<IdmIdentityContractDto> result = contractService.publish(
-					new IdentityContractEvent(IdentityContractEventType.DELETE, contract, properties)
-			);
+			IdentityContractEvent identityContractEvent = new IdentityContractEvent(IdentityContractEventType.DELETE, contract, properties);
+			identityContractEvent.setPriority(PriorityType.HIGH);
+			EventContext<IdmIdentityContractDto> result = contractService.publish(identityContractEvent);
 			processedIds.add(result.getContent().getId());
 			//
 			return new OperationResult.Builder(OperationState.EXECUTED).build();

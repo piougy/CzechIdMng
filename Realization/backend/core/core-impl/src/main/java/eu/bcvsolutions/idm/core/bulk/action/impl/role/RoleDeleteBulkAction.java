@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -199,9 +200,9 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 			// force delete can execute role admin only
 			getService().checkAccess(role, IdmBasePermission.ADMIN);
 			//
-			EventContext<IdmRoleDto> result = roleService.publish(
-					new RoleEvent(RoleEventType.DELETE, role, new ConfigurationMap(getProperties()).toMap())
-			);
+			RoleEvent roleEvent = new RoleEvent(RoleEventType.DELETE, role, new ConfigurationMap(getProperties()).toMap());
+			roleEvent.setPriority(PriorityType.HIGH);
+			EventContext<IdmRoleDto> result = roleService.publish(roleEvent);
 			processedRoleIds.add(result.getContent().getId());
 			//
 			return new OperationResult.Builder(OperationState.EXECUTED).build();

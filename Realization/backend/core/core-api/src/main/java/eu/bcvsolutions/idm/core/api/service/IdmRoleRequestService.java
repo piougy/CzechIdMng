@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.ExceptionProcessable;
 
 /**
- * Service for role request
+ * Service for role request.
  * 
  * @author Vít Švanda
  * 
@@ -34,7 +34,6 @@ public interface IdmRoleRequestService extends
 		ExceptionProcessable<IdmRoleRequestDto> {
 	
 	String ROLE_REQUEST_ID_KEY = "roleRequestId";
-
 
 	/**
 	 * Start approval process for given request. Request approving will be started
@@ -73,7 +72,7 @@ public interface IdmRoleRequestService extends
 	 * @param requestId
 	 * @param checkRight- If is true, then will be check right for immediately execution (if is requires)
 	 * @param immediate - will be executed synchronously
-	 * @deprecated @since 11.1.0 use {@link #startRequestInternal(EntityEvent)} with {@link RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY}. Synchronous role request are prohibited.
+	 * @deprecated @since 11.1.0 use {@link IdmRoleRequestService#startRequestInternal(EntityEvent)} with {@link RoleRequestApprovalProcessor.CHECK_RIGHT_PROPERTY}. Synchronous role request are prohibited.
 	 */
 	@Deprecated
 	IdmRoleRequestDto startRequestInternal(UUID requestId, boolean checkRight, boolean immediate);
@@ -96,14 +95,17 @@ public interface IdmRoleRequestService extends
 
 	/**
 	 * Realization of request (applying the requested changes).
+	 * Lookout: method realize request synchronously. Use {@link IdmRoleRequestService#startRequest(EntityEvent)) instead.
 	 * 
 	 * @param requestId
 	 * @return
+	 * @see IdmRoleRequestService#startRequest(EntityEvent)
 	 */
 	IdmRoleRequestDto executeRequest(UUID requestId);
 	
 	/**
 	 * Realization of request (applying the requested changes).
+	 * Lookout: method realize request synchronously. Use {@link IdmRoleRequestService#startRequest(EntityEvent)) instead.
 	 * 
 	 * @param requestEvent
 	 * @return
@@ -114,6 +116,7 @@ public interface IdmRoleRequestService extends
 	 * Execute concepts via request - usable programmatically, where identity roles are added / updated / removed.
 	 * Lookout: synchronous request (and provisioning) is executed - usable for removal (delete identity, contract) 
 	 * operations only or where provisioning is skipped.
+	 * Lookout: method realize request synchronously. Use {@link IdmRoleRequestService#startRequest(EntityEvent)) instead.
 	 * 
 	 * @param applicant
 	 * @param concepts [optional] - if empty concepts are given, then no request will be executed.
@@ -127,11 +130,12 @@ public interface IdmRoleRequestService extends
 	 * Execute concepts via request - usable programmatically, where identity roles are added / updated / removed.
 	 * Lookout: synchronous request (and provisioning) is executed - usable for removal (delete identity, contract) 
 	 * operations only or where provisioning is skipped.
+	 * Lookout: method realize request synchronously. Use {@link IdmRoleRequestService#startRequest(EntityEvent)) instead.
+	 * 
 	 * 
 	 * @param applicant
 	 * @param concepts [optional] - if empty concepts are given, then no request will be executed.
 	 * @param additional properties (will be added to the request event)
-	 * 
 	 * @return
 	 * @since 9.7.1
 	 * @see #startConcepts(EntityEvent, EntityEvent)

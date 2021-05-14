@@ -245,7 +245,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     //
     let value = this.getManager().getNiceLabel(_entity);
     if (value.length > 60) {
-      value = `${value.substr(0, 60)}...`;
+      value = `${ Utils.Ui.substringBegin(value, 60, '', '...') }`;
     }
 
     return value;
@@ -427,7 +427,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
             <Basic.Div style={ _titleStyle }>
               <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
-              { this.getPopoverTitle(_entity) }
+              <Basic.ShortText value={ this.getPopoverTitle(_entity) } maxLength={ 60 } cutChar="" />
             </Basic.Div>
             <Basic.Div>
               {

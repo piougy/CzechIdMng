@@ -218,7 +218,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
             <Basic.Div style={{ flex: 1 }}>
               <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
-              { this.getPopoverTitle(_entity) }
+              <Basic.ShortText value={ this.getPopoverTitle(_entity) } maxLength={ 40 } cutChar="" />
             </Basic.Div>
             <Basic.Div>
               {

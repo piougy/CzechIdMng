@@ -77,10 +77,8 @@ class IdentityContent extends Basic.AbstractContent {
             :
             <Basic.Icon icon="component:identity" identity={ identity }/>
           }
-          { ' ' }
-          { identityManager.getNiceLabel(identity) }
+          <Basic.ShortText value={ identityManager.getNiceLabel(identity) } maxLength={ 75 } cutChar="" style={{ marginLeft: 7, marginRight: 7 }}/>
           <small>
-            { ' ' }
             { this.i18n('content.identity.profile.userDetail') }
           </small>
         </Advanced.DetailHeader>

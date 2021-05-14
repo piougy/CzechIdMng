@@ -14,11 +14,7 @@ const identityManager = new IdentityManager();
 const componentService = new ComponentService();
 
 /**
- * Identity dashboard - personalized dashboard with quick buttons and overview
- *
- * TODO:
- * - extract css styles
- * - dashboard component super class
+ * Identity dashboard - personalized dashboard with quick buttons and overview.
  *
  * @author Radek Tomiška
  * @since 9.4.0
@@ -160,10 +156,12 @@ class IdentityDashboard extends Basic.AbstractContent {
                 :
                 <Basic.Icon icon="component:identity" identity={ identity } />
               }
-              {' '}
-              { identityManager.getNiceLabel(identity) }
+              <Basic.ShortText
+                value={ identityManager.getNiceLabel(identity) }
+                maxLength={ 75 }
+                cutChar=""
+                style={{ marginLeft: 7, marginRight: 7 }}/>
               <small>
-                {' '}
                 {
                   this.isDashboard()
                   ?

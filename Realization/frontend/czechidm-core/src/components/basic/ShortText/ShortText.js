@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 //
 import UiUtils from '../../../utils/UiUtils';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
-import Tooltip from '../Tooltip/Tooltip';
 
 /**
- * Simple component to make text shorter
+ * Simple component to make text shorter.
  *
  * @author Marek Klement
  * @author Radek Tomiška

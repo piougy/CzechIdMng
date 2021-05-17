@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
@@ -56,6 +57,29 @@ public class DefaultFilterManagerIntegrationTest extends AbstractIntegrationTest
 		//
 		Assert.assertNotNull(filter);
 		Assert.assertFalse(filter.isDisabled());
+	}
+	
+	/**
+	 * Test all registered filters - filter has to be checked for null values.
+	 */
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testGetNullPredicate() throws Exception {
+		for (FilterBuilderDto filterBuilderDto : filterManager.find(null)) {
+			FilterBuilder filterBuilder = filterManager.getBuilder(filterBuilderDto.getEntityClass(), filterBuilderDto.getName());
+			if (filterBuilder == null) { // ~ service impl 
+				continue;
+			}
+			if (!DataFilter.class.isAssignableFrom(filterBuilderDto.getFilterClass())) { // ~ not registrable
+				continue;
+			}
+			if (DataFilter.class.equals(filterBuilderDto.getFilterClass())) { // ~ abstract filter builders
+				continue; // TODO: construct abstract data filter 
+			}
+			//
+			Class<? extends DataFilter> filterClass = (Class<? extends DataFilter>) filterBuilderDto.getFilterClass();
+			Assert.assertNull(filterBuilder.getPredicate(null, null, null, filterClass.getDeclaredConstructor().newInstance()));
+		}
 	}
 	
 	@Test

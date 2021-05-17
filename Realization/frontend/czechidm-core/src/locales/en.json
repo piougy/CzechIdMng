@@ -1761,7 +1761,12 @@
           "placeholder": "Identity state"
         },
         "formProjection": {
-          "placeholder": "$t(entity.Identity.formProjection.label)"
+          "placeholder": "$t(entity.Identity.formProjection.label)",
+          "option": {
+            "withoutFormProjection": {
+              "label": "-- without user type --"
+            }
+          }
         }
       },
       "action": {

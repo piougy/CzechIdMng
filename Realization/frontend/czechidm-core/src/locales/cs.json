@@ -1807,7 +1807,12 @@
           "placeholder": "Stav uživatele"
         },
         "formProjection": {
-          "placeholder": "$t(entity.Identity.formProjection.label)"
+          "placeholder": "$t(entity.Identity.formProjection.label)",
+          "option": {
+            "withoutFormProjection": {
+              "label": "-- bez typu uživatele --"
+            }
+          }
         }
       },
       "action": {

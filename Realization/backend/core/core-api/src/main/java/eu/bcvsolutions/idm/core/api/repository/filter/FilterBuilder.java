@@ -67,7 +67,7 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	
 	/**
 	 * Filter construct partial criteria where clause => {@link Predicate}, which will be appended to query for defined domain type.
-	 * Returned Predicate could be {@code null}, if builder doesn't have all parameters in filter set.
+	 * Returned Predicate should be {@code null}, if builder doesn't have all parameters in filter set.
 	 * Can be used in both - in query and sub query too.
 	 * 
 	 * @param root

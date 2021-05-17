@@ -35,15 +35,15 @@ public class DisableableFilterBuilder<E extends AbstractEntity> extends BaseFilt
 		if (!(filter instanceof DisableableFilter)) {
 			return null;
 		}
-		if (!Disableable.class.isAssignableFrom(root.getJavaType())) {
-			throw new EntityTypeNotDisableableException(root.getJavaType().getCanonicalName());
-		}
-		//
 		DisableableFilter disableableFilter = (DisableableFilter) filter;
 		Boolean disabled = disableableFilter.getDisabled();
 		if (disabled == null) {
 			return null;
 		}
+		if (!Disableable.class.isAssignableFrom(root.getJavaType())) {
+			throw new EntityTypeNotDisableableException(root.getJavaType().getCanonicalName());
+		}
+		//
 		return builder.equal(root.get(Disableable.PROPERTY_DISABLED), disabled);
 	}
 

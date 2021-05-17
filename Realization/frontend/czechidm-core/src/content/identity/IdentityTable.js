@@ -165,6 +165,13 @@ export class IdentityTable extends Advanced.AbstractTableContent {
         filterData.withoutWorkPosition = true;
       }
     }
+    if (this.refs.formProjection) {
+      const formProjection = this.refs.formProjection.getValue();
+      if (formProjection && formProjection.additionalOption) {
+        filterData.formProjection = null;
+        filterData.withoutFormProjection = true;
+      }
+    }
     //
     this.refs.table.useFilterData(filterData);
   }
@@ -175,10 +182,14 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     }
     this.setState({
       text: null,
-      treeNodeId: null
+      treeNodeId: null,
+      formProjection: null
     }, () => {
       if (this.refs.treeNodeId) {
         this.refs.treeNodeId.setValue(null);
+      }
+      if (this.refs.formProjection) {
+        this.refs.formProjection.setValue(null);
       }
       this.refs.table.cancelFilter(this.refs.filterForm);
     });
@@ -222,11 +233,27 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     }
   }
 
+  onChangeFormProjection(option) {
+    if (!option) {
+      const { uiKey, _searchParameters } = this.props;
+      // cleanup redux state search parameters for additional options
+      this.context.store.dispatch(manager.setSearchParameters(_searchParameters.clearFilter('withoutFormProjection'), uiKey));
+    }
+  }
+
   _getWithoutWorkPositionOption() {
     return {
       [Basic.SelectBox.NICE_LABEL]: this.i18n('filter.organization.option.withoutWorkPosition.label'),
       [Basic.SelectBox.ITEM_FULL_KEY]: this.i18n('filter.organization.option.withoutWorkPosition.label'),
       [Basic.SelectBox.ITEM_VALUE]: 'core:without-work-position'
+    };
+  }
+
+  _getWithoutFormProjectionOption() {
+    return {
+      [Basic.SelectBox.NICE_LABEL]: this.i18n('filter.formProjection.option.withoutFormProjection.label'),
+      [Basic.SelectBox.ITEM_FULL_KEY]: this.i18n('filter.formProjection.option.withoutFormProjection.label'),
+      [Basic.SelectBox.ITEM_VALUE]: 'core:without-form-projection'
     };
   }
 
@@ -339,7 +366,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       ref="formProjection"
                       placeholder={ this.i18n('filter.formProjection.placeholder') }
                       manager={ projectionManager }
-                      forceSearchParameters={ new SearchParameters().setFilter('disabled', 'false') }/>
+                      forceSearchParameters={ new SearchParameters().setFilter('disabled', 'false') }
+                      additionalOptions={[ this._getWithoutFormProjectionOption() ]}
+                      onChange={ this.onChangeFormProjection.bind(this) }/>
                   </Basic.Col>
                   <Basic.Col lg={ SecurityManager.hasAuthority('FORMPROJECTION_AUTOCOMPLETE') ? 4 : 6 }>
                     <Advanced.Filter.EnumSelectBox

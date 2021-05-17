@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDisableBulkAction;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -96,6 +97,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	@Autowired private IdmIdentityContractService contractService;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmPasswordService passwordService;
+	@Autowired private LookupService lookupService;
 	
 	@Override
 	protected AbstractReadWriteDtoController<IdmIdentityDto, ?> getController() {
@@ -766,6 +768,40 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		//
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(identityThree.getId())));
+	}
+	
+	@Test
+	public void testFindWithoutFormProjection() {
+		String description = getHelper().createName();
+		//
+		// without
+		IdmIdentityDto identity = prepareDto(); 
+		identity.setDescription(description);
+		IdmIdentityDto identityOne = createDto(identity);
+		//
+		// with projection
+		IdmFormProjectionDto projection = new IdmFormProjectionDto();
+		projection.setCode(getHelper().createName());
+		projection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		projection = formProjectionService.save(projection);
+		identity = prepareDto();
+		identity.setDescription(description);
+		identity.setFormProjection(projection.getId());
+		IdmIdentityDto identityTwo = createDto(identity);
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setText(description);
+		filter.setWithoutFormProjection(Boolean.TRUE);
+		List<IdmIdentityDto> results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(identityOne.getId())));
+		//
+		filter.setWithoutFormProjection(Boolean.FALSE);
+		results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(identityTwo.getId())));
 	}
 	
 	@Test

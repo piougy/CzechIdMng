@@ -129,6 +129,12 @@ public class IdmIdentityFilter
 	 * @since 11.0.0
 	 */
 	public static final String PARAMETER_ADD_PASSWORD_METADATA = "addPasswordMetadata";
+	/**
+	 * Without form projection - without user type is set.
+	 * 
+	 * @since 11.1.0
+	 */
+	public static final String PARAMETER_WITHOUT_FORM_PROJECTION = "withoutFormProjection";
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -436,5 +442,25 @@ public class IdmIdentityFilter
 	 */
 	public void setAddPasswordMetadata(boolean addPasswordMetadata) {
 		set(PARAMETER_ADD_PASSWORD_METADATA, addPasswordMetadata);
+	}
+	
+	/**
+	 * Without form projection - without user type is set.
+	 * 
+	 * @return without form projection 
+	 * @since 11.1.0
+	 */
+	public Boolean getWithoutFormProjection() {
+		return getParameterConverter().toBoolean(getData(), PARAMETER_WITHOUT_FORM_PROJECTION);
+	}
+	
+	/**
+	 * Without form projection - without user type is set.
+	 * 
+	 * @param withoutFormProjection without form projection 
+	 * @since 11.1.0
+	 */
+	public void setWithoutFormProjection(Boolean withoutFormProjection) {
+		set(PARAMETER_WITHOUT_FORM_PROJECTION, withoutFormProjection);
 	}
 }

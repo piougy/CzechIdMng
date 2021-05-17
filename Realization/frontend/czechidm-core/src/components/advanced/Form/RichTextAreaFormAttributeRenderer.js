@@ -44,7 +44,7 @@ export default class RichTextAreaFormAttributeRenderer extends TextFormAttribute
         validationErrors={ validationErrors }
         validationMessage={ attribute.validationMessage }
         className={ className }
-        style={ style}/>
+        style={ style }/>
     );
   }
 

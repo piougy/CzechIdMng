@@ -341,6 +341,14 @@ module.exports = {
       labelKey: 'core:component.advanced.EavForm.faceType.RICHTEXTAREA'
     },
     {
+      id: 'scriptarea-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'TEXT',
+      faceType: 'SCRIPTAREA',
+      component: require('./src/components/advanced/Form/ScriptAreaFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.SCRIPTAREA'
+    },
+    {
       id: 'bytearray-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'BYTEARRAY',

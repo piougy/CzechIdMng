@@ -10,6 +10,7 @@ public interface BaseFaceType {
   
 	String TEXTAREA = "TEXTAREA";
 	String RICHTEXTAREA = "RICHTEXTAREA";
+	String SCRIPTAREA = "SCRIPTAREA"; // @since 11.1.0
 	//
 	String CURRENCY = "CURRENCY";
 	//

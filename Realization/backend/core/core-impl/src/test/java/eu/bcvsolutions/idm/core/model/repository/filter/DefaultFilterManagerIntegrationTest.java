@@ -73,7 +73,7 @@ public class DefaultFilterManagerIntegrationTest extends AbstractIntegrationTest
 			if (!DataFilter.class.isAssignableFrom(filterBuilderDto.getFilterClass())) { // ~ not registrable
 				continue;
 			}
-			if (DataFilter.class.equals(filterBuilderDto.getFilterClass())) { // ~ abstract filter builders
+			if (DataFilter.class.equals(filterBuilderDto.getFilterClass())) { // ~ abstract filter builders 
 				continue; // TODO: construct abstract data filter 
 			}
 			//

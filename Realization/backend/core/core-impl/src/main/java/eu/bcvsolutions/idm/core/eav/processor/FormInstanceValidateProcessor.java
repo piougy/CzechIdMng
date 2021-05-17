@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.eav.processor;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.InvalidFormException;
+import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -58,6 +61,8 @@ public class FormInstanceValidateProcessor
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(formInstance.getFormDefinition().getId());
 		Assert.notNull(formDefinition, "Form definition is required for form instance validation.");
 		//
+		Map<String, Serializable> properties = event.getProperties();
+		//
 		// get distinct attributes from the sent values
 		// PATCH is used - only sent attributes are validated
 		Set<IdmFormAttributeDto> sentAttributes = formInstance
@@ -77,6 +82,12 @@ public class FormInstanceValidateProcessor
 		formInstance.setFormDefinition(formDefinition);
 		// validate
 		List<InvalidFormAttributeDto> errors = formService.validate(formInstance);
+		//skip <required> validation if contract update is performed from time slice
+		if (getBooleanProperty(ContractSliceManager.SKIP_CHECK_FOR_SLICES, properties)) {
+			errors = errors.stream().filter(error -> {
+				return !error.isMissingValue();
+			}).collect(Collectors.toList());
+		}
 		if (!errors.isEmpty()) {
 			throw new InvalidFormException(errors);
 		}

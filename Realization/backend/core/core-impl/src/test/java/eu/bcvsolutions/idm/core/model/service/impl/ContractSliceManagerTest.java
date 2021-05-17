@@ -1207,7 +1207,7 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		if (definition.getMappedAttributeByCode(IP) == null) {
 			IdmFormAttributeDto ipAttribute = new IdmFormAttributeDto(IP);
 			ipAttribute.setPersistentType(PersistentType.TEXT);
-			ipAttribute.setRequired(false);
+			ipAttribute.setRequired(true);
 			ipAttribute.setDefaultValue(getHelper().createName());
 			ipAttribute.setFormDefinition(definition.getId());
 			formService.saveAttribute(ipAttribute);
@@ -1216,7 +1216,7 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		if (definition.getMappedAttributeByCode(NUMBER_OF_FINGERS) == null) {
 			IdmFormAttributeDto numberOfFingersAttribute = new IdmFormAttributeDto(NUMBER_OF_FINGERS);
 			numberOfFingersAttribute.setPersistentType(PersistentType.DOUBLE);
-			numberOfFingersAttribute.setRequired(false);
+			numberOfFingersAttribute.setRequired(true);
 			numberOfFingersAttribute.setMax(BigDecimal.TEN);
 			numberOfFingersAttribute.setFormDefinition(definition.getId());
 			formService.saveAttribute(numberOfFingersAttribute);

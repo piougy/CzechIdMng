@@ -1754,7 +1754,7 @@
         },
         "identifiers": {
           "label": "Identifiers",
-          "placeholder": "Own group search by usernames or personal numbers. $t(content.identities.filter.identifiers.tooltip)",
+          "placeholder": "Own group search by usernames, surnames or personal numbers. $t(content.identities.filter.identifiers.tooltip)",
           "tooltip": "Enter individual values of your group, separated by a comma."
         },
         "state": {

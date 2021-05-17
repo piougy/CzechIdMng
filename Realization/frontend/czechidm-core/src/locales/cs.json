@@ -1800,7 +1800,7 @@
         },
         "identifiers": {
           "label": "Identifikátory",
-          "placeholder": "Vyhledávání po skupinkách s pomocí uživatelského jména nebo osobního čísla. $t(content.identities.filter.identifiers.tooltip)",
+          "placeholder": "Vyhledávání po skupinkách s pomocí uživatelského jména, příjmení nebo osobního čísla. $t(content.identities.filter.identifiers.tooltip)",
           "tooltip": "Vkládejte jednotlivé hodnoty své skupiny uživatelů oddělené čárkou."
         },
         "state": {

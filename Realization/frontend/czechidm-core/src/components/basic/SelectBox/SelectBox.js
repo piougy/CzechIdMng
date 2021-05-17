@@ -670,9 +670,9 @@ class SelectBox extends AbstractFormComponent {
       <Select
         ref="selectComponent"
         isLoading={ isLoading || showLoading}
-        value={value}
+        value={ value }
         onChange={ this.onChange }
-        disabled={readOnly || disabled}
+        disabled={ readOnly || disabled }
         ignoreCase
         ignoreAccents={false}
         multi={ multiSelect }
@@ -681,12 +681,12 @@ class SelectBox extends AbstractFormComponent {
         onBlurResetsInput={ false }
         closeOnSelect={ !multiSelect }
         onSelectResetsInput={ false }
-        noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-        placeholder={this.getPlaceholder(placeholder)}
-        searchingText={this.i18n('component.basic.SelectBox.searchingText')}
-        searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        clearable={clearable && (!value || ! value._disableClear === true)}
-        onInputChange={this.onInputChange.bind(this)}
+        noResultsText={ this.i18n('component.basic.SelectBox.noResultsText') }
+        placeholder={ this.getPlaceholder(placeholder) }
+        searchingText={ this.i18n('component.basic.SelectBox.searchingText') }
+        searchPromptText={ this.i18n('component.basic.SelectBox.searchPromptText') }
+        clearable={ clearable && (!value || !value._disableClear === true) }
+        onInputChange={ this.onInputChange.bind(this) }
         options={ options.map(option => {
           const _option = _.clone(option);
           // turn off disabled feature => @todo: react-select 2.x has this feature outofbox
@@ -807,6 +807,5 @@ SelectBox.ITEM_VALUE = ITEM_VALUE;
 //
 SelectBox.OptionDecorator = OptionDecorator;
 SelectBox.ValueDecorator = ValueDecorator;
-
 
 export default SelectBox;

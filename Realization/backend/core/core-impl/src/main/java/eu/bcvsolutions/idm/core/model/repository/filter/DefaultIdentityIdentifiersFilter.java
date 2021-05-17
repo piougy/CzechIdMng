@@ -47,7 +47,8 @@ public class DefaultIdentityIdentifiersFilter extends AbstractFilterBuilder<IdmI
 		//
 		return builder.or(
 				root.get(IdmIdentity_.externalCode).in(identifiers),
-				root.get(IdmIdentity_.username).in(identifiers));
+				root.get(IdmIdentity_.username).in(identifiers),
+				root.get(IdmIdentity_.lastName).in(identifiers));
 	}
 
 }

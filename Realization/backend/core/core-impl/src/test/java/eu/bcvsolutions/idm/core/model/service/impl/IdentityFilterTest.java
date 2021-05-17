@@ -64,10 +64,10 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private FilterManager filterManager;
 	
-	@Test
 	/**
 	 * Test find identity by all string fields
 	 */
+	@Test
 	public void testCorrelableFilter() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		identity.setTitleAfter(UUID.randomUUID().toString());
@@ -534,12 +534,15 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		
 		IdmIdentityDto identityOne = identities.get(1);
 		IdmIdentityDto identityTwo = identities.get(2);
+		IdmIdentityDto identityThree = identities.get(3);
 		IdmIdentityDto identityFive = identities.get(5);
 		IdmIdentityDto identityNine = identities.get(9);
 		
 		identityOne.setExternalCode("identityOneExternalCode" + System.currentTimeMillis());
 		
 		identityTwo.setUsername("identityTwoUsername" + System.currentTimeMillis());
+		
+		identityThree.setLastName(getHelper().createName());
 		
 		identityFive.setUsername("identityFiveUsername" + System.currentTimeMillis());
 		identityFive.setExternalCode("identityFiveExternalCode" + System.currentTimeMillis());
@@ -548,15 +551,22 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		identityNine.setUsername("identityNineUsername" + System.currentTimeMillis());
 		
 		identityOne = identityService.save(identityOne);
+		UUID identityOneId = identityOne.getId();
 		identityTwo = identityService.save(identityTwo);
+		UUID identityTwoId = identityTwo.getId();
+		identityThree = identityService.save(identityThree);
+		UUID identityThreeId = identityThree.getId();
 		identityFive = identityService.save(identityFive);
+		UUID identityFiveId = identityFive.getId();
 		identityNine = identityService.save(identityNine);
+		UUID identityNineId = identityNine.getId();
 		
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		List<String> identifiers = new ArrayList<>();
 		
 		identifiers.add(identityOne.getExternalCode());
 		identifiers.add(identityTwo.getUsername());
+		identifiers.add(identityThree.getLastName());
 		identifiers.add(identityFive.getExternalCode());
 		identifiers.add(identityFive.getUsername());
 		identifiers.add(identityNine.getExternalCode());
@@ -564,8 +574,13 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		
 		filter.setIdentifiers(identifiers);
 		
-		List<IdmIdentityDto> result = identityService.find(filter, null).getContent();
-		assertEquals(4, result.size());
+		List<IdmIdentityDto> results = identityService.find(filter, null).getContent();
+		Assert.assertEquals(5, results.size());
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(identityOneId)));
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(identityTwoId)));
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(identityThreeId)));
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(identityFiveId)));
+		Assert.assertTrue(results.stream().anyMatch(i -> i.getId().equals(identityNineId)));
 	}
 
 	@Test
@@ -618,6 +633,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		}
 		return identities;
 	}
+	
 	private IdmIdentityDto getIdmIdentity(String firstName, String lastName, String email, String phone, boolean disabled){
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(getHelper().createName());

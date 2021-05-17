@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
+import { Creatable } from 'react-select';
 import _ from 'lodash';
 import * as Basic from '../../basic';
 
 /**
- * Creatable component
+ * Creatable component.
  *
  * @author Ondrej Kopr
  */
@@ -98,8 +98,8 @@ class CreatableSelectBox extends Basic.EnumSelectBox {
   _exists(identifier, index) {
     const { manager, filterColumnName, existentClass, nonExistentClass } = this.props;
     const searchParameters = manager.getDefaultSearchParameters().setFilter(filterColumnName, identifier);
-    this.context.store.dispatch(manager.fetchEntitiesCount(searchParameters, `identity-${identifier}-count`, count => {
-      if (count && count > 0) {
+    this.context.store.dispatch(manager.fetchEntitiesCount(searchParameters, `identity-${ identifier }-count`, count => {
+      if (count > 0) {
         this._updateOptions(identifier, index, existentClass);
       } else {
         this._updateOptions(identifier, index, nonExistentClass);
@@ -138,6 +138,7 @@ class CreatableSelectBox extends Basic.EnumSelectBox {
         if (option.isLoading) {
           return true;
         }
+        return false;
       });
     }
     return false;
@@ -152,20 +153,20 @@ class CreatableSelectBox extends Basic.EnumSelectBox {
     const { placeholder, fieldLabel, optionComponent, valueComponent } = this.props;
     const showLoading = this._evaluateShowLoading();
     return (
-      <Select.Creatable
+      <Creatable
         ref="selectComponent"
         multi
-        value={options}
+        value={ options }
         options={ this.getOptions() }
-        onChange={this._onChange.bind(this)}
-        onInputChange={this._onInputChange.bind(this)}
-        isLoading={showLoading}
+        onChange={ this._onChange.bind(this) }
+        onInputChange={ this._onInputChange.bind(this) }
+        isLoading={ showLoading }
         removeSelected
-        placeholder={this.getPlaceholder(placeholder)}
-        labelKey={fieldLabel}
-        noResultsText={this.i18n('noResultsText')}
-        searchPromptText={this.i18n('searchPromptText')}
-        promptTextCreator={this._promptTextCreator.bind(this)}
+        placeholder={ this.getPlaceholder(placeholder) }
+        labelKey={ fieldLabel }
+        noResultsText={ this.i18n('noResultsText') }
+        searchPromptText={ this.i18n('searchPromptText') }
+        promptTextCreator={ this._promptTextCreator.bind(this) }
         optionComponent={ optionComponent }
         valueComponent={ valueComponent }/>
     );

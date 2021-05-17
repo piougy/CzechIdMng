@@ -303,6 +303,7 @@ class RoleTable extends Advanced.AbstractTableContent {
             uiKey={ uiKey }
             manager={ roleManager }
             rowClass={ ({ rowIndex, data }) => Utils.Ui.getRowClass(data[rowIndex]) }
+            columns={ columns }
             className={
               _showTree
               ?
@@ -393,7 +394,6 @@ class RoleTable extends Advanced.AbstractTableContent {
               width="25%"
               sort
               face="text"
-              rendered={ _.includes(columns, 'name') }
               cell={
                 ({ rowIndex, data }) => (
                   <Advanced.EntityInfo
@@ -409,13 +409,13 @@ class RoleTable extends Advanced.AbstractTableContent {
               width={ 125 }
               face="text"
               sort
-              rendered={ _.includes(columns, 'baseCode') && showBaseCode }/>
+              rendered={ showBaseCode }/>
             <Advanced.Column
               property="environment"
               width={ 100 }
               face="text"
               sort
-              rendered={ _.includes(columns, 'environment') && showEnvironment }
+              rendered={ showEnvironment }
               cell={
                 ({ rowIndex, data, property }) => (
                   <Advanced.CodeListValue code="environment" value={ data[rowIndex][property] }/>
@@ -428,19 +428,21 @@ class RoleTable extends Advanced.AbstractTableContent {
               sort
               face="enum"
               enumClass={ RoleTypeEnum }
-              rendered={ false && _.includes(columns, 'roleType') }/>
+              rendered={ false }/>
             <Advanced.Column
               property="roleCatalogue.name"
               width={ 75 }
-              face="text"
-              rendered={ _.includes(columns, 'roleCatalogue') }/>
+              face="text"/>
             <Advanced.Column
               property="description"
               sort
               face="text"
-              rendered={ _.includes(columns, 'description') }
               maxLength={ 100 }/>
-            <Advanced.Column property="disabled" sort face="bool" width={ 75 } rendered={ _.includes(columns, 'disabled') }/>
+            <Advanced.Column
+              property="disabled"
+              sort
+              face="bool"
+              width={ 75 }/>
           </Advanced.Table>
         </Basic.Col>
       </Basic.Row>
@@ -472,7 +474,7 @@ RoleTable.propTypes = {
 };
 
 RoleTable.defaultProps = {
-  columns: ['name', 'baseCode', 'environment', 'roleType', 'disabled', 'approvable', 'description'],
+  columns: ConfigLoader.getConfig('role.table.columns', ['name', 'baseCode', 'environment', 'description', 'disabled']),
   filterOpened: true,
   showCatalogue: true,
   forceSearchParameters: null,
@@ -485,6 +487,11 @@ function select(state, component) {
     showBaseCode: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.role.baseCode', true),
     treePaginationRootSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size'),
     treePaginationNodeSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size'),
+    columns: component.columns || ConfigurationManager.getPublicValueAsArray(
+      state,
+      'idm.pub.app.show.role.table.columns',
+      RoleTable.defaultProps.columns
+    ),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _requestsEnabled: ConfigurationManager.getPublicValueAsBoolean(state, component.roleManager.getEnabledPropertyKey())
   };

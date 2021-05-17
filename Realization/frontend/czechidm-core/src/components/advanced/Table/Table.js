@@ -492,7 +492,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     const renderedSortedChildren = children.filter(child => !child.props.property); // columns withou property will be at start
     // only columns with properties will be sorted
     columns.forEach(column => {
-      const child = children.find(c => c.props.property && c.props.property.toLowerCase() === column);
+      const child = children.find(c => c.props.property && c.props.property.toLowerCase() === column.toLowerCase());
       if (child) {
         renderedSortedChildren.push(child);
       }

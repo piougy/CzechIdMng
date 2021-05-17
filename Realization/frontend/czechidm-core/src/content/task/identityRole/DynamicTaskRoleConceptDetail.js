@@ -18,6 +18,7 @@ const conceptRoleRequestManager = new ConceptRoleRequestManager();
  * Extended from DynamicTaskDetail (it is standard task detail renderer)
  *
  * @author Vít Švanda
+ * @author Ondrej Husnik
  */
 class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
 
@@ -66,13 +67,15 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     this.setState({
       showLoading: true
     });
+    const decisionReason = this.getDecisionReason();
     const formData = {
       decision: decision.id,
-      formData: formDataConverted};
+      formData: formDataConverted,
+      variables: {taskCompleteMessage: decisionReason}
+    };
     const { taskManager} = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, this.props.uiKey, this._afterComplete.bind(this)));
   }
-
 
   _updateConcept(data, type, formInstance) {
     this.setState({showLoading: true});
@@ -139,7 +142,7 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
 
   render() {
     const {task, canExecute, _entity} = this.props;
-    const { showLoading, errorOccurred} = this.state;
+    const { showLoading, errorOccurred, reasonRequired} = this.state;
     let showLoadingInternal = task && _entity ? showLoading : true;
     // If some error occurred, then we want to hide the show loading.
     if (errorOccurred) {
@@ -153,12 +156,12 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     if (_entity && _entity.role && _entity._embedded && _entity._embedded.role) {
       entity.role = _entity._embedded.role;
     }
+    const decisionReasonText = task.completeTaskMessage;
 
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <Basic.Confirm ref="confirm"/>
-
+        {this.renderDecisionConfirmation(reasonRequired)}
         {this.renderHeader(task)}
 
         <Basic.Panel showLoading={showLoadingInternal}>
@@ -170,6 +173,7 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
               label={this.i18n('createdDate')}>
               <Advanced.DateValue value={task ? task.taskCreated : null} showTime/>
             </Basic.LabelWrapper>
+            {this.renderDecisionReasonText(decisionReasonText)}
           </Basic.AbstractForm>
           <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
             {this._getFormDataComponents(task)}

@@ -17,6 +17,7 @@ const AUTOMATIC_ROLE_BY_ATTRIBUTE = 'eu.bcvsolutions.idm.core.api.dto.IdmAutomat
  * Custom task detail for approve automatic role
  *
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  */
 class AutomaticRoleTaskDetail extends DynamicTaskDetail {
 
@@ -30,17 +31,18 @@ class AutomaticRoleTaskDetail extends DynamicTaskDetail {
 
   render() {
     const {task, taskManager} = this.props;
-    const { showLoading} = this.state;
+    const {showLoading, reasonRequired} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     const automaticRoleByAttribute = task.variables.entityEvent.eventClassType === AUTOMATIC_ROLE_BY_ATTRIBUTE;
+    const decisionReasonText = task.completeTaskMessage;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <Basic.Confirm ref="confirm"/>
+        {this.renderDecisionConfirmation(reasonRequired)}
 
         {this.renderHeader(task)}
 
-        <Basic.Panel showLoading = {showLoadingInternal}>
+        <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden"/>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
@@ -50,9 +52,10 @@ class AutomaticRoleTaskDetail extends DynamicTaskDetail {
               label={this.i18n('createdDate')}>
               <Advanced.DateValue value={task ? task.taskCreated : null} showTime/>
             </Basic.LabelWrapper>
+            {this.renderDecisionReasonText(decisionReasonText)}
           </Basic.AbstractForm>
         </Basic.Panel>
-        <Basic.Panel showLoading = {showLoadingInternal}>
+        <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.PanelHeader text={<small>{ taskManager.getNiceLabel(task) }</small>}/>
           <Basic.AbstractForm data={ task.variables.entityEvent.content } readOnly style={{ padding: '15px 15px 0px 15px' }}>
             <Basic.TextField

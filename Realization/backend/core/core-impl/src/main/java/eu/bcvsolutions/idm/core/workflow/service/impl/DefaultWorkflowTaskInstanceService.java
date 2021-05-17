@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
@@ -66,6 +67,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  * Default workflow task instance service
  *
  * @author svandav
+ * @author Ondrej Husnik
  *
  */
 @Service
@@ -86,6 +88,8 @@ public class DefaultWorkflowTaskInstanceService extends
 	private WorkflowProcessDefinitionService workflowProcessDefinitionService;
 	@Autowired
 	private WorkflowHistoricTaskInstanceService historicTaskInstanceService;
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@Override
 	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
@@ -131,9 +135,11 @@ public class DefaultWorkflowTaskInstanceService extends
 		taskService.setAssignee(taskId, loggedUser);
 		taskService.setVariables(taskId, variables);
 		taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION, decision);
-		if (formData != null && formData.containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE)) {
-			taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE,
-					formData.get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE));
+		if (variables != null) {
+			if (variables.containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE)) {
+				taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE,
+						variables.get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE));
+			}
 		}
 		Map<String, String> properties = new HashMap<>();
 		properties.put(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision);
@@ -317,6 +323,7 @@ public class DefaultWorkflowTaskInstanceService extends
 					.convertFormValueToModelValue(property.getValue());
 			if (decisionDto != null) {
 				decisionDto.setId(property.getId());
+				setDecisionReasonRequired(decisionDto);
 				dto.getDecisions().add(decisionDto);
 			}
 		} else if (formType instanceof TaskHistoryFormType) {
@@ -514,5 +521,19 @@ public class DefaultWorkflowTaskInstanceService extends
 			});
 		}
 		return new PageImpl<>(dtos, pageable, count);
+	}
+	
+	private void setDecisionReasonRequired(DecisionFormTypeDto decisionDto) {
+		Boolean reasonRequired = decisionDto.isReasonRequired();
+		if (reasonRequired == null) {
+			String key = null;
+			if (WORKFLOW_DECISION_APPROVE.equalsIgnoreCase(decisionDto.getId())) {
+				key = WorkflowTaskInstanceService.PROPERTY_APPROVE_DECISION_REASON_REQUIRED;
+			} else if (WORKFLOW_DECISION_DISAPPROVE.equalsIgnoreCase(decisionDto.getId())) {
+				key = WorkflowTaskInstanceService.PROPERTY_DISAPPROVE_DECISION_REASON_REQUIRED;
+			}
+			reasonRequired = key == null ? false : configurationService.getBooleanValue(key, false);
+			decisionDto.setReasonRequired(reasonRequired);
+		}
 	}
 }

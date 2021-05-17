@@ -414,7 +414,7 @@ automaticRoleRequestService.save(requestDto);</script>
     <sequenceFlow id="flow70" sourceRef="servicetaskEvokeEvent" targetRef="endevent8"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
-        <activiti:value>{"showWarning":false,,"level":"success"}</activiti:value>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
       </extensionElements>
     </dataObject>
     <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">

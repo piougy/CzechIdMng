@@ -108,5 +108,4 @@ public class WorkflowHistoricTaskInstanceDto extends WorkflowTaskInstanceDto {
 	public void setCompleteTaskMessage(String completeTaskMessage) {
 		this.completeTaskMessage = completeTaskMessage;
 	}
-
 }

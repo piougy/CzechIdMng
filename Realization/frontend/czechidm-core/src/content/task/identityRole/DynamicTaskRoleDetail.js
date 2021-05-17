@@ -30,23 +30,27 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
     this.setState({
       showLoading: true
     });
+    const decisionReason = this.getDecisionReason();
     const formData = {
       decision: decision.id,
-      formData: formDataConverted};
+      formData: formDataConverted,
+      variables: {taskCompleteMessage: decisionReason}
+    };
     const { taskManager} = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, this.props.uiKey, this._afterComplete.bind(this)));
   }
 
   render() {
     const {task, canExecute} = this.props;
-    const { showLoading} = this.state;
+    const {showLoading, reasonRequired} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     const formDataValues = this._toFormDataValues(task.formData);
+    const decisionReasonText = task.completeTaskMessage;
 
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <Basic.Confirm ref="confirm"/>
+        {this.renderDecisionConfirmation(reasonRequired)}
         {this.renderHeader(task)}
         <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
@@ -57,6 +61,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
               label={this.i18n('createdDate')}>
               <Advanced.DateValue value={task ? task.taskCreated : null} showTime/>
             </Basic.LabelWrapper>
+            {this.renderDecisionReasonText(decisionReasonText)}
           </Basic.AbstractForm>
           <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
             {this._getFormDataComponents(task)}

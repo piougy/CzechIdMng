@@ -4395,31 +4395,31 @@
         "placeholder": "Všechny podporované základní atributy nebo vyberte ..."
       },
       "formValidations": {
-        "label": "Validace základních atributů formuláře",
-        "help": "Validace základních atributů pro projekci.",
-        "empty": "Validace základních atributů nejsou pro projekci definovány.",
+        "label": "Validace / nastavení základních atributů formuláře",
+        "help": "Validace  / nastavení základních atributů pro projekci.",
+        "empty": "Validace / nastavení základních atributů nejsou pro projekci definovány.",
         "placeholder": "Vyberte základní atribut formuláře ...",
         "attribute": {
           "label": "Atribut",
-          "help": "Definovat validaci pro podporované základní atributy uživatele a kontraktu."
+          "help": "Definovat validaci a nastavení pro podporované základní atributy uživatele a kontraktu."
         },
         "button": {
           "add": {
-            "label": "Přidat validaci",
-            "title": "Přidat validaci základního atributu formuláře pro projekci formuláře"
+            "label": "Přidat validaci / nastavení atributu",
+            "title": "Přidat validaci a nastavení základního atributu formuláře pro projekci formuláře"
           },
           "remove": {
-            "title": "Odebrat validaci"
+            "title": "Odebrat validaci / nastavení atributu"
           }
         },
         "create": {
-          "header": "Přidat validaci",
+          "header": "Přidat validaci / nastavení atributu",
           "message": {
             "contains": "Validace pro zadaný atribut je již nastavena."
           }
         },
         "edit": {
-          "header": "Upravit validaci"
+          "header": "Upravit validaci / nastavení"
         }
       },
       "properties": {

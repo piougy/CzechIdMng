@@ -1038,6 +1038,16 @@ class FormProjectionDetail extends Basic.AbstractContent {
                   readOnly={ !detail.isNew }
                   onChange={ this.onChangeValidateFormAttribute.bind(this) }
                 />
+                <Basic.TextField
+                  ref="label"
+                  label={ this.i18n('entity.FormAttribute.name.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.name.help') }
+                  max={ 255 }/>
+                <Basic.TextField
+                  ref="placeholder"
+                  label={ this.i18n('entity.FormAttribute.placeholder.label') }
+                  helpBlock={ this.i18n('entity.FormAttribute.placeholder.help') }
+                  max={ 255 }/>
                 <Basic.Checkbox
                   ref="readonly"
                   label={ this.i18n('entity.FormAttribute.readonly') }/>

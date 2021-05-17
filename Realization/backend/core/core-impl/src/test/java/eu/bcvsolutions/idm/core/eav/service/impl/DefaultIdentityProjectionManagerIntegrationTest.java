@@ -1460,6 +1460,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 				IdmIdentityContract.class.getSimpleName(), IdmIdentityContract_.validTill.getName()));
 		attributeValidTill.setRequired(true);
 		attributeValidTill.setMax(BigDecimal.valueOf(3));
+		attributeValidTill.setLabel("Custom label");
 		
 		formProjection.setFormValidations(mapper.writeValueAsString(Lists.newArrayList(
 				attributeExternalCode, attributeLastName, attributeValidTill)));

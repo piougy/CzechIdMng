@@ -400,6 +400,32 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
   }
 
   /**
+   * Basic field label.
+   *
+   * @since 11.1.0
+   */
+  getLabel(formProjection, basicField, label = null) {
+    const formValidation = this.getBasicFieldValidation(formProjection, basicField);
+    if (!formValidation) {
+      return label;
+    }
+    return this.i18n(formValidation.label) || label;
+  }
+
+  /**
+   * Basic field placeholder.
+   *
+   * @since 11.1.0
+   */
+  getPlaceholder(formProjection, basicField, placeholder = null) {
+    const formValidation = this.getBasicFieldValidation(formProjection, basicField);
+    if (!formValidation) {
+      return placeholder;
+    }
+    return this.i18n(formValidation.placeholder) || placeholder;
+  }
+
+  /**
    * Basic field is rendered.
    * Render identity or contract basic attributes.
    *
@@ -937,10 +963,12 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
               icon={ formProjection ? formProjectionManager.getLocalization(formProjection, 'icon', 'component:identity') : 'component:identity' }
               identity={ identityProjection }/>
           }
-          { ' ' }
-          { identityProjectionManager.getNiceLabel(identityProjection) }
+          <Basic.ShortText
+            value={ identityProjectionManager.getNiceLabel(identityProjection) }
+            maxLength={ 60 }
+            cutChar=""
+            style={{ marginLeft: 7, marginRight: 7 }}/>
           <small>
-            { ' ' }
             { isNew ? this.i18n('create.title') : this.i18n('edit.title') }
           </small>
         </Advanced.DetailHeader>
@@ -968,7 +996,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       <Basic.Div>
         <Basic.TextField
           ref="username"
-          label={ this.i18n('identity.username.label') }
+          label={ this.getLabel(formProjection, 'username', this.i18n('identity.username.label')) }
+          placeholder={ this.getPlaceholder(formProjection, 'username') }
           rendered={ this.isRendered(formProjection, 'username') }
           readOnly={ this.isReadOnly(formProjection, 'username', _readOnlyUsername) }
           required={ this.isRequired(formProjection, 'username', _readOnlyUsername) }
@@ -985,7 +1014,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             rendered={ this.isRendered(formProjection, 'firstName') }>
             <Basic.TextField
               ref="firstName"
-              label={ this.i18n('content.identity.profile.firstName') }
+              label={ this.getLabel(formProjection, 'firstName', this.i18n('content.identity.profile.firstName')) }
+              placeholder={ this.getPlaceholder(formProjection, 'firstName') }
               readOnly={ this.isReadOnly(formProjection, 'firstName', _readOnlyName) }
               required={ this.isRequired(formProjection, 'firstName', _readOnlyName) }
               min={ this.getMin(formProjection, 'firstName', _readOnlyName) }
@@ -1000,7 +1030,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             rendered={ this.isRendered(formProjection, 'lastName') }>
             <Basic.TextField
               ref="lastName"
-              label={ this.i18n('content.identity.profile.lastName') }
+              label={ this.getLabel(formProjection, 'lastName', this.i18n('content.identity.profile.lastName')) }
+              placeholder={ this.getPlaceholder(formProjection, 'lastName') }
               readOnly={ this.isReadOnly(formProjection, 'lastName', _readOnlyName) }
               required={ this.isRequired(formProjection, 'lastName', _readOnlyName) }
               min={ this.getMin(formProjection, 'lastName', _readOnlyName) }
@@ -1014,7 +1045,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
 
         <Basic.TextField
           ref="externalCode"
-          label={ this.i18n('content.identity.profile.externalCode') }
+          label={ this.getLabel(formProjection, 'externalCode', this.i18n('content.identity.profile.externalCode')) }
+          placeholder={ this.getPlaceholder(formProjection, 'externalCode') }
           rendered={ this.isRendered(formProjection, 'externalCode') }
           readOnly={ this.isReadOnly(formProjection, 'externalCode', _readOnlyExternalCode) }
           required={ this.isRequired(formProjection, 'externalCode', _readOnlyExternalCode) }
@@ -1031,7 +1063,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             rendered={ this.isRendered(formProjection, 'titleBefore') }>
             <Basic.TextField
               ref="titleBefore"
-              label={ this.i18n('entity.Identity.titleBefore') }
+              label={ this.getLabel(formProjection, 'titleBefore', this.i18n('entity.Identity.titleBefore')) }
+              placeholder={ this.getPlaceholder(formProjection, 'titleBefore') }
               readOnly={ this.isReadOnly(formProjection, 'titleBefore', _readOnlyName) }
               required={ this.isRequired(formProjection, 'titleBefore', _readOnlyName) }
               min={ this.getMin(formProjection, 'titleBefore', _readOnlyName) }
@@ -1046,7 +1079,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             rendered={ this.isRendered(formProjection, 'titleAfter') }>
             <Basic.TextField
               ref="titleAfter"
-              label={ this.i18n('entity.Identity.titleAfter') }
+              label={ this.getLabel(formProjection, 'titleAfter', this.i18n('entity.Identity.titleAfter')) }
+              placeholder={ this.getPlaceholder(formProjection, 'titleAfter') }
               readOnly={ this.isReadOnly(formProjection, 'titleAfter', _readOnlyName) }
               required={ this.isRequired(formProjection, 'titleAfter', _readOnlyName) }
               min={ this.getMin(formProjection, 'titleAfter', _readOnlyName) }
@@ -1064,8 +1098,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             rendered={ this.isRendered(formProjection, 'email') }>
             <Basic.TextField
               ref="email"
-              label={ this.i18n('content.identity.profile.email.label') }
-              placeholder={ this.i18n('content.identity.profile.email.placeholder') }
+              label={ this.getLabel(formProjection, 'email', this.i18n('content.identity.profile.email.label')) }
+              placeholder={ this.getPlaceholder(formProjection, 'email', this.i18n('content.identity.profile.email.placeholder')) }
               validation={ Joi.string().email() }
               readOnly={ this.isReadOnly(formProjection, 'email', _readOnlyEmail) }
               required={ this.isRequired(formProjection, 'email', _readOnlyEmail) }
@@ -1081,8 +1115,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             rendered={ this.isRendered(formProjection, 'phone') }>
             <Basic.TextField
               ref="phone"
-              label={ this.i18n('content.identity.profile.phone.label') }
-              placeholder={ this.i18n('content.identity.profile.phone.placeholder') }
+              label={ this.getLabel(formProjection, 'phone', this.i18n('content.identity.profile.phone.label')) }
+              placeholder={ this.getPlaceholder(formProjection, 'phone', this.i18n('content.identity.profile.phone.placeholder')) }
               readOnly={ this.isReadOnly(formProjection, 'phone', _readOnlyPhone) }
               required={ this.isRequired(formProjection, 'phone', _readOnlyPhone) }
               min={ this.getMin(formProjection, 'phone', _readOnlyPhone) }
@@ -1096,8 +1130,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
 
         <Basic.TextArea
           ref="description"
-          label={ this.i18n('content.identity.profile.description.label') }
-          placeholder={ this.i18n('content.identity.profile.description.placeholder') }
+          label={ this.getLabel(formProjection, 'description', this.i18n('content.identity.profile.description.label')) }
+          placeholder={ this.getPlaceholder(formProjection, 'description', this.i18n('content.identity.profile.description.placeholder')) }
           rows={ 4 }
           rendered={ this.isRendered(formProjection, 'description') }
           readOnly={ this.isReadOnly(formProjection, 'description', _readOnlyDescription) }
@@ -1206,7 +1240,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             <Basic.DateTimePicker
               mode="date"
               ref={ `validFrom-${ index }` }
-              label={ this.i18n('contract.validFrom.label') }
+              label={ this.getLabel(formProjection, 'IdmIdentityContract.validFrom', this.i18n('contract.validFrom.label')) }
+              placeholder={ this.getPlaceholder(formProjection, 'IdmIdentityContract.validFrom') }
               rendered={ this.isRendered(formProjection, 'IdmIdentityContract.validFrom') }
               readOnly={ this.isReadOnly(formProjection, 'IdmIdentityContract.validFrom', _readOnly) }
               required={ this.isRequired(formProjection, 'IdmIdentityContract.validFrom', _readOnly) }
@@ -1221,7 +1256,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             <Basic.DateTimePicker
               mode="date"
               ref={ `validTill-${ index }` }
-              label={ this.i18n('contract.validTill.label') }
+              label={ this.getLabel(formProjection, 'IdmIdentityContract.validTill', this.i18n('contract.validTill.label')) }
+              placeholder={ this.getPlaceholder(formProjection, 'IdmIdentityContract.validTill') }
               rendered={ this.isRendered(formProjection, 'IdmIdentityContract.validTill') }
               readOnly={ this.isReadOnly(formProjection, 'IdmIdentityContract.validTill', _readOnly) }
               required={ this.isRequired(formProjection, 'IdmIdentityContract.validTill', _readOnly) }
@@ -1236,9 +1272,10 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
 
         <Advanced.TreeNodeSelect
           ref={ `workPosition-${ index }` }
-          label={ this.i18n('contract.workPosition.label') }
-          header={ this.i18n('contract.workPosition.label') }
-          treeNodeLabel={ this.i18n('contract.workPosition.label') }
+          label={ this.getLabel(formProjection, 'IdmIdentityContract.workPosition', this.i18n('contract.workPosition.label')) }
+          placeholder={ this.getPlaceholder(formProjection, 'IdmIdentityContract.workPosition') }
+          header={ this.getLabel(formProjection, 'IdmIdentityContract.workPosition', this.i18n('contract.workPosition.label')) }
+          treeNodeLabel={ this.getLabel(formProjection, 'IdmIdentityContract.workPosition', this.i18n('contract.workPosition.label')) }
           useFirstType
           rendered={ this.isRendered(formProjection, 'IdmIdentityContract.workPosition') }
           readOnly={ this.isReadOnly(formProjection, 'IdmIdentityContract.workPosition', _readOnly) }

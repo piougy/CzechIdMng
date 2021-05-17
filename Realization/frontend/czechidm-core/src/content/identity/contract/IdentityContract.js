@@ -53,7 +53,8 @@ class IdentityContract extends Basic.AbstractContent {
           entity={ entity }
           showLoading={ !entity && showLoading }
           back={ entity ? `/identity/${ encodeURIComponent(entity.identity) }/contracts` : null }>
-          { manager.getNiceLabel(entity) } <small> { this.i18n('content.identity-contract.detail.header') }</small>
+          <Basic.ShortText value={ manager.getNiceLabel(entity) } maxLength={ 75 } cutChar="" style={{ marginLeft: 7, marginRight: 7 }}/>
+          <small> { this.i18n('content.identity-contract.detail.header') }</small>
         </Advanced.DetailHeader>
 
         <OrganizationPosition identity={ params.identityId }/>

@@ -34,6 +34,34 @@ export default class AbstractFormableContent extends Basic.AbstractContent {
     return formInstance.getAttributes().get(attributeName);
   }
 
+  /**
+   * Basic field label.
+   *
+   * @since 11.1.0
+   */
+  getLabel(formInstance, attributeName, label = null) {
+    const attribute = this.getBasicField(formInstance, attributeName);
+    if (!attribute) {
+      return label;
+    }
+    //
+    return this.i18n(attribute.label) || label;
+  }
+
+  /**
+   * Basic field placeholder.
+   *
+   * @since 11.1.0
+   */
+  getPlaceholder(formInstance, attributeName, placeholder = null) {
+    const attribute = this.getBasicField(formInstance, attributeName);
+    if (!attribute) {
+      return placeholder;
+    }
+    //
+    return this.i18n(attribute.placeholder) || placeholder;
+  }
+
   isReadOnly(formInstance, attributeName, readOnly = false) {
     const attribute = this.getBasicField(formInstance, attributeName);
     if (!attribute) {

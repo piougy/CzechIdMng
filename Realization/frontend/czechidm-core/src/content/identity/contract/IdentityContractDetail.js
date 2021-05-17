@@ -184,7 +184,8 @@ class IdentityContractDetail extends Advanced.AbstractFormableContent {
 
                 <Basic.TextField
                   ref="position"
-                  label={ this.i18n('entity.IdentityContract.position') }
+                  label={ this.getLabel(formInstance, 'position', this.i18n('entity.IdentityContract.position')) }
+                  placeholder={ this.getPlaceholder(formInstance, 'position') }
                   readOnly={ this.isReadOnly(formInstance, 'position') }
                   required={ this.isRequired(formInstance, 'position', _readOnly) }
                   min={ this.getMin(formInstance, 'position', _readOnly) }
@@ -196,8 +197,10 @@ class IdentityContractDetail extends Advanced.AbstractFormableContent {
 
                 <Advanced.TreeNodeSelect
                   ref="workPosition"
-                  header={ this.i18n('entity.IdentityContract.workPosition') }
-                  treeNodeLabel={ this.i18n('entity.IdentityContract.workPosition') }
+                  label={ this.getLabel(formInstance, 'workPosition', this.i18n('entity.IdentityContract.workPosition')) }
+                  header={ this.getLabel(formInstance, 'workPosition', this.i18n('entity.IdentityContract.workPosition')) }
+                  placeholder={ this.getPlaceholder(formInstance, 'workPosition') }
+                  treeNodeLabel={ this.getLabel(formInstance, 'workPosition', this.i18n('entity.IdentityContract.workPosition')) }
                   useFirstType
                   readOnly={ this.isReadOnly(formInstance, 'workPosition', _readOnly) }
                   required={ this.isRequired(formInstance, 'workPosition', _readOnly) }
@@ -209,7 +212,8 @@ class IdentityContractDetail extends Advanced.AbstractFormableContent {
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validFrom"
-                  label={ this.i18n('label.validFrom') }
+                  label={ this.getLabel(formInstance, 'validFrom', this.i18n('label.validFrom')) }
+                  placeholder={ this.getPlaceholder(formInstance, 'validFrom') }
                   readOnly={ this.isReadOnly(formInstance, 'validFrom', _readOnly) }
                   required={ this.isRequired(formInstance, 'validFrom', _readOnly) }
                   minDate={ this.getMinDate(formInstance, 'validFrom', _readOnly) }
@@ -222,7 +226,8 @@ class IdentityContractDetail extends Advanced.AbstractFormableContent {
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validTill"
-                  label={ this.i18n('label.validTill') }
+                  label={ this.getLabel(formInstance, 'validTill', this.i18n('label.validTill')) }
+                  placeholder={ this.getPlaceholder(formInstance, 'validTill') }
                   readOnly={ this.isReadOnly(formInstance, 'validTill', _readOnly) }
                   required={ this.isRequired(formInstance, 'validTill', _readOnly) }
                   minDate={ this.getMinDate(formInstance, 'validTill', _readOnly) }

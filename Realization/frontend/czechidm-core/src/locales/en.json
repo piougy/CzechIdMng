@@ -4342,31 +4342,31 @@
         "placeholder": "All supported basic attributes or select ..."
       },
       "formValidations": {
-        "label": "Basic attributes validation",
-        "help": "Validations for shown basic attributes.",
-        "empty": "Validations for shown basic attributes are not defined.",
+        "label": "Basic attributes validation / setting",
+        "help": "Validations / setting for shown basic attributes.",
+        "empty": "Validations  / setting for shown basic attributes are not defined.",
         "placeholder": "Select basic attribute ...",
         "attribute": {
           "label": "Attribute",
-          "help": "Define validation for supported user or contract basic fields."
+          "help": "Define attribute validation / setting for supported user or contract basic fields."
         },
         "button": {
           "add": {
-            "label": "Add validation",
-            "title": "Add basic field validation for this form projection."
+            "label": "Add attribute validation / setting",
+            "title": "Add basic field validation / setting for this form projection."
           },
           "remove": {
-            "title": "Remove validation"
+            "title": "Remove attribute validation / setting"
           }
         },
         "create": {
-          "header": "Add validation",
+          "header": "Add attribute validation / setting",
           "message": {
-            "contains": "Validation for given basic filed is already set."
+            "contains": "Validation / setting for given basic filed is already set."
           }
         },
         "edit": {
-          "header": "Edit validation"
+          "header": "Edit attribute validation / setting"
         }
       },
       "properties": {

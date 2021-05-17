@@ -65,6 +65,7 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	private String validationMessage;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String module;
+	private String label;
 	
 	public IdmFormAttributeDto() {
 	}
@@ -356,5 +357,25 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	 */
 	public void setProperties(ConfigurationMap properties) {
 		this.properties = properties;
+	}
+	
+	/**
+	 * Overriden attribute label (persisted in json only).
+	 * 
+	 * @param label custom label
+	 * @since 11.1.0
+	 */
+	public void setLabel(String label) {
+		this.label = label;
+	}
+	
+	/**
+	 * Overriden attribute label  (persisted in json only).
+	 * 
+	 * @return custom label
+	 * @since 11.1.0
+	 */
+	public String getLabel() {
+		return label;
 	}
 }

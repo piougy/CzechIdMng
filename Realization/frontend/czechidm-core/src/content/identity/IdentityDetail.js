@@ -282,7 +282,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
                 <Basic.Div className="field-col">
                   <Basic.TextField
                     ref="username"
-                    label={ this.i18n('username') }
+                    label={ this.getLabel(formInstance, 'username', this.i18n('username')) }
+                    placeholder={ this.getPlaceholder(formInstance, 'username') }
                     readOnly={ this.isReadOnly(formInstance, 'username', _readOnlyUsername) }
                     required
                     min={ this.getMin(formInstance, 'username', _readOnlyUsername, 3) }
@@ -293,7 +294,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
                     }/>
                   <Basic.TextField
                     ref="firstName"
-                    label={ this.i18n('firstName') }
+                    label={ this.getLabel(formInstance, 'firstName', this.i18n('firstName')) }
+                    placeholder={ this.getPlaceholder(formInstance, 'firstName') }
                     readOnly={ this.isReadOnly(formInstance, 'firstName', _readOnlyName) }
                     required={ this.isRequired(formInstance, 'firstName', _readOnlyName) }
                     min={ this.getMin(formInstance, 'firstName', _readOnlyName) }
@@ -304,7 +306,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
                     }/>
                   <Basic.TextField
                     ref="lastName"
-                    label={ this.i18n('lastName') }
+                    label={ this.getLabel(formInstance, 'lastName', this.i18n('lastName')) }
+                    placeholder={ this.getPlaceholder(formInstance, 'lastName') }
                     readOnly={ this.isReadOnly(formInstance, 'lastName', _readOnlyName) }
                     required={ this.isRequired(formInstance, 'lastName', _readOnlyName) }
                     min={ this.getMin(formInstance, 'lastName', _readOnlyName) }
@@ -317,7 +320,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
               </Basic.Div>
               <Basic.TextField
                 ref="externalCode"
-                label={ this.i18n('content.identity.profile.externalCode') }
+                label={ this.getLabel(formInstance, 'externalCode', this.i18n('content.identity.profile.externalCode')) }
+                placeholder={ this.getPlaceholder(formInstance, 'externalCode') }
                 readOnly={ this.isReadOnly(formInstance, 'externalCode', _readOnlyExternalCode) }
                 required={ this.isRequired(formInstance, 'externalCode', _readOnlyExternalCode) }
                 min={ this.getMin(formInstance, 'externalCode', _readOnlyExternalCode) }
@@ -330,7 +334,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="titleBefore"
-                    label={ this.i18n('entity.Identity.titleBefore') }
+                    label={ this.getLabel(formInstance, 'titleBefore', this.i18n('entity.Identity.titleBefore')) }
+                    placeholder={ this.getPlaceholder(formInstance, 'titleBefore') }
                     readOnly={ this.isReadOnly(formInstance, 'titleBefore', _readOnlyName) }
                     required={ this.isRequired(formInstance, 'titleBefore', _readOnlyName) }
                     min={ this.getMin(formInstance, 'titleBefore', _readOnlyName) }
@@ -343,7 +348,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="titleAfter"
-                    label={ this.i18n('entity.Identity.titleAfter') }
+                    label={ this.getLabel(formInstance, 'titleAfter', this.i18n('entity.Identity.titleAfter')) }
+                    placeholder={ this.getPlaceholder(formInstance, 'titleAfter') }
                     readOnly={ this.isReadOnly(formInstance, 'titleAfter', _readOnlyName) }
                     required={ this.isRequired(formInstance, 'titleAfter', _readOnlyName) }
                     min={ this.getMin(formInstance, 'titleAfter', _readOnlyName) }
@@ -358,8 +364,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="email"
-                    label={ this.i18n('email.label') }
-                    placeholder={ this.i18n('email.placeholder') }
+                    label={ this.getLabel(formInstance, 'email', this.i18n('email.label')) }
+                    placeholder={ this.getPlaceholder(formInstance, 'email', this.i18n('email.placeholder')) }
                     readOnly={ this.isReadOnly(formInstance, 'email', _readOnlyEmail) }
                     validation={ Joi.string().allow(null).email() }
                     required={ this.isRequired(formInstance, 'email', _readOnlyEmail) }
@@ -373,8 +379,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="phone"
-                    label={ this.i18n('phone.label') }
-                    placeholder={ this.i18n('phone.placeholder') }
+                    label={ this.getLabel(formInstance, 'phone', this.i18n('phone.label')) }
+                    placeholder={ this.getPlaceholder(formInstance, 'phone', this.i18n('phone.placeholder')) }
                     readOnly={ this.isReadOnly(formInstance, 'phone', _readOnlyPhone) }
                     required={ this.isRequired(formInstance, 'phone', _readOnlyPhone) }
                     min={ this.getMin(formInstance, 'phone', _readOnlyPhone) }
@@ -387,8 +393,8 @@ class IdentityDetail extends Advanced.AbstractFormableContent {
               </Basic.Row>
               <Basic.TextArea
                 ref="description"
-                label={ this.i18n('description.label') }
-                placeholder={ this.i18n('description.placeholder') }
+                label={ this.getLabel(formInstance, 'description', this.i18n('description.label')) }
+                placeholder={ this.getPlaceholder(formInstance, 'description', this.i18n('description.placeholder')) }
                 rows={ 4 }
                 readOnly={ this.isReadOnly(formInstance, 'description', _readOnlyDescription) }
                 required={ this.isRequired(formInstance, 'description', _readOnlyDescription) }

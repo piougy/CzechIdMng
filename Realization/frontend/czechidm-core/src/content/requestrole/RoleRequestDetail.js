@@ -482,7 +482,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 hidden={!(_showDescription || (requestForForm && requestForForm.description))}
                 rows={ 3 }
                 placeholder={this.i18n('entity.RoleRequest.description.placeholder')}
-                label={this.i18n('entity.RoleRequest.description.label')}/>
+                label={this.i18n('entity.RoleRequest.description.label')}
+                max={ 2000 }/>
 
             </Basic.AbstractForm>
             <div style={{ padding: '15px 15px 0 15px' }}>

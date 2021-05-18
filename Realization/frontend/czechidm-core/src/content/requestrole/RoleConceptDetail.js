@@ -236,7 +236,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           label={ this.i18n('entity.IdentityRole.role') }
           ref="role"
           forceSearchParameters={ new SearchParameters('can-be-requested').setFilter('environment', environment) }/>
-        <Basic.SelectBox
+        <Advanced.IdentityContractSelect
           ref="identityContract"
           manager={ identityContractManager }
           forceSearchParameters={
@@ -245,6 +245,10 @@ export class RoleConceptDetail extends Basic.AbstractContent {
               .setFilter('validNowOrInFuture', true)
               .setFilter('_permission', 'CHANGEPERMISSION')
           }
+          defaultSearchParameters={
+            new SearchParameters().clearSort()
+          }
+          pageSize={ 100 }
           label={ this.i18n('entity.IdentityRole.identityContract.label') }
           placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
           helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }

@@ -374,6 +374,15 @@ module.exports = {
       manager: require('./src/redux').IdentityManager
     },
     {
+      id: 'identity-contract-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'UUID',
+      faceType: 'IDENTITY-CONTRACT-SELECT',
+      component: require('./src/components/advanced/Form/IdentityContractSelectFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.IDENTITY-CONTRACT-SELECT',
+      manager: require('./src/redux').IdentityContractManager
+    },
+    {
       id: 'identity-allow-disabled-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'UUID',

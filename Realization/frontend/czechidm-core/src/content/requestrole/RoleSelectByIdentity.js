@@ -356,7 +356,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                       <Basic.ShortText
                         text={ identityManager.getNiceLabel(selectedIdentity) }
                         maxLength={ 30 }
-                        cutChar={ '' }/>
+                        cutChar=""/>
                     </small>
                   </span>
                 }
@@ -371,11 +371,17 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 onChange={ this._selectIdentity.bind(this) }
                 manager={ this.getIdentityManager() }/>
 
-              <Basic.SelectBox
+              <Advanced.IdentityContractSelect
                 ref="selectedIdentityContract"
                 readOnly={ !selectedIdentity }
                 manager={ this.identityContractManager }
-                forceSearchParameters={ new SearchParameters().setFilter('identity', selectedIdentity ? selectedIdentity.username : null) }
+                forceSearchParameters={
+                  new SearchParameters().setFilter('identity', selectedIdentity ? selectedIdentity.username : null)
+                }
+                defaultSearchParameters={
+                  new SearchParameters().clearSort()
+                }
+                pageSize={ 100 }
                 label={ this.i18n('selectIdentityContract.label') }
                 placeholder={ this.i18n('selectIdentityContract.placeholder') }
                 helpBlock={ this.i18n('selectIdentityContract.help') }
@@ -398,7 +404,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                   <span>
                     { this.i18n('target.header') }
                     <small style={{ fontSize: '0.7em', marginLeft: 5 }}>
-                      <Basic.ShortText text={ identityManager.getNiceLabel(identity) } maxLength={ 30 } cutChar={ '' }/>
+                      <Basic.ShortText text={ identityManager.getNiceLabel(identity) } maxLength={ 30 } cutChar="" />
                     </small>
                   </span>
                 }
@@ -406,7 +412,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 style={{ paddingTop: 0 }}
                 icon="fa:arrow-right"/>
 
-              <Basic.SelectBox
+              <Advanced.IdentityContractSelect
                 ref="identityContract"
                 manager={ this.identityContractManager }
                 forceSearchParameters={
@@ -415,6 +421,10 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                     .setFilter('validNowOrInFuture', true)
                     .setFilter('_permission', 'CHANGEPERMISSION')
                 }
+                defaultSearchParameters={
+                  new SearchParameters().clearSort()
+                }
+                pageSize={ 100 }
                 label={ this.i18n('targetIdentityContract.label') }
                 placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
                 helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }

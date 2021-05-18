@@ -213,18 +213,18 @@ BasicModal.defaultProps = {
 };
 
 /**
- * Modal header
+ * Modal header.
  *
  * @author Radek Tomiška
  */
 class BasicModalHeader extends AbstractComponent {
   render() {
-    const { rendered, text, children, help, showLoading, icon, buttons, ...others } = this.props;
+    const { rendered, text, children, help, showLoading, icon, buttons, style, className, closeButton, onHide } = this.props;
     if (!rendered) {
       return null;
     }
     return (
-      <Modal.Header { ...others }>
+      <Modal.Header className={ className } style={ style } closeButton={ closeButton } onHide={ onHide } >
         <Div style={{ display: 'flex', alignItems: 'center' }}>
           <Icon type="fa" icon="refresh" showLoading rendered={ showLoading } />
           <Div style={{ flex: 1 }}>

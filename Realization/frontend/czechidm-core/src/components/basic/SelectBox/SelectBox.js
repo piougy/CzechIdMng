@@ -92,9 +92,10 @@ class SelectBox extends AbstractFormComponent {
    * Merge hard and user deffined search parameters
    */
   _createSearchParameters(inputText, forceSearchParameters) {
-    const { manager, pageSize, loadMoreContent } = this.props;
+    const { manager, pageSize, loadMoreContent, defaultSearchParameters } = this.props;
     // user input
-    let searchParameters = manager.getDefaultSearchParameters().setFilter('text', inputText).setSize(pageSize || SearchParameters.getDefaultSize());
+    let searchParameters = (defaultSearchParameters || manager.getDefaultSearchParameters())
+      .setFilter('text', inputText).setSize(pageSize || SearchParameters.getDefaultSize());
     if (manager.supportsAuthorization()) {
       searchParameters = searchParameters.setName(SearchParameters.NAME_AUTOCOMPLETE);
     }
@@ -276,7 +277,15 @@ class SelectBox extends AbstractFormComponent {
    */
   _loadMoreContent(input = '') {
     const { actualPage } = this.state;
-    const { pageSize, manager, useFirst, useFirstIfOne, loadMoreContent, forceSearchParameters } = this.props;
+    const {
+      pageSize,
+      manager,
+      useFirst,
+      useFirstIfOne,
+      loadMoreContent,
+      forceSearchParameters,
+      defaultSearchParameters
+    } = this.props;
     if (!loadMoreContent) {
       return;
     }
@@ -284,7 +293,7 @@ class SelectBox extends AbstractFormComponent {
     // increment actualPage
     const newActualPage = actualPage + 1;
     // if exists force search parameters merge it
-    let finalSearchParameters = manager.getDefaultSearchParameters().setSize(finalPageSize).setPage(newActualPage);
+    let finalSearchParameters = (defaultSearchParameters || manager.getDefaultSearchParameters()).setSize(finalPageSize).setPage(newActualPage);
     if (forceSearchParameters) {
       finalSearchParameters = manager.mergeSearchParameters(forceSearchParameters, finalSearchParameters);
     }
@@ -721,9 +730,15 @@ SelectBox.propTypes = {
    */
   multiSelect: PropTypes.bool,
   /**
-   * "Hard filters"
+   * "Hard filters".
    */
   forceSearchParameters: PropTypes.object,
+  /**
+   * "Default filters".
+   *
+   * @since 11.1.0
+   */
+  defaultSearchParameters: PropTypes.object,
   /**
   * If object is selected, then this property value will be returned. If value is false, then whole object is returned.
   */

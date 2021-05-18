@@ -812,7 +812,8 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           <Basic.Modal.Header
             closeButton={ !showLoading }
             text={ this.i18n('create.header') }
-            rendered={ Utils.Entity.isNew(detail.entity) }/>
+            rendered={ Utils.Entity.isNew(detail.entity) }
+            icon="fa:plus"/>
           <Basic.Modal.Header
             closeButton={ !showLoading }
             text={ this.i18n('edit.header', { role: detail.entity.role }) }

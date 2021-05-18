@@ -37,6 +37,7 @@ import ScriptInfo from './ScriptInfo/ScriptInfo';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
 import IdentitySelect from './IdentitySelect/IdentitySelect';
+import IdentityContractSelect from './IdentityContractSelect/IdentityContractSelect';
 import FormProjectionSelect from './FormProjectionSelect/FormProjectionSelect';
 import Recaptcha from './Recaptcha/Recaptcha';
 import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
@@ -111,6 +112,7 @@ const Components = {
   ScriptArea,
   RoleSelect,
   IdentitySelect,
+  IdentityContractSelect,
   FormProjectionSelect,
   Recaptcha,
   IdentitiesInfo,
@@ -148,5 +150,5 @@ const Components = {
   CodeableField
 };
 
-Components.version = '11.0.0';
+Components.version = '11.1.0';
 module.exports = Components;

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -8,6 +9,8 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resource;
@@ -49,6 +52,7 @@ import eu.bcvsolutions.idm.core.eav.rest.impl.AbstractFormableDtoController;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -73,6 +77,7 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmIdentityContractController extends AbstractFormableDtoController<IdmIdentityContractDto, IdmIdentityContractFilter> {
 	
 	protected static final String TAG = "Contracts";
+	private final IdmIdentityContractService contractService;
 	private final IdmFormDefinitionController formDefinitionController;
 	//
 	@Autowired private FormService formService;
@@ -86,6 +91,7 @@ public class IdmIdentityContractController extends AbstractFormableDtoController
 		//
 		Assert.notNull(formDefinitionController, "Controller is required.");
 		//
+		this.contractService = identityContractService;
 		this.formDefinitionController = formDefinitionController;
 	}
 	
@@ -145,6 +151,28 @@ public class IdmIdentityContractController extends AbstractFormableDtoController
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
+	}
+	
+	/**
+	 * @since 11.1.0 - apply default sort by prime contract for identity contracts
+	 */
+	@Override
+	public Page<IdmIdentityContractDto> find(IdmIdentityContractFilter filter, Pageable pageable,
+			BasePermission permission) {
+		Page<IdmIdentityContractDto> results = super.find(filter, pageable, permission);
+		if (results.getTotalElements() == 0 // contracts not found
+				|| (filter != null && filter.getIdentity() == null) // identity is not set
+				|| pageable.getSort().isSorted() // other sort is given
+				|| results.getTotalElements() > pageable.getPageSize()) {// pageable is not set properly
+			//  => order will not be solved
+			return results;
+		}
+		//
+		// apply default sort by prime contract for identity contracts
+		List<IdmIdentityContractDto> contracts = new ArrayList<>(results.getContent());
+		contractService.sortByPrimeContract(contracts);
+		//
+		return new PageImpl<>(contracts, pageable, contracts.size());
 	}
 	
 	@Override

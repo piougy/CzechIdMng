@@ -643,6 +643,7 @@
           "RICHTEXTAREA": "WYSIWYG editor",
           "SCRIPTAREA": "Skript editor",
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
+          "IDENTITY-CONTRACT-SELECT": "Výběr kontraktů (SelectBox)",
           "IDENTITY-ALLOW-DISABLED-SELECT": "Výběr identit včetně neaktivních (SelectBox)",
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Výběr rolí dostupných pro žádost (SelectBox)",

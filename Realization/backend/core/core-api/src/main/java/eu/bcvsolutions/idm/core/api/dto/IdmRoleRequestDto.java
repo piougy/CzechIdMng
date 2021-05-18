@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.validation.constraints.Size;
+
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -35,6 +38,7 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
     @Embedded(dtoClass = IdmRoleRequestDto.class)
     private UUID duplicatedToRequest;
     private String log;
+    @Size(max = DefaultFieldLengths.DESCRIPTION)
     private String description;
     private OperationResultDto systemState;
     private Set<IdmIdentityDto> approvers;

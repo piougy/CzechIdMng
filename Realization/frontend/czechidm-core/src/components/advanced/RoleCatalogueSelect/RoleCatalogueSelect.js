@@ -38,6 +38,13 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
         ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size')
         :
         null
+      ),
+      showRoleCatalogueCode: (
+        context && context.store
+        ?
+        ConfigurationManager.getPublicValueAsBoolean(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.code', false)
+        :
+        null
       )
     };
   }
@@ -261,7 +268,8 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
       selected,
       readOnly,
       treePaginationRootSize,
-      treePaginationNodeSize
+      treePaginationNodeSize,
+      showRoleCatalogueCode
     } = this.state;
     //
     if (!rendered) {
@@ -309,6 +317,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
               paginationRootSize={ treePaginationRootSize }
               paginationNodeSize={ treePaginationNodeSize }
+              nodeNiceLabel={ (node) => this.getManager().getNiceLabel(node, showRoleCatalogueCode) }
             />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>

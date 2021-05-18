@@ -2,9 +2,10 @@ import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
 /**
- * Role catalogue
+ * Role catalogue.
  *
  * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 class RoleCatalogueService extends AbstractService {
 
@@ -12,11 +13,19 @@ class RoleCatalogueService extends AbstractService {
     return '/role-catalogues';
   }
 
-  getNiceLabel(entity) {
+  /**
+   * Extended nice label.
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showCode code be rendered.
+   * @return {string} nicelabel
+   * @since 11.1.0
+   */
+  getNiceLabel(entity, showCode = true) {
     if (!entity) {
       return '';
     }
-    if (entity.name === entity.code) {
+    if (entity.name === entity.code || !showCode) {
       return entity.name;
     }
     return `${entity.name} (${entity.code})`;

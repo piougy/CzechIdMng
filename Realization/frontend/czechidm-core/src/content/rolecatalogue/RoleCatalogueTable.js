@@ -109,7 +109,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { treePaginationRootSize, treePaginationNodeSize } = this.props;
+    const { treePaginationRootSize, treePaginationNodeSize, showRoleCatalogueCode } = this.props;
     const { filterOpened } = this.state;
     const showTree = SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
     //
@@ -127,7 +127,8 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
             header={ this.i18n('header') }
             rendered={ showTree }
             paginationRootSize={ treePaginationRootSize }
-            paginationNodeSize={ treePaginationNodeSize }/>
+            paginationNodeSize={ treePaginationNodeSize }
+            nodeNiceLabel={ (node) => this.getManager().getNiceLabel(node, showRoleCatalogueCode) }/>
         </Basic.Col>
 
         <Basic.Col
@@ -247,7 +248,8 @@ function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     treePaginationRootSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size'),
-    treePaginationNodeSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size')
+    treePaginationNodeSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size'),
+    showRoleCatalogueCode: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.roleCatalogue.tree.code', false)
   };
 }
 

@@ -21,6 +21,18 @@ export default class RoleCatalogueManager extends EntityManager {
   }
 
   /**
+   * Extended nice label.
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showCode code be rendered.
+   * @return {string} nicelabel
+   * @since 11.1.0
+   */
+  getNiceLabel(entity, showCode = true) {
+    return this.getService().getNiceLabel(entity, showCode);
+  }
+
+  /**
    * Return search parameters for roots endpoint.
    * Search all roots for roleCatalogue
    */

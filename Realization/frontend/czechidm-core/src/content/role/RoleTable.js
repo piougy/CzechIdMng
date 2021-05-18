@@ -260,7 +260,8 @@ class RoleTable extends Advanced.AbstractTableContent {
       showBaseCode,
       prohibitedActions,
       treePaginationRootSize,
-      treePaginationNodeSize
+      treePaginationNodeSize,
+      showRoleCatalogueCode
     } = this.props;
     const { filterOpened, showLoading } = this.state;
     const _showTree = showCatalogue && SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
@@ -290,7 +291,8 @@ class RoleTable extends Advanced.AbstractTableContent {
             header={ this.i18n('content.roles.roleCataloguePick') }
             rendered={ _showTree }
             paginationRootSize={ treePaginationRootSize }
-            paginationNodeSize={ treePaginationNodeSize }/>
+            paginationNodeSize={ treePaginationNodeSize }
+            nodeNiceLabel={ (node) => this.roleCatalogueManager.getNiceLabel(node, showRoleCatalogueCode) }/>
         </Basic.Col>
 
         <Basic.Col
@@ -487,6 +489,7 @@ function select(state, component) {
     showBaseCode: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.role.baseCode', true),
     treePaginationRootSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size'),
     treePaginationNodeSize: ConfigurationManager.getValue(state, 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size'),
+    showRoleCatalogueCode: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.roleCatalogue.tree.code', false),
     columns: component.columns || ConfigurationManager.getPublicValueAsArray(
       state,
       'idm.pub.app.show.role.table.columns',

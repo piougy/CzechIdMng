@@ -67,11 +67,12 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId, identityId, controlledBySlices } = this.props.match.params;
+    const { entityId, identityId } = this.props.match.params;
     const { entity, _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new SearchParameters().setFilter('identityContractId', entityId);
     const endedContract = entity && !Utils.Entity.isValid(entity) && !Utils.Entity.isValidInFuture(entity);
+    const controlledBySlices = entity && entity.controlledBySlices != null ? entity.controlledBySlices : false;
     //
     return (
       <Basic.Div>
@@ -95,7 +96,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                 uiKey={ uiKey }
                 manager={ manager }
                 forceSearchParameters={ forceSearchParameters }
-                showRowSelection={ SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_DELETE']) }
+                showRowSelection={ !controlledBySlices && SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_DELETE']) }
                 rowClass={({rowIndex, data}) => { return endedContract ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]._embedded.guarantee); }}
                 className="no-margin"
                 actions={

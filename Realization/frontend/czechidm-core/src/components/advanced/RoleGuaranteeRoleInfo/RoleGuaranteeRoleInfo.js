@@ -1,15 +1,19 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import {RoleGuaranteeRoleManager, SecurityManager} from '../../../redux';
+import * as Basic from '../../basic';
+import { RoleGuaranteeRoleManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new RoleGuaranteeRoleManager();
 
 /**
- * Role guarantee by role - basic information (info card)
+ * Role guarantee by role - basic information (info card).
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
 export class RoleGuaranteeRoleInfo extends AbstractEntityInfo {
 
@@ -35,7 +39,7 @@ export class RoleGuaranteeRoleInfo extends AbstractEntityInfo {
   getLink() {
     const entity = this.getEntity();
 
-    return `/role/${encodeURIComponent(entity.role)}/guarantees`;
+    return `/role/${ encodeURIComponent(entity.role) }/guarantees`;
   }
 
   /**
@@ -47,24 +51,30 @@ export class RoleGuaranteeRoleInfo extends AbstractEntityInfo {
     return this.i18n('entity.RoleGuaranteeRole._type');
   }
 
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
+  }
+
   /**
    * Returns popover info content
    *
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    if (!entity._embedded || !entity._embedded.guaranteeRole) {
-      return [
-        {
-          label: this.i18n('entity.RoleGuaranteeRole.guaranteeRole.label'),
-          value: entity.guaranteeRole
-        }
-      ];
-    }
     return [
       {
         label: this.i18n('entity.RoleGuaranteeRole.guaranteeRole.label'),
-        value: entity._embedded.guaranteeRole.name
+        value: (
+          <EntityInfo
+            entityType="role"
+            entity={ entity._embedded ? entity._embedded.guaranteeRole : null }
+            entityIdentifier={ entity.guaranteeRole }
+            face="popover" />
+        )
       }
     ];
   }

@@ -1,15 +1,19 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import {RoleFormAttributeManager, SecurityManager} from '../../../redux';
+import * as Basic from '../../basic';
+import { RoleFormAttributeManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new RoleFormAttributeManager();
 
 /**
- * Role catalogue - relation from a role - basic information (info card)
+ * Role catalogue - relation from a role - basic information (info card).
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
 export class RoleFormAttributeInfo extends AbstractEntityInfo {
 
@@ -34,35 +38,43 @@ export class RoleFormAttributeInfo extends AbstractEntityInfo {
    */
   getLink() {
     const entity = this.getEntity();
-    return `/role/${encodeURIComponent(entity.superior)}/form-attributes`;
+    return `/role/${ encodeURIComponent(entity.superior) }/form-attributes`;
+  }
+
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
   }
 
   /**
-   * Returns popover info content
+   * Returns popover info content.
    *
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    if (!entity._embedded || !entity._embedded.formAttribute || !entity._embedded.role) {
-      return [
-        {
-          label: this.i18n('entity.RoleGuarantee.role.label'),
-          value: entity.role
-        },
-        {
-          label: this.i18n('entity.RoleFormAttribute.formAttribute.label'),
-          value: entity.formAttribute
-        }
-      ];
-    }
     return [
       {
         label: this.i18n('entity.RoleGuarantee.role.label'),
-        value: entity._embedded.role.name
+        value: (
+          <EntityInfo
+            entityType="role"
+            entity={ entity._embedded ? entity._embedded.role : null }
+            entityIdentifier={ entity.role }
+            face="popover" />
+        )
       },
       {
         label: this.i18n('entity.RoleFormAttribute.formAttribute.label'),
-        value: entity._embedded.formAttribute.name
+        value: (
+          entity._embedded && entity._embedded.formAttribute
+          ?
+          entity._embedded.formAttribute.name
+          :
+          entity.formAttribute
+        )
       }
     ];
   }

@@ -345,7 +345,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                         showLink={ false }
                         showEntityType={ false }
                         showIcon
-                        className="deleted"/>
+                        deleted/>
                     );
                   }
                   return (

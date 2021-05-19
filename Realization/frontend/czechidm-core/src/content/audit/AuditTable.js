@@ -192,7 +192,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
    * @param entityId id of revision
    */
   showDetail(entityId) {
-    this.context.history.push(`/audit/entities/${entityId}/diff/`);
+    this.context.history.push(`/audit/entities/${ entityId }/diff/`);
   }
 
   _getForceSearchParameters() {
@@ -213,11 +213,11 @@ export class AuditTable extends Advanced.AbstractTableContent {
       <Basic.Div>
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
+          uiKey={ uiKey }
           filterOpened
-          manager={auditManager}
+          manager={ auditManager }
           forceSearchParameters={ this._getForceSearchParameters() }
-          rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+          rowClass={ ({ rowIndex, data }) => { return Utils.Ui.getRowClass(data[rowIndex]); } }
           className={ className }
           showId
           filter={ this._getAdvancedFilter(auditedEntities, columns) }
@@ -237,7 +237,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
             sort={false}/>
           <Advanced.Column
             property="type"
-            rendered={_.includes(columns, 'type')}
+            rendered={ _.includes(columns, 'type') }
             width={ 200 }
             cell={
               ({ rowIndex, data, property }) => {
@@ -246,29 +246,44 @@ export class AuditTable extends Advanced.AbstractTableContent {
                     { this._getType(data[rowIndex][property]) }
                   </span>
                 );
-              }}/>
+              }
+            }/>
           <Advanced.Column
             property="entityId"
             header={ this.i18n('entity.Audit.entity') }
-            rendered={_.includes(columns, 'entityId')}
+            rendered={ _.includes(columns, 'entityId') }
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data, property }) => {
                 const value = data[rowIndex][property];
                 //
-                if (!data[rowIndex]._embedded || !data[rowIndex]._embedded[property]) {
+                if (data[rowIndex]._embedded && data[rowIndex]._embedded[property]) {
                   return (
-                    <Advanced.UuidInfo value={ value } />
+                    <Advanced.EntityInfo
+                      entityType={ this._getType(data[rowIndex].type) }
+                      entityIdentifier={ value }
+                      entity={ data[rowIndex]._embedded[property] }
+                      face="popover"
+                      showEntityType={ false }
+                      showIcon/>
                   );
                 }
+                if (data[rowIndex].revisionValues) {
+                  return (
+                    <Advanced.EntityInfo
+                      entityType={ this._getType(data[rowIndex].type) }
+                      entityIdentifier={ value }
+                      entity={ data[rowIndex].revisionValues }
+                      face="popover"
+                      showLink={ false }
+                      showEntityType={ false }
+                      showIcon
+                      deleted/>
+                  );
+                }
+                //
                 return (
-                  <Advanced.EntityInfo
-                    entityType={ this._getType(data[rowIndex].type) }
-                    entityIdentifier={ value }
-                    entity={ data[rowIndex]._embedded[property] }
-                    face="popover"
-                    showEntityType={ false }
-                    showIcon/>
+                  <Advanced.UuidInfo value={ value } />
                 );
               }
             }/>
@@ -284,7 +299,8 @@ export class AuditTable extends Advanced.AbstractTableContent {
                     level={ AuditModificationEnum.getLevel(data[rowIndex][property]) }
                     text={ AuditModificationEnum.getNiceLabel(data[rowIndex][property]) }/>
                 );
-              }}/>
+              }
+            }/>
           <Advanced.Column property="modifier" sort face="text" rendered={_.includes(columns, 'modifier')}/>
           <Advanced.Column
             property="timestamp"

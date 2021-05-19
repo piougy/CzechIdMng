@@ -27,7 +27,7 @@ export default class CodeListService extends AbstractService {
     if (!code) {
       return entity.name;
     }
-    return `${entity.name} (${code})`;
+    return `${ entity.name } (${ code })`;
   }
 
   supportsAuthorization() {

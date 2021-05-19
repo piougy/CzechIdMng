@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -36,6 +37,7 @@ public class IdmAuditControllerRestTest extends AbstractRestTest {
 
 	// @Autowired private IdmAuditController controller;
 	@Autowired private IdmAuditService service;
+	@Autowired private IdmIdentityService identityService;
 
 	protected IdmAuditDto prepareDto() {
 		return new IdmAuditDto();
@@ -87,10 +89,30 @@ public class IdmAuditControllerRestTest extends AbstractRestTest {
 //		Assert.assertEquals(identity.getId().toString(), audit.getOwnerId());
 		// ugly workaround:
 		Assert.assertTrue(response.contains(identity.getId().toString()));
-		
+		// username => entity Id is set
+		Assert.assertTrue(response.contains(identity.getUsername()));
+		//
+		// delete identity - check revision values is set
+		identityService.delete(identity);
+		Assert.assertNull(identityService.get(identity));
+		//
+		filter = new LinkedMultiValueMap<>();
+		filter.set("type", IdmIdentity.class.getCanonicalName());
+		filter.set("entityId", identity.getId().toString());
+		response = getMockMvc().perform(get(BaseController.BASE_PATH + "/audits/search/quick")
+        		.with(authentication(getAdminAuthentication()))
+        		.params(filter)
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		// ugly workaround:
+		Assert.assertTrue(response.contains(identity.getId().toString()));
+		// username => entity Id is set
+		Assert.assertTrue(response.contains(identity.getUsername()));
 	}
-	
-	// get previous version
 	
 	/**
 	 * Find audit entities

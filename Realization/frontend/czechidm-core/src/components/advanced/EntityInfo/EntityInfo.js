@@ -95,7 +95,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
           showIcon={ showIcon }
           style={ style }
           manager={ manager }
-          {...other}/>
+          { ...other }/>
       );
     }
     //

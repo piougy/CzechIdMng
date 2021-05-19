@@ -244,7 +244,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     const _entity = entity || this.getEntity();
     //
     let value = this.getManager().getNiceLabel(_entity);
-    if (value.length > 60) {
+    if (value && value.length > 60) {
       value = `${ Utils.Ui.substringBegin(value, 60, '', '...') }`;
     }
 
@@ -263,7 +263,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * @return {[type]} [description]
    */
   _renderIcon(entity) {
-    const { showIcon } = this.props;
+    const { showIcon, deleted } = this.props;
     if (!showIcon) {
       return '';
     }
@@ -273,7 +273,8 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         <Basic.Icon
           value={ this.getEntityIcon(_entity) }
           title={ this.getPopoverTitle(_entity) }
-          style={{ marginRight: 5 }}/>
+          style={{ marginRight: 5 }}
+          className={ classNames({ deleted }) }/>
       </span>
     );
   }
@@ -322,11 +323,17 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Renders nicelabel used in text and link face
    */
   _renderNiceLabel(entity) {
-    const { className, style } = this.props;
+    const { className, style, deleted } = this.props;
     const _entity = entity || this.getEntity();
+    let niceLabel = this.getNiceLabel(_entity);
+    //
+    // same length as uuid decorator
+    if (niceLabel === _entity.id) {
+      niceLabel = Utils.Ui.substringBegin(niceLabel, 7, '', '');
+    }
     //
     return (
-      <span className={ className } style={ style }>{ this.getNiceLabel(_entity) }</span>
+      <span className={ classNames({ deleted }, className) } style={ style }>{ niceLabel }</span>
     );
   }
 
@@ -404,7 +411,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Renders full info card - its used ass popover content too
    */
   _renderFull(entity) {
-    const { className, style, level, titleStyle } = this.props;
+    const { className, style, level, titleStyle, deleted } = this.props;
     const { showAuditableInfo, expandInfo } = this.state;
     const _entity = entity || this.getEntity();
     //
@@ -413,6 +420,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       { 'panel-success': level === 'success' || (_entity && !this.isDisabled(_entity)) },
       { 'panel-warning': level === 'warning' || (_entity && this.isDisabled(_entity)) },
       { 'panel-info': level === 'info' },
+      { deleted },
       className
     );
     let _titleStyle = _.clone(titleStyle, true);
@@ -472,7 +480,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, className, entity, face, _showLoading, style } = this.props;
+    const { rendered, showLoading, className, entity, face, _showLoading, style, deleted } = this.props;
     //
     if (!rendered) {
       return null;
@@ -489,12 +497,12 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         case 'link':
         case 'popover': {
           return (
-            <Basic.Icon value="refresh" showLoading className={ className } style={ style } title={ entityId }/>
+            <Basic.Icon value="refresh" showLoading className={ classNames({ deleted }, className) } style={ style } title={ entityId }/>
           );
         }
         default: {
           return (
-            <Basic.Well showLoading className={ classNames('abstract-entity-info', className) } style={ style }/>
+            <Basic.Well showLoading className={ classNames('abstract-entity-info', { deleted }, className) } style={ style }/>
           );
         }
       }
@@ -504,7 +512,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         return null;
       }
       return (
-        <UuidInfo className={ className } value={ this.getEntityId() } style={ style } />
+        <UuidInfo className={ classNames({ deleted }, className) } value={ this.getEntityId() } style={ style } />
       );
     }
     //

@@ -1,15 +1,19 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import {RoleGuaranteeManager, SecurityManager} from '../../../redux';
+import * as Basic from '../../basic';
+import { RoleGuaranteeManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new RoleGuaranteeManager();
 
 /**
- * Role guarantee by identity - basic information (info card)
+ * Role guarantee by identity - basic information (info card).
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
 export class RoleGuaranteeInfo extends AbstractEntityInfo {
 
@@ -35,7 +39,7 @@ export class RoleGuaranteeInfo extends AbstractEntityInfo {
   getLink() {
     const entity = this.getEntity();
 
-    return `/role/${encodeURIComponent(entity.role)}/guarantees`;
+    return `/role/${ encodeURIComponent(entity.role) }/guarantees`;
   }
 
   /**
@@ -47,24 +51,30 @@ export class RoleGuaranteeInfo extends AbstractEntityInfo {
     return this.i18n('entity.RoleGuarantee._type');
   }
 
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
+  }
+
   /**
    * Returns popover info content
    *
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    if (!entity._embedded || !entity._embedded.guarantee) {
-      return [
-        {
-          label: this.i18n('entity.RoleGuarantee.guarantee.label'),
-          value: entity.guarantee
-        }
-      ];
-    }
     return [
       {
         label: this.i18n('entity.RoleGuarantee.guarantee.label'),
-        value: entity._embedded.guarantee.username
+        value: (
+          <EntityInfo
+            entityType="identity"
+            entity={ entity._embedded ? entity._embedded.guarantee : null }
+            entityIdentifier={ entity.guarantee }
+            face="popover" />
+        )
       }
     ];
   }

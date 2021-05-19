@@ -33,9 +33,13 @@ export default class DelegationDefinitionManager extends EntityManager {
     return 'delegationDefinitions';
   }
 
+  // FIXME: service nice label is ignored completely (implementation should be there)
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded || !entity._embedded.delegator) {
+    if (!entity) {
       return null;
+    }
+    if (!entity._embedded || !entity._embedded.delegator) {
+      return entity.id;
     }
     return `${this._getIdentityName(entity._embedded.delegator)} > ${this._getIdentityName(entity._embedded.delegate)}`;
   }

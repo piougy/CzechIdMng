@@ -1,8 +1,11 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import {IncompatibleRoleManager, SecurityManager} from '../../../redux';
+import * as Basic from '../../basic';
+import { IncompatibleRoleManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new IncompatibleRoleManager();
 
@@ -10,6 +13,7 @@ const manager = new IncompatibleRoleManager();
  * Incompatible role basic information (info card)
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
 export class IncompatibleRoleInfo extends AbstractEntityInfo {
 
@@ -34,7 +38,15 @@ export class IncompatibleRoleInfo extends AbstractEntityInfo {
    */
   getLink() {
     const entity = this.getEntity();
-    return `/role/${encodeURIComponent(entity.superior)}/incompatible-roles`;
+    return `/role/${ encodeURIComponent(entity.superior) }/incompatible-roles`;
+  }
+
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
   }
 
   /**
@@ -43,26 +55,28 @@ export class IncompatibleRoleInfo extends AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    if (!entity._embedded || !entity._embedded.sub || !entity._embedded.superior) {
-      return [
-        {
-          label: this.i18n('entity.IncompatibleRole.superior.label'),
-          value: entity.superior
-        },
-        {
-          label: this.i18n('entity.IncompatibleRole.sub.label'),
-          value: entity.sub
-        }
-      ];
-    }
     return [
       {
         label: this.i18n('entity.IncompatibleRole.superior.label'),
-        value: entity._embedded.superior.name
+        value: (
+          <EntityInfo
+            entityType="role"
+            entity={ entity._embedded ? entity._embedded.superior : null }
+            entityIdentifier={ entity.superior }
+            showIcon
+            face="popover" />
+        )
       },
       {
         label: this.i18n('entity.IncompatibleRole.sub.label'),
-        value: entity._embedded.sub.name
+        value: (
+          <EntityInfo
+            entityType="role"
+            entity={ entity._embedded ? entity._embedded.sub : null }
+            entityIdentifier={ entity.sub }
+            showIcon
+            face="popover" />
+        )
       }
     ];
   }

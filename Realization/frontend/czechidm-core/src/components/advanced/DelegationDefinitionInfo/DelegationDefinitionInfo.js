@@ -2,17 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import {DelegationDefinitionManager, IdentityManager} from '../../../redux';
-import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import * as Basic from '../../basic';
+import { DelegationDefinitionManager, IdentityManager } from '../../../redux';
+import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new DelegationDefinitionManager();
 const identityManager = new IdentityManager();
 
 /**
- * Delegation definition - info card
+ * Delegation definition - info card.
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
 export class DelegationDefinitionInfo extends AbstractEntityInfo {
 
@@ -30,7 +32,7 @@ export class DelegationDefinitionInfo extends AbstractEntityInfo {
   _renderNiceLabel(_entity) {
     const entity = _entity || this.getEntity();
     if (!entity || !entity._embedded || !entity._embedded.delegator) {
-      return null;
+      return super._renderNiceLabel(entity);
     }
     const delegator = this._getIdentityName(entity._embedded.delegator);
     const delegate = this._getIdentityName(entity._embedded.delegate);
@@ -58,7 +60,6 @@ export class DelegationDefinitionInfo extends AbstractEntityInfo {
     return identityManager.getNiceLabel(identity);
   }
 
-
   /**
    * Get link to detail (`url`).
    *
@@ -66,6 +67,14 @@ export class DelegationDefinitionInfo extends AbstractEntityInfo {
    */
   getLink() {
     return `/delegation-definitions/${encodeURIComponent(this.getEntityId())}/detail`;
+  }
+
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
   }
 
   /**
@@ -77,11 +86,23 @@ export class DelegationDefinitionInfo extends AbstractEntityInfo {
     return [
       {
         label: this.i18n('entity.DelegationDefinition.delegator.label'),
-        value: identityManager.getNiceLabel(entity._embedded.delegator)
+        value: (
+          <EntityInfo
+            entityType="identity"
+            entity={ entity._embedded ? entity._embedded.delegator : null }
+            entityIdentifier={ entity.delegator }
+            face="link" />
+        )
       },
       {
         label: this.i18n('entity.DelegationDefinition.delegate.label'),
-        value: identityManager.getNiceLabel(entity._embedded.delegate)
+        value: (
+          <EntityInfo
+            entityType="identity"
+            entity={ entity._embedded ? entity._embedded.delegate : null }
+            entityIdentifier={ entity.delegate }
+            face="link" />
+        )
       },
       {
         label: this.i18n('entity.DelegationDefinition.type.label'),

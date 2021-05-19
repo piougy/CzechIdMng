@@ -26,7 +26,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author Ondrej Kopr
  * 
  */
-
 public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAuditFilter> {
 
 	/**
@@ -97,15 +96,29 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAud
 	<T> T findVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
 	
 	/**
-	 * Return last revision number id.
+	 * Return last revision number id of (persisted) entity version.
 	 * NOTE: this method works with commited transaction, not commited entity will be not found!!
-	 * Otherwise use getCurrentRevision from envers with persist parameter to found entity in transaction
+	 * Otherwise use getCurrentRevision from envers with persist parameter to found entity in transaction.
+	 * E.g. when entity was already deleted, when last version its the delete operation.
 	 * 
 	 * @param entityClass
 	 * @param entityId
 	 * @return
+	 * @see #findLastPersistedVersion(Class, UUID)
 	 */
 	<T> Number findLastRevisionNumber(Class<T> entityClass, UUID entityId);
+	
+	/**
+	 * Return last known (persisted) entity version.
+	 * E.g. when entity was already deleted, when last version its the last update / create.
+	 * 
+	 * @param <T>
+	 * @param entityClass
+	 * @param entityId
+	 * @return last known entity version
+	 * @since 11.1.0
+	 */
+	<T> T findLastPersistedVersion(Class<T> entityClass, UUID entityId);
 	
 	/**
 	 * Method return list of class simple name for which is audited. Must at least one attribute with

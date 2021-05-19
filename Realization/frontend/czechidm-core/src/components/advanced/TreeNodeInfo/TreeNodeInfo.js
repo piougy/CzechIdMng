@@ -8,19 +8,14 @@ import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new TreeNodeManager();
 
-
 /**
- * Component for rendering nice identifier for tree node info, similar function as roleInfo
+ * Component for rendering nice identifier for tree node info, similar function as roleInfo.
  *
  * @author Radek Tomiška (main component)
  * @author Ondrej Kopr
  * @author Patrik Stloukal
  */
 export class TreeNodeInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   _onEnter() {
     super._onEnter();
@@ -36,7 +31,7 @@ export class TreeNodeInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ']})) {
+    if (!SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ']})) {
       return false;
     }
     return true;
@@ -50,7 +45,7 @@ export class TreeNodeInfo extends AbstractEntityInfo {
   getLink() {
     const { entityIdentifier } = this.props;
     //
-    return `/tree/nodes/${entityIdentifier}/detail`;
+    return `/tree/nodes/${ entityIdentifier }/detail`;
   }
 
   /**
@@ -93,18 +88,26 @@ export class TreeNodeInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.TreeNode.parent.name'),
-        value: entity.parent === null ? this.i18n('entity.TreeNode.parent.false') :
-        <EntityInfo entityType="treeNode" entity={ entity._embedded ? entity._embedded.parent : null } entityIdentifier={ entity.parent } face="link" />
+        value:
+          entity.parent === null
+          ?
+          this.i18n('entity.TreeNode.parent.false')
+          :
+          <EntityInfo
+            entityType="treeNode"
+            entity={ entity._embedded ? entity._embedded.parent : null }
+            entityIdentifier={ entity.parent }
+            face="link" />
       },
       {
         label: this.i18n('entity.TreeNode.treeType.name'),
-        value: !entity._embedded
-        ||
-        <EntityInfo
-          entityType="treeType"
-          entity={ entity._embedded.treeType }
-          entityIdentifier={ entity._embedded.treeType.id }
-          face="popover" />
+        value: (
+          <EntityInfo
+            entityType="treeType"
+            entity={ entity._embedded ? entity._embedded.treeType : null }
+            entityIdentifier={ entity.treeType }
+            face="popover" />
+        )
       },
       {
         label: this.i18n('entity.TreeNode.defaultTreeNode.label'),

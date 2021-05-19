@@ -18,7 +18,7 @@ export default class NotificationService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.topic} - ${entity.notificationType}`;
+    return `${ entity.topic } - ${ entity.notificationType }`;
   }
 
   /**

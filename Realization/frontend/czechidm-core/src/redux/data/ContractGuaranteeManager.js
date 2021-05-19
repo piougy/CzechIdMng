@@ -2,7 +2,7 @@ import EntityManager from './EntityManager';
 import { ContractGuaranteeService } from '../../services';
 
 /**
- * Identity's contract guarantee - manually defined  managers (if no tree structure is defined etc.)
+ * Identity's contract guarantee - manually defined  managers (if no tree structure is defined etc.).
  *
  * @author Radek Tomiška
  */

@@ -40,7 +40,10 @@ export default class IdentityRoleService extends FormableEntityService {
       return entity.id;
     }
     let niceLabel = null;
-    if (showIdentity && entity._embedded.identityContract && entity._embedded.identityContract._embedded && entity._embedded.identityContract._embedded.identity) {
+    if (showIdentity
+        && entity._embedded.identityContract
+        && entity._embedded.identityContract._embedded
+        && entity._embedded.identityContract._embedded.identity) {
       niceLabel = this.identityService.getNiceLabel(entity._embedded.identityContract._embedded.identity);
     }
     if (entity._embedded.role) {

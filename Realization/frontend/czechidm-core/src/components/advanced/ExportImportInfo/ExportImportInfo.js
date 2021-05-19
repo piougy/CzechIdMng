@@ -1,7 +1,9 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import {ExportImportManager, SecurityManager} from '../../../redux';
+import * as Basic from '../../basic';
+import { ExportImportManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
 import ExportImportTypeEnum from '../../../enums/ExportImportTypeEnum';
@@ -9,7 +11,7 @@ import ExportImportTypeEnum from '../../../enums/ExportImportTypeEnum';
 const manager = new ExportImportManager();
 
 /**
- * Export/Import info card
+ * Export/Import info card.
  *
  * @author Vít Švanda
  */
@@ -39,6 +41,14 @@ export class ExportImportInfo extends AbstractEntityInfo {
     return `/export-imports/${encodeURIComponent(entity.id)}`;
   }
 
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
+  }
+
   /**
    * Returns popover info content
    *
@@ -61,11 +71,12 @@ export class ExportImportInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.ExportImport.executorName.label'),
-        value: entity._embedded.longRunningTask
+        value: entity._embedded
+          && entity._embedded.longRunningTask
           && entity._embedded.longRunningTask.taskProperties
           && entity._embedded.longRunningTask.taskProperties['core:bulkAction']
             ? this.i18n(`${entity._embedded.longRunningTask.taskProperties['core:bulkAction'].module}:eav.bulk-action.${entity.executorName}.title`)
-            : null
+            : entity.executorName
       }
     ];
   }

@@ -116,8 +116,7 @@ export class ContractGuaranteeInfo extends AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    const content = [];
-    content.push(
+    return [
       {
         label: this.i18n('entity.Identity._type'),
         value: !entity._embedded || !entity._embedded.identityContract || !entity._embedded.identityContract._embedded ||
@@ -129,34 +128,26 @@ export class ContractGuaranteeInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.IdentityContract._type'),
-        value: !entity._embedded || !entity._embedded.identityContract ||
+        value: (
           <EntityInfo
             entityType="identityContract"
-            entity={ entity._embedded.identityContract }
+            entity={ entity._embedded ? entity._embedded.identityContract : null }
             entityIdentifier={ entity.identityContract }
-            showIdentity={ false }
+            showIdentity={ !entity._embedded }
             face="link" />
-      }
-    );
-    //
-    content.push(
+        )
+      },
       {
         label: this.i18n('entity.ContractGuarantee.guarantee.label'),
         value: (
-          !entity._embedded
-          ||
-          !entity._embedded.guarantee
-          ||
           <EntityInfo
             entityType="identity"
-            entity={ entity._embedded.guarantee }
+            entity={ entity._embedded ? entity._embedded.guarantee : null }
             entityIdentifier={ entity.guarantee }
             face="link" />
         )
       }
-    );
-    //
-    return content;
+    ];
   }
 }
 

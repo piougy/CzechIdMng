@@ -124,13 +124,14 @@ export class IdentityRoleInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.IdentityContract._type'),
-        value: !entity._embedded || !entity._embedded.identityContract ||
+        value: (
           <EntityInfo
             entityType="identityContract"
-            entity={ entity._embedded.identityContract }
+            entity={ entity._embedded ? entity._embedded.identityContract : null }
             entityIdentifier={ entity.identityContract }
-            showIdentity={ false }
+            showIdentity={ !entity._embedded }
             face="link" />
+        )
       }
     );
     //
@@ -138,13 +139,9 @@ export class IdentityRoleInfo extends AbstractEntityInfo {
       {
         label: this.i18n('entity.Role._type'),
         value: (
-          !entity._embedded
-          ||
-          !entity._embedded.role
-          ||
           <EntityInfo
             entityType="role"
-            entity={ entity._embedded.role }
+            entity={ entity._embedded ? entity._embedded.role : null }
             entityIdentifier={ entity.role }
             face="link" />
         )

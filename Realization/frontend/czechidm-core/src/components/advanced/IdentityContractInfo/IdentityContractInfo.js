@@ -11,9 +11,8 @@ import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new IdentityContractManager();
 
-
 /**
- * Component for rendering nice identifier for identity contracts, similar function as roleInfo
+ * Component for rendering nice identifier for identity contracts, similar function as roleInfo.
  *
  * @author Ondrej Kopr
  * @author Radek Tomiška
@@ -103,12 +102,13 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     return [
       {
         label: this.i18n('entity.Identity._type'),
-        value: !entity._embedded ||
+        value: (
           <EntityInfo
             entityType="identity"
-            entity={ entity._embedded.identity }
+            entity={ entity._embedded ? entity._embedded.identity : null }
             entityIdentifier={ entity.identity }
             face="link" />
+        )
       },
       {
         label: this.i18n('entity.IdentityContract.position'),
@@ -116,12 +116,13 @@ export class IdentityContractInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.IdentityContract.workPosition'),
-        value: !entity._embedded || !entity._embedded.workPosition ||
+        value: (
           <EntityInfo
             entityType="treeNode"
-            entity={ entity._embedded.workPosition }
-            entityIdentifier={ entity._embedded.workPosition.id }
+            entity={ entity._embedded ? entity._embedded.workPosition : null }
+            entityIdentifier={ entity.workPosition }
             face="link" />
+        )
       },
       {
         label: this.i18n('entity.TreeType._type'),

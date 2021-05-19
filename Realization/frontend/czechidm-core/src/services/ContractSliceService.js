@@ -49,7 +49,7 @@ class ContractSliceService extends FormableEntityService {
       return '';
     }
     if (!entity._embedded) {
-      return entity.position;
+      return entity.position || entity.id;
     }
     let niceLabel = null;
     if (showIdentity && entity._embedded.identity) {

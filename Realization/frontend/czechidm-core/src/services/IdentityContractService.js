@@ -53,7 +53,7 @@ class IdentityContractService extends FormableEntityService {
       return '';
     }
     if (!entity._embedded) {
-      return entity.position;
+      return entity.position || entity.id;
     }
     let niceLabel = null;
     if (showIdentity && entity._embedded.identity) {
@@ -67,9 +67,15 @@ class IdentityContractService extends FormableEntityService {
     if (positionLabel === null) {
       positionLabel = position; // TODO: locale or make at least one of position / tree node required!
     } else {
-      positionLabel = `${positionLabel}, ${position}`;
+      positionLabel = `${ positionLabel }, ${ position }`;
     }
-    return niceLabel ? `${niceLabel}, ${positionLabel}` : positionLabel;
+    niceLabel = niceLabel ? `${ niceLabel }, ${ positionLabel }` : positionLabel;
+    if (niceLabel) {
+      return niceLabel;
+    }
+    //
+    // ~ deleted
+    return entity.id;
   }
 
   /**

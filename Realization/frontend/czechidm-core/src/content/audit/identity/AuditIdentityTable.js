@@ -179,7 +179,8 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
                     { this._getType(data[rowIndex][property]) }
                   </span>
                 );
-              }}/>
+              }
+            }/>
           <Advanced.Column
             property="entityId"
             header={ this.i18n('entity.Audit.entity') }
@@ -188,19 +189,33 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data, property }) => {
                 const value = data[rowIndex][property];
                 //
-                if (!data[rowIndex]._embedded || !data[rowIndex]._embedded[property]) {
+                if (data[rowIndex]._embedded && data[rowIndex]._embedded[property]) {
                   return (
-                    <Advanced.UuidInfo value={ value } />
+                    <Advanced.EntityInfo
+                      entityType={ this._getType(data[rowIndex].type) }
+                      entityIdentifier={ value }
+                      face="popover"
+                      entity={ data[rowIndex]._embedded[property] }
+                      showEntityType={ false }
+                      showIcon/>
                   );
                 }
+                if (data[rowIndex].revisionValues) {
+                  return (
+                    <Advanced.EntityInfo
+                      entityType={ this._getType(data[rowIndex].type) }
+                      entityIdentifier={ value }
+                      entity={ data[rowIndex].revisionValues }
+                      face="popover"
+                      showLink={ false }
+                      showEntityType={ false }
+                      showIcon
+                      deleted/>
+                  );
+                }
+                //
                 return (
-                  <Advanced.EntityInfo
-                    entityType={ this._getType(data[rowIndex].type) }
-                    entityIdentifier={ value }
-                    face="popover"
-                    entity={ data[rowIndex]._embedded[property] }
-                    showEntityType={ false }
-                    showIcon/>
+                  <Advanced.UuidInfo value={ value } />
                 );
               }
             }/>
@@ -211,7 +226,8 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
             cell={
               ({ rowIndex, data }) => {
                 return this._getNiceLabelForOwner(data[rowIndex].ownerType, data[rowIndex].ownerCode);
-              }}
+              }
+            }
           />
           <Advanced.Column
             property="subOwnerCode"
@@ -219,7 +235,8 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
             cell={
               ({ rowIndex, data }) => {
                 return this._getNiceLabelForOwner(data[rowIndex].subOwnerType, data[rowIndex].subOwnerCode);
-              }}
+              }
+            }
           />
           <Advanced.Column
             property="modification"
@@ -232,7 +249,8 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
                     level={AuditModificationEnum.getLevel(data[rowIndex][property])}
                     text={AuditModificationEnum.getNiceLabel(data[rowIndex][property])}/>
                 );
-              }}/>
+              }
+            }/>
           <Advanced.Column property="modifier" sort face="text"/>
           <Advanced.Column property="timestamp" header={this.i18n('entity.Audit.revisionDate')} sort face="datetime"/>
           <Advanced.Column

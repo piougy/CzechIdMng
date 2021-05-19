@@ -2,12 +2,12 @@ import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
 /**
- * @author Ondřej Kopr
+ * Password metadata.
  *
+ * @author Ondřej Kopr
  * @since 9.6.0
  */
 export default class PasswordService extends AbstractService {
-
 
   getApiPath() {
     return '/passwords';

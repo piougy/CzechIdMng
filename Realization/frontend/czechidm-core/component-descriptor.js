@@ -675,7 +675,9 @@ module.exports = {
     {
       id: 'delegation-definition-info',
       type: 'entity-info',
-      entityType: ['delegationDefinition', 'DelegationDefinition', 'DelegationDefinitionDto'],
+      entityType: [
+        'delegationDefinition', 'DelegationDefinition', 'IdmDelegationDefinition', 'DelegationDefinitionDto', 'IdmDelegationDefinitionDto'
+      ],
       component: require('./src/components/advanced/DelegationDefinitionInfo/DelegationDefinitionInfo').default,
       manager: require('./src/redux').DelegationDefinitionManager
     },

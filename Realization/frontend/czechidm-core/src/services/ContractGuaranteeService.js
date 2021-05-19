@@ -22,13 +22,16 @@ export default class ContractGuaranteeService extends AbstractService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded) {
+    if (!entity) {
       return '';
     }
     if (!entity._embedded) {
-      return `${entity.id}`;
+      return `${ entity.id }`;
     }
-    return `${ this.identityContractService.getNiceLabel(entity._embedded.identityContract) } - ${ this.identityService.getNiceLabel(entity._embedded.guarantee) }`;
+    const contractNiceLabel = this.identityContractService.getNiceLabel(entity._embedded.identityContract);
+    const guaranteeNiceLabel = this.identityService.getNiceLabel(entity._embedded.guarantee);
+    //
+    return `${ contractNiceLabel } - ${ guaranteeNiceLabel }`;
   }
 
   supportsPatch() {

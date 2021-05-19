@@ -347,12 +347,53 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public <T> Number findLastRevisionNumber(Class<T> entityClass, UUID entityId) {
-		return (Number) this.getAuditReader().createQuery()
-			    .forRevisionsOfEntity(entityClass, false, true)
-			    .add(AuditEntity.revisionNumber().maximize().computeAggregationInInstanceContext())
+		Object[] auditWrapper = findLastVersionWrapper(entityClass, entityId, true);
+		if (auditWrapper == null) {
+			return null;
+		}
+		//
+		IdmAudit auditDto = (IdmAudit) auditWrapper[1];
+		//
+		return (Long) auditDto.getId();
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	public <T> T findLastPersistedVersion(Class<T> entityClass, UUID entityId) {
+		Object[] auditWrapper = findLastVersionWrapper(entityClass, entityId, false);
+		if (auditWrapper == null) {
+			return null;
+		}
+		//
+		return (T) auditWrapper[0];
+	}
+	
+	/**
+	 * Find last persisted version with revision information.
+	 * E.g. when entity was already deleted, when last version its the last update / create.
+	 * 
+	 * @param entityClass entity type
+	 * @param entityId entity identifier
+	 * @param selectDeletedEntities If true, also revisions where entities were deleted will be returned. The additional entities will have revision type "delete", and contain no data (all fields null), except for the id field.
+	 * @since 11.1.0
+	 */
+	@SuppressWarnings("rawtypes")
+	private Object[] findLastVersionWrapper(Class<?> entityClass, UUID entityId, boolean selectDeletedEntities) {
+		List resultWrapper = this.getAuditReader()
+				.createQuery()
+			    .forRevisionsOfEntity(entityClass, false, selectDeletedEntities)
 			    .add(AuditEntity.id().eq(entityId))
-			    .getSingleResult();
+			    .addOrder(AuditEntity.revisionNumber().desc())
+			    .setMaxResults(1)
+			    .getResultList();
+		if (resultWrapper.isEmpty()) {
+			return null;
+		}
+		//
+		return (Object[]) resultWrapper.get(0);
 	}
 	
 	/**

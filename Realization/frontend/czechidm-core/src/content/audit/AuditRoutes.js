@@ -4,7 +4,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
 /**
- * Default content (routes diff) for audits
+ * Default content (routes diff) for audits.
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška

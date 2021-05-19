@@ -1,16 +1,20 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import * as Utils from '../../../utils';
 //
+import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
 import { AuthorizationPolicyManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new AuthorizationPolicyManager();
 
 /**
- * Authorization policy basic information (info card)
+ * Authorization policy basic information (info card).
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
 export class AuthorizationPolicyInfo extends AbstractEntityInfo {
 
@@ -39,6 +43,14 @@ export class AuthorizationPolicyInfo extends AbstractEntityInfo {
     return `/role/${encodeURIComponent(entity.role)}/authorization-policies`;
   }
 
+  getTableChildren() {
+    // component are used in #getPopoverContent => skip default column resolving
+    return [
+      <Basic.Column property="label"/>,
+      <Basic.Column property="value"/>
+    ];
+  }
+
   /**
    * Returns popover info content
    *
@@ -46,6 +58,16 @@ export class AuthorizationPolicyInfo extends AbstractEntityInfo {
    */
   getPopoverContent(entity) {
     return [
+      {
+        label: this.i18n('entity.Role._type'),
+        value: (
+          <EntityInfo
+            entityType="role"
+            entity={ entity._embedded ? entity._embedded.role : null }
+            entityIdentifier={ entity.role }
+            face="link" />
+        )
+      },
       {
         label: this.i18n('entity.name.label'),
         value: Utils.Ui.getSimpleJavaType(entity.authorizableType)

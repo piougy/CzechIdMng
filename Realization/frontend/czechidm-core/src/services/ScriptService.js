@@ -4,7 +4,7 @@ import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
 /**
- * Scripts
+ * Scripts.
  *
  * @author Ondřej Kopr
  */
@@ -21,7 +21,7 @@ class ScriptService extends AbstractService {
     if (entity.name === entity.code) {
       return entity.name;
     }
-    return `${entity.name} (${entity.code})`;
+    return `${ entity.name } (${ entity.code })`;
   }
 
   // dto

@@ -21,18 +21,21 @@ export default class AuthorizationPolicyService extends AbstractRequestService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded) {
+    if (!entity) {
       return '';
     }
-
+    if (!entity._embedded) {
+      return entity.id;
+    }
+    //
     if (!entity._embedded.role && !entity.authorizableType) {
       return `${ Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
     }
 
     if (!entity._embedded.role && entity.authorizableType) {
-      return `${ Utils.Ui.getSimpleJavaType(entity.authorizableType)} - ${ Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
+      return `${ Utils.Ui.getSimpleJavaType(entity.authorizableType) } - ${ Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
     }
-    return `${ this.roleService.getNiceLabel(entity._embedded.role)} - ${ Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
+    return `${ this.roleService.getNiceLabel(entity._embedded.role) } - ${ Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
   }
 
   supportsPatch() {

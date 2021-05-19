@@ -852,6 +852,25 @@ public class DefaultIdmAuditServiceIntegrationTest extends AbstractIntegrationTe
 		Assert.assertTrue(audits.stream().anyMatch(a -> a.getEntityId().equals(contract.getId())));
 		Assert.assertTrue(audits.stream().anyMatch(a -> a.getEntityId().equals(password.getId())));
 	}
+	
+	@Test
+	public void testFindLastPersistedVersion() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		identity.setUsername(getHelper().createName());
+		identity = identityService.save(identity);
+		identity.setUsername(getHelper().createName());
+		identity = identityService.save(identity);
+		identityService.delete(identity);
+		//
+		Assert.assertNull(identityService.get(identity));
+		Assert.assertNull(auditService.findLastRevisionNumber(IdmIdentity.class, UUID.randomUUID()));
+		Assert.assertNull(auditService.findLastPersistedVersion(IdmIdentity.class, UUID.randomUUID()));
+		Assert.assertNotNull(auditService.findLastRevisionNumber(IdmIdentity.class, identity.getId()));
+		//
+		IdmIdentity findLastPersistedVersion = auditService.findLastPersistedVersion(IdmIdentity.class, identity.getId());
+		Assert.assertNotNull(findLastPersistedVersion);
+		Assert.assertEquals(identity.getUsername(), findLastPersistedVersion.getUsername());
+	}
 
 	private IdmRoleDto constructRole() {
 		IdmRoleDto role = new IdmRoleDto();

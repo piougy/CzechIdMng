@@ -23,11 +23,11 @@ export default class ContractPositionService extends AbstractService {
   }
 
   getNiceLabel(entity, showIdentity = true) {
-    if (!entity || !entity._embedded) {
+    if (!entity) {
       return '';
     }
     if (!entity._embedded) {
-      return `${entity.id}`;
+      return `${ entity.id }`;
     }
     let positionLabel = null;
     if (entity._embedded.workPosition) {

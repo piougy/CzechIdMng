@@ -39,7 +39,7 @@ export class RoleCompositionInfo extends AbstractEntityInfo {
    */
   getLink() {
     const entity = this.getEntity();
-    return `/role/${encodeURIComponent(entity.superior)}/compositions`;
+    return `/role/${ encodeURIComponent(entity.superior) }/compositions`;
   }
 
   /**
@@ -60,30 +60,18 @@ export class RoleCompositionInfo extends AbstractEntityInfo {
   }
 
   /**
-   * Returns popover info content
+   * Returns popover info content.
    *
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    if (!entity._embedded || !entity._embedded.sub || !entity._embedded.superior) {
-      return [
-        {
-          label: this.i18n('entity.RoleComposition.superior.label'),
-          value: entity.superior
-        },
-        {
-          label: this.i18n('entity.RoleComposition.sub.label'),
-          value: entity.sub
-        }
-      ];
-    }
     return [
       {
         label: this.i18n('entity.RoleComposition.superior.label'),
         value: (
           <EntityInfo
             entityType="role"
-            entity={ entity._embedded.superior }
+            entity={ entity._embedded ? entity._embedded.superior : null }
             entityIdentifier={ entity.superior }
             showIcon
             face="popover" />
@@ -94,7 +82,7 @@ export class RoleCompositionInfo extends AbstractEntityInfo {
         value: (
           <EntityInfo
             entityType="role"
-            entity={ entity._embedded.sub }
+            entity={ entity._embedded ? entity._embedded.sub : null }
             entityIdentifier={ entity.sub }
             showIcon
             face="popover" />

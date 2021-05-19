@@ -1383,7 +1383,7 @@
       "globalConfiguration": "Globální konfigurace"
     },
     "ProvisioningBreakConfigRecipient": {
-      "_type": "Provisioning brzda - příjemci",
+      "_type": "Provisioning brzda - příjemce",
       "role": "Příjemci s rolí",
       "identity": "Příjemce",
       "type": {

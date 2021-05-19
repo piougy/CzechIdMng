@@ -56,7 +56,7 @@ export class BreakConfigRecipientInfo extends Advanced.AbstractEntityInfo {
    * @param  {object} entity
    */
   getPopoverTitle() {
-    return this.i18n('acc:entity.ProvisioningBreakRecipient._type');
+    return this.i18n('acc:entity.ProvisioningBreakConfigRecipient._type');
   }
 
   /**
@@ -65,7 +65,7 @@ export class BreakConfigRecipientInfo extends Advanced.AbstractEntityInfo {
    * @param  {array} table data
    */
   getPopoverContent(entity) {
-    //
+    // FIXME: no informations are here - add system, identity or role ...
     return [
       {
         label: this.i18n('entity.name.label'),

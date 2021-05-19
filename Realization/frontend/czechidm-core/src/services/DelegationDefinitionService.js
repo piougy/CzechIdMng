@@ -16,11 +16,14 @@ class DelegationDefinitionService extends AbstractService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || entity._embedded || entity.embedded.identity) {
+    if (!entity) {
       return '';
     }
+    if (!entity._embedded || !entity._embedded.identity) {
+      return entity.id;
+    }
     const type = entity.type;
-    let label = entity.embedded.identity.username;
+    let label = entity._embedded.identity.username;
     if (type) {
       label += ` - ${ type }`;
     }

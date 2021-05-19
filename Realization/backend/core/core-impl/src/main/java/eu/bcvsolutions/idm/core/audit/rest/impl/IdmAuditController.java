@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.envers.RevisionType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditEntityDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -61,7 +61,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * IdM audit endpoint 
+ * IdM audit endpoint.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -288,7 +288,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 								auditService.findPreviousVersion(
 										Class.forName(previousAudit.getType()),
 										previousAudit.getEntityId(),
-										Long.valueOf(previousAudit.getId().toString()))));
+										previousAudit.getId().longValue())));
 				resource = new ResponseEntity<IdmAuditDto>(dto, HttpStatus.OK);
 			} else {
 				resource = new ResponseEntity<IdmAuditDto>(HttpStatus.NOT_FOUND);
@@ -330,25 +330,47 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 	}
 	
 	/**
-	 * Fills referenced entity to dto - prevent to load entity for each row
+	 * Fills referenced entity to dto - prevent to load entity for each row.
 	 * 
 	 * @param dto
 	 */
 	private void loadEmbeddedEntity(Map<UUID, BaseDto> loadedDtos, IdmAuditDto dto) {
-		if (!RevisionType.DEL.name().equals(dto.getModification())) {
-			UUID entityId = dto.getEntityId();
-			if (entityId == null || StringUtils.isEmpty(dto.getType())) {
-				return; // just for sure - IdmAudit entity doesn't specify it as required (but it should be)
-			}
+		UUID entityId = dto.getEntityId();
+		if (entityId == null || StringUtils.isEmpty(dto.getType())) {
+			return; // just for sure - IdmAudit entity doesn't specify it as required (but it should be)
+		}
+		//
+		BaseDto revision = null;
+		if (loadedDtos.containsKey(entityId)) {
+			revision = loadedDtos.get(entityId);
+		} else {
 			try {
-				if (!loadedDtos.containsKey(entityId)) {
-					loadedDtos.put(entityId, getLookupService().lookupDto(dto.getType(), entityId));
-				}
-				dto.getEmbedded().put("entityId", loadedDtos.get(entityId));
+				revision = getLookupService().lookupDto(dto.getType(), entityId);
+				loadedDtos.put(entityId, revision);
 			} catch (IllegalArgumentException ex) {
 				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getType(), ex);
 			}
 		}
+		dto.getEmbedded().put(IdmAudit_.entityId.getName(), revision); // nullable
+		//
+		// try to load last revision for deleted entity - main table only ~ subowner will not be soled
+		if (revision == null) {
+			try {
+				Object lastPersistedVersion = auditService.findLastPersistedVersion(Class.forName(dto.getType()), entityId);
+				if (lastPersistedVersion != null) {
+					// FIXME: this returns entity => i need to map it to dto properly => #978
+					Map<String, Object> valuesFromVersion = auditService.getValuesFromVersion(lastPersistedVersion);
+					if (!valuesFromVersion.containsKey(Auditable.PROPERTY_ID)) {
+						// id is not in values by default
+						valuesFromVersion.put(Auditable.PROPERTY_ID, entityId);
+					}
+					dto.setRevisionValues(valuesFromVersion);
+				}
+			} catch (IllegalArgumentException | ClassNotFoundException ex) {
+				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getType(), ex);
+			}
+		}
+		//
 		// For subowner, some entities doesn't support owner and subowner.
 		if (dto.getSubOwnerId() != null) {
 			try {

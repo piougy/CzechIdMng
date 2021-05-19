@@ -10,7 +10,6 @@ import EntityInfo from '../EntityInfo/EntityInfo';
 
 const manager = new ContractPositionManager();
 
-
 /**
  * Component for rendering contract position.
  *
@@ -97,24 +96,36 @@ export class ContractPositionInfo extends AbstractEntityInfo {
   }
 
   /**
-   * Returns popover info content
+   * Returns popover info content.
    *
    * @param  {array} table data
    */
   getPopoverContent(entity) {
     return [
       {
+        label: this.i18n('entity.IdentityContract._type'),
+        value: (
+          <EntityInfo
+            entityType="identityContract"
+            entity={ entity._embedded ? entity._embedded.identityContract : null }
+            entityIdentifier={ entity.identityContract }
+            showIdentity={ !entity._embedded }
+            face="link" />
+        )
+      },
+      {
         label: this.i18n('entity.ContractPosition.position.label'),
         value: entity.position
       },
       {
         label: this.i18n('entity.ContractPosition.workPosition.label'),
-        value: !entity._embedded || !entity._embedded.workPosition ||
+        value: (
           <EntityInfo
             entityType="treeNode"
-            entity={ entity._embedded.workPosition }
-            entityIdentifier={ entity._embedded.workPosition.id }
+            entity={ entity._embedded ? entity._embedded.workPosition : null }
+            entityIdentifier={ entity.workPosition }
             face="link" />
+        )
       },
       {
         label: this.i18n('entity.TreeType._type'),

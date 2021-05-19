@@ -12,9 +12,10 @@ import EntityInfo from '../EntityInfo/EntityInfo';
 const manager = new ContractSliceManager();
 
 /**
- * Component for rendering nice identifier for contract slices, similar function as roleInfo
+ * Component for rendering nice identifier for contract slices, similar function as roleInfo.
  *
  * @author Vít Švanda
+ * @author Radek Tomiška
  */
 export class ContractSliceInfo extends AbstractEntityInfo {
 
@@ -98,12 +99,13 @@ export class ContractSliceInfo extends AbstractEntityInfo {
     return [
       {
         label: this.i18n('entity.Identity._type'),
-        value: !entity._embedded ||
+        value: (
           <EntityInfo
             entityType="identity"
-            entity={ entity._embedded.identity }
+            entity={ entity._embedded ? entity._embedded.identity : null }
             entityIdentifier={ entity.identity }
             face="link" />
+        )
       },
       {
         label: this.i18n('entity.ContractSlice.position'),
@@ -111,12 +113,13 @@ export class ContractSliceInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.ContractSlice.workPosition'),
-        value: !entity._embedded || !entity._embedded.workPosition ||
+        value: (
           <EntityInfo
             entityType="treeNode"
-            entity={ entity._embedded.workPosition }
-            entityIdentifier={ entity._embedded.workPosition.id }
+            entity={ entity._embedded ? entity._embedded.workPosition : null }
+            entityIdentifier={ entity.workPosition }
             face="link" />
+        )
       },
       {
         label: this.i18n('entity.TreeType._type'),

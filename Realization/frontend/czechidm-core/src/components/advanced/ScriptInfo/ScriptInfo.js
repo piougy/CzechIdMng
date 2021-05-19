@@ -6,7 +6,6 @@ import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new ScriptManager();
 
-
 /**
  * Component for rendering nice identifier for script info, similar function as roleInfo.
  *

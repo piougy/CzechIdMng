@@ -1382,7 +1382,7 @@
       "globalConfiguration": "Global configuration"
     },
     "ProvisioningBreakConfigRecipient": {
-      "_type": "Provisioning brake - recipients",
+      "_type": "Provisioning brake - recipient",
       "role": "Recipients with role",
       "identity": "Recipient",
       "type": {

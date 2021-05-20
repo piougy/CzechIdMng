@@ -277,8 +277,8 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		
 		try {
 			IdmAuditDto dto = null;
-			previousAudit = auditService.findPreviousRevision(Long.valueOf(currentAudit.getId().toString()));
-			
+			previousAudit = auditService.findPreviousRevision(currentAudit.getId());
+			//
 			// previous version dost'n exist
 			if (previousAudit != null) {
 				dto = new IdmAuditDto();
@@ -288,7 +288,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 								auditService.findPreviousVersion(
 										Class.forName(previousAudit.getType()),
 										previousAudit.getEntityId(),
-										previousAudit.getId().longValue())));
+										previousAudit.getId())));
 				resource = new ResponseEntity<IdmAuditDto>(dto, HttpStatus.OK);
 			} else {
 				resource = new ResponseEntity<IdmAuditDto>(HttpStatus.NOT_FOUND);

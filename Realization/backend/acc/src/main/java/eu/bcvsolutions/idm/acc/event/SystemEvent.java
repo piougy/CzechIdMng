@@ -25,7 +25,7 @@ public class SystemEvent extends CoreEvent<SysSystemDto> {
 	 *
 	 */
 	public enum SystemEventType implements EventType {
-		CREATE, UPDATE, DELETE, EAV_SAVE, DUPLICATE;
+		CREATE, UPDATE, DELETE, EAV_SAVE, DUPLICATE, EXPORT;
 	}
 
 	public SystemEvent(SystemEventType operation, SysSystemDto content) {

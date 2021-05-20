@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.vs.service.api;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -73,5 +74,13 @@ public interface VsSystemService {
 	 * @return
 	 */
 	String createVsFormDefinitionKey(SysSystemDto system);
+	
+	/**
+	 * Exports definition of attributes which VS is able to store.
+	 * 
+	 * @param id
+	 * @param batch
+	 */
+	void exportVsDefinition(UUID id, IdmExportImportDto batch);
 
 }

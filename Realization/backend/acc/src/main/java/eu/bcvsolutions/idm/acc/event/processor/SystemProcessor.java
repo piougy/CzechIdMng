@@ -11,4 +11,6 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
  */
 public interface SystemProcessor extends EntityEventProcessor<SysSystemDto> {
 	
+	String EXPORT_BATCH_PROPERTY = "export-batch-property";
+	
 }

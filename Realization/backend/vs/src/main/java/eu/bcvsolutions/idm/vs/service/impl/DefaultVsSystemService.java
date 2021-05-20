@@ -2,12 +2,14 @@ package eu.bcvsolutions.idm.vs.service.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.acc.domain.*;
 import eu.bcvsolutions.idm.acc.dto.*;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.service.api.*;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -16,8 +18,10 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.ic.api.*;
@@ -55,6 +59,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -63,6 +68,7 @@ import java.util.stream.Collectors;
  *
  * @author Svanda
  * @author Marek Klement
+ * @author Ondrej Husnik
  */
 @Service
 public class DefaultVsSystemService implements VsSystemService {
@@ -94,6 +100,8 @@ public class DefaultVsSystemService implements VsSystemService {
 	private SysSyncConfigService configService;
 	@Autowired
 	private SysRoleSystemService roleSystemService;
+	@Autowired
+	private IdmFormDefinitionService formDefinitionService;
 
 	@Autowired
 	public DefaultVsSystemService(SysSystemService systemService, FormService formService,
@@ -319,6 +327,21 @@ public class DefaultVsSystemService implements VsSystemService {
 					system.getId().toString());
 		}
 		return null;
+	}
+	
+	
+	@Override
+	public void exportVsDefinition(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(id, "Id has to be provided.");
+		SysSystemDto system = systemService.get(id);
+		if (system.getConnectorKey() != null) {
+			String vsKey = this.createVsFormDefinitionKey(system);
+			String type = VsAccount.class.getName();
+			IdmFormDefinitionDto definition = formService.getDefinition(type, vsKey);
+			if (definition != null) {
+				formDefinitionService.export(definition.getId(), batch);
+			}
+		}
 	}
 
 	/**
@@ -565,7 +588,7 @@ public class DefaultVsSystemService implements VsSystemService {
 	 */
 	private IdmFormDefinitionDto updateFormDefinition(String key, String type, SysSystemDto system,
 			BasicVirtualConfiguration virtualConfiguration) {
-		// TODO: delete attribute definitions
+		
 		IdmFormDefinitionDto definition = this.formService.getDefinition(type, key);
 		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
 		Arrays.asList(virtualConfiguration.getAttributes()).forEach(virtualAttirbute -> {
@@ -586,6 +609,19 @@ public class DefaultVsSystemService implements VsSystemService {
 			formAttributes.forEach(formAttribute -> {
 				this.formService.saveAttribute(formAttribute);
 			});
+			
+			// delete VS form attributes which are not defined in the connector attribute list
+			IdmFormDefinitionDto connectorFormDefinition = systemService.getConnectorFormDefinition(system);
+			Set<String> vsAttributeNames = formService.getValues(system, connectorFormDefinition, ATTRIBUTES_PROPERTY)
+					.stream()
+					.map(IdmFormValueDto::getStringValue)
+					.collect(Collectors.toSet());
+			if(!vsAttributeNames.isEmpty()) {
+				formService.getAttributes(definition).stream()
+					.filter(attr -> !vsAttributeNames.contains(attr.getCode()))
+					.forEach(attr -> formService.deleteAttribute(attr));
+			}
+			
 			return definition;
 		}
 	}

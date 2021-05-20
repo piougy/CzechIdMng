@@ -27,6 +27,9 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.acc.event.SystemEvent;
+import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
+import eu.bcvsolutions.idm.acc.event.processor.SystemProcessor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysRemoteServerService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -35,6 +38,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractExportBulkAction;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -103,6 +107,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		exportOperationOption(system);
 		// Export role systems
 		exportRoleSystems(systemId);
+		// Export VS specific definition
+		exportVsDefinition(system, getBatch());
 	}
 	
 	private void exportRemoteSystem(SysSystemDto system) {
@@ -202,6 +208,21 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 			}
 		}
 		return system;
+	}
+	
+	/**
+	 * Triggers processor for virtual system specific export
+	 * 
+	 * @param system
+	 * @param batch
+	 */
+	private void exportVsDefinition(SysSystemDto system, IdmExportImportDto batch) {
+		if (!system.isVirtual()) {
+			return;
+		}
+		SystemEvent event = new SystemEvent(SystemEventType.EXPORT, system);
+		event.getProperties().put(SystemProcessor.EXPORT_BATCH_PROPERTY, batch);
+		systemService.publish(event, IdmBasePermission.READ);
 	}
 
 	/**

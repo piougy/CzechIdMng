@@ -284,7 +284,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			previousRevision = this.findPreviousRevision(currentRevisionId);
 			
 			if (previousRevision != null) {
-				result = this.find(Class.forName(previousRevision.getType()), previousRevision.getEntityId(), Long.valueOf(previousRevision.getId().toString()));
+				result = this.find(Class.forName(previousRevision.getType()), previousRevision.getEntityId(), previousRevision.getId());
 		    }
 		} catch (ClassNotFoundException e) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("class", revision.getType()), e);

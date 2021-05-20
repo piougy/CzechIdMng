@@ -33,7 +33,7 @@ public class PostgresqlConnectorType extends AbstractJdbcConnectorType {
 	public Map<String, String> getMetadata() {
 		// Default values:
 		Map<String, String> metadata = super.getMetadata();
-		metadata.put(SYSTEM_NAME, this.findUniqueSystemName("PostgresSQL system", 1));
+		metadata.put(SYSTEM_NAME, this.findUniqueSystemName("PostgreSQL system", 1));
 		metadata.put(HOST, "localhost");
 		metadata.put(PORT, "5432");
 		return metadata;

@@ -140,13 +140,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
           showLoading={innerShowLoading}
           forceSearchParameters={forceSearchParameters}
           manager={this.getManager()}
-          showRowSelection={SecurityManager.hasAuthority('ROLEREQUEST_UPDATE')}
-          actions={
-            [{ value: 'delete',
-              niceLabel: this.i18n('action.delete.action'),
-              action: this.onDelete.bind(this),
-              disabled: false }]
-          }
+          showRowSelection
           filterOpened={ filterOpened }
           showFilter={ showFilter }
           filter={

@@ -6010,6 +6010,11 @@
         "help": "$t(action.delete.action) selected users.",
         "icon": "$t(action.delete.icon)"
       },
+      "role-request-delete-bulk-action": {
+        "label": "$t(action.delete.action) role requests",
+        "help": "$t(action.delete.action) role requests.",
+        "icon": "$t(action.delete.icon)"
+      },
       "identity-add-role-bulk-action": {
         "label": "Roles assignment",
         "icon": "component:identity-role-add",

@@ -6062,6 +6062,11 @@
         "help": "Smaže vybrané uživatele.",
         "icon": "$t(action.delete.icon)"
       },
+      "role-request-delete-bulk-action": {
+        "label": "$t(action.delete.action) žádosti o role",
+        "help": "Smaže vybrané žádosti o role.",
+        "icon": "$t(action.delete.icon)"
+      },
       "identity-add-role-bulk-action": {
         "label": "Přidělení rolí",
         "icon": "component:identity-role-add",

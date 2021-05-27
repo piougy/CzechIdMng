@@ -232,7 +232,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     }
     return this.i18n('header');
   }
-
+  
   _renderShowTreeIcon() {
     const { readOnly } = this.state;
     //
@@ -294,6 +294,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               value={ value }
               multiSelect={ multiSelect }
               onChange={ onChange }
+              niceLabel={ (entity) => this.getManager().getNiceLabel(entity, showRoleCatalogueCode) }
               additionalOptions={ additionalOptions }/>
           </Basic.Div>
           { this._renderShowTreeIcon() }

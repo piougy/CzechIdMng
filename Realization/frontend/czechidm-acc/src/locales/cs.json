@@ -2798,6 +2798,49 @@
           }
         }
       }
+    },
+    "ad-group-connector-type": {
+      "name": "MS AD - Skupiny",
+      "description": "Umožňuje spravování skupin v MS Active Directory.",
+      "steps": {
+        "stepOne": {
+          "name": "Připojení k AD",
+          "help": "V tomto kroku <strong>zvolte název systému</strong> tak, jak chcete aby se zobrazoval v IdM. Dále zadejte údaje pro přístup k připojovanému Active Directory. Pokud máte již systém spravující uživatele v MS AD, tak jej můžete použít jako předlohu.",
+          "systemName": "Název systému v IdM",
+          "memberSystemMapping": {
+            "label": "Vyberte systém spravujicí uživatele",
+            "help": "Pokud máte již systém spravující uživatele v MS AD, tak jej můžete použít jako předlohu."
+          },
+          "host": {
+            "label": "Host",
+            "help": "Zadejte doménu připojovaného Active Directory.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "Číslo portu TCP.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "Uživatel",
+            "help": "DN uživatele s oprávněním pracovat v Active Directory.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "Heslo",
+            "help": "Heslo uživatele s oprávněním pracovat v Active Directory.",
+            "placeholder": ""
+          },
+          "sslSwitch": {
+            "label": "Použít LDAPS",
+            "help": "Pro komunikaci s AD použít zabezpečenou SSL komunikaci."
+          },
+          "sslOffAlert": {
+            "title": "Nemáte povolenou komunikaci přes SSL.",
+            "text": "Nepoužití zabezpečené komunikace LDAPS (SSL), může mít funkční dopady (např. nemožnost vytvoření hesla uživateli)!"
+          }
+        }
+      }
     }
   },
   "connector-type":  {

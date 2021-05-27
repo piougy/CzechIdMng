@@ -2728,6 +2728,49 @@
         }
       }
     },
+    "ad-group-connector-type": {
+      "name": "MS AD - Users",
+      "description": "Allows you to manage users in MS Active Directory.",
+      "steps": {
+        "stepOne": {
+          "name": "Connection to AD",
+          "help": "In this step, <strong>choose the system name</strong> the way you want it to appear in IdM. Next, enter the data to access the connected Active Directory. If you already have a system for managing users in MS AD, you can use it as a template.",
+          "systemName": "System name in IdM",
+          "memberSystemMapping": {
+            "label": "Select the system that manages the user",
+            "help": "If you already have a system for managing users in MS AD, you can use it as a template."
+          },
+          "host": {
+            "label": "Host",
+            "help": "Enter the domain of the connected Active Directory.",
+            "placeholder": ""
+          },
+          "port": {
+            "label": "Port",
+            "help": "TCP port number.",
+            "placeholder": ""
+          },
+          "user": {
+            "label": "User",
+            "help": "A DN of a user with permission to work in Active Directory.",
+            "placeholder": ""
+          },
+          "password": {
+            "label": "Password",
+            "help": "Password of a user with permission to work in Active Directory.",
+            "placeholder": ""
+          },
+          "sslSwitch": {
+            "label": "Use LDAPS",
+            "help": "Use secure SSL communication to communicate with AD."
+          },
+          "sslOffAlert": {
+            "title": "You do not have SSL enabled.",
+            "text": "Not using LDAPS secure communication (SSL), may have functional effects (eg inability to create a password for the user)!"
+          }
+        }
+      }
+    },
     "jdbc-connector-type": {
       "name": "Database table connection",
       "description": "Allows you to connect a single database table.",

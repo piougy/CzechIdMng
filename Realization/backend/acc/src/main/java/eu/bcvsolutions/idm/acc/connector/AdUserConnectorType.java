@@ -149,9 +149,9 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	public static final String PAIRING_SYNC_SWITCH_KEY = "pairingSyncSwitch";
 	public static final String PROTECTED_MODE_SWITCH_KEY = "protectedModeSwitch";
 	public static final String PAIRING_SYNC_ID = "pairingSyncId";
-	private static final String SSL = "ssl";
-	private static final String PRINCIPAL = "principal";
-	private static final String CREDENTIALS = "credentials";
+	protected static final String SSL = "ssl";
+	protected static final String PRINCIPAL = "principal";
+	protected static final String CREDENTIALS = "credentials";
 	private static final String SCHEMA_ID_KEY = "schemaId";
 	private static final String CRT_ATTACHMENT_ID_KEY = "attachmentId";
 	private static final String CRT_SUBJECT_DN_KEY = "subjectDN";
@@ -173,15 +173,15 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	private static final String DEFAULT_UID_KEY = "defaultIdAttribute";
 	private static final String BASE_CONTEXT_USER_KEY = "userBaseContexts";
 	private static final String ROOT_SUFFIXES_KEY = "baseContextsToSynchronize";
-	private static final String PAIRING_SYNC_DN_ATTR_KEY = "pairingSyncEavDnAttribute";
-	private static final String MAPPING_SYNC_ID = "mappingSyncId";
+	protected static final String PAIRING_SYNC_DN_ATTR_KEY = "pairingSyncEavDnAttribute";
+	protected static final String MAPPING_SYNC_ID = "mappingSyncId";
 
 	// Default values
 	private static final String[] ENTRY_OBJECT_CLASSES_DEFAULT_VALUES = {"top", "user", "person", "organizationalPerson"};
 	public static final String SAM_ACCOUNT_NAME_ATTRIBUTE = "sAMAccountName";
 	public static final String PAIRING_SYNC_DN_ATTR_DEFAULT_VALUE = "distinguishedName";
 	private static final int PAGE_SIZE_DEFAULT_VALUE = 100;
-	private static final String PAIRING_SYNC_NAME = "Pairing sync";
+	protected static final String PAIRING_SYNC_NAME = "Pairing sync";
 
 	@Autowired
 	private AttachmentManager attachmentManager;
@@ -359,7 +359,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Execute first step of AD wizard.
 	 */
-	private void executeStepOne(ConnectorTypeDto connectorType) {
+	protected void executeStepOne(ConnectorTypeDto connectorType) {
 		String port = connectorType.getMetadata().get(PORT);
 		Assert.notNull(port, "Port cannot be null!");
 		String host = connectorType.getMetadata().get(HOST);
@@ -1462,4 +1462,23 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		return 200;
 	}
 
+	public SysSystemMappingService getSystemMappingService() {
+		return systemMappingService;
+	}
+
+	public SysSystemAttributeMappingService getSystemAttributeMappingService() {
+		return systemAttributeMappingService;
+	}
+
+	public SysSyncConfigService getSyncConfigService() {
+		return syncConfigService;
+	}
+
+	public SysSchemaAttributeService getSchemaAttributeService() {
+		return schemaAttributeService;
+	}
+
+	public IdmFormAttributeService getFormAttributeService() {
+		return formAttributeService;
+	}
 }

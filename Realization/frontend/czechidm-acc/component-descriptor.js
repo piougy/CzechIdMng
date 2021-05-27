@@ -196,6 +196,12 @@ module.exports = {
       component: require('./src/content/wizard/connectorType/AdUserSystemWizard/AdUserSystemWizard')
     },
     {
+      id: 'ad-group-connector-type',
+      type: 'connector-type',
+      entityType: ['ad-group-connector-type'],
+      component: require('./src/content/wizard/connectorType/AdGroupSystemWizard/AdGroupSystemWizard')
+    },
+    {
       id: 'remote-server-icon',
       type: 'icon',
       entityType: ['server', 'servers'],

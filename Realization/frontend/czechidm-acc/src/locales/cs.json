@@ -206,6 +206,110 @@
             "helpBlock": "Po úspěšném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu i stromové struktury."
           }
         },
+        "roleConfigDetail": {
+          "memberSystemMapping": {
+            "label": "Cílový systém s uživateli",
+            "helpBlock": "Vyberte mapování na systému s uživateli, kteří se mají stát členy synchronizovaných rolí. Mapování musí být typu 'provisioning' a pro 'identity'."
+          },
+          "memberIdentifierAttribute": {
+            "label": "Atribut s identifikátorem uživatelů",
+            "helpBlock": "Vyberte atribut uživetele, který obsahuje identifikátor, který je použit v atributu se seznamem uživatelů na synchornizovaných rolích. Atribut musí být namapován v cílovém systému s uživateli (typicky 'DN')."
+          },
+          "memberAttribute": {
+            "label": "Atribut s uživateli",
+            "helpBlock": "Vyberte atribut role, který obsahuje seznam uživatelů cílového systému. Atribut musí být namapován v tomto systému (typicky 'member')."
+          },
+          "memberOfAttribute": {
+            "label": "Atribut s rolemi",
+            "helpBlock": "Vyberte atribut identity, který obsahuje seznam rolí/skupin cílového systému. Atribut musí být namapován v cílovém systému s uživateli (typicky 'ldapGroups')."
+          },
+          "forwardAcmSwitch": {
+            "label": "Aktivovat dopředný provisioning",
+            "helpBlock": ""
+          },
+          "skipValueIfExcludedSwitch": {
+            "label": "Aktivovat správu atributu 'Vynechat hodnotu, pokud je kontrakt vyňat'",
+            "helpBlock": ""
+          },
+          "membershipSwitch": {
+            "label": "Aktivovat členství v rolích (skupinách)",
+            "helpBlock": "Uživatelé, kterým budou přiřazovány tyto synchronizované role se stanou jejich členy i v napojeném systému."
+          },
+          "assignRoleSwitch": {
+            "label": "Aktivovat přiřazování rolí uživatelům dle napojeného systému",
+            "helpBlock": "Přiřazování/odebírání synchronizovaných rolí, bude řízeno na základě dat z tohoto systému."
+          },
+          "assignRoleRemoveSwitch": {
+            "label": "Povolit odebírání přiřazených rolí v IdM",
+            "helpBlock": "Role bude odebrána uživatelů v IdM, kteří ji nemají přidělenou v systému."
+          },
+          "assignCatalogueSwitch": {
+            "label": "Aktivovat zařazování do katalogu rolí",
+            "helpBlock": ""
+          },
+          "removeCatalogueRoleSwitch": {
+            "label": "Povolit odebírání neplatných rolí z katalogu",
+            "helpBlock": "Pokud není zařazení v katalogu (dle dat ze systému) platné, budou role z katalogu odebrány."
+          },
+          "mainCatalogueRoleNode": {
+            "label": "Hlavní položka katalogu",
+            "helpBlock": "Pokud bude vybrána nějaká položka katalogu, pak budou celý katalog rolí z této synchronizace vkládán po ní."
+          },
+          "removeCatalogueRoleParentNode": {
+            "label": "Uzel pro správu odebírání položek katalogu",
+            "helpBlock": "Pokud je povoleno odebírání rolí z katalogu, pak musí být tato položka vyplněna. Role budou z katalogu odebírány pouze pod tímto uzlem!"
+          },
+          "forwardAcmMappingAttribute": {
+            "found": {
+              "title": "Atribut řešící dopředný provisioning"
+            },
+            "notfound": {
+              "title": "Atribut v mapování není nastaven!",
+              "text": "Pro správnou funkci, musí být v tomto systému nejdříve namapován atribut řešící dopředný provisioning!"
+            }
+          },
+          "skipValueIfExcludedMappingAttribute": {
+            "found": {
+              "title": "Atribut řešící 'Vynechat hodnotu, pokud je kontrakt vyňat'"
+            },
+            "notfound": {
+              "title": "Atribut v mapování není nastaven!",
+              "text": "Pro správnou funkci, musí být v tomto systému nejdříve namapován atribut 'Vynechat hodnotu, pokud je kontrakt vyňat'!"
+            }
+          },
+          "roleIdentifiersMappingAttribute": {
+            "found": {
+              "title": "Atribut řešící 'Identifikátor role'"
+            },
+            "notfound": {
+              "title": "Atribut v mapování není nastaven!",
+              "text": "Pro správnou funkci, musí být v tomto systému nejdříve namapován atribut řešící 'Identifikátor role'!"
+            }
+          },
+          "assignCatalogueMappingAttribute": {
+            "found": {
+              "title": "Atribut řešící 'Zařazení do katalogu'"
+            },
+            "notfound": {
+              "title": "Atribut v mapování není nastaven!",
+              "text": "Pro správnou funkci, musí být v tomto systému nejdříve namapován atribut řešící 'Zařazení do katalogu'!"
+            }
+          },
+          "roleMembersMappingAttribute": {
+            "found": {
+              "title": "Atribut vracející 'Identifikátory uživatelů/členů role'"
+            },
+            "notfound": {
+              "title": "Atribut v mapování není nastaven!",
+              "text": "Pro správnou funkci, musí být v tomto systému nejdříve namapován atribut vracející 'Identifikátory uživatelů/členů role'!"
+            }
+          },
+          "mappedAttribute": "Atribut v mapování",
+          "membershipHeader": "Členství v rolích (skupinách)",
+          "assignRoleHeader": "Přiřazení rolí uživatelům",
+          "roleCatalogueHeader": "Správa katalogu rolí",
+          "otherSettingsHeader": "Ostatní nastavení"
+        },
         "treeConfigDetail": {
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",
@@ -1560,6 +1664,7 @@
         "URL_TITLE": ""
       }
     },
+    
     "RoleAttributeEnum": {
       "NAME": "Název (String)",
       "BASE_CODE": "Kód (String)",
@@ -1569,6 +1674,11 @@
       "PRIORITY": "Priorita (Integer)",
       "DESCRIPTION": "Popis (String)",
       "DISABLED": "Zakázaný (boolean)",
+      "ROLE_MEMBERSHIP_ID": "Členství - Identifikátor role (String)",
+      "ROLE_FORWARD_ACM": "Členství - Dopředný provisioning (boolean)",
+      "ROLE_SKIP_VALUE_IF_EXCLUDED": "Členství - Vynechat hodnotu, pokud je kontrakt vyňat (boolean)",
+      "ROLE_CATALOGUE_FIELD": "Členství - Zařazení do katalogu rolí (List<IdmRoleCatalogueDto>)",
+      "ROLE_MEMBERS_FIELD": "Členství - Identifikátory uživatelů/členů role (List<String>)",
       "helpBlock": {
         "NAME": "",
         "BASE_CODE": "",
@@ -1577,7 +1687,12 @@
         "APPROVE_REMOVE": "",
         "PRIORITY": "",
         "DESCRIPTION": "",
-        "DISABLED": ""
+        "DISABLED": "",
+        "ROLE_MEMBERSHIP_ID": "Řeší členství ve skupinách. Vrací identifikátor role (DN), který bude použit v napojení role a systému. Výstupní hodnout je String, pokud bude hodnota 'null', pak dojde k odstranění vazby mezi rolí a systémem!",
+        "ROLE_FORWARD_ACM": "Řeší členství ve skupinách. Konkrétně spravuje parametr 'Dopředný provisioning'",
+        "ROLE_SKIP_VALUE_IF_EXCLUDED": "Řeší členství ve skupinách. Konkrétně spravuje parametr 'Vynechat hodnotu, pokud je kontrakt vyňat'",
+        "ROLE_CATALOGUE_FIELD": "Vrací list uzlů katalogu rolí, kam má být daná role zařazena. Pokud je potřeba řešit složitější strukturu, pak může každý uzel obsahovat (v embedded.parent) další uzel katalogu. Ukládání uzlů, je řešeno až v rámci synchornizace.",
+        "ROLE_MEMBERS_FIELD": "Vrací list uživatelů, kteří mají mít danou roli přiřazenou. Výstupem je list identifikátorů ze systému (typicky DNka)."
       }
     },
     "EmptyProvisioningTypeEnum": {
@@ -2971,7 +3086,7 @@
     },
     "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Mapování systému [{{mapping}}] nemůže být smazáno",
-      "message": "Mapování systému [{{mapping}}] nemůže být smazáno. Je použito v synchronizaci na stejném systému!"
+      "message": "Mapování systému [{{mapping}}] nemůže být smazáno. Je použito v synchronizaci na systému [{{system}}]!"
     },
     "SYSTEM_MAPPING_FOR_ENTITY_EXISTS": {
       "title": "Mapování nemůže být uloženo",
@@ -2979,7 +3094,11 @@
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Atribut [{{attribute}}] nemůže být smazán",
-      "message": "Atribut [{{attribute}}] nemůže být smazán. Je použit v synchronizaci na stejném systému!"
+      "message": "Atribut [{{attribute}}] nemůže být smazán. Je použit v synchronizaci na systému [{{system}}]!"
+    },
+    "ROLE_CATALOGUE_DELETE_FAILED_USED_IN_SYNC": {
+      "title": "Katalog [{{catalogue}}] nemůže být smazán",
+      "message": "Katalog [{{catalogue}}] nemůže být smazán. Je použit v synchronizaci na systému [{{system}}]!"
     },
     "SYSTEM_DELETE_FAILED_HAS_ENTITIES": {
       "title": "Systém nemůže být smazán",

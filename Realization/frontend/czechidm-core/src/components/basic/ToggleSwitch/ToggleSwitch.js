@@ -54,15 +54,15 @@ class ToggleSwitch extends AbstractFormComponent {
   }
 
   getBody() {
-    const { labelSpan, label, componentSpan } = this.props;
+    const { labelSpan, label, componentSpan, level } = this.props;
     const { value, readOnly, disabled } = this.state;
-    const className = classNames(
-      labelSpan,
-      componentSpan
+    const _className = classNames(
+        labelSpan,
+        componentSpan
     );
 
     return (
-      <div className={className}>
+      <div className={_className}>
         <div className="checkbox">
           <Tooltip trigger={['click', 'hover']} ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <div style={{display: 'flex', alignItems: 'middle'}}>
@@ -71,6 +71,7 @@ class ToggleSwitch extends AbstractFormComponent {
                 on={this._isChecked(value)}
                 ref="toggleswitch"
                 theme="graphite-small"
+                className={level}
                 enabled={ !readOnly && !disabled }
               />
               <span style={{marginLeft: '5px', marginTop: '3px', fontWeight: 700}}>

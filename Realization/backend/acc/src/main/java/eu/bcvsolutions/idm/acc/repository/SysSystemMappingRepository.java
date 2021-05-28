@@ -18,7 +18,7 @@ public interface SysSystemMappingRepository extends AbstractEntityRepository<Sys
 
 	@Query(value = "select e from SysSystemMapping e"+ 
 			" where" +
-			" (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"+
+			" (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} or lower(e.objectClass.system.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"+
 			" and" +
 	        " (?#{[0].systemId} is null or e.objectClass.system.id = ?#{[0].systemId})"+
 			" and" +

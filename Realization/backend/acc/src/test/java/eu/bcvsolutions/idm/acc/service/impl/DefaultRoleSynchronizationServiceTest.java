@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -155,7 +156,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 
 		// Create default synchronization config
-		AbstractSysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
+		AbstractSysSyncConfigDto syncConfigCustom = new SysSyncRoleConfigDto();
 		syncConfigCustom.setReconciliation(false);
 		syncConfigCustom.setCustomFilter(true);
 		syncConfigCustom.setSystemMapping(mapping.getId());

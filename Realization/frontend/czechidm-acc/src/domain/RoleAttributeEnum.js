@@ -53,6 +53,21 @@ export default class RoleAttributeEnum extends Enums.AbstractEnum {
       case this.DISABLED: {
         return 'disabled';
       }
+      case this.ROLE_MEMBERSHIP_ID: {
+        return 'roleMembershipId';
+      }
+      case this.ROLE_FORWARD_ACM: {
+        return 'roleForwardAcm';
+      }
+      case this.ROLE_SKIP_VALUE_IF_EXCLUDED: {
+        return 'roleSkipValueIfExcluded';
+      }
+      case this.ROLE_MEMBERS_FIELD: {
+        return 'roleMembers';
+      }
+      case this.ROLE_CATALOGUE_FIELD: {
+        return 'roleCatalogue';
+      }
       default: {
         return null;
       }
@@ -89,6 +104,21 @@ export default class RoleAttributeEnum extends Enums.AbstractEnum {
       case 'disabled': {
         return this.DISABLED;
       }
+      case 'roleMembershipId': {
+        return this.ROLE_MEMBERSHIP_ID;
+      }
+      case 'roleForwardAcm': {
+        return this.ROLE_FORWARD_ACM;
+      }
+      case 'roleSkipValueIfExcluded': {
+        return this.ROLE_SKIP_VALUE_IF_EXCLUDED;
+      }
+      case 'roleMembers': {
+        return this.ROLE_MEMBERS_FIELD;
+      }
+      case 'roleCatalogue': {
+        return this.ROLE_CATALOGUE_FIELD;
+      }
       default: {
         return null;
       }
@@ -118,3 +148,8 @@ RoleAttributeEnum.PRIORITY = Symbol('PRIORITY');
 RoleAttributeEnum.APPROVE_REMOVE = Symbol('APPROVE_REMOVE');
 RoleAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
 RoleAttributeEnum.DISABLED = Symbol('DISABLED');
+RoleAttributeEnum.ROLE_MEMBERSHIP_ID = Symbol('ROLE_MEMBERSHIP_ID');
+RoleAttributeEnum.ROLE_FORWARD_ACM = Symbol('ROLE_FORWARD_ACM');
+RoleAttributeEnum.ROLE_SKIP_VALUE_IF_EXCLUDED = Symbol('ROLE_SKIP_VALUE_IF_EXCLUDED');
+RoleAttributeEnum.ROLE_MEMBERS_FIELD = Symbol('ROLE_MEMBERS_FIELD');
+RoleAttributeEnum.ROLE_CATALOGUE_FIELD = Symbol('ROLE_CATALOGUE_FIELD');

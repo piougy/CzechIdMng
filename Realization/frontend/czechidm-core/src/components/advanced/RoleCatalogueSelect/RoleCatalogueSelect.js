@@ -10,13 +10,13 @@ import Tree from '../Tree/Tree';
 const roleCatalogueManager = new RoleCatalogueManager(); // default manager in manager in props is not given
 
 /**
-* Select role catalogue
-*
-* TODO: multi select (see role select)
-* TODO: onChange support
-*
-* @author Radek Tomiška
-*/
+ * Select role catalogue
+ *
+ * TODO: multi select (see role select)
+ * TODO: onChange support
+ *
+ * @author Radek Tomiška
+ */
 export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
 
   constructor(props, context) {
@@ -26,25 +26,25 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
       selected: null, // modal
       showTree: false,
       treePaginationRootSize: (
-        context && context.store
-        ?
-        ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size')
-        :
-        null
+          context && context.store
+              ?
+              ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.root.size')
+              :
+              null
       ),
       treePaginationNodeSize: (
-        context && context.store
-        ?
-        ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size')
-        :
-        null
+          context && context.store
+              ?
+              ConfigurationManager.getValue(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.pagination.node.size')
+              :
+              null
       ),
       showRoleCatalogueCode: (
-        context && context.store
-        ?
-        ConfigurationManager.getPublicValueAsBoolean(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.code', false)
-        :
-        null
+          context && context.store
+              ?
+              ConfigurationManager.getPublicValueAsBoolean(context.store.getState(), 'idm.pub.app.show.roleCatalogue.tree.code', false)
+              :
+              null
       )
     };
   }
@@ -232,23 +232,23 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     }
     return this.i18n('header');
   }
-  
+
   _renderShowTreeIcon() {
     const { readOnly } = this.state;
     //
     return (
-      <Basic.Div>
-        <Basic.LabelWrapper label={ this.getLabel() ? (<span style={{ visibility: 'hidden' }}>T</span>) : null }>
-          <Basic.Button
-            level="default"
-            icon="fa:folder-open"
-            style={{ marginLeft: 5 }}
-            onClick={ this.showTree.bind(this) }
-            title={ this.i18n('showTree.link.title') }
-            titlePlacement="bottom"
-            disabled={ readOnly }/>
-        </Basic.LabelWrapper>
-      </Basic.Div>
+        <Basic.Div>
+          <Basic.LabelWrapper label={ this.getLabel() ? (<span style={{ visibility: 'hidden' }}>T</span>) : null }>
+            <Basic.Button
+                level="default"
+                icon="fa:folder-open"
+                style={{ marginLeft: 5 }}
+                onClick={ this.showTree.bind(this) }
+                title={ this.i18n('showTree.link.title') }
+                titlePlacement="bottom"
+                disabled={ readOnly }/>
+          </Basic.LabelWrapper>
+        </Basic.Div>
     );
   }
 
@@ -277,7 +277,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     }
     //
     return (
-      <span>
+        <span>
         <Basic.Div style={{ display: 'flex' }}>
           <Basic.Div style={{ flex: 1 }}>
             <EntitySelectBox
@@ -301,38 +301,38 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
         </Basic.Div>
 
         <Basic.Modal
-          show={ showTree }
-          onHide={ this.hideTree.bind(this) }
-          backdrop="static"
-          keyboard>
+            show={ showTree }
+            onHide={ this.hideTree.bind(this) }
+            backdrop="static"
+            keyboard>
           <Basic.Modal.Header text={ this.getHeader() } closeButton/>
           <Basic.Modal.Body style={{ padding: 0 }}>
             <Tree
-              ref="roleCatalogueTree"
-              uiKey={ this.getUiKey() }
-              manager={ this.getManager() }
-              onChange={ this.onModalSelect.bind(this) }
-              onDoubleClick={ (nodeId) => this.onSelect(nodeId) }
-              clearable={ false }
-              multiSelect={ multiSelect }
-              selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
-              paginationRootSize={ treePaginationRootSize }
-              paginationNodeSize={ treePaginationNodeSize }
-              nodeNiceLabel={ (node) => this.getManager().getNiceLabel(node, showRoleCatalogueCode) }
+                ref="roleCatalogueTree"
+                uiKey={ this.getUiKey() }
+                manager={ this.getManager() }
+                onChange={ this.onModalSelect.bind(this) }
+                onDoubleClick={ (nodeId) => this.onSelect(nodeId) }
+                clearable={ false }
+                multiSelect={ multiSelect }
+                selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
+                paginationRootSize={ treePaginationRootSize }
+                paginationNodeSize={ treePaginationNodeSize }
+                nodeNiceLabel={ (node) => this.getManager().getNiceLabel(node, showRoleCatalogueCode) }
             />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
             <Basic.Button
-              level="link"
-              onClick={ this.hideTree.bind(this) }>
+                level="link"
+                onClick={ this.hideTree.bind(this) }>
               { this.i18n('button.cancel') }
             </Basic.Button>
 
             <Basic.Button
-              level="success"
-              showLoadingIcon
-              onClick={ this.onSelect.bind(this, null) }
-              disabled={ !!(!selected || (_.isArray(selected) && selected.length === 0)) }>
+                level="success"
+                showLoadingIcon
+                onClick={ this.onSelect.bind(this, null) }
+                disabled={ !!(!selected || (_.isArray(selected) && selected.length === 0)) }>
               {this.i18n('button.select')}
             </Basic.Button>
           </Basic.Modal.Footer>

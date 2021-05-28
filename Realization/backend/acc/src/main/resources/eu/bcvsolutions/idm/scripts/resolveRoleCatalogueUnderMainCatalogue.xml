@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<script>
+    <code>resolveRoleCatalogueUnderMainCatalogue</code>
+    <name>Put all role catalog items under main catalog from a sync</name>
+    <category>TRANSFORM_FROM</category>
+    <type>groovy</type>
+    <body><![CDATA[import com.google.common.collect.Lists;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto;
+import java.util.UUID;
+
+org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger("resolveRoleCatalogueUnderMainCatalogue");
+
+UUID mainCatalogueId = null;
+if (attributeMapping != null) {
+    // Get configuration of sync. We need get a main catalog.
+    UUID syncConfigId = attributeMapping.getSyncConfigId();
+    if (syncConfigId != null) {
+        def syncConfigDto = defaultSysSyncConfigService.get(syncConfigId);
+        if (syncConfigDto instanceof SysSyncRoleConfigDto) {
+            mainCatalogueId = syncConfigDto.getMainCatalogueRoleNode();
+            
+            if (mainCatalogueId != null) {
+                IdmRoleCatalogueDto roleCatalogue = roleCatalogueService.get(mainCatalogueId);
+                
+                if (roleCatalogue != null) {
+                    List<IdmRoleCatalogueDto> catalogs = Lists.newArrayList();
+                    catalogs.add(roleCatalogue);
+                    return catalogs;
+                }
+            }
+        }
+    }
+}
+// If this script return null and sync configuration allows remove redundant
+// role catalogs, then all relations between catalog and roles will be removed!
+return null;
+
+]]></body>
+    <services>
+        <service>
+            <name>defaultSysSyncConfigService</name>
+        </service>
+        <service>
+            <name>roleCatalogueService</name>
+        </service>
+    </services>
+    <allowClasses>
+        <allowClass>
+            <className>com.google.common.collect.Lists</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto</className>
+        </allowClass>
+        <allowClass>
+            <className>eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto</className>
+        </allowClass>
+    </allowClasses>
+    <description><![CDATA[<p>Returns main role catalog item from a sync configuration.</p>
+<p>This script returns list of IdmRoleCatalogueDto with max one item. This DTO is main catalog from sync configuration. This script doesn't make any save or update.</p>]]></description>
+</script>

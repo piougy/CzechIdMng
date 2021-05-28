@@ -1,13 +1,19 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import javax.persistence.criteria.Subquery;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

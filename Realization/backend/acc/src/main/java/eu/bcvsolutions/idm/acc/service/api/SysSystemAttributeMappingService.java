@@ -33,6 +33,7 @@ public interface SysSystemAttributeMappingService
 		AuthorizableService<SysSystemAttributeMappingDto> {
 
 	String ATTRIBUTE_VALUE_KEY = "attributeValue";
+	String ATTRIBUTE_MAPPING_KEY = "attributeMapping";
 	String SYSTEM_KEY = "system";
 	String IC_ATTRIBUTES_KEY = "icAttributes";
 	String ENTITY_KEY = "entity";
@@ -113,15 +114,18 @@ public interface SysSystemAttributeMappingService
 
 	/**
 	 * Do transformation given value to value for IDM system.
-	 *
-	 * @param value
-	 * @param attributeMapping
-	 * @param icAttributes
-	 * @return transformed value
 	 */
 	Object transformValueFromResource(Object value, AttributeMapping attributeMapping, List<IcAttribute> icAttributes);
 
+	/**
+	 * Do transformation given value to value for IDM system.
+	 */
 	Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes, SysSystemDto system);
+
+	/**
+	 * Do transformation given value to value for IDM system.
+	 */
+	Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes, SysSystemDto system, AttributeMapping attributeMapping);
 
 	/**
 	 * Check on exists EAV definition for given attribute. If the definition not

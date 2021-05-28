@@ -15,6 +15,7 @@ import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SyncIdentityConfig from '../sync/SyncIdentityConfig';
 import SyncContractConfig from '../sync/SyncContractConfig';
 import SyncTreeConfig from '../sync/SyncTreeConfig';
+import SyncRoleConfig from "../sync/SyncRoleConfig";
 import SyncStatistic from '../sync/SyncStatistic';
 import SyncResult from '../sync/SyncResult';
 
@@ -148,6 +149,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       formEntity._type = 'SysSyncContractConfigDto';
     } else if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
       formEntity._type = 'SysSyncIdentityConfigDto';
+    } else if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.ROLE)) {
+      formEntity._type = 'SysSyncRoleConfigDto';
     } else if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
       formEntity._type = 'SysSyncTreeConfigDto';
     } else {
@@ -619,6 +622,13 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
           className="panel-body"/>;
       } else if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
         specificConfiguration = <SyncIdentityConfig
+          ref="formSpecific"
+          synchronizationConfig={synchronizationConfig}
+          showLoading={innerShowLoading}
+          isNew={isNew}
+          className="panel-body"/>;
+      } else if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.ROLE)) {
+        specificConfiguration = <SyncRoleConfig
           ref="formSpecific"
           synchronizationConfig={synchronizationConfig}
           showLoading={innerShowLoading}

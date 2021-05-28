@@ -1,6 +1,10 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import eu.bcvsolutions.idm.acc.domain.MappingContext;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto;
+import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig_;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -140,6 +144,8 @@ public class DefaultSysSystemAttributeMappingService
 	private IdmFormDefinitionService formDefinitionService;
 	@Autowired
 	private IdmFormAttributeService formAttributeService;
+	@Autowired
+	private SysSyncConfigService syncConfigService;
 
 
 	@Autowired
@@ -435,7 +441,7 @@ public class DefaultSysSystemAttributeMappingService
 		//
 		try {
 			return transformValueFromResource(value, attributeMapping.getTransformFromResourceScript(), icAttributes,
-					getSystemFromAttributeMapping(attributeMapping));
+					getSystemFromAttributeMapping(attributeMapping), attributeMapping);
 		} catch (Exception e) {
 			Map<String, Object> logParams = createTransformationScriptFailureParams(e, attributeMapping);
 			ResultCodeException ex = new ResultCodeException(AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED,
@@ -447,11 +453,19 @@ public class DefaultSysSystemAttributeMappingService
 
 	@Override
 	public Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes,
-			SysSystemDto system) {
+											 SysSystemDto system) {
+
+		return transformValueFromResource(value, script, icAttributes, system, null);
+	}
+	
+	@Override
+	public Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes,
+											 SysSystemDto system, AttributeMapping attributeMapping) {
 
 		if (!StringUtils.isEmpty(script)) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
+			variables.put(ATTRIBUTE_MAPPING_KEY, attributeMapping);
 			variables.put(SYSTEM_KEY, system);
 			variables.put(IC_ATTRIBUTES_KEY, icAttributes);
 			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR,
@@ -595,18 +609,32 @@ public class DefaultSysSystemAttributeMappingService
 		SysSystemAttributeMapping entity = this.getEntity(dto.getId());
 		Assert.notNull(entity, "Entity is required.");
 
+		SysSystemMappingDto systemMappingDto = DtoUtils.getEmbedded(dto, SysSystemAttributeMapping_.systemMapping, SysSystemMappingDto.class);
+		SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto, SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+		SysSystemDto systemDto = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
 		if (syncConfigRepository.countByCorrelationAttribute_Id(dto.getId()) > 0) {
 			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
-					ImmutableMap.of("attribute", dto.getName()));
+					ImmutableMap.of("attribute", dto.getName(), "system", systemDto.getName()));
 		}
 		if (syncConfigRepository.countByFilterAttribute(entity) > 0) {
 			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
-					ImmutableMap.of("attribute", dto.getName()));
+					ImmutableMap.of("attribute", dto.getName(), "system", systemDto.getName()));
 		}
 		if (syncConfigRepository.countByTokenAttribute(entity) > 0) {
 			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
-					ImmutableMap.of("attribute", dto.getName()));
+					ImmutableMap.of("attribute", dto.getName(), "system", systemDto.getName()));
 		}
+
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.findRoleConfigByMemberOfAttribute(entity.getId());
+		if (syncConfigs.size() > 0){
+			systemMappingDto = DtoUtils.getEmbedded(syncConfigs.get(0), SysSyncRoleConfig_.systemMapping, SysSystemMappingDto.class);
+			objectClassDto = DtoUtils.getEmbedded(systemMappingDto, SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+			systemDto = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+
+			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
+					ImmutableMap.of("attribute", dto.getName(), "system", systemDto.getName()));
+		}
+		
 		// Delete attributes
 		roleSystemAttributeRepository.deleteBySystemAttributeMapping(entity);
 
@@ -626,10 +654,6 @@ public class DefaultSysSystemAttributeMappingService
 	/**
 	 * Create instance of IC attribute for given name. Given idm value will be
 	 * transformed to resource.
-	 * 
-	 * @param attributeMapping
-	 * @param idmValue
-	 * @return
 	 */
 	@Override
 	public IcAttribute createIcAttribute(SysSchemaAttributeDto schemaAttribute, Object idmValue) {
@@ -1178,11 +1202,7 @@ public class DefaultSysSystemAttributeMappingService
 
 	/**
 	 * Find all mapped attribute for given schema attribute name and mapping.
-	 * 
-	 * @param schemaAttributeName
-	 * @param mapping
-	 * @param system
-	 * @return
+	 *
 	 */
 	private List<SysSystemAttributeMappingDto> getAttributeMapping(String schemaAttributeName,
 			SysSystemMappingDto mapping, UUID systemId) {

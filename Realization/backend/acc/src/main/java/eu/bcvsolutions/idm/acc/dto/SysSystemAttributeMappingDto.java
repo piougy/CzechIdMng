@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
@@ -45,6 +46,11 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	private boolean passwordFilter = false;
 	private String transformationUidScript;
 	private long echoTimeout = 180;
+	/**
+	 * Id of sync. Good for loading configuration of running sync in transformation from system.
+	 */
+	@JsonIgnore
+	private UUID syncConfigId;
 
 	@Override
 	public String getName() {
@@ -260,4 +266,11 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 		this.echoTimeout = echoTimeout;
 	}
 
+	public UUID getSyncConfigId() {
+		return syncConfigId;
+	}
+
+	public void setSyncConfigId(UUID syncConfigId) {
+		this.syncConfigId = syncConfigId;
+	}
 }

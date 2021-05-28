@@ -1,5 +1,12 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import com.google.common.collect.Lists;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -187,6 +194,106 @@ public class DefaultIdmRoleCatalogueService
 		IdmRoleCatalogue catalogue = this.getEntity(catalogueId);
 		List<IdmRoleCatalogue> roleCatalogues = repository.findAllParents(catalogue, null);
 		return toDtos(roleCatalogues, true);
+	}
+
+	@Override
+	public IdmRoleCatalogueDto findByExternalId(String catalogCode) {
+		IdmRoleCatalogueFilter catalogueFilter = new IdmRoleCatalogueFilter();
+		catalogueFilter.setExternalId(catalogCode);
+		return this.find(catalogueFilter, null)
+				.getContent()
+				.stream()
+				.findFirst()
+				.orElse(null);
+	}
+
+	@Override
+	public IdmRoleCatalogueDto resolveRoleCatalogueByDn(String roleDn, UUID mainCatalogueId) {
+		Assert.notNull(roleDn, "DN of a role cannot be null!");
+		
+		List<IdmRoleCatalogueRoleDto> results = Lists.newArrayList();
+
+		// Get organization structure from DN.
+		List<String> orgUnites = this.prepareCatalogueNames(roleDn);
+		// Remove a leaf element (role).
+		if (!orgUnites.isEmpty()){
+			orgUnites = Lists.newArrayList(orgUnites);
+			orgUnites.remove(orgUnites.size() - 1);
+		}
+
+		if (mainCatalogueId != null) {
+			IdmRoleCatalogueDto mainCatalogueDto = get(mainCatalogueId);
+			ArrayList<String> mainOrgUnites = Lists.newArrayList(mainCatalogueDto.getCode());
+			mainOrgUnites.addAll(orgUnites);
+			orgUnites = mainOrgUnites;
+		} 
+		
+		String catalogCode = join(orgUnites);
+		// Find catalogue by external ID.
+		IdmRoleCatalogueDto catalogueDto = getByCode(catalogCode);
+
+		if (catalogueDto == null) {
+			// Create new role-catalogue. Will be save outside this method.
+			catalogueDto = resolveRoleCatalogueTree(orgUnites, mainCatalogueId);
+			if (catalogueDto == null) {
+				return null;
+			}
+		}
+		
+		return catalogueDto;
+	}
+
+	private IdmRoleCatalogueDto resolveRoleCatalogueTree(List<String> orgUnites, UUID mainCatalogueId) {
+		List<IdmRoleCatalogueDto> parents = Lists.newArrayList();
+
+		for (int i = 0; i < orgUnites.size(); i++) {
+			String parentCode = join(orgUnites.subList(0, i + 1));
+			IdmRoleCatalogueDto parent = null;
+			if (mainCatalogueId != null && i == 0) {
+				parent = getByCode(parentCode);
+			}else {
+				parent = getByCode(parentCode);
+			}
+			
+			if (parent == null) {
+				parent = new IdmRoleCatalogueDto();
+				parent.setCode(parentCode);
+				parent.setName(orgUnites.get(i));
+			}
+			parents.add(parent);
+		}
+		if (parents.isEmpty()) {
+			return null;
+		}
+		for (int i = 0; i < parents.size(); i++) {
+			IdmRoleCatalogueDto current = parents.get(i);
+			if (i > 0) {
+				IdmRoleCatalogueDto parent = parents.get(i - 1);
+				current.getEmbedded().put(IdmRoleCatalogue_.parent.getName(), parent);
+			}
+		}
+
+		return parents.get(parents.size() - 1);
+	}
+
+	private String join(List<String> orgUnites) {
+		return StringUtils.join(Lists.reverse(orgUnites).toArray(), "/");
+	}
+
+	private List<String> prepareCatalogueNames(String dn) {
+		int index = dn.toLowerCase().indexOf(",dc="); // where domain starts
+		if (index != -1){
+			dn = dn.substring(0, index);
+		}
+		dn = dn.replaceAll(",OU=", "=");
+		dn = dn.replaceAll(",CN=", "=");
+		dn = dn.replaceAll("CN=", "");
+		// in ldap it is in lower  case
+		dn = dn.replaceAll(",ou=", "=");
+		dn = dn.replaceAll(",cn=", "=");
+		dn = dn.replaceAll("cn=", "");
+		
+		return Lists.reverse(Arrays.asList(dn.split("=")));
 	}
 	
 	@Override

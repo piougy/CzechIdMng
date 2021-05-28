@@ -198,11 +198,11 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	private IdmCacheManager idmCacheManager;
 	// Instance of LRT
 	protected AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor;
+	// Context for whole sync.
+	protected SynchronizationContext syncContext;
 
 	/**
 	 * Returns entity type for this synchronization executor
-	 *
-	 * @return
 	 */
 	protected SystemEntityType getEntityType() {
 		return SystemEntityType.getByClass(getService().getDtoClass());
@@ -299,6 +299,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			log.addToLog(Throwables.getStackTraceAsString(e));
 			throw e;
 		} finally {
+			syncEnd(log, syncContext);
 			log.setRunning(false);
 			log.setEnded(ZonedDateTime.now());
 			synchronizationLogService.save(log);
@@ -308,6 +309,11 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// Clear cache
 			idmCacheManager.evictCache(CACHE_NAME);
 		}
+	}
+
+	// It is called in any case after the synchronization is completed.
+	protected void syncEnd(SysSyncLogDto log, SynchronizationContext syncContext) {
+		//
 	}
 
 	/**
@@ -785,6 +791,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected SynchronizationContext validate(UUID synchronizationConfigId) {
 
 		SynchronizationContext context = new SynchronizationContext();
+		// Set context as main context for whole sync.
+		syncContext = context;
 		AbstractSysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
 		//
 		if (config == null) {
@@ -1822,6 +1830,11 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (attribute == null || icAttributes == null) {
 			return null;
 		}
+		if (attribute instanceof SysSystemAttributeMappingDto && context != null && context.getConfig() != null) {
+			SysSystemAttributeMappingDto attributeMappingDto = (SysSystemAttributeMappingDto) attribute;
+			// Set ID of this sync to attribute instance. A configuration of sync can be use in script.
+			attributeMappingDto.setSyncConfigId(context.getConfig().getId());
+		}
 
 		// If is attribute marked as not "cached", then none cache is using
 		if (!attribute.isCached()) {
@@ -2101,7 +2114,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 	}
 
-	private Session getHibernateSession() {
+	protected Session getHibernateSession() {
 		return (Session) this.entityManager.getDelegate();
 	}
 
@@ -2462,7 +2475,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				systemAccountsList.add(uid);
 			}
 
-			SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
+			SynchronizationContext itemContext = cloneItemContext(context);
 			itemContext //
 					.addUid(uid) //
 					.addIcObject(connectorObject) //
@@ -2470,6 +2483,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			return handleIcObject(itemContext);
 		}
+	}
+	
+	protected SynchronizationContext cloneItemContext(SynchronizationContext context) {
+		return SynchronizationContext.cloneContext(context);
 	}
 
 	/**
@@ -2511,7 +2528,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				systemAccountsList.add(uid);
 			}
 
-			SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
+			SynchronizationContext itemContext = cloneItemContext(context);
 			itemContext //
 					.addUid(uid) //
 					.addLogItem(itemLog) //

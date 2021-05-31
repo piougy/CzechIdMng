@@ -32,17 +32,12 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
-import eu.bcvsolutions.idm.acc.entity.TestResource_;
 import eu.bcvsolutions.idm.acc.entity.TestRoleResource;
-import eu.bcvsolutions.idm.acc.entity.TestRoleResource_;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -60,7 +55,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptFilter;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.processor.RoleProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -71,7 +65,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.bulk.action.impl.role.RoleDeleteBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
@@ -82,7 +75,6 @@ import java.util.Map;
 import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import org.apache.logging.log4j.util.Strings;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -106,7 +98,6 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String CHANGED = "changed";
-	private static final String DATE_TABLE_CONNECTOR_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
 	@Autowired
 	private TestHelper helper;
@@ -239,7 +230,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -332,7 +323,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -442,7 +433,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -568,7 +559,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -702,7 +693,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -832,7 +823,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -874,7 +865,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		SysSchemaAttributeDto nameUserSchemaAttribute = schemaAttributeService.find(schemaUserAttributeFilter, null)
 				.getContent()
 				.stream()
-				.filter(attribute -> TestResource_.name.getName().equalsIgnoreCase(attribute.getName()))
+				.filter(attribute -> "name".equalsIgnoreCase(attribute.getName()))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(nameUserSchemaAttribute);
@@ -985,7 +976,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -1028,7 +1019,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		SysSchemaAttributeDto nameUserSchemaAttribute = schemaAttributeService.find(schemaUserAttributeFilter, null)
 				.getContent()
 				.stream()
-				.filter(attribute -> TestResource_.name.getName().equalsIgnoreCase(attribute.getName()))
+				.filter(attribute -> "name".equalsIgnoreCase(attribute.getName()))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(nameUserSchemaAttribute);
@@ -1192,7 +1183,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -1308,7 +1299,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -1474,7 +1465,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		schemaAttributeFilter.setObjectClassId(schemaObjectClassDto.getId());
 
 		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.find(schemaAttributeFilter, null).getContent().stream()
-				.filter(attribute -> attribute.getName().equalsIgnoreCase(TestRoleResource_.name.getName()))
+				.filter(attribute -> attribute.getName().equalsIgnoreCase("name"))
 				.findFirst()
 				.orElse(null);
 		Assert.assertNotNull(schemaAttributeDto);
@@ -1748,7 +1739,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
 				attributeHandlingName.setUid(true);
 				attributeHandlingName.setEntityAttribute(true);
-				attributeHandlingName.setIdmPropertyName(TestRoleResource_.name.getName());
+				attributeHandlingName.setIdmPropertyName("name");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				// For provisioning .. we need create UID
@@ -1756,9 +1747,9 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeHandlingName);
 
-			} else if (TestRoleResource_.priority.getName().equalsIgnoreCase(schemaAttr.getName())) {
+			} else if ("priority".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSystemAttributeMappingDto attributeHandlingName = new SysSystemAttributeMappingDto();
-				attributeHandlingName.setIdmPropertyName(TestRoleResource_.priority.getName());
+				attributeHandlingName.setIdmPropertyName("priority");
 				attributeHandlingName.setEntityAttribute(true);
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setName(schemaAttr.getName());

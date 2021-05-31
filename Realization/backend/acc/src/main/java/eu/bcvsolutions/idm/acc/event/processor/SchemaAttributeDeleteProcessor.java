@@ -1,5 +1,19 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import com.google.common.collect.ImmutableMap;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -31,6 +45,8 @@ public class SchemaAttributeDeleteProcessor extends CoreEventProcessor<SysSchema
 	
 	private final SysSystemAttributeMappingService systeAttributeMappingService;
 	private final SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private SysSyncConfigService syncConfigService;
 	
 	@Autowired
 	public SchemaAttributeDeleteProcessor(
@@ -54,6 +70,16 @@ public class SchemaAttributeDeleteProcessor extends CoreEventProcessor<SysSchema
 		systeAttributeMappingService.find(filter, null).forEach(systemAttributeMapping -> {
 			systeAttributeMappingService.delete(systemAttributeMapping);
 		});
+
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.findRoleConfigByMemberIdentifierAttribute(schemaAttribute.getId());
+		if (syncConfigs.size() > 0){
+			SysSystemMappingDto systemMappingDto = DtoUtils.getEmbedded(syncConfigs.get(0), SysSyncRoleConfig_.systemMapping, SysSystemMappingDto.class);
+			SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto, SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+			SysSystemDto systemDto = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+			
+			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
+					ImmutableMap.of("attribute", schemaAttribute.getName(), "system", systemDto.getName()));
+		}
 		//
 		schemaAttributeService.deleteInternal(schemaAttribute);
 		//

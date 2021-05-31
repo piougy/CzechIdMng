@@ -1,5 +1,15 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -39,7 +49,7 @@ public class SystemMappingDeleteProcessor extends CoreEventProcessor<SysSystemMa
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysRoleSystemService roleSystemService;
 	private final SysSystemMappingService systemMappingService;
-	private final SysSyncConfigService configService;
+	private final SysSyncConfigService syncConfigService;
 	
 	@Autowired
 	public SystemMappingDeleteProcessor(
@@ -57,15 +67,29 @@ public class SystemMappingDeleteProcessor extends CoreEventProcessor<SysSystemMa
 		this.roleSystemService = roleSystemService;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.systemMappingService = systemMappingService;
-		this.configService = configService;
+		this.syncConfigService = configService;
 	}
 
 	@Override
 	public EventResult<SysSystemMappingDto> process(EntityEvent<SysSystemMappingDto> event) {
 		SysSystemMappingDto systemMapping = event.getContent();
 		//
-		if (configService.countBySystemMapping(systemMapping) > 0) {
-			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("mapping", systemMapping.getName()));
+		if (syncConfigService.countBySystemMapping(systemMapping) > 0) {
+			SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMapping, SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+			SysSystemDto systemDto = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+			
+			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC,
+					ImmutableMap.of("mapping", systemMapping.getName(),"system", systemDto.getName()));
+		}
+		
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.findRoleConfigBySystemMapping(systemMapping.getId());
+		if (syncConfigs.size() > 0){
+			SysSystemMappingDto systemMappingDto = DtoUtils.getEmbedded(syncConfigs.get(0), SysSyncRoleConfig_.systemMapping, SysSystemMappingDto.class);
+			SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto, SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+			SysSystemDto systemDto = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+
+			throw new ResultCodeException(AccResultCode.SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC,
+					ImmutableMap.of("mapping", systemMapping.getName(), "system", systemDto.getName()));
 		}
 		//
 		// remove all handled attributes

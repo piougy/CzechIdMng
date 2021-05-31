@@ -1,5 +1,18 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import com.google.common.collect.ImmutableMap;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -26,6 +39,8 @@ public class RoleCatalogueDeleteProcessor extends CoreEventProcessor<IdmRoleCata
 
 	private static final String PROCESSOR_NAME = "role-catalogue-delete-processor";
 	private final AccRoleCatalogueAccountService catalogueAccountService;
+	@Autowired
+	private SysSyncConfigService syncConfigService;
 	
 	@Autowired
 	public RoleCatalogueDeleteProcessor(AccRoleCatalogueAccountService service) {
@@ -48,9 +63,27 @@ public class RoleCatalogueDeleteProcessor extends CoreEventProcessor<IdmRoleCata
 		catalogueAccountService.find(filter, null).forEach(treeAccount -> {
 			catalogueAccountService.delete(treeAccount);
 		});
+
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.findRoleConfigByMainCatalogueRoleNode(event.getContent().getId());
+		checkSyncs(event, syncConfigs);
+
+		syncConfigs = syncConfigService.findRoleConfigByRemoveCatalogueRoleParentNode(event.getContent().getId());
+		checkSyncs(event, syncConfigs);
+
 		return new DefaultEventResult<>(event, this);
 	}
-	
+
+	private void checkSyncs(EntityEvent<IdmRoleCatalogueDto> event, List<AbstractSysSyncConfigDto> syncConfigs) {
+		if (syncConfigs.size() > 0){
+			SysSystemMappingDto systemMappingDto = DtoUtils.getEmbedded(syncConfigs.get(0), SysSyncRoleConfig_.systemMapping, SysSystemMappingDto.class);
+			SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto, SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+			SysSystemDto systemDto = DtoUtils.getEmbedded(objectClassDto, SysSchemaObjectClass_.system, SysSystemDto.class);
+
+			throw new ResultCodeException(AccResultCode.ROLE_CATALOGUE_DELETE_FAILED_USED_IN_SYNC,
+					ImmutableMap.of("catalogue", event.getContent().getName(), "system", systemDto.getName()));
+		}
+	}
+
 	@Override
 	public int getOrder() {
 		// right now before entity delete

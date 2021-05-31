@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,4 +74,44 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 	 */
 	@Query("select e from SysSyncIdentityConfig e where e.defaultRole.id = :defaultRole")
 	List<SysSyncIdentityConfig> findByDefaultRole(@Param("defaultRole") UUID defaultRole);
+	
+	/**
+	 * Find role configs by member system mapping ID.
+	 * 
+	 * @since 11.0.1
+	 */
+	@Query("select e from SysSyncRoleConfig e where e.memberSystemMapping.id = :memberSystemMapping")
+	List<SysSyncRoleConfig> findRoleConfigBySystemMapping(@Param("memberSystemMapping") UUID memberSystemMapping);
+	
+	/**
+	 * Find role configs by system member-of attribute ID.
+	 * 
+	 * @since 11.0.1
+	 */
+	@Query("select e from SysSyncRoleConfig e where e.memberOfAttribute.id = :attributeMapping")
+	List<SysSyncRoleConfig> findRoleConfigByMemberOfAttribute(@Param("attributeMapping") UUID attributeMapping);
+	
+	/**
+	 * Find role configs by system member identifier attribute ID.
+	 * 
+	 * @since 11.0.1
+	 */
+	@Query("select e from SysSyncRoleConfig e where e.memberIdentifierAttribute.id = :memberIdentifierAttribute")
+	List<SysSyncRoleConfig> findRoleConfigByMemberIdentifierAttribute(@Param("memberIdentifierAttribute") UUID memberIdentifierAttribute);
+	
+	/**
+	 * Find role configs by role catalog node ID.
+	 * 
+	 * @since 11.0.1
+	 */
+	@Query("select e from SysSyncRoleConfig e where e.mainCatalogueRoleNode.id = :mainCatalogueRoleNode")
+	List<SysSyncRoleConfig> findRoleConfigByMainCatalogueRoleNode(@Param("mainCatalogueRoleNode") UUID mainCatalogueRoleNode);
+	
+	/**
+	 * Find role configs by role catalog node ID.
+	 * 
+	 * @since 11.0.1
+	 */
+	@Query("select e from SysSyncRoleConfig e where e.removeCatalogueRoleParentNode.id = :removeCatalogueRoleParentNode")
+	List<SysSyncRoleConfig> findRoleConfigByRemoveCatalogueRoleParentNode(@Param("removeCatalogueRoleParentNode") UUID removeCatalogueRoleParentNode);
 }

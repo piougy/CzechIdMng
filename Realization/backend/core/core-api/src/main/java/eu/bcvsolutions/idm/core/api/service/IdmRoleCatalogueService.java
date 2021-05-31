@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,4 +77,16 @@ public interface IdmRoleCatalogueService extends
 	 * @return
 	 */
 	List<IdmRoleCatalogueDto> findAllParents(UUID catalogueId);
+	
+	/**
+	 * Find by external ID.
+	 */
+	IdmRoleCatalogueDto findByExternalId(String catalogCode);
+
+	/**
+	 * Resolve role catalogue by DN.
+	 * Returns catalog where can be embedded data for parent catalog. That catalogs don't have to be saved.
+	 * This method was designed for sync of role and is called from a script!
+	 */
+	IdmRoleCatalogueDto resolveRoleCatalogueByDn(String roleDn, UUID mainCatalogueId);
 }

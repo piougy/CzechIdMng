@@ -56,6 +56,10 @@ export class SystemAttributeMappingInfo extends Advanced.AbstractEntityInfo {
    * @param  {object} entity
    */
   getPopoverTitle() {
+    const {popoverTitle} = this.props;
+    if (!!popoverTitle) {
+      return popoverTitle;
+    }
     return this.i18n('acc:entity.SystemAttributeMapping._type');
   }
 

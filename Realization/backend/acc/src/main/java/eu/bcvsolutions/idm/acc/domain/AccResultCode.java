@@ -40,8 +40,9 @@ public enum AccResultCode implements ResultCode {
 	REMOTE_SYSTEM_DELETE_FAILED_HAS_SYSTEMS(HttpStatus.BAD_REQUEST, "Remote server [%s] cannot be deleted. It is already used in configured systems."),
 	//
 	// attribute mapping
-	ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "Attribute [%s] cannot be deleted. It is used in synchronization on this system!"),
-	SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "System mapping [%s] cannot be deleted. It is used in synchronization on this system!"),
+	ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "Attribute [%s] cannot be deleted. It is used in synchronization on the system [%s]!"),
+	ROLE_CATALOGUE_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "Role catalog [%s] cannot be deleted. It is used in synchronization on the system [%s]!"),
+	SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "System mapping [%s] cannot be deleted. It is used in synchronization on the system [%s]!"),
 	SYSTEM_MAPPING_FOR_ENTITY_EXISTS(HttpStatus.CONFLICT, "Can't add two provisioning mappings for one system [%s] and same entity type [%s]!"),
 	SYSTEM_MAPPING_TREE_TYPE_DELETE_FAILED(HttpStatus.CONFLICT, "Tree type [%s] has assigned mapping on system [%s], cannot be deleted. Remove it at first."),
 	//
@@ -178,7 +179,12 @@ public enum AccResultCode implements ResultCode {
 	WIZARD_AD_OPERATION_FAILED(HttpStatus.NOT_FOUND, "AD operation failed for DN [%s]!"),
 	WIZARD_AD_GROUP_NOT_FOUND(HttpStatus.NOT_FOUND, "The group [%s] wasn't found!"),
 	WIZARD_AD_CONNECTOR_DN_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "Entry with DN [%s] already exists!"),
-	WIZARD_AD_CREATED_TEST_USER_DN(HttpStatus.CREATED, "Test user with DN [%s] created.");
+	WIZARD_AD_CREATED_TEST_USER_DN(HttpStatus.CREATED, "Test user with DN [%s] created."),
+	//
+	SYNC_OF_ROLES_COMMON_ROLE_REQUEST(HttpStatus.CONTINUE, "Sync of roles - a common role request."),
+	SYNC_OF_ROLES_CATALOGUE_EXT_ID_IS_NULL(HttpStatus.BAD_REQUEST, "Sync of roles - Catalog cannot be created. External ID in the catalogue with code [%s] cannot be null!"),
+	SYNC_OF_ROLES_CATALOGUE_NAME_IS_NULL(HttpStatus.BAD_REQUEST, "Sync of roles - Catalog cannot be created. Name in a catalogue cannot be null!"),
+	SYNC_OF_ROLES_MAPPING_ATTRIBUTE_MISSING(HttpStatus.BAD_REQUEST, "Sync of roles - Mapping attribute [%s] missing!");
 
 	private final HttpStatus status;
 	private final String message;

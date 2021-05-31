@@ -1,33 +1,19 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.util.List;
-import java.util.UUID;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncTreeConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
@@ -35,18 +21,35 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncTreeConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 /**
  * Default synchronization config service
@@ -62,6 +65,8 @@ public class DefaultSysSyncConfigService
 
 	private final SysSyncConfigRepository repository;
 	private final SysSyncLogService syncLogService;
+	@Autowired
+	private SysSystemAttributeMappingService systemAttributeMappingService;
 
 	@Autowired
 	public DefaultSysSyncConfigService(SysSyncConfigRepository repository, SysSyncLogService synchronizationLogService) {
@@ -108,6 +113,73 @@ public class DefaultSysSyncConfigService
 				result.setLastSyncLog(logs.get(0));
 			}
 		}
+		if (result instanceof SysSyncRoleConfigDto) {
+			SysSyncRoleConfigDto roleConfigDto = (SysSyncRoleConfigDto) result;
+			SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+			attributeMappingFilter.setSystemMappingId(roleConfigDto.getSystemMapping());
+			attributeMappingFilter.setDisabledAttribute(Boolean.FALSE);
+			
+			// Check if exist mapping attribute for 'Forward ACM'.
+			attributeMappingFilter.setIdmPropertyName(RoleSynchronizationExecutor.ROLE_FORWARD_ACM_FIELD);
+			SysSystemAttributeMappingDto attributeMappingDto = systemAttributeMappingService.find(attributeMappingFilter, null)
+					.getContent()
+					.stream()
+					.findFirst()
+					.orElse(null);
+			
+			if (attributeMappingDto != null) {
+				roleConfigDto.setForwardAcmMappingAttribute(attributeMappingDto.getId());
+				roleConfigDto.getEmbedded().put("forwardAcmMappingAttribute", attributeMappingDto);
+			}
+
+			// Check if exist mapping attribute for 'Skip value if excluded'.
+			attributeMappingFilter.setIdmPropertyName(RoleSynchronizationExecutor.ROLE_SKIP_VALUE_IF_EXCLUDED_FIELD);
+			attributeMappingDto = systemAttributeMappingService.find(attributeMappingFilter, null)
+					.getContent()
+					.stream()
+					.findFirst()
+					.orElse(null);
+			if (attributeMappingDto != null) {
+				roleConfigDto.setSkipValueIfExcludedMappingAttribute(attributeMappingDto.getId());
+				roleConfigDto.getEmbedded().put("skipValueIfExcludedMappingAttribute", attributeMappingDto);
+			}
+			
+			// Check if exist mapping attribute for 'role catalog'.
+			attributeMappingFilter.setIdmPropertyName(RoleSynchronizationExecutor.ROLE_CATALOGUE_FIELD);
+			attributeMappingDto = systemAttributeMappingService.find(attributeMappingFilter, null)
+					.getContent()
+					.stream()
+					.findFirst()
+					.orElse(null);
+			if (attributeMappingDto != null) {
+				roleConfigDto.setAssignCatalogueMappingAttribute(attributeMappingDto.getId());
+				roleConfigDto.getEmbedded().put("assignCatalogueMappingAttribute", attributeMappingDto);
+			}
+			
+			// Check if exist mapping attribute for 'role members'.
+			attributeMappingFilter.setIdmPropertyName(RoleSynchronizationExecutor.ROLE_MEMBERS_FIELD);
+			attributeMappingDto = systemAttributeMappingService.find(attributeMappingFilter, null)
+					.getContent()
+					.stream()
+					.findFirst()
+					.orElse(null);
+			if (attributeMappingDto != null) {
+				roleConfigDto.setRoleMembersMappingAttribute(attributeMappingDto.getId());
+				roleConfigDto.getEmbedded().put("roleMembersMappingAttribute", attributeMappingDto);
+			}
+			
+			// Check if exist mapping attribute for 'role identifier'.
+			attributeMappingFilter.setIdmPropertyName(RoleSynchronizationExecutor.ROLE_MEMBERSHIP_ID_FIELD);
+			attributeMappingDto = systemAttributeMappingService.find(attributeMappingFilter, null)
+					.getContent()
+					.stream()
+					.findFirst()
+					.orElse(null);
+			if (attributeMappingDto != null) {
+				roleConfigDto.setRoleIdentifiersMappingAttribute(attributeMappingDto.getId());
+				roleConfigDto.getEmbedded().put("roleIdentifiersMappingAttribute", attributeMappingDto);
+			}
+		}
 
 		return result;
 	}
@@ -128,6 +200,9 @@ public class DefaultSysSyncConfigService
 		if (dto instanceof SysSyncTreeConfigDto) {
 			return SysSyncTreeConfig.class;
 		}
+		if (dto instanceof SysSyncRoleConfigDto) {
+			return SysSyncRoleConfig.class;
+		}
 		return SysSyncConfig.class;
 	}
 
@@ -141,6 +216,9 @@ public class DefaultSysSyncConfigService
 		}
 		if (entity instanceof SysSyncTreeConfig) {
 			return SysSyncTreeConfigDto.class;
+		}
+		if (entity instanceof SysSyncRoleConfig) {
+			return SysSyncRoleConfigDto.class;
 		}
 		return SysSyncConfigDto.class;
 	}
@@ -243,6 +321,52 @@ public class DefaultSysSyncConfigService
 	}
 
 	@Override
+	public List<AbstractSysSyncConfigDto> findRoleConfigBySystemMapping(UUID mappingId) {
+		// I need to use repository, because I am no able use syncRoleConfig entity in toPredicate.
+		return repository.findRoleConfigBySystemMapping(mappingId)
+				.stream().map(config -> this.toDto(config, null))
+				.collect(Collectors
+						.toList());
+	}
+	
+	@Override
+	public List<AbstractSysSyncConfigDto> findRoleConfigByMemberOfAttribute(UUID mappingAttributeId) {
+		// I need to use repository, because I am no able use syncRoleConfig entity in toPredicate.
+		return repository.findRoleConfigByMemberOfAttribute(mappingAttributeId)
+				.stream().map(config -> this.toDto(config, null))
+				.collect(Collectors
+						.toList());
+	}
+	
+	@Override
+	public List<AbstractSysSyncConfigDto> findRoleConfigByMemberIdentifierAttribute(UUID schemaAttributeId) {
+		// I need to use repository, because I am no able use syncRoleConfig entity in toPredicate.
+		return repository.findRoleConfigByMemberIdentifierAttribute(schemaAttributeId)
+				.stream().map(config -> this.toDto(config, null))
+				.collect(Collectors
+						.toList());
+	}
+	
+	@Override
+	public List<AbstractSysSyncConfigDto> findRoleConfigByMainCatalogueRoleNode(UUID catalogId) {
+		// I need to use repository, because I am no able use syncRoleConfig entity in toPredicate.
+		return repository.findRoleConfigByMainCatalogueRoleNode(catalogId)
+				.stream().map(config -> this.toDto(config, null))
+				.collect(Collectors
+						.toList());
+	}
+	
+	@Override
+	public List<AbstractSysSyncConfigDto> findRoleConfigByRemoveCatalogueRoleParentNode(UUID catalogId) {
+		// I need to use repository, because I am no able use syncRoleConfig entity in toPredicate.
+		return repository.findRoleConfigByRemoveCatalogueRoleParentNode(catalogId)
+				.stream().map(config -> this.toDto(config, null))
+				.collect(Collectors
+						.toList());
+	}
+	
+
+	@Override
 	protected AbstractSysSyncConfigDto internalExport(UUID id) {
 		// For searching tree-type by code, have to be tree-type DTO embedded.
 		AbstractSysSyncConfigDto dto = this.get(id);
@@ -280,8 +404,5 @@ public class DefaultSysSyncConfigService
 				descriptorDto.getAdvancedParingFields().add(SysSyncContractConfig_.defaultTreeNode.getName());
 			}
 		}
-
-
-
 	}
 }

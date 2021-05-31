@@ -120,7 +120,6 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		return testResource;
 	}
 	
-
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void deleteAllResourceData() {

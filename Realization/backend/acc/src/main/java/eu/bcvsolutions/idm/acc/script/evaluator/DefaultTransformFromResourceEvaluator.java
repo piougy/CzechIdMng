@@ -56,6 +56,12 @@ public class DefaultTransformFromResourceEvaluator extends AbstractScriptEvaluat
 		example.append(")\n");
 		//
 		example.append("        .addParameter('");
+		example.append(SysSystemAttributeMappingService.ATTRIBUTE_MAPPING_KEY);
+		example.append("', ");
+		example.append(SysSystemAttributeMappingService.ATTRIBUTE_MAPPING_KEY);
+		example.append(")\n");
+		//
+		example.append("        .addParameter('");
 		example.append(SysSystemAttributeMappingService.IC_ATTRIBUTES_KEY);
 		example.append("', ");
 		example.append(SysSystemAttributeMappingService.IC_ATTRIBUTES_KEY);

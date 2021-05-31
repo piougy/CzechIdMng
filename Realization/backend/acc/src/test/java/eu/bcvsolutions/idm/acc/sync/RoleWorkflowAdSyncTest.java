@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -172,12 +172,12 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		Assert.assertEquals(0, roles.size());
 		
 		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		SysSyncRoleConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
 		config.setMissingAccountActionWfKey(wfExampleKey);
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		config = (SysSyncRoleConfigDto) syncConfigService.save(config);
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -261,12 +261,12 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		roleService.save(role);
 		
 		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		SysSyncRoleConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
 		config.setMissingAccountActionWfKey(wfExampleKey);
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		config = (SysSyncRoleConfigDto) syncConfigService.save(config);
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -339,12 +339,12 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		
 		
 		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		SysSyncRoleConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
 		config.setMissingAccountActionWfKey(wfExampleKey);
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		config = (SysSyncRoleConfigDto) syncConfigService.save(config);
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -384,12 +384,12 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		
 		
 		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		SysSyncRoleConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
 		config.setMissingAccountActionWfKey(wfExampleKey);
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		config = (SysSyncRoleConfigDto) syncConfigService.save(config);
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -432,12 +432,12 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		
 		
 		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		SysSyncRoleConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
 		config.setMissingAccountActionWfKey(wfExampleKey);
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		config = (SysSyncRoleConfigDto) syncConfigService.save(config);
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -495,12 +495,12 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		Assert.assertEquals(0, content.size());
 		
 		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		SysSyncRoleConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
 		config.setMissingAccountActionWfKey(wfExampleKey);
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		config = (SysSyncRoleConfigDto) syncConfigService.save(config);
 
 		// Start sync
 		helper.startSynchronization(config);
@@ -593,7 +593,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		configurationService.setBooleanValue("idm.pub.acc.syncRole.update.resolveMembership", false);
 	}
 	
-	private SysSyncIdentityConfigDto doCreateSyncConfig(SysSystemDto system) {
+	private SysSyncRoleConfigDto doCreateSyncConfig(SysSystemDto system) {
 
 		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.ROLE);
@@ -612,7 +612,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		}).findFirst().orElse(null);
 
 		// Create default synchronization config
-		SysSyncIdentityConfigDto syncConfigCustom = new SysSyncIdentityConfigDto();
+		SysSyncRoleConfigDto syncConfigCustom = new SysSyncRoleConfigDto();
 		syncConfigCustom.setReconciliation(true);
 		syncConfigCustom.setCustomFilter(false);
 		syncConfigCustom.setSystemMapping(mapping.getId());
@@ -623,7 +623,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
 		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.DELETE_ENTITY);
 
-		syncConfigCustom = (SysSyncIdentityConfigDto) syncConfigService.save(syncConfigCustom);
+		syncConfigCustom = (SysSyncRoleConfigDto) syncConfigService.save(syncConfigCustom);
 
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setSystemId(system.getId());
@@ -784,12 +784,12 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		Assert.assertEquals(0, roles.size());
 		
 		Assert.assertNotNull(system);
-		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		SysSyncRoleConfigDto config = doCreateSyncConfig(system);
 		config.setLinkedActionWfKey(wfExampleKey);
 		config.setMissingAccountActionWfKey(wfExampleKey);
 		config.setMissingEntityActionWfKey(wfExampleKey);
 		config.setUnlinkedActionWfKey(wfExampleKey);
-		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		config = (SysSyncRoleConfigDto) syncConfigService.save(config);
 
 		// Start sync
 		helper.startSynchronization(config);

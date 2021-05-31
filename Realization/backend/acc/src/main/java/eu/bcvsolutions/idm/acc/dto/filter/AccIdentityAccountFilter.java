@@ -25,6 +25,7 @@ public class AccIdentityAccountFilter implements BaseFilter, EntityAccountFilter
 	// Results will be without identity-account with given ID
 	private UUID notIdentityAccount;
 	private List<UUID> identityRoleIds;
+	private String uid;
 
 	public Boolean isOwnership() {
 		return ownership;
@@ -107,4 +108,11 @@ public class AccIdentityAccountFilter implements BaseFilter, EntityAccountFilter
 		this.identityRoleIds = identityRoleIds;
 	}
 
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
 }

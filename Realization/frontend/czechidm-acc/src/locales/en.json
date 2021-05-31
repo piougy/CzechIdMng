@@ -206,6 +206,110 @@
             "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute and tree structure."
           }
         },
+        "roleConfigDetail": {
+          "memberSystemMapping": {
+            "label": "Target system with users",
+            "helpBlock": "Select a mapping on the system with users to become members of synchronized roles. The mapping must be of the 'provisioning' type and for the 'identity' type."
+          },
+          "memberIdentifierAttribute": {
+            "label": "Attribute with user identifier",
+            "helpBlock": "Select the user attribute that contains the identifier that is used in the attribute with the list of users on the synchronized roles. The attribute must be mapped on the target system with the users (typically 'DN')."
+          },
+          "memberAttribute": {
+            "label": "Attribute with users",
+            "helpBlock": "Select the role attribute that contains the list of users of the target system. The attribute must be mapped on this system (typically 'member')."
+          },
+          "memberOfAttribute": {
+            "label": "Attribute with roles",
+            "helpBlock": "Select the identity attribute that contains the list of roles/groups of the target system. The attribute must be mapped on the target system with users (typically 'ldapGroups')."
+          },
+          "forwardAcmSwitch": {
+            "label": "Enable forward provisioning",
+            "helpBlock": ""
+          },
+          "skipValueIfExcludedSwitch": {
+            "label": "Activate the management of the attribute 'Skip value if contract is excluded'",
+            "helpBlock": ""
+          },
+          "membershipSwitch": {
+            "label": "Activate membership in roles (groups)",
+            "helpBlock": "Users to whom these synchronized roles will be assigned will also become members on the connected system."
+          },
+          "assignRoleSwitch": {
+            "label": "Enable assignment of roles to users according to the connected system",
+            "helpBlock": "Assigning/removing synchronized roles will be controlled based on data from target system."
+          },
+          "assignRoleRemoveSwitch": {
+            "label": "Enable removal of assigned roles in IdM",
+            "helpBlock": "The role will be removed by users in IdM who do not have it assigned in the system."
+          },
+          "assignCatalogueSwitch": {
+            "label": "Enable role catalog spooling",
+            "helpBlock": ""
+          },
+          "removeCatalogueRoleSwitch": {
+            "label": "Allow removal of invalid roles from the catalog",
+            "helpBlock": "If the catalog item is not valid  (by the system data), the roles will be removed from the catalog."
+          },
+          "mainCatalogueRoleNode": {
+            "label": "Main catalog item",
+            "helpBlock": "If a catalog item is selected, then the entire role catalog from this synchronization will be inserted under it."
+          },
+          "removeCatalogueRoleParentNode": {
+            "label": "Node to manage the removal of catalog items",
+            "helpBlock": "If removing roles from the catalog is enabled, then this field must be filled in. Roles will only be removed from the catalog under this item!"
+          },
+          "forwardAcmMappingAttribute": {
+            "found": {
+              "title": "Attribute solving forward provisioning"
+            },
+            "notfound": {
+              "title": "Attribute not mapped in mapping!",
+              "text": "For proper operation, the forward provisioning attribute must first be mapped on this system!"
+            }
+          },
+          "skipValueIfExcludedMappingAttribute": {
+            "found": {
+              "title": "Attribute solving with 'Skip value if contract is excluded'"
+            },
+            "notfound": {
+              "title": "Attribute not mapped in mapping!",
+              "text": "For proper operation, the 'Skip value if contract is excluded' attribute must first be mapped in this system!"
+            }
+          },
+          "roleIdentifiersMappingAttribute": {
+            "found": {
+              "title": "Attribute solving 'Role identifier'"
+            },
+            "notfound": {
+              "title": "Attribute not mapped in mapping!",
+              "text": "For proper operation, an attribute addressing 'Role identifier' must first be mapped on this system!"
+            }
+          },
+          "assignCatalogueMappingAttribute": {
+            "found": {
+              "title": "Attribute solving with 'Assigning to the role catalog'"
+            },
+            "notfound": {
+              "title": "Attribute not mapped in mapping!",
+              "text": "For proper operation, the attribute addressing 'Assigning to the role catalog' must first be mapped in this system!"
+            }
+          },
+          "roleMembersMappingAttribute": {
+            "found": {
+              "title": "Attribute returning 'Identifiers of users'"
+            },
+            "notfound": {
+              "title": "Attribute not mapped in mapping!",
+              "text": "For proper operation, the attribute returning 'Identifiers of users' must first be mapped on this system!"
+            }
+          },
+          "mappedAttribute": "Attribute in mapping",
+          "membershipHeader": "Membership in roles (groups)",
+          "assignRoleHeader": "Assign roles to users",
+          "roleCatalogueHeader": "Role catalog management",
+          "otherSettingsHeader": "Other settings"
+        },
         "treeConfigDetail": {
           "startAutoRoleRec": {
             "label": "After end, start the automatic role recalculation",
@@ -1568,6 +1672,11 @@
       "PRIORITY": "Priority (Integer)",
       "DESCRIPTION": "Description (String)",
       "DISABLED": "Disabled (boolean)",
+      "ROLE_MEMBERSHIP_ID": "Membership - Role identifier (String)",
+      "ROLE_FORWARD_ACM": "Membership - Forward provisioning (boolean)",
+      "ROLE_SKIP_VALUE_IF_EXCLUDED": "Membership - Skip value if contract is excluded (boolean)",
+      "ROLE_CATALOGUE_FIELD": "Membership - Role catalog (List <IdmRoleCatalogueDto>)",
+      "ROLE_MEMBERS_FIELD": "Membership - Identifiers of users (List <String>)",
       "helpBlock": {
         "NAME": "",
         "BASE_CODE": "",
@@ -1576,7 +1685,12 @@
         "APPROVE_REMOVE": "",
         "PRIORITY": "",
         "DESCRIPTION": "",
-        "DISABLED": ""
+        "DISABLED": "",
+        "ROLE_MEMBERSHIP_ID": "Resolves group memberships. Returns the role identifier (DN) that will be used in the role-system relation. The output value is String, if the value will be 'null', then the link between the role and the system will be removed! ",
+        "ROLE_FORWARD_ACM": "Resolves group membership. Specifically manages the 'Forward provisioning' parameter",
+        "ROLE_SKIP_VALUE_IF_EXCLUDED": "Resolves group membership. Specifically, it manages the 'Skip value if contract is excluded' parameter.",
+        "ROLE_CATALOGUE_FIELD": "Returns a list of role catalog nodes to which the role is to be assigned. If a more complex structure needs to be solved, then each node can contain (in embedded.parent) another catalog node. ",
+        "ROLE_MEMBERS_FIELD": "Returns a list of users to be assigned the role. The output is a list of identifiers from the system (typically DNs)."
       }
     },
     "EmptyProvisioningTypeEnum": {
@@ -3013,7 +3127,7 @@
     },
     "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "System mapping [{{mapping}}] cannot be removed",
-      "message": "System mapping [{{mapping}}] cannot be removed. It's used for synchronization of the same system!"
+      "message": "System mapping [{{mapping}}] cannot be removed. It's used for synchronization of the system [{{system}}]!"
     },
     "SYSTEM_MAPPING_FOR_ENTITY_EXISTS": {
       "title": "Mapping can not be saved",
@@ -3021,7 +3135,11 @@
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
       "title": "Attribute [{{attribute}}] cannot be removed",
-      "message": "Attribute [{{attribute}}] cannot be removed. It's used for synchronization of the same system!"
+      "message": "Attribute [{{attribute}}] cannot be removed. It's used for synchronization of the system [{{system}}]!"
+    },
+    "ROLE_CATALOGUE_DELETE_FAILED_USED_IN_SYNC": {
+      "title": "Catalog [{{catalog}}] cannot be deleted",
+      "message": "The catalog [{{catalog}}] cannot be deleted. It is being used to sync on the [{{system}}] system!"
     },
     "SYSTEM_DELETE_FAILED_HAS_ENTITIES": {
       "title": "System cannot be removed",

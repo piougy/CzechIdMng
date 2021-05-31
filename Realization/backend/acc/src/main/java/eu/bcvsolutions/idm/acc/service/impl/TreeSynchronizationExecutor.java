@@ -520,7 +520,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			accountsUseInTreeList.add(root);
 			IcConnectorObject account = accountsMap.get(root);
 
-			SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
+			SynchronizationContext itemContext = cloneItemContext(context);
 			itemContext //
 					.addUid(root) //
 					.addIcObject(account) //
@@ -639,7 +639,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 				accountsUseInTreeList.add(uid);
 
 				// Do provisioning for this account
-				SynchronizationContext itemContext = SynchronizationContext.cloneContext(context);
+				SynchronizationContext itemContext = cloneItemContext(context);
 				itemContext //
 						.addUid(uid) //
 						.addIcObject(account) //

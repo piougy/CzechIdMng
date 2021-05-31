@@ -118,6 +118,9 @@ public class DefaultAccIdentityAccountService extends
 		if (filter.getAccountId() != null) {
 			predicates.add(builder.equal(root.get(AccIdentityAccount_.account).get(AccAccount_.id), filter.getAccountId()));
 		}
+		if (filter.getUid() != null) {
+			predicates.add(builder.equal(root.get(AccIdentityAccount_.account).get(AccAccount_.uid), filter.getUid()));
+		}
 		if (filter.getSystemId() != null) {
 			predicates.add(builder.equal(root.get(AccIdentityAccount_.account).get(AccAccount_.system).get(SysSystem_.id), filter.getSystemId()));
 		}	

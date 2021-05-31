@@ -370,12 +370,7 @@ class SelectBox extends AbstractFormComponent {
     //
     if (value) {
       // value is array ... multiselect
-      if (this.props.multiSelect === true) {
-        if (!(value instanceof Array)) {
-          // Select box is multiselect, but value is not Array.
-          // We will create a new array.
-          value = [_.clone(value)];
-        }
+      if (value instanceof Array && this.props.multiSelect === true) {
         if (_.isEmpty(value)) {
           // nothing
         } else {

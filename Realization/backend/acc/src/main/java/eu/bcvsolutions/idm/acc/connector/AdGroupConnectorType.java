@@ -4,112 +4,35 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationInactiveOwnerBehaviorType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.ConnectorTypeDto;
-import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
-import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncRoleConfigDto;
-import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
 import eu.bcvsolutions.idm.acc.service.api.ConnectorType;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.domain.Pair;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
-import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
-import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
-import eu.bcvsolutions.idm.core.api.utils.CertificateUtils;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
-import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
-import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
-import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.UnknownHostException;
-import java.nio.file.Paths;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
-import java.time.ZoneId;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.naming.AuthenticationException;
 import javax.naming.CommunicationException;
-import javax.naming.Context;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.tools.ant.types.resources.ImmutableResourceException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -127,7 +50,7 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 	protected static final String MEMBER_SYSTEM_MAPPING = "memberSystemMappingId";
 	private static final String GROUP_SYNC_ID = "groupSyncId";
 	private static final String GROUP_CONTAINER_KEY = "groupContainer";
-	private static final String OBJECT_GUID_ATTRIBUTE = "objectGUID";
+	public static final String OBJECT_GUID_ATTRIBUTE = "objectGUID";
 	private static final String UID_FOR_GROUP_ATTRIBUTE = "gidAttribute";
 	private static final String BASE_CONTEXT_GROUP_KEY = "groupBaseContexts";
 
@@ -147,6 +70,11 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 	@Override
 	public String getIconKey() {
 		return "ad-connector-icon";
+	}
+	
+	@Override
+	protected String getSchemaType() {
+		return IcObjectClassInfo.GROUP;
 	}
 
 
@@ -272,6 +200,9 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 			metadata.put(PASSWORD, this.getConfidentialValueFromConnectorInstance(CREDENTIALS, memberSystemDto, connectorFormDef));
 		}
 		super.executeStepOne(connectorType);
+		// Get test group and find parent group container. Will be used as default group container.
+		String testGroup = connectorType.getMetadata().get(TEST_GROUP_KEY);
+		connectorType.getMetadata().put(GROUP_CONTAINER_KEY, getParent(testGroup));
 	}
 
 	/**
@@ -295,12 +226,10 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 		String user = getValueFromConnectorInstance(PRINCIPAL, systemDto, connectorFormDef);
 		boolean ssl = Boolean.parseBoolean(getValueFromConnectorInstance(SSL, systemDto, connectorFormDef));
 		String password = getConfidentialValueFromConnectorInstance(CREDENTIALS, systemDto, connectorFormDef);
-
-		String domainContainer = connectorType.getMetadata().get(DOMAIN_KEY);
-		Assert.notNull(domainContainer, "Domain cannot be null!");
+		
 		String groupContainer = connectorType.getMetadata().get(GROUP_CONTAINER_KEY);
 		Assert.notNull(groupContainer, "Container with groups cannot be null!");
-		
+
 		String groupContainerAD = this.findDn(
 				MessageFormat.format("(&(distinguishedName={0})(|(objectClass=container)(objectClass=organizationalUnit)))", groupContainer)
 				, port, host, user, password, ssl);
@@ -313,11 +242,8 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 
 		IdmFormDefinitionDto operationOptionsFormDefinition = getSystemService().getOperationOptionsConnectorFormDefinition(systemDto);
 		if (operationOptionsFormDefinition != null) {
-			// Set domain to system's operation options.
-			operationOptionsFormDefinition = initFormAttributeDefinition(operationOptionsFormDefinition, DOMAIN_KEY, (short) 3);
-			setValueToConnectorInstance(DOMAIN_KEY, domainContainer, systemDto, operationOptionsFormDefinition);
 			// Set container with groups to system's operation options.
-			operationOptionsFormDefinition = initFormAttributeDefinition(operationOptionsFormDefinition, GROUP_CONTAINER_KEY, (short) 4);
+			operationOptionsFormDefinition = initFormAttributeDefinition(operationOptionsFormDefinition, GROUP_CONTAINER_KEY, (short) 3);
 			setValueToConnectorInstance(GROUP_CONTAINER_KEY, groupContainer, systemDto, operationOptionsFormDefinition);
 		}
 
@@ -334,23 +260,9 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 		// We need to searching in all containers. So group container will be use in the base context.
 		List<Serializable> values = Lists.newArrayList(Sets.newHashSet(groupContainer));
 		this.setValueToConnectorInstance(BASE_CONTEXT_GROUP_KEY, values, systemDto, connectorFormDef);
-		// Root suffixes.
-		// First we have to find root DN (only DCs) and generate the schema for it.
-		String root = getRoot(groupContainer);
-		this.setValueToConnectorInstance(ROOT_SUFFIXES_KEY, root, systemDto, connectorFormDef);
-
-		// Check system (execute a connector test)
-		try {
-			this.getSystemService().checkSystem(systemDto);
-		} catch (ConnectorException ex) {
-			throw new ResultCodeException(AccResultCode.CONNECTOR_TEST_FAILED,
-					ImmutableMap.of("system", systemDto.getName(), "ex", ex.getLocalizedMessage()), ex);
-		}
-		// Generate a system schema.
-		generateSchema(connectorType, systemDto);
-		// Second we will set full user search / new / delete base DN and again generate the schema.
-		this.setValueToConnectorInstance(ROOT_SUFFIXES_KEY, values, systemDto, connectorFormDef);
-		SysSchemaObjectClassDto schemaDto = generateSchema(connectorType, systemDto);
+		
+		// Set root suffixes and generate a schema.
+		SysSchemaObjectClassDto schemaDto = generateSchema(connectorType, systemDto, connectorFormDef, groupContainer, values);
 
 		// Find sAMAccountName attribute in the schema.
 //		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();

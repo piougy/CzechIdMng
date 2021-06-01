@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -51,6 +53,7 @@ public class DefaultSysSystemEntityService
 	// TODO: after transformation to events can be this removed
 	@Autowired @Lazy private SysProvisioningOperationService provisioningOperationService;
 	@Autowired @Lazy private AccAccountService accountService;
+	@Autowired @Lazy private SysSchemaObjectClassService schemaService;
 	@Autowired private SysProvisioningBatchService batchService;
 	@Autowired private SysSystemService systemService;
 
@@ -129,7 +132,9 @@ public class DefaultSysSystemEntityService
 	public IcConnectorObject getConnectorObject(SysSystemEntityDto systemEntity, BasePermission... permissions) {
 		Assert.notNull(systemEntity, "System entity cannot be null!");
 		this.checkAccess(systemEntity, permissions);
-
-		return this.systemService.readConnectorObject(systemEntity.getSystem(), systemEntity.getUid(), null);
+		// Find first mapping for entity type and system, from the account and return his object class.
+		IcObjectClass icObjectClass = schemaService.findByAccount(systemEntity.getSystem(), systemEntity.getEntityType());
+		
+		return this.systemService.readConnectorObject(systemEntity.getSystem(), systemEntity.getUid(), icObjectClass);
 	}
 }

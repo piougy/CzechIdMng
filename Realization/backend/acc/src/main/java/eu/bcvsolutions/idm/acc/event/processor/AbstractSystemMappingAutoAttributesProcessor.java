@@ -143,6 +143,20 @@ public abstract class AbstractSystemMappingAutoAttributesProcessor extends CoreE
 	}
 
 	abstract SystemEntityType getSystemEntityType();
+	
+	/**
+	 * Attributes will be generated only for defined operation type.
+	 */
+	protected SystemOperationType getSystemOperationType(){
+		return SystemOperationType.PROVISIONING;
+	}
+	
+	/**
+	 * Attributes will be generated only for defined schema type.
+	 */
+	protected String getSchemaType(){
+		return IcObjectClassInfo.ACCOUNT;
+	}
 
 	@Override
 	public boolean conditional(EntityEvent<SysSystemMappingDto> event) {
@@ -150,13 +164,13 @@ public abstract class AbstractSystemMappingAutoAttributesProcessor extends CoreE
 		if (getSystemEntityType() != systemMappingDto.getEntityType()) {
 			return false;
 		}
-		// Attributes will be generated only for provisioning.
-		if (SystemOperationType.PROVISIONING != systemMappingDto.getOperationType()) {
+		// Attributes will be generated only for defined operation type.
+		if (getSystemOperationType() != systemMappingDto.getOperationType()) {
 			return false;
 		}
-		// Attributes will be generated only for __ACCOUNT__ schema.
+		// Attributes will be generated only for defined schema.
 		SysSchemaObjectClassDto objectClassDto = lookupService.lookupEmbeddedDto(systemMappingDto, SysSystemMapping_.objectClass.getName());
-		if (!IcObjectClassInfo.ACCOUNT.equals(objectClassDto.getObjectClassName())) {
+		if (!getSchemaType().equals(objectClassDto.getObjectClassName())) {
 			return false;
 		}
 		if (event.getBooleanProperty(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING)) {

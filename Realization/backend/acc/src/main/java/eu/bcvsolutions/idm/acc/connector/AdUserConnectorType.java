@@ -210,6 +210,10 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		return "ad-connector-icon";
 	}
 
+	protected String getSchemaType() {
+		return IcObjectClassInfo.ACCOUNT;
+	}
+
 	@Override
 	public Map<String, String> getMetadata() {
 		// Default values:
@@ -701,23 +705,9 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		// We need to searching in all containers (for new, existed and deleted users). So all three values will be use in the base context.
 		List<Serializable> values = Lists.newArrayList(Sets.newHashSet(searchUserContainer, newUserContainer, deleteUserContainer));
 		this.setValueToConnectorInstance(BASE_CONTEXT_USER_KEY, values, systemDto, connectorFormDef);
-		// Root suffixes.
-		// First we have to find root DN (only DCs) and generate the schema for it.
-		String root = getRoot(searchUserContainer);
-		this.setValueToConnectorInstance(ROOT_SUFFIXES_KEY, root, systemDto, connectorFormDef);
-
-		// Check system (execute a connector test)
-		try {
-			this.getSystemService().checkSystem(systemDto);
-		} catch (ConnectorException ex) {
-			throw new ResultCodeException(AccResultCode.CONNECTOR_TEST_FAILED,
-					ImmutableMap.of("system", systemDto.getName(), "ex", ex.getLocalizedMessage()), ex);
-		}
-		// Generate a system schema.
-		generateSchema(connectorType, systemDto);
-		// Second we will set full user search / new / delete base DN and again generate the schema.
-		this.setValueToConnectorInstance(ROOT_SUFFIXES_KEY, values, systemDto, connectorFormDef);
-		SysSchemaObjectClassDto schemaDto = generateSchema(connectorType, systemDto);
+		
+		// Set root suffixes and generate a schema.
+		SysSchemaObjectClassDto schemaDto = generateSchema(connectorType, systemDto, connectorFormDef, searchUserContainer, values);
 
 		// Find sAMAccountName attribute in the schema.
 		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
@@ -811,6 +801,34 @@ public class AdUserConnectorType extends DefaultConnectorType {
 				syncConfigService.save(sync);
 			}
 		}
+	}
+
+	/**
+	 * Set Root suffixes and generate a schema.
+	 */
+	protected SysSchemaObjectClassDto generateSchema(ConnectorTypeDto connectorType, SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef, String searchUserContainer, List<Serializable> values) {
+		// First we have to find root DN (only DCs).
+		String root = getRoot(searchUserContainer);
+		// We need to generate the schema for every level.
+		String parent = getParent(root);
+		while (Strings.isNotBlank(parent)) {
+			this.setValueToConnectorInstance(ROOT_SUFFIXES_KEY, parent, systemDto, connectorFormDef);
+			// Check system (execute a connector test)
+			try {
+				this.getSystemService().checkSystem(systemDto);
+			} catch (ConnectorException ex) {
+				throw new ResultCodeException(AccResultCode.CONNECTOR_TEST_FAILED,
+						ImmutableMap.of("system", systemDto.getName(), "ex", ex.getLocalizedMessage()), ex);
+			}
+			// Generate a system schema.
+			generateSchema(connectorType, systemDto);
+			// Get next parent.
+			parent = getParent(parent);
+		}
+		// Second we will set full user search / new / delete base DN and again generate the schema.
+		this.setValueToConnectorInstance(ROOT_SUFFIXES_KEY, values, systemDto, connectorFormDef);
+		SysSchemaObjectClassDto schemaDto = generateSchema(connectorType, systemDto);
+		return schemaDto;
 	}
 
 	/**
@@ -956,7 +974,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 
 		return schemaAttributeService.save(attribute);
 	}
-
+	
 	/**
 	 * Generate schema.
 	 */
@@ -964,9 +982,9 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		// Generate schema
 		List<SysSchemaObjectClassDto> schemas = this.getSystemService().generateSchema(systemDto);
 		SysSchemaObjectClassDto schemaAccount = schemas.stream()
-				.filter(schema -> IcObjectClassInfo.ACCOUNT.equals(schema.getObjectClassName())).findFirst()
+				.filter(schema -> getSchemaType().equals(schema.getObjectClassName())).findFirst()
 				.orElse(null);
-		Assert.notNull(schemaAccount, "We cannot found schema for ACCOUNT!");
+		Assert.notNull(schemaAccount, MessageFormat.format("We cannot found schema for type [{0}]!", getSchemaType()));
 		connectorType.getMetadata().put(SCHEMA_ID_KEY, schemaAccount.getId().toString());
 
 		return schemaAccount;
@@ -986,6 +1004,29 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			}
 		});
 		Lists.reverse(roots).forEach(root -> {
+			stringBuilder.append(root.trim());
+			stringBuilder.append(',');
+		});
+		String root = stringBuilder.toString();
+		// Remove last comma.
+		if (Strings.isNotBlank(root) && root.contains(",")) {
+			root = root.substring(0, root.length() - 1);
+		}
+		return root;
+	}
+	
+	/**
+	 * Find parent in DN. -> cut first level.
+	 */
+	protected String getParent(String searchUserContainer) {
+		List<String> containers = Lists.newArrayList(searchUserContainer.split(","));
+		List<String> roots = Lists.newArrayList();
+
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 1; i < containers.size(); i++) {
+			roots.add(containers.get(i));
+		}
+		roots.forEach(root -> {
 			stringBuilder.append(root.trim());
 			stringBuilder.append(',');
 		});

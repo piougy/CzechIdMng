@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -228,8 +229,11 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 			return null;
 		}
 		try {
+			// Find first mapping for entity type and system, from the account and return his object class.
+			IcObjectClass icObjectClass = schemaObjectClassService.findByAccount(account.getSystem(), account.getEntityType());
+			
 			IcConnectorObject fullObject = this.systemService.readConnectorObject(account.getSystem(),
-					account.getRealUid(), null);
+					account.getRealUid(), icObjectClass);
 			return this.getConnectorObjectForSchema(fullObject, schemaAttributes);
 		} catch (Exception ex) {
 			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class);

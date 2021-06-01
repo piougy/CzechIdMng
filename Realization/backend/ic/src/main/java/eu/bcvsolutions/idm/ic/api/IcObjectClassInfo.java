@@ -11,6 +11,7 @@ import java.util.List;
  */
 public interface IcObjectClassInfo {
 	public static final String ACCOUNT = "__ACCOUNT__";
+	public static final String GROUP = "__GROUP__";
 
 	String getType();
 

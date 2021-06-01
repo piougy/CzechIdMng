@@ -1,21 +1,15 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
@@ -23,8 +17,19 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ExportManager;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 /**
  * Default schema object class service
@@ -110,5 +115,29 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoServ
 		// Set parent field -> set authoritative mode.
 		exportManager.setAuthoritativeMode(SysSchemaAttribute_.objectClass.getName(), "systemId",
 				SysSchemaAttributeDto.class, batch);
+	}
+
+	@Override
+	public IcObjectClass findByAccount(UUID systemId, SystemEntityType entityType) {
+		Assert.notNull(systemId, "System ID cannot be null!");
+		Assert.notNull(entityType, "Entity type cannot be null!");
+		// Find first mapping with for entity type and system from the account.
+		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
+		mappingFilter.setEntityType(entityType);
+		mappingFilter.setSystemId(systemId);
+
+		SysSystemMappingDto systemMappingDto = systemMappingService.find(mappingFilter, null)
+				.getContent()
+				.stream()
+				.findFirst()
+				.orElse(null);
+		if (systemMappingDto == null)  {
+			return null;
+		}
+
+		SysSchemaObjectClassDto objectClass = DtoUtils.
+				getEmbedded(systemMappingDto, SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+
+		return new IcObjectClassImpl(objectClass.getObjectClassName());
 	}
 }

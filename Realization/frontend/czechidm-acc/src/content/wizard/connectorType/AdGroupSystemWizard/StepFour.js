@@ -32,7 +32,6 @@ export default class StepFour extends AbstractWizardStep {
     const metadata = _connectorType.metadata;
     metadata.system = system ? system.id : null;
     metadata.groupContainer = formData.groupContainer;
-    metadata.domainContainer = formData.domainContainer;
   }
 
   render() {
@@ -44,7 +43,6 @@ export default class StepFour extends AbstractWizardStep {
     if (_connectorType && _connectorType.metadata) {
       const metadata = _connectorType.metadata;
       formData.groupContainer = metadata.groupContainer ? metadata.groupContainer : null;
-      formData.domainContainer = metadata.domainContainer;
     }
 
     const locKey = this.getLocKey();
@@ -53,17 +51,14 @@ export default class StepFour extends AbstractWizardStep {
       <Basic.Div showLoading={showLoading}>
         <Basic.AbstractForm
           ref="form"
+          onSubmit={(event) => {
+            this.wizardNext(event);
+          }}
           data={formData}>
           <Basic.TextField
             ref="groupContainer"
             label={this.i18n(`${locKey}.groupContainer.label`)}
             helpBlock={this.i18n(`${locKey}.groupContainer.help`)}
-            required
-            max={255}/>
-          <Basic.TextField
-            ref="domainContainer"
-            label={this.i18n(`${locKey}.domainContainer.label`)}
-            helpBlock={this.i18n(`${locKey}.domainContainer.help`)}
             required
             max={255}/>
         </Basic.AbstractForm>

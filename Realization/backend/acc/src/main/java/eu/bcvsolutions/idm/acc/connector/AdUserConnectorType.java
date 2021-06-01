@@ -165,14 +165,14 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	private static final String SERVER_CRT_VALIDITY_FROM_KEY = "serverCrtValidityFrom";
 	private static final String SERVER_CRT_VALIDITY_TILL_KEY = "serverCrtValidityTill";
 	private static final String HAS_TRUSTED_CA_KEY = "hasTrustedCa";
-	private static final String ENTRY_OBJECT_CLASSES_KEY = "accountObjectClasses";
-	private static final String OBJECT_CLASSES_TO_SYNC_KEY = "objectClassesToSynchronize";
-	private static final String VLV_SORT_ATTRIBUTE_KEY = "vlvSortAttribute";
-	private static final String USE_VLV_SORT_KEY = "useVlvControls";
-	private static final String PAGE_SIZE_KEY = "pageSize";
-	private static final String DEFAULT_UID_KEY = "defaultIdAttribute";
-	private static final String BASE_CONTEXT_USER_KEY = "userBaseContexts";
-	private static final String ROOT_SUFFIXES_KEY = "baseContextsToSynchronize";
+	protected static final String ENTRY_OBJECT_CLASSES_KEY = "accountObjectClasses";
+	protected static final String OBJECT_CLASSES_TO_SYNC_KEY = "objectClassesToSynchronize";
+	protected static final String VLV_SORT_ATTRIBUTE_KEY = "vlvSortAttribute";
+	protected static final String USE_VLV_SORT_KEY = "useVlvControls";
+	protected static final String PAGE_SIZE_KEY = "pageSize";
+	protected static final String DEFAULT_UID_KEY = "defaultIdAttribute";
+	protected static final String BASE_CONTEXT_USER_KEY = "userBaseContexts";
+	protected static final String ROOT_SUFFIXES_KEY = "baseContextsToSynchronize";
 	protected static final String PAIRING_SYNC_DN_ATTR_KEY = "pairingSyncEavDnAttribute";
 	protected static final String MAPPING_SYNC_ID = "mappingSyncId";
 
@@ -492,7 +492,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Execute test for check permissions for create account/user on the AD.
 	 */
-	private void executeCreateUserTest(ConnectorTypeDto connectorType) {
+	protected void executeCreateUserTest(ConnectorTypeDto connectorType) {
 		String systemId = connectorType.getMetadata().get(SYSTEM_DTO_KEY);
 		Assert.notNull(systemId, "System ID cannot be null!");
 		SysSystemDto systemDto = this.getSystemService().get(systemId);
@@ -532,7 +532,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Execute permission test for assign user to group.
 	 */
-	private void executeAssignTestUserToGroup(ConnectorTypeDto connectorType) {
+	protected void executeAssignTestUserToGroup(ConnectorTypeDto connectorType) {
 		String systemId = connectorType.getMetadata().get(SYSTEM_DTO_KEY);
 		Assert.notNull(systemId, "System ID cannot be null!");
 		SysSystemDto systemDto = this.getSystemService().get(systemId);
@@ -575,7 +575,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Execute permission test for delete user from AD.
 	 */
-	private void executeDeleteUserTest(ConnectorTypeDto connectorType) {
+	protected void executeDeleteUserTest(ConnectorTypeDto connectorType) {
 		String systemId = connectorType.getMetadata().get(SYSTEM_DTO_KEY);
 		Assert.notNull(systemId, "System ID cannot be null!");
 		SysSystemDto systemDto = this.getSystemService().get(systemId);
@@ -927,7 +927,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Check attribute definition, if no exists, then will be created.
 	 */
-	private IdmFormDefinitionDto initFormAttributeDefinition(IdmFormDefinitionDto definitionDto, String code, Short order) {
+	protected IdmFormDefinitionDto initFormAttributeDefinition(IdmFormDefinitionDto definitionDto, String code, Short order) {
 		IdmFormAttributeDto attribute = definitionDto.getMappedAttributeByCode(code);
 		if (attribute == null) {
 			attribute = new IdmFormAttributeDto(code, code, PersistentType.SHORTTEXT);
@@ -942,7 +942,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Create schema attribute.
 	 */
-	private SysSchemaAttributeDto createSchemaAttribute(SysSchemaObjectClassDto schemaDto, String attributeName, String type, boolean returnByDefault, boolean updateable, boolean multivalued) {
+	protected SysSchemaAttributeDto createSchemaAttribute(SysSchemaObjectClassDto schemaDto, String attributeName, String type, boolean returnByDefault, boolean updateable, boolean multivalued) {
 		SysSchemaAttributeDto attribute;
 		attribute = new SysSchemaAttributeDto();
 		attribute.setName(attributeName);
@@ -960,7 +960,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Generate schema.
 	 */
-	private SysSchemaObjectClassDto generateSchema(ConnectorTypeDto connectorType, SysSystemDto systemDto) {
+	protected SysSchemaObjectClassDto generateSchema(ConnectorTypeDto connectorType, SysSystemDto systemDto) {
 		// Generate schema
 		List<SysSchemaObjectClassDto> schemas = this.getSystemService().generateSchema(systemDto);
 		SysSchemaObjectClassDto schemaAccount = schemas.stream()
@@ -975,7 +975,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	/**
 	 * Find root in container DN. -> return only DCs.
 	 */
-	private String getRoot(String searchUserContainer) {
+	protected String getRoot(String searchUserContainer) {
 		List<String> containers = Lists.reverse(Lists.newArrayList(searchUserContainer.split(",")));
 		List<String> roots = Lists.newArrayList();
 

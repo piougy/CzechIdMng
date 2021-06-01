@@ -10,7 +10,7 @@ import AbstractWizardStep from '../../AbstractWizardStep';
  * @author Vít Švanda
  * @since 10.8.0
  */
-export default class StepThree extends AbstractWizardStep {
+export default class StepCheckPermission extends AbstractWizardStep {
 
   /**
    * Is call after execution of the step on backend.

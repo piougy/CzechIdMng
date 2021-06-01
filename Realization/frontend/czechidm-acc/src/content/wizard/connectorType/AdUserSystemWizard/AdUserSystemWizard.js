@@ -1,8 +1,8 @@
 import React from 'react';
 import DefaultSystemWizard from '../DefaultSystemWizard';
 import StepOne from './StepOne';
-import StepTwo from './StepTwo';
-import StepThree from './StepThree';
+import StepCrt from './StepCrt';
+import StepCheckPermission from './StepCheckPermission';
 import StepFour from './StepFour';
 
 /**
@@ -56,7 +56,7 @@ export default class AdUserSystemWizard extends DefaultSystemWizard {
       id: stepTwoId,
       getComponent: () => {
         return (
-          <StepTwo
+          <StepCrt
             match={this.props.match}
             wizardStepId={stepTwoId}
             connectorType={this.props.connectorType}
@@ -84,7 +84,7 @@ export default class AdUserSystemWizard extends DefaultSystemWizard {
       id: stepThreeId,
       getComponent: () => {
         return (
-          <StepThree
+          <StepCheckPermission
             match={this.props.match}
             wizardStepId={stepThreeId}
             connectorType={this.props.connectorType}

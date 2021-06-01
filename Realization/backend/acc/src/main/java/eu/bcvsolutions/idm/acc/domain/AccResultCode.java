@@ -181,6 +181,8 @@ public enum AccResultCode implements ResultCode {
 	WIZARD_AD_CONNECTOR_DN_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "Entry with DN [%s] already exists!"),
 	WIZARD_AD_CREATED_TEST_USER_DN(HttpStatus.CREATED, "Test user with DN [%s] created."),
 	//
+	WIZARD_AD_GROUP_WRONG_MEMBER_CONNECTOR_TYPE(HttpStatus.BAD_REQUEST, "Member system have to use AD connector, but using [%s]!"),
+	//
 	SYNC_OF_ROLES_COMMON_ROLE_REQUEST(HttpStatus.CONTINUE, "Sync of roles - a common role request."),
 	SYNC_OF_ROLES_CATALOGUE_EXT_ID_IS_NULL(HttpStatus.BAD_REQUEST, "Sync of roles - Catalog cannot be created. External ID in the catalogue with code [%s] cannot be null!"),
 	SYNC_OF_ROLES_CATALOGUE_NAME_IS_NULL(HttpStatus.BAD_REQUEST, "Sync of roles - Catalog cannot be created. Name in a catalogue cannot be null!"),

@@ -9,7 +9,7 @@ import AbstractWizardStep from '../../AbstractWizardStep';
  * @author Vít Švanda
  * @since 10.8.0
  */
-export default class StepTwo extends AbstractWizardStep {
+export default class StepCrt extends AbstractWizardStep {
 
   constructor(props, context) {
     super(props, context);

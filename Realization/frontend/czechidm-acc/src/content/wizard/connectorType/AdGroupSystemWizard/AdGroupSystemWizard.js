@@ -1,8 +1,8 @@
 import React from 'react';
 import DefaultSystemWizard from '../DefaultSystemWizard';
 import StepOne from './StepOne';
-import StepTwo from './StepTwo';
-import StepThree from './StepThree';
+import StepCrt from '../AdUserSystemWizard/StepCrt';
+import StepCheckPermission from '../AdUserSystemWizard/StepCheckPermission';
 import StepFour from './StepFour';
 
 /**
@@ -56,12 +56,12 @@ export default class AdGroupSystemWizard extends DefaultSystemWizard {
       id: stepTwoId,
       getComponent: () => {
         return (
-          <StepTwo
+          <StepCrt
             match={this.props.match}
             wizardStepId={stepTwoId}
             connectorType={this.props.connectorType}
             apiPath={this.getApiPath()}
-            baseLocKey={this.getBaseLocKey()}
+            baseLocKey={`${this.getModule()}:wizard.ad-connector-type`}
           />
         );
       }
@@ -84,12 +84,12 @@ export default class AdGroupSystemWizard extends DefaultSystemWizard {
       id: stepThreeId,
       getComponent: () => {
         return (
-          <StepThree
+          <StepCheckPermission
             match={this.props.match}
             wizardStepId={stepThreeId}
             connectorType={this.props.connectorType}
             apiPath={this.getApiPath()}
-            baseLocKey={this.getBaseLocKey()}
+            baseLocKey={`${this.getModule()}:wizard.ad-connector-type`}
           />
         );
       }

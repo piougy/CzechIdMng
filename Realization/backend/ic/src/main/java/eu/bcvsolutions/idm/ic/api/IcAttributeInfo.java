@@ -11,6 +11,7 @@ public interface IcAttributeInfo {
 	
 	public static final String NAME = "__NAME__";
 	public static final String PASSWORD = "__PASSWORD__";
+	public static final String UID = "__UID__";
 	public static final String ENABLE = "__ENABLE__";
 
 	/**

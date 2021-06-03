@@ -337,6 +337,10 @@ public abstract class AbstractConnectorType implements
 
 	@Override
 	public boolean supportsSystem(SysSystemDto systemDto) {
+		return supportsSystemByConnector(systemDto);
+	}
+	
+	protected boolean supportsSystemByConnector(SysSystemDto systemDto) {
 		if (systemDto.getConnectorKey() == null) {
 			return false;
 		}

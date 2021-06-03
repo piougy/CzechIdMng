@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.connector;
 
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -179,7 +180,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 	// Default values
 	private static final String[] ENTRY_OBJECT_CLASSES_DEFAULT_VALUES = {"top", "user", "person", "organizationalPerson"};
 	public static final String SAM_ACCOUNT_NAME_ATTRIBUTE = "sAMAccountName";
-	public static final String PAIRING_SYNC_DN_ATTR_DEFAULT_VALUE = "distinguishedName";
+	public static final String DN_ATTR_CODE = "distinguishedName";
 	private static final int PAGE_SIZE_DEFAULT_VALUE = 100;
 	protected static final String PAIRING_SYNC_NAME = "Pairing sync";
 
@@ -220,7 +221,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		Map<String, String> metadata = super.getMetadata();
 		metadata.put(SYSTEM_NAME, this.findUniqueSystemName("MS AD - Users", 1));
 		metadata.put(PORT, "636");
-		metadata.put(PAIRING_SYNC_DN_ATTR_KEY, PAIRING_SYNC_DN_ATTR_DEFAULT_VALUE);
+		metadata.put(PAIRING_SYNC_DN_ATTR_KEY, DN_ATTR_CODE);
 		metadata.put(PROTECTED_MODE_SWITCH_KEY, "false");
 		return metadata;
 	}
@@ -358,6 +359,25 @@ public class AdUserConnectorType extends DefaultConnectorType {
 			throw ex;
 		}
 		return connectorType;
+	}
+
+	@Override
+	public boolean supportsSystem(SysSystemDto systemDto) {
+		if (!super.supportsSystem(systemDto)) {
+			return false;
+		}
+
+		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
+		// Find attribute with object classes to sync.
+		// If contains user, then we predicate that this system is for Users.
+		IdmFormAttributeDto attribute = connectorFormDef.getMappedAttributeByCode(OBJECT_CLASSES_TO_SYNC_KEY);
+		if (attribute != null) {
+			List<IdmFormValueDto> values = getFormService().getValues(systemDto, attribute, IdmBasePermission.READ);
+			if (values != null) {
+				return values.stream().anyMatch(value -> AdUserConnectorType.ENTRY_OBJECT_CLASSES_DEFAULT_VALUES[1].equals(value.getValue()));
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -621,7 +641,7 @@ public class AdUserConnectorType extends DefaultConnectorType {
 		boolean pairingSyncSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(PAIRING_SYNC_SWITCH_KEY));
 		String pairingSyncAttributeCode = connectorType.getMetadata().get(PAIRING_SYNC_DN_ATTR_KEY);
 		if (pairingSyncAttributeCode == null) {
-			pairingSyncAttributeCode = PAIRING_SYNC_DN_ATTR_DEFAULT_VALUE;
+			pairingSyncAttributeCode = DN_ATTR_CODE;
 		}
 		boolean protectedModeSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(PROTECTED_MODE_SWITCH_KEY));
 

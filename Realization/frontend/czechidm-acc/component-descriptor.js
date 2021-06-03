@@ -124,6 +124,12 @@ module.exports = {
       component: require('./src/components/AdConnectorIcon/AdConnectorIcon')
     },
     {
+      id: 'ad-group-connector-icon',
+      type: 'icon',
+      entityType: ['ad', 'ad-group-connector-icon'],
+      component: require('./src/components/AdGroupConnectorIcon/AdGroupConnectorIcon')
+    },
+    {
       id: 'ldap-connector-icon',
       type: 'icon',
       entityType: ['ldap', 'ldap-connector-icon'],

@@ -270,7 +270,20 @@ public class MsAdMappingIdentityAutoAttributesProcessor extends AbstractSystemMa
 		return resultEvent;
 	}
 
-	private SysSystemAttributeMappingDto createAttributeWithScript(SysSystemMappingDto dto, SysSchemaAttributeDto schemaAttribute, String scriptCode, IdmScriptCategory category) {
+	protected SysSystemAttributeMappingDto createAttributeWithScript(
+			SysSystemMappingDto dto,
+			SysSchemaAttributeDto schemaAttribute,
+			String scriptCode,
+			IdmScriptCategory category) {
+		return createAttributeWithScript(dto, schemaAttribute, scriptCode, category, true);
+	}
+
+	protected SysSystemAttributeMappingDto createAttributeWithScript(
+			SysSystemMappingDto dto,
+			SysSchemaAttributeDto schemaAttribute,
+			String scriptCode,
+			IdmScriptCategory category,
+			boolean toResource) {
 		IdmScriptFilter scriptFilter = new IdmScriptFilter();
 		scriptFilter.setCode(scriptCode);
 		scriptFilter.setCategory(category);
@@ -280,10 +293,10 @@ public class MsAdMappingIdentityAutoAttributesProcessor extends AbstractSystemMa
 				.findFirst()
 				.orElse(null);
 		if (scriptDto != null) {
-			String script = this.getPluginExecutors().getPluginFor(IdmScriptCategory.TRANSFORM_TO)
+			String script = this.getPluginExecutors().getPluginFor(toResource ? IdmScriptCategory.TRANSFORM_TO : IdmScriptCategory.TRANSFORM_FROM)
 					.generateTemplate(scriptDto);
 			if (Strings.isNotBlank(script)) {
-				return createAttributeMappingByScriptToResource(dto, schemaAttribute, script);
+				return createAttributeMappingByScriptToResource(dto, schemaAttribute, script, toResource);
 			}
 		}
 		return null;

@@ -304,6 +304,10 @@
               "text": "For proper operation, the attribute returning 'Identifiers of users' must first be mapped on this system!"
             }
           },
+          "assignRoleAndDiffSyncWarning": {
+            "title": "Differential sync will be turned off!",
+            "text": "The role assignment feature does not support differential synchronization. Differential synchronization will be disabled."
+          },
           "mappedAttribute": "Attribute in mapping",
           "membershipHeader": "Membership in roles (groups)",
           "assignRoleHeader": "Assign roles to users",
@@ -2882,7 +2886,21 @@
             "title": "You do not have SSL enabled.",
             "text": "Not using LDAPS secure communication (SSL), may have functional effects (eg inability to create a password for the user)!"
           }
-        }
+        },
+        "stepThree": {
+          "name": "Permissions",
+          "help": "In this step, we will try to verify that the user you entered has sufficient privileges on AD."
+        },
+        "stepTwo": {
+          "name": "Certificate"
+        },
+        "stepFour": {
+          "name": "Container with groups",
+          "help": "In this step, <strong>select the container</strong> that contains the groups you want to manage in IdM and select the advanced role synchronization features you want to activate.",
+          "groupContainer": {
+            "label": "Fill the container with groups",
+            "help": "Fill in the AD container containing the groups that will be loaded into IdM."
+          }
       }
     },
     "jdbc-connector-type": {

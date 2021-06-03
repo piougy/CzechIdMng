@@ -304,6 +304,10 @@
               "text": "Pro správnou funkci, musí být v tomto systému nejdříve namapován atribut vracející 'Identifikátory uživatelů/členů role'!"
             }
           },
+          "assignRoleAndDiffSyncWarning": {
+            "title": "Rozdílová synchronizace bude vypnuta!",
+            "text": "Funkce přiřazování rolí uživatelům nepodporuje rozdílovou synchornizaci. Rozdílová synchronizace bude vypnuta."
+          },
           "mappedAttribute": "Atribut v mapování",
           "membershipHeader": "Členství v rolích (skupinách)",
           "assignRoleHeader": "Přiřazení rolí uživatelům",
@@ -2953,6 +2957,21 @@
           "sslOffAlert": {
             "title": "Nemáte povolenou komunikaci přes SSL.",
             "text": "Nepoužití zabezpečené komunikace LDAPS (SSL), může mít funkční dopady (např. nemožnost vytvoření hesla uživateli)!"
+          }
+        },
+        "stepThree": {
+          "name": "Oprávnění",
+          "help": "V tomto kroku se pokusíme ověřit, zdali má Vámi zadaný uživatel na AD dostatečná oprávnění."
+        },
+        "stepTwo": {
+          "name": "Certifikát"
+        },
+        "stepFour": {
+          "name": "Kontejner se skupinami",
+          "help": "V tomto kroku <strong>zvolte kontejner</strong>, který na Active Directory objsahuje skupiny, které chcete správovat v IdM. Dále můžete aktiovat <strong>pokročilé funkce</strong> synchronizace rolí.",
+          "groupContainer": {
+            "label": "Vyplňte kontejner se skupinami",
+            "help": "Vyplňte AD kontejner, obsahující skupiny, které budou načteny do IdM."
           }
         }
       }

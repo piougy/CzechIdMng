@@ -34,9 +34,24 @@ export default class StepFour extends AbstractWizardStep {
     metadata.groupContainer = formData.groupContainer;
   }
 
+  _toggleSwitch(key) {
+    const state = {};
+    state[key] = !this.state[key];
+
+    this.setState(state);
+  }
+
   render() {
     const {connectorType} = this.props;
-    const {showLoading} = this.state;
+    const {
+      showLoading,
+      membershipSwitch,
+      assignRoleSwitch,
+      assignCatalogueSwitch,
+      removeCatalogueRoleSwitch,
+      forwardAcmSwitch,
+      skipValueIfExcludedSwitch
+    } = this.state;
 
     const _connectorType = this.state.connectorType ? this.state.connectorType : connectorType;
     const formData = {};
@@ -46,6 +61,7 @@ export default class StepFour extends AbstractWizardStep {
     }
 
     const locKey = this.getLocKey();
+    const roleSyncLocKey = 'acc:content.system.systemSynchronizationConfigDetail.roleConfigDetail';
 
     return (
       <Basic.Div showLoading={showLoading}>
@@ -61,6 +77,55 @@ export default class StepFour extends AbstractWizardStep {
             helpBlock={this.i18n(`${locKey}.groupContainer.help`)}
             required
             max={255}/>
+          <Basic.ToggleSwitch
+            ref="membershipSwitch"
+            onChange={this._toggleSwitch.bind(this, 'membershipSwitch')}
+            label={this.i18n(`${roleSyncLocKey}.membershipSwitch.label`)}
+            helpBlock={this.i18n(`${roleSyncLocKey}.membershipSwitch.helpBlock`)}/>
+          <Basic.Div style={{display: 'flex', justifyContent: 'start'}}>
+            <Basic.Div style={{flex: 1}}>
+              <Basic.ToggleSwitch
+                ref="assignCatalogueSwitch"
+                onChange={this._toggleSwitch.bind(this, 'assignCatalogueSwitch')}
+                label={this.i18n(`${roleSyncLocKey}.assignCatalogueSwitch.label`)}
+                helpBlock={this.i18n(`${roleSyncLocKey}.assignCatalogueSwitch.helpBlock`)}/>
+            </Basic.Div>
+            <Basic.Div style={{flex: 1}}>
+              <Basic.ToggleSwitch
+                level="danger"
+                style={{marginLeft: 15}}
+                ref="removeCatalogueRoleSwitch"
+                onChange={this._toggleSwitch.bind(this, 'removeCatalogueRoleSwitch')}
+                readOnly={!assignCatalogueSwitch}
+                label={this.i18n(`${roleSyncLocKey}.removeCatalogueRoleSwitch.label`)}
+                helpBlock={this.i18n(`${roleSyncLocKey}.removeCatalogueRoleSwitch.helpBlock`)}/>
+            </Basic.Div>
+          </Basic.Div>
+          <Basic.Div style={{display: 'flex', justifyContent: 'start'}}>
+            <Basic.Div style={{flex: 1}}>
+              <Basic.ToggleSwitch
+                ref="assignRoleSwitch"
+                onChange={this._toggleSwitch.bind(this, 'assignRoleSwitch')}
+                label={this.i18n(`${roleSyncLocKey}.assignRoleSwitch.label`)}
+                helpBlock={this.i18n(`${roleSyncLocKey}.assignRoleSwitch.helpBlock`)}/>
+            </Basic.Div>
+            <Basic.Div style={{flex: 1}}>
+              <Basic.ToggleSwitch
+                level="danger"
+                style={{marginLeft: 15}}
+                ref="assignRoleRemoveSwitch"
+                onChange={this._toggleSwitch.bind(this, 'assignRoleRemoveSwitch')}
+                readOnly={!assignRoleSwitch}
+                label={this.i18n(`${roleSyncLocKey}.assignRoleRemoveSwitch.label`)}
+                helpBlock={this.i18n(`${roleSyncLocKey}.assignRoleRemoveSwitch.helpBlock`)}/>
+            </Basic.Div>
+          </Basic.Div>
+          <Basic.Alert
+            title={this.i18n(`acc:content.system.systemSynchronizationConfigDetail.roleConfigDetail.assignRoleAndDiffSyncWarning.title`)}
+            text={this.i18n(`acc:content.system.systemSynchronizationConfigDetail.roleConfigDetail.assignRoleAndDiffSyncWarning.text`)}
+            showHtmlText
+            rendered={!!assignRoleSwitch}
+            level="warning"/>
         </Basic.AbstractForm>
       </Basic.Div>
     );

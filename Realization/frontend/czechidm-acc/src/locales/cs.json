@@ -306,7 +306,7 @@
           },
           "assignRoleAndDiffSyncWarning": {
             "title": "Rozdílová synchronizace bude vypnuta!",
-            "text": "Funkce přiřazování rolí uživatelům nepodporuje rozdílovou synchornizaci. Rozdílová synchronizace bude vypnuta."
+            "text": "Funkce přiřazování rolí uživatelům nepodporuje rozdílovou synchornizaci. Rozdílová synchronizace bude deaktivována."
           },
           "mappedAttribute": "Atribut v mapování",
           "membershipHeader": "Členství v rolích (skupinách)",

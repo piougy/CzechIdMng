@@ -205,6 +205,13 @@ class SyncRoleConfig extends Basic.AbstractContent {
                 entityType="SysSystemAttributeMappingDto"
                 entity={roleMembersMappingAttribute}/>
             </span>
+            <Basic.Alert
+              title={this.i18n(`roleConfigDetail.assignRoleAndDiffSyncWarning.title`)}
+              text={this.i18n(`roleConfigDetail.assignRoleAndDiffSyncWarning.text`)}
+              showHtmlText
+              rendered={!!assignRoleSwitch}
+              level="warning"
+            />
           </Basic.Div>
         </Basic.Div>
         <Basic.ContentHeader text={this.i18n('roleConfigDetail.roleCatalogueHeader')} className="marginable"/>

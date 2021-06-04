@@ -83,12 +83,20 @@ public class DefaultSysSyncConfigService
 	public AbstractSysSyncConfigDto saveInternal(AbstractSysSyncConfigDto dto) {
 		Assert.notNull(dto, "DTO is required.");
 		//
-		if (dto != null && !this.isNew(dto)) {
+		if (!this.isNew(dto)) {
 			AbstractSysSyncConfigDto persistedConfig = this.get(dto.getId());
 			if (!dto.getClass().equals(persistedConfig.getClass())) {
 				throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_CONFIG_TYPE_CANNOT_BE_CANGED,
 						ImmutableMap.of("old", persistedConfig.getClass().getSimpleName(), "new",
 								dto.getClass().getSimpleName()));
+			}
+		}
+		if (dto instanceof SysSyncRoleConfigDto && dto.isDifferentialSync()){
+			SysSyncRoleConfigDto roleConfigDto = (SysSyncRoleConfigDto) dto;
+			if (roleConfigDto.isAssignRoleSwitch()){
+				// Differential sync is not supported for assign role to identity.
+				// Differential sync will be disabled!
+				roleConfigDto.setDifferentialSync(false);
 			}
 		}
 		return super.saveInternal(dto);

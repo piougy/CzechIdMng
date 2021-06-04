@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
@@ -282,9 +283,7 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 		Assert.notNull(systemId, "System ID cannot be null!");
 		SysSystemDto systemDto = this.getSystemService().get(systemId);
 		connectorType.getEmbedded().put(SYSTEM_DTO_KEY, systemDto);
-		boolean syncSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(PAIRING_SYNC_SWITCH_KEY));
-
-
+		
 		IdmFormDefinitionDto connectorFormDef = this.getSystemService().getConnectorFormDefinition(systemDto);
 		String port = getValueFromConnectorInstance(PORT, systemDto, connectorFormDef);
 		String host = getValueFromConnectorInstance(HOST, systemDto, connectorFormDef);
@@ -373,11 +372,17 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 	 * Creates role sync.
 	 */
 	private void createSync(ConnectorTypeDto connectorType) {
+		boolean membershipSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(SysSyncRoleConfig_.membershipSwitch.getName()));
+		boolean assignCatalogueSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(SysSyncRoleConfig_.assignCatalogueSwitch.getName()));
+		boolean assignRoleSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(SysSyncRoleConfig_.assignRoleSwitch.getName()));
+		boolean assignRoleRemoveSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(SysSyncRoleConfig_.assignRoleRemoveSwitch.getName()));
+		boolean removeCatalogueRoleSwitch = Boolean.parseBoolean(connectorType.getMetadata().get(SysSyncRoleConfig_.removeCatalogueRoleSwitch.getName()));
 		// Get mapping ID.
 		String mappingSyncId = connectorType.getMetadata().get(MAPPING_SYNC_ID);
 		Assert.notNull(mappingSyncId, "ID of mapping cannot be null!");
 		// Get sync ID.
 		String roleSyncId = connectorType.getMetadata().get(GROUP_SYNC_ID);
+		SysSyncRoleConfigDto syncRoleConfigDto = null;
 		if (roleSyncId == null) {
 			SysSystemAttributeMappingFilter codeFilter = new SysSystemAttributeMappingFilter();
 			codeFilter.setSystemMappingId(UUID.fromString(mappingSyncId));
@@ -397,7 +402,7 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 				systemMappingDto = getSystemMappingService().get(UUID.fromString(memberSystemMappingId), IdmBasePermission.READ);
 			}
 
-			SysSyncRoleConfigDto syncRoleConfigDto = new SysSyncRoleConfigDto();
+			syncRoleConfigDto = new SysSyncRoleConfigDto();
 			syncRoleConfigDto.setName(GROUP_SYNC_NAME);
 			syncRoleConfigDto.setReconciliation(true);
 			syncRoleConfigDto.setDifferentialSync(false);
@@ -409,11 +414,11 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 			syncRoleConfigDto.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
 			syncRoleConfigDto.setCorrelationAttribute(codeAttribute.getId());
 			if (systemMappingDto != null) {
-				SysSystemAttributeMappingFilter ldapGroupsFilter = new SysSystemAttributeMappingFilter();
-				ldapGroupsFilter.setSystemMappingId(systemMappingDto.getId());
-				ldapGroupsFilter.setSchemaAttributeName(LDAP_GROUPS_ATTRIBUTE);
-
-				SysSystemAttributeMappingDto ldapGroupsAttribute = getSystemAttributeMappingService().find(ldapGroupsFilter, null)
+				// LDAP groups attribute.
+				SysSystemAttributeMappingFilter attributeFilter = new SysSystemAttributeMappingFilter();
+				attributeFilter.setSystemMappingId(systemMappingDto.getId());
+				attributeFilter.setSchemaAttributeName(LDAP_GROUPS_ATTRIBUTE);
+				SysSystemAttributeMappingDto ldapGroupsAttribute = getSystemAttributeMappingService().find(attributeFilter, null)
 						.getContent()
 						.stream()
 						.findFirst()
@@ -423,11 +428,31 @@ public class AdGroupConnectorType extends AdUserConnectorType {
 				if (ldapGroupsAttribute != null) {
 					syncRoleConfigDto.setMemberOfAttribute(ldapGroupsAttribute.getId());
 				}
+				// Member DN schema attribute.
+				SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+				schemaAttributeFilter.setObjectClassId(systemMappingDto.getObjectClass());
+				schemaAttributeFilter.setName(DN_ATTR_CODE);
+				SysSchemaAttributeDto dnAttribute = getSchemaAttributeService().find(schemaAttributeFilter, null)
+						.getContent()
+						.stream()
+						.findFirst()
+						.orElse(null);
+				if (dnAttribute != null) {
+					syncRoleConfigDto.setMemberIdentifierAttribute(dnAttribute.getId());
+				}
 			}
-			
-			syncRoleConfigDto = (SysSyncRoleConfigDto) getSyncConfigService().save(syncRoleConfigDto);
-			connectorType.getMetadata().put(GROUP_SYNC_ID, syncRoleConfigDto.getId().toString());
+		}else {
+			syncRoleConfigDto = (SysSyncRoleConfigDto) getSyncConfigService().get(UUID.fromString(roleSyncId));
 		}
+		
+		syncRoleConfigDto.setAssignRoleSwitch(assignRoleSwitch);
+		syncRoleConfigDto.setAssignCatalogueSwitch(assignCatalogueSwitch);
+		syncRoleConfigDto.setAssignRoleRemoveSwitch(assignRoleRemoveSwitch);
+		syncRoleConfigDto.setMembershipSwitch(membershipSwitch);
+		syncRoleConfigDto.setRemoveCatalogueRoleSwitch(removeCatalogueRoleSwitch);
+		
+		syncRoleConfigDto = (SysSyncRoleConfigDto) getSyncConfigService().save(syncRoleConfigDto);
+		connectorType.getMetadata().put(GROUP_SYNC_ID, syncRoleConfigDto.getId().toString());
 	}
 
 	protected void initDefaultConnectorSettings(SysSystemDto systemDto, IdmFormDefinitionDto connectorFormDef) {

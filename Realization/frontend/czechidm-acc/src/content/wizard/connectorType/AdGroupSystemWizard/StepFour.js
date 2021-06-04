@@ -32,6 +32,11 @@ export default class StepFour extends AbstractWizardStep {
     const metadata = _connectorType.metadata;
     metadata.system = system ? system.id : null;
     metadata.groupContainer = formData.groupContainer;
+    metadata.membershipSwitch = formData.membershipSwitch;
+    metadata.assignCatalogueSwitch = formData.assignCatalogueSwitch;
+    metadata.removeCatalogueRoleSwitch = formData.removeCatalogueRoleSwitch;
+    metadata.assignRoleSwitch = formData.assignRoleSwitch;
+    metadata.assignRoleRemoveSwitch = formData.assignRoleRemoveSwitch;
   }
 
   _toggleSwitch(key) {
@@ -49,8 +54,7 @@ export default class StepFour extends AbstractWizardStep {
       assignRoleSwitch,
       assignCatalogueSwitch,
       removeCatalogueRoleSwitch,
-      forwardAcmSwitch,
-      skipValueIfExcludedSwitch
+      assignRoleRemoveSwitch
     } = this.state;
 
     const _connectorType = this.state.connectorType ? this.state.connectorType : connectorType;
@@ -58,6 +62,11 @@ export default class StepFour extends AbstractWizardStep {
     if (_connectorType && _connectorType.metadata) {
       const metadata = _connectorType.metadata;
       formData.groupContainer = metadata.groupContainer ? metadata.groupContainer : null;
+      formData.membershipSwitch = membershipSwitch;
+      formData.assignCatalogueSwitch = assignCatalogueSwitch;
+      formData.removeCatalogueRoleSwitch = removeCatalogueRoleSwitch;
+      formData.assignRoleSwitch = assignRoleSwitch;
+      formData.assignRoleRemoveSwitch = assignRoleRemoveSwitch;
     }
 
     const locKey = this.getLocKey();
@@ -121,8 +130,8 @@ export default class StepFour extends AbstractWizardStep {
             </Basic.Div>
           </Basic.Div>
           <Basic.Alert
-            title={this.i18n(`acc:content.system.systemSynchronizationConfigDetail.roleConfigDetail.assignRoleAndDiffSyncWarning.title`)}
-            text={this.i18n(`acc:content.system.systemSynchronizationConfigDetail.roleConfigDetail.assignRoleAndDiffSyncWarning.text`)}
+            title={this.i18n(`${roleSyncLocKey}.assignRoleAndDiffSyncWarning.title`)}
+            text={this.i18n(`${roleSyncLocKey}.assignRoleAndDiffSyncWarning.text`)}
             showHtmlText
             rendered={!!assignRoleSwitch}
             level="warning"/>

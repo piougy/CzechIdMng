@@ -2901,6 +2901,7 @@
             "label": "Fill the container with groups",
             "help": "Fill in the AD container containing the groups that will be loaded into IdM."
           }
+        }
       }
     },
     "jdbc-connector-type": {

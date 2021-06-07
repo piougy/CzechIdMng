@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.api.service;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,6 +1,24 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
@@ -22,7 +40,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSyncRoleConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncTreeConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
@@ -36,20 +53,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 /**
  * Default synchronization config service

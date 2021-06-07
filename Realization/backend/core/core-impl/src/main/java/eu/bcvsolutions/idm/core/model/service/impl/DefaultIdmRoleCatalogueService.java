@@ -1,10 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import com.google.common.collect.Lists;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
@@ -210,8 +206,6 @@ public class DefaultIdmRoleCatalogueService
 	@Override
 	public IdmRoleCatalogueDto resolveRoleCatalogueByDn(String roleDn, UUID mainCatalogueId) {
 		Assert.notNull(roleDn, "DN of a role cannot be null!");
-		
-		List<IdmRoleCatalogueRoleDto> results = Lists.newArrayList();
 
 		// Get organization structure from DN.
 		List<String> orgUnites = this.prepareCatalogueNames(roleDn);

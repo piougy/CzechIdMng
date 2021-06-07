@@ -250,7 +250,7 @@ public class DefaultRoleSynchronizationExecutorTest extends AbstractBulkActionTe
 		roleIdAttribute.setIdmPropertyName(RoleSynchronizationExecutor.ROLE_MEMBERSHIP_ID_FIELD);
 		roleIdAttribute.setSchemaAttribute(schemaAttributeDto.getId());
 		roleIdAttribute.setName(helper.createName());
-		attributeMappingService.save(roleIdAttribute, null);
+		attributeMappingService.save(roleIdAttribute);
 
 		// Enable membership and use the user system.
 		roleConfigDto.setMembershipSwitch(true);

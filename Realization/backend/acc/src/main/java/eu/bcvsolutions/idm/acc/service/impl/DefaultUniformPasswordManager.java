@@ -247,6 +247,7 @@ public class DefaultUniformPasswordManager implements UniformPasswordManager {
 							.setLevel(NotificationLevel.SUCCESS)
 							.addParameter("successSystemNames", StringUtils.join(successSystems, ", "))
 							.addParameter("name", identityService.getNiceLabel(identityDto))
+							.addParameter("identity", identityDto)
 							.addParameter("username", identityDto.getUsername())
 							.addParameter("password", password)
 							.build(),
